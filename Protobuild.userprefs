@@ -1,0 +1,13 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="ProtobuildUI/Tasks/ProjectGenerator.cs">
+    <Files>
+      <File FileName="ProtobuildUI/Tasks/EmbeddedResourceResolver.cs" Line="6" Column="27" />
+      <File FileName="ProtobuildUI/Tasks/ProjectGenerator.cs" Line="369" Column="14" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A7A61973-4531-41BE-BC98-3364F1F4B75F}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Protobuild</RootNamespace>
+    <AssemblyName>Protobuild</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="glib-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Mono.Posix" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
+    <Reference Include="Microsoft.Build.Tasks.v4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\application_osx.png">
+      <Link>Images\application_osx.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\application_osx_terminal.png">
+      <Link>Images\application_osx_terminal.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\box.png">
+      <Link>Images\box.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\joystick.png">
+      <Link>Images\joystick.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\controller.png">
+      <Link>Images\controller.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\page_white_gear.png">
+      <Link>Images\page_white_gear.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\bricks.png">
+      <Link>Images\bricks.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\..\..\..\Downloads\famfamfam_silk_icons_v013\icons\world.png">
+      <Link>Images\world.png</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\GenerateSolution.xslt">
+      <LogicalName>Protobuild.BuildResources.GenerateSolution.xslt</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\GenerateProject.xslt">
+      <LogicalName>Protobuild.BuildResources.GenerateProject.xslt</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\Main.proj" />
+    <EmbeddedResource Include="Images\link_go.png" />
+    <EmbeddedResource Include="Images\bug.png" />
+    <EmbeddedResource Include="Images\color_wheel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="MainWindow.cs" />
+    <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ModuleTreeModel.cs" />
+    <Compile Include="Tasks\CleanProjectsTask.cs" />
+    <Compile Include="Tasks\DocumentExtensions.cs" />
+    <Compile Include="Tasks\EmbeddedResourceResolver.cs" />
+    <Compile Include="Tasks\GenerateProjectsTask.cs" />
+    <Compile Include="Tasks\ProjectGenerator.cs" />
+    <Compile Include="BuildResources\ResourceExtractor.cs" />
+    <Compile Include="ModuleInfo.cs" />
+    <Compile Include="CreateProjectDialog.cs" />
+    <Compile Include="gtk-gui\Protobuild.CreateProjectDialog.cs" />
+    <Compile Include="DefinitionInfo.cs" />
+    <Compile Include="DefinitionTemplates\XNATemplate.cs" />
+    <Compile Include="DefinitionTemplates\BaseTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ModuleTemplate.cs" />
+    <Compile Include="DefinitionTemplates\LibraryTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
+    <Compile Include="DefinitionTemplates\GUITemplate.cs" />
+    <Compile Include="DefinitionTemplates\ContentTemplate.cs" />
+    <Compile Include="DefinitionTemplates\TestsTemplate.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Images\" />
+    <Folder Include="BuildResources\" />
+    <Folder Include="DefinitionTemplates\" />
+  </ItemGroup>
+</Project>
