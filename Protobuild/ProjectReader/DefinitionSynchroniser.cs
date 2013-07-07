@@ -31,22 +31,29 @@ namespace Protobuild
             var files = elements.Cast<XmlElement>().First(x => x.Name == "Files");
             
             var existingReferences = new List<string>();
-            foreach (var reference in references.ChildNodes.Cast<XmlElement>().Select(x => x.InnerText.Trim()))
+            foreach (var reference in references.ChildNodes.Cast<XmlElement>().Select(x => x.GetAttribute("Include").Trim()))
                 if (!existingReferences.Contains(reference))
                     existingReferences.Add(reference);
             foreach (var reference in this.m_CSharpProject.References)
                 if (!existingReferences.Contains(reference))
                     existingReferences.Add(reference);
             
-            // Remove all existing references.
+            // Remove all existing references and files.
             references.RemoveAll();
+            files.RemoveAll();
             
-            // Add the new ones.
+            // Add the new references.
             foreach (var reference in existingReferences)
             {
                 var element = document.CreateElement("Reference");
                 element.SetAttribute("Include", reference);
                 references.AppendChild(element);
+            }
+            
+            // Add the new files.
+            foreach (var element in this.m_CSharpProject.Elements)
+            {
+                files.AppendChild(document.ImportNode(element, true));
             }
             
             var settings = new XmlWriterSettings
