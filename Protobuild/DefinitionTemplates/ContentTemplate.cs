@@ -16,18 +16,6 @@ namespace Protobuild
 <ContentProject Name=""" + name + @""">
 
   <!--
-    Your project files are generated from these definition files.  When
-    adding, renaming or deleting files in your project, or when you want
-    to change the references in a project, you need to do it in the 
-    definitions file.  Changes to the project via MonoDevelop will be lost
-    the next time the projects are regenerated.
-    
-    By generating the solution and project files from these definitions,
-    it greatly reduces the number of cross-platform issues and benefits
-    testing and repeatability of builds.
-  -->
-  
-  <!--
     List the folders relative to the module root that you want
     to search for files in.  This is a recursive search for the
     specified files, which then get included in projects that
