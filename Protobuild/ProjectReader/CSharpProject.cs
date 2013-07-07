@@ -4,6 +4,7 @@ using System.Xml.Xsl;
 using System.Reflection;
 using System.Xml.Linq;
 using System.Linq;
+using System.IO;
 
 namespace Protobuild
 {
@@ -29,21 +30,29 @@ namespace Protobuild
                     resolver
                 );
             }
-            var result = new XDocument();
-            using (var reader = XmlReader.Create(filename))
+            XDocument result;
+            using (var memory = new MemoryStream())
             {
-                using (var writer = result.CreateWriter())
+                using (var reader = XmlReader.Create(filename))
                 {
-                    transform.Transform(reader, writer);
+                    using (var writer = XmlWriter.Create(memory))
+                    {
+                        transform.Transform(reader, writer);
+                    }
+                }
+                memory.Seek(0, SeekOrigin.Begin);
+                using (var reader = XmlReader.Create(memory))
+                {
+                    result = XDocument.Load(reader);
                 }
             }
             
             // Load the data.
             this.References = (from node in result.Descendants()
-                               where node.Name == "Reference"
+                               where node.Name.LocalName == "Reference"
                                select node.Value).ToList();
             this.Elements = (from node in result.Descendants()
-                             where node.Name == "Included"
+                             where node.Name.LocalName == "Included"
                              select node.Elements().First().ToXmlElement()).ToList();
         }
         
