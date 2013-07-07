@@ -1,69 +1,65 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<Project
-  Name="Protobuild"
-  Path="Protobuild"
-  Type="GUI">
-  
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Protobuild" Path="Protobuild" Type="GUI">
   <References>
-    <Reference Include="System" />
-    <Reference Include="gtk-sharp" />
-    <Reference Include="gdk-sharp" />
-    <Reference Include="glib-sharp" />
-    <Reference Include="glade-sharp" />
-    <Reference Include="pango-sharp" />
     <Reference Include="atk-sharp" />
+    <Reference Include="gdk-sharp" />
+    <Reference Include="glade-sharp" />
+    <Reference Include="glib-sharp" />
+    <Reference Include="gtk-sharp" />
+    <Reference Include="Microsoft.Build" />
+    <Reference Include="Microsoft.Build.Framework" />
+    <Reference Include="Microsoft.Build.Tasks.v4.0" />
+    <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Mono.Posix" />
+    <Reference Include="pango-sharp" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.Build.Framework" />
-    <Reference Include="Microsoft.Build" />
-    <Reference Include="Microsoft.Build.Utilities.v4.0" />
-    <Reference Include="Microsoft.Build.Tasks.v4.0" />
   </References>
   <Files>
+    <Compile Include="Actions.cs" />
+    <Compile Include="BuildResources\ResourceExtractor.cs" />
+    <Compile Include="CreateProjectDialog.cs" />
+    <Compile Include="DefinitionInfo.cs" />
+    <Compile Include="DefinitionTemplates\BaseTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ContentTemplate.cs" />
+    <Compile Include="DefinitionTemplates\GUITemplate.cs" />
+    <Compile Include="DefinitionTemplates\LibraryTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ModuleTemplate.cs" />
+    <Compile Include="DefinitionTemplates\TestsTemplate.cs" />
+    <Compile Include="DefinitionTemplates\XNATemplate.cs" />
+    <Compile Include="EmbeddedResourceResolver.cs" />
+    <Compile Include="gtk-gui\generated.cs" />
+    <Compile Include="gtk-gui\MainWindow.cs" />
+    <Compile Include="gtk-gui\Protobuild.CreateProjectDialog.cs" />
+    <Compile Include="MainWindow.cs" />
+    <Compile Include="ModuleInfo.cs" />
+    <Compile Include="ModuleTreeModel.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="ProjectReader\CSharpProject.cs" />
+    <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
+    <Compile Include="ProjectReader\XmlElementUtility.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tasks\CleanProjectsTask.cs" />
+    <Compile Include="Tasks\DocumentExtensions.cs" />
+    <Compile Include="Tasks\GenerateProjectsTask.cs" />
+    <Compile Include="Tasks\ProjectGenerator.cs" />
+    <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
+    <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
+    <EmbeddedResource Include="BuildResources\Main.proj" />
     <EmbeddedResource Include="Images\application_osx.png" />
     <EmbeddedResource Include="Images\application_osx_terminal.png" />
     <EmbeddedResource Include="Images\box.png" />
-    <EmbeddedResource Include="Images\controller.png" />
-    <EmbeddedResource Include="Images\page_white_gear.png" />
     <EmbeddedResource Include="Images\bricks.png" />
-    <EmbeddedResource Include="Images\world.png" />
-    <EmbeddedResource Include="Images\link_go.png" />
     <EmbeddedResource Include="Images\bug.png" />
     <EmbeddedResource Include="Images\color_wheel.png" />
-    <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
-    <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
-    <EmbeddedResource Include="BuildResources\Main.proj" />
-    <Compile Include="gtk-gui\generated.cs" />
-    <Compile Include="MainWindow.cs" />
-    <Compile Include="gtk-gui\MainWindow.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ModuleTreeModel.cs" />
-    <Compile Include="Tasks\CleanProjectsTask.cs" />
-    <Compile Include="Tasks\DocumentExtensions.cs" />
-    <Compile Include="EmbeddedResourceResolver.cs" />
-    <Compile Include="Tasks\GenerateProjectsTask.cs" />
-    <Compile Include="Tasks\ProjectGenerator.cs" />
-    <Compile Include="BuildResources\ResourceExtractor.cs" />
-    <Compile Include="ModuleInfo.cs" />
-    <Compile Include="CreateProjectDialog.cs" />
-    <Compile Include="gtk-gui\Protobuild.CreateProjectDialog.cs" />
-    <Compile Include="DefinitionInfo.cs" />
-    <Compile Include="DefinitionTemplates\XNATemplate.cs" />
-    <Compile Include="DefinitionTemplates\BaseTemplate.cs" />
-    <Compile Include="DefinitionTemplates\ModuleTemplate.cs" />
-    <Compile Include="DefinitionTemplates\LibraryTemplate.cs" />
-    <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
-    <Compile Include="DefinitionTemplates\GUITemplate.cs" />
-    <Compile Include="DefinitionTemplates\ContentTemplate.cs" />
-    <Compile Include="DefinitionTemplates\TestsTemplate.cs" />
-    <Compile Include="ProjectReader\CSharpProject.cs" />
+    <EmbeddedResource Include="Images\controller.png" />
+    <EmbeddedResource Include="Images\link_go.png" />
+    <EmbeddedResource Include="Images\page_white_gear.png" />
+    <EmbeddedResource Include="Images\world.png" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
-    <Compile Include="ProjectReader\XmlElementUtility.cs" />
-    <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
-    <Compile Include="Actions.cs" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
   </Files>
 </Project>
