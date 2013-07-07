@@ -60,65 +60,21 @@ public partial class MainWindow: Gtk.Window
                 { this.PromptCreateProject("External"); };
         this.c_RegenerateAction.Activated += (object sender, EventArgs e) => 
         {
-            this.RegenerateProjects();
+            Actions.Resync(this.Module);
         };
         this.c_ProjectTreeView.RowActivated += (object o, RowActivatedArgs args) => 
         {
             TreeIter iter;
             this.m_Store.GetIter(out iter, args.Path);
             var result = this.m_Store.GetValue(iter, 2);
-            var definitionInfo = result as DefinitionInfo;
-            var moduleInfo = result as ModuleInfo;
-            if (definitionInfo != null)
-            {
-                // Open XML in editor.
-                Process.Start("monodevelop", definitionInfo.DefinitionPath);
-            }
-            if (moduleInfo != null)
-            {
-                // Start the module's Protobuild unless it's also our
-                // module (for the root node).
-                if (moduleInfo.Path != this.Module.Path)
-                {
-                    var info = new ProcessStartInfo
-                    {
-                        FileName = System.IO.Path.Combine(moduleInfo.Path, "Protobuild.exe"),
-                        WorkingDirectory = moduleInfo.Path
-                    };
-                    var p = Process.Start(info);
-                    p.EnableRaisingEvents = true;
-                    p.Exited += (object sender, EventArgs e) => this.Update();
-                }
-            }
+            Actions.Open(this.Module, result, this.Update);
         };
     }
     
     public void Update()
     {
         this.BuildTree();
-        this.RegenerateProjects();
-    }
-    
-    private void RegenerateProjects()
-    {
-        var info = new ProcessStartInfo
-        {
-            FileName = "xbuild",
-            Arguments = "Build" + System.IO.Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + this.DetectPlatform(),
-            WorkingDirectory = Environment.CurrentDirectory
-        };
-        Process.Start(info);
-    }
-    
-    private string DetectPlatform()
-    {
-        if (System.IO.Path.DirectorySeparatorChar == '/')
-        {
-            if (Directory.Exists("/home"))
-                return "Linux";
-            return "MacOS";
-        }
-        return "Windows";
+        Actions.Resync(this.Module);
     }
     
     private void PromptCreateProject(string type)
