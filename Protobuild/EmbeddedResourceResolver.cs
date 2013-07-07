@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Xml;
 
-namespace Protobuild.Tasks
+namespace Protobuild
 {
     public class EmbeddedResourceResolver : XmlUrlResolver
     {
