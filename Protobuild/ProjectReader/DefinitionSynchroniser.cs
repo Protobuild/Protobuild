@@ -56,7 +56,10 @@ namespace Protobuild
             // Add the new files.
             foreach (var element in this.m_CSharpProject.Elements)
             {
-                files.AppendChild(document.ImportNode(element, true));
+                var newElement = document.ImportNode(element, true);
+                if (string.IsNullOrWhiteSpace(newElement.InnerXml))
+                    newElement.InnerText = "";
+                files.AppendChild(newElement);
             }
             
             var settings = new XmlWriterSettings
