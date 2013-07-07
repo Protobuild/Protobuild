@@ -2,6 +2,9 @@ using System;
 using System.Xml;
 using System.Linq;
 using System.Collections.Generic;
+using System.Xml.Xsl;
+using System.Reflection;
+using System.IO;
 
 namespace Protobuild
 {
@@ -53,9 +56,7 @@ namespace Protobuild
             // Add the new files.
             foreach (var element in this.m_CSharpProject.Elements)
             {
-                var newElement = document.ImportNode(element, true) as XmlElement;
-                newElement.RemoveAttribute("xmlns");
-                files.AppendChild(newElement);
+                files.AppendChild(document.ImportNode(element, true));
             }
             
             var settings = new XmlWriterSettings
@@ -65,7 +66,42 @@ namespace Protobuild
             };
             using (var writer = XmlWriter.Create(this.m_DefinitionInfo.DefinitionPath, settings))
             {
-                document.Save(writer);
+                this.WashNamespaces(document).Save(writer);
+            }
+        }
+        
+        private XslCompiledTransform GetCompiledTransform()
+        {
+            var resolver = new EmbeddedResourceResolver();
+            var transform = new XslCompiledTransform();
+            using (var reader = XmlReader.Create(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Protobuild.ProjectReader.WashNamespaces.xslt")))
+            {
+                transform.Load(
+                    reader,
+                    XsltSettings.TrustedXslt,
+                    resolver
+                );
+            }
+            return transform;
+        }
+        
+        private XmlDocument WashNamespaces(XmlDocument input)
+        {
+            using (var memory = new MemoryStream())
+            {
+                using (var writer = XmlWriter.Create(memory))
+                {
+                    this.GetCompiledTransform().Transform(input, writer);
+                }
+                memory.Seek(0, SeekOrigin.Begin);
+                using (var reader = XmlReader.Create(memory))
+                {
+                    var document = new XmlDocument();
+                    document.Load(reader);
+                    return document;
+                }
             }
         }
     }
