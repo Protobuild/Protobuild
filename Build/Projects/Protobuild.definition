@@ -62,6 +62,7 @@
     <Compile Include="ProjectReader\CSharpProject.cs" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
+    <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="Actions.cs" />
   </Files>
 </Project>

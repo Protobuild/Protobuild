@@ -43,11 +43,8 @@ namespace Protobuild
                 if (File.Exists(path))
                 {
                     var project = CSharpProject.Load(path);
-                    Console.WriteLine(def.Name);
-                    foreach (var reference in project.References)
-                        Console.WriteLine(reference);
-                    foreach (var include in project.Elements)
-                        Console.WriteLine(include.InnerText);
+                    var synchroniser = new DefinitionSynchroniser(def, project);
+                    synchroniser.Synchronise();
                 }
             }
             
