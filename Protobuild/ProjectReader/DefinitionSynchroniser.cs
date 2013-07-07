@@ -46,7 +46,7 @@ namespace Protobuild
             files.RemoveAll();
             
             // Add the new references.
-            foreach (var reference in existingReferences)
+            foreach (var reference in existingReferences.OrderBy(x => x))
             {
                 var element = document.CreateElement("Reference");
                 element.SetAttribute("Include", reference);
@@ -54,22 +54,25 @@ namespace Protobuild
             }
             
             // Add the new files.
-            foreach (var element in this.m_CSharpProject.Elements)
+            foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => x.GetAttribute("Include")))
+                files.AppendChild(document.ImportNode(element, true));
+            
+            // Clean empty elements as well.
+            var cleaned = this.WashNamespaces(document);
+            foreach (var child in cleaned.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement))
             {
-                var newElement = document.ImportNode(element, true);
-                if (string.IsNullOrWhiteSpace(newElement.InnerXml))
-                    newElement.InnerText = "";
-                files.AppendChild(newElement);
+                this.CleanNodes((XmlElement)child);
             }
             
             var settings = new XmlWriterSettings
             {
                 Indent = true,
-                IndentChars = "  "
+                IndentChars = "  ",
+                NewLineChars = "\n"
             };
             using (var writer = XmlWriter.Create(this.m_DefinitionInfo.DefinitionPath, settings))
             {
-                this.WashNamespaces(document).Save(writer);
+                cleaned.Save(writer);
             }
         }
         
@@ -106,6 +109,16 @@ namespace Protobuild
                     return document;
                 }
             }
+        }
+        
+        private void CleanNodes(XmlElement node)
+        {
+            foreach (var child in node.ChildNodes.Cast<XmlNode>().Where<XmlNode>(x => x is XmlElement))
+            {
+                this.CleanNodes((XmlElement)child);
+            }
+            if (string.IsNullOrWhiteSpace(node.InnerXml))
+                node.IsEmpty = true;
         }
     }
 }
