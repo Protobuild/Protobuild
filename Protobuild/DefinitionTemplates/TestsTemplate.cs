@@ -17,19 +17,6 @@ namespace Protobuild
   Name=""" + name + @"""
   Path=""" + name + @"""
   Type=""Tests"">
-
-  <!--
-    Your project files are generated from these definition files.  When
-    adding, renaming or deleting files in your project, or when you want
-    to change the references in a project, you need to do it in the 
-    definitions file.  Changes to the project via MonoDevelop will be lost
-    the next time the projects are regenerated.
-    
-    By generating the solution and project files from these definitions,
-    it greatly reduces the number of cross-platform issues and benefits
-    testing and repeatability of builds.
-  -->
-  
   <References>
     <Reference Include=""System"" />
     <Reference Include=""System.Core"" />
