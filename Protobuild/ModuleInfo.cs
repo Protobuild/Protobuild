@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
+using System.Reflection;
 
 namespace Protobuild
 {
@@ -15,8 +16,29 @@ namespace Protobuild
             set;
         }
         
+        public string[] ModuleAssemblies
+        {
+            get;
+            set;
+        }
+        
+        public ModuleInfo()
+        {
+            this.ModuleAssemblies = new string[0];
+        }
+        
         [NonSerialized]
         public string Path;
+        
+        public BaseTemplate[] GetTemplates()
+        {
+            return (from assembly in this.ModuleAssemblies
+                    let loaded = Assembly.LoadFile(assembly)
+                    from type in loaded.GetTypes()
+                    where !type.IsAbstract
+                    where type.GetConstructor(Type.EmptyTypes) != null
+                    select Activator.CreateInstance(type) as BaseTemplate).ToArray();
+        }
         
         public DefinitionInfo[] GetDefinitions()
         {

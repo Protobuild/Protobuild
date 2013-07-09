@@ -48,6 +48,13 @@ namespace " + name + @"
 }");
             }
         }
+        
+        public override Gdk.Pixbuf GetIcon()
+        {
+            return new Gdk.Pixbuf(
+                System.Reflection.Assembly.GetExecutingAssembly(),
+                "Protobuild.Images.application_osx_terminal.png");
+        }
     }
 }
 

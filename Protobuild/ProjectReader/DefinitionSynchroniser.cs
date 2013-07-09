@@ -46,7 +46,7 @@ namespace Protobuild
             files.RemoveAll();
             
             // Add the new references.
-            foreach (var reference in existingReferences.OrderBy(x => x))
+            foreach (var reference in existingReferences.Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x))
             {
                 var element = document.CreateElement("Reference");
                 element.SetAttribute("Include", reference);

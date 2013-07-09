@@ -31,33 +31,6 @@ public partial class MainWindow: Gtk.Window
         this.c_ProjectTreeView.HeadersVisible = false;
         
         // Register events.
-        this.c_CreateGameAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("XNA"); };
-        this.c_CreateGUIAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("GUI"); };
-        this.c_CreateLibraryAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("Library"); };
-        this.c_CreateConsoleAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("Console"); };
-        this.c_CreateWebsiteAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("Website"); };
-        this.c_CreateTestsAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("Tests"); };
-        this.c_CreateContentAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("Content"); };
-        this.c_CreateModuleAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("Module"); };
-        this.c_CreateExternalAction.Activated +=
-            (object sender, System.EventArgs e) =>
-                { this.PromptCreateProject("External"); };
         this.c_RegenerateAction.Activated += (object sender, EventArgs e) => 
         {
             Actions.Resync(this.Module);
@@ -69,6 +42,54 @@ public partial class MainWindow: Gtk.Window
             var result = this.m_Store.GetValue(iter, 2);
             Actions.Open(this.Module, result, this.Update);
         };
+    }
+    
+    public void InitializeToolbar()
+    {
+        this.LoadBuiltinTemplates();
+        this.LoadModuleTemplates(this.Module);
+    }
+    
+    private void AddToToolbar(BaseTemplate i)
+    {
+        var w1 = new IconFactory();
+        var w2 = new IconSet(i.GetIcon());
+        w1.Add(i.Type + "_icon", w2);
+        w1.AddDefault();
+        var act = new Gtk.Action("c_Create" + i.Type + "Action", null, "Create " + i.Type + " Project", null);
+        //act.IconName = "website";
+        //act.StockId = "website";
+        //new Gtk.Action(
+        act.Activated +=
+            (object sender, System.EventArgs e) =>
+                { this.PromptCreateProject(i.Type); };
+        var t = act.CreateToolItem();
+        //(t as ToolButton).IconName = "website";
+        (t as ToolButton).StockId = i.Type + "_icon";
+        //(t as ToolButton).IconWidget = new Gtk.Image(this.GetPixbufForType(i.Type));
+        this.c_Toolbar.Add(t);
+    }
+    
+    private void LoadBuiltinTemplates()
+    {
+        foreach (var i in from concreteType in Assembly.GetExecutingAssembly().GetTypes()
+                          where !concreteType.IsAbstract
+                          where typeof(BaseTemplate).IsAssignableFrom(concreteType)
+                          let i = Activator.CreateInstance(concreteType) as BaseTemplate
+                          select i)
+        {
+            this.AddToToolbar(i);
+        }
+    }
+    
+    private void LoadModuleTemplates(ModuleInfo module)
+    {
+        foreach (var i in module.GetTemplates())
+        {
+            this.AddToToolbar(i);
+        }
+        foreach (var submodule in module.GetSubmodules())
+            this.LoadModuleTemplates(submodule);
     }
     
     public void Update()
@@ -169,46 +190,10 @@ public partial class MainWindow: Gtk.Window
     
     private Pixbuf GetPixbufForType(string type)
     {
-        switch (type)
-        {
-            case "XNA":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.controller.png");
-            case "GUI":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.application_osx.png");
-            case "Console":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.application_osx_terminal.png");
-            case "Library":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.bricks.png");
-            case "Website":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.world.png");
-            case "Tests":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.bug.png");
-            case "Content":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.color_wheel.png");
-            case "External":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.link_go.png");
-            case "Module":
-                return new Pixbuf(
-                    Assembly.GetExecutingAssembly(),
-                    "Protobuild.Images.box.png");
-        }
-        return null;
+        var template = BaseTemplate.GetTemplateForType(type);
+        return template.GetIcon() ?? new Pixbuf(
+            Assembly.GetExecutingAssembly(),
+            "Protobuild.Images.bricks.png");
     }
     
     private void BuildTreeIter(TreeIter iter, ModuleInfo info)
