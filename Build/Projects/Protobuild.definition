@@ -1,17 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Name="Protobuild" Path="Protobuild" Type="GUI">
+<Project Name="Protobuild" Path="Protobuild" Type="GTK">
   <References>
-    <Reference Include="atk-sharp" />
-    <Reference Include="gdk-sharp" />
-    <Reference Include="glade-sharp" />
-    <Reference Include="glib-sharp" />
-    <Reference Include="gtk-sharp" />
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.Build.Tasks.v4.0" />
     <Reference Include="Microsoft.Build.Utilities.v4.0" />
     <Reference Include="Mono.Posix" />
-    <Reference Include="pango-sharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
@@ -26,6 +20,7 @@
     <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
     <Compile Include="DefinitionTemplates\ContentTemplate.cs" />
     <Compile Include="DefinitionTemplates\ExternalTemplate.cs" />
+    <Compile Include="DefinitionTemplates\GTKTemplate.cs" />
     <Compile Include="DefinitionTemplates\GUITemplate.cs" />
     <Compile Include="DefinitionTemplates\LibraryTemplate.cs" />
     <Compile Include="DefinitionTemplates\ModuleTemplate.cs" />
@@ -51,6 +46,10 @@
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
     <EmbeddedResource Include="BuildResources\Main.proj" />
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\application.png" />
     <EmbeddedResource Include="Images\application_osx.png" />
     <EmbeddedResource Include="Images\application_osx_terminal.png" />
     <EmbeddedResource Include="Images\box.png" />
@@ -63,6 +62,5 @@
     <EmbeddedResource Include="Images\world.png" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
-    <None Include="gtk-gui\gui.stetic" />
   </Files>
 </Project>

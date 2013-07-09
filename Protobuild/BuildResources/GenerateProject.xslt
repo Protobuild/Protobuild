@@ -57,7 +57,10 @@
               <xsl:text>Exe</xsl:text>
             </xsl:when>
             <xsl:when test="$project/@Type = 'GUI'">
-              <xsl:text>Exe</xsl:text>
+              <xsl:text>WinExe</xsl:text>
+            </xsl:when>
+            <xsl:when test="$project/@Type = 'GTK'">
+              <xsl:text>WinExe</xsl:text>
             </xsl:when>
             <xsl:otherwise>
               <xsl:text>Library</xsl:text>
@@ -153,6 +156,29 @@
           </Target>
         </xsl:when>
       </xsl:choose>
+      
+      <xsl:if test="$project/@Type = 'GTK'">
+        <ItemGroup>
+          <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+            <SpecificVersion>False</SpecificVersion>
+          </Reference>
+          <Reference Include="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+            <SpecificVersion>False</SpecificVersion>
+          </Reference>
+          <Reference Include="glib-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+            <SpecificVersion>False</SpecificVersion>
+          </Reference>
+          <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+            <SpecificVersion>False</SpecificVersion>
+          </Reference>
+          <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+            <SpecificVersion>False</SpecificVersion>
+          </Reference>
+          <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
+            <SpecificVersion>False</SpecificVersion>
+          </Reference>
+        </ItemGroup>
+      </xsl:if>
       
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
