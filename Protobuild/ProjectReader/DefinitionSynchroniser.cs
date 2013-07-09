@@ -48,6 +48,16 @@ namespace Protobuild
             // Add the new references.
             foreach (var reference in existingReferences.Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x))
             {
+                if (reference.StartsWith("atk-sharp,", StringComparison.Ordinal) ||
+                    reference.StartsWith("gdk-sharp,", StringComparison.Ordinal) ||
+                    reference.StartsWith("glade-sharp,", StringComparison.Ordinal) ||
+                    reference.StartsWith("glib-sharp,", StringComparison.Ordinal) ||
+                    reference.StartsWith("gtk-sharp,", StringComparison.Ordinal) ||
+                    reference.StartsWith("pango-sharp,", StringComparison.Ordinal))
+                {
+                    // These references are included with the GTK project.
+                    continue;
+                }
                 var element = document.CreateElement("Reference");
                 element.SetAttribute("Include", reference);
                 references.AppendChild(element);
