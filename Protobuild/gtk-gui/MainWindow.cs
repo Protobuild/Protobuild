@@ -3,16 +3,7 @@
 public partial class MainWindow
 {
 	private global::Gtk.UIManager UIManager;
-	private global::Gtk.Action c_CreateGameAction;
-	private global::Gtk.Action c_CreateGUIAction;
-	private global::Gtk.Action c_CreateConsoleAction;
-	private global::Gtk.Action c_CreateWebsiteAction;
-	private global::Gtk.Action c_CreateLibraryAction;
-	private global::Gtk.Action c_CreateModuleAction;
 	private global::Gtk.Action c_RegenerateAction;
-	private global::Gtk.Action c_CreateExternalAction;
-	private global::Gtk.Action c_CreateTestsAction;
-	private global::Gtk.Action c_CreateContentAction;
 	private global::Gtk.VBox c_VerticalBox1;
 	private global::Gtk.Toolbar c_Toolbar;
 	private global::Gtk.ScrolledWindow GtkScrolledWindow;
@@ -25,26 +16,8 @@ public partial class MainWindow
 		// Widget MainWindow
 		this.UIManager = new global::Gtk.UIManager ();
 		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("Default");
-		this.c_CreateGameAction = new global::Gtk.Action ("c_CreateGameAction", null, global::Mono.Unix.Catalog.GetString ("Create Protogame Project"), "xna");
-		w1.Add (this.c_CreateGameAction, null);
-		this.c_CreateGUIAction = new global::Gtk.Action ("c_CreateGUIAction", null, global::Mono.Unix.Catalog.GetString ("Create GUI Project"), "gui");
-		w1.Add (this.c_CreateGUIAction, null);
-		this.c_CreateConsoleAction = new global::Gtk.Action ("c_CreateConsoleAction", null, global::Mono.Unix.Catalog.GetString ("Create Console Project"), "console");
-		w1.Add (this.c_CreateConsoleAction, null);
-		this.c_CreateWebsiteAction = new global::Gtk.Action ("c_CreateWebsiteAction", null, global::Mono.Unix.Catalog.GetString ("Create Website Project"), "website");
-		w1.Add (this.c_CreateWebsiteAction, null);
-		this.c_CreateLibraryAction = new global::Gtk.Action ("c_CreateLibraryAction", null, global::Mono.Unix.Catalog.GetString ("Create Library Project"), "library");
-		w1.Add (this.c_CreateLibraryAction, null);
-		this.c_CreateModuleAction = new global::Gtk.Action ("c_CreateModuleAction", null, global::Mono.Unix.Catalog.GetString ("Create Submodule"), "module");
-		w1.Add (this.c_CreateModuleAction, null);
 		this.c_RegenerateAction = new global::Gtk.Action ("c_RegenerateAction", null, global::Mono.Unix.Catalog.GetString ("Regenerate MonoDevelop Projects"), "regenerate");
 		w1.Add (this.c_RegenerateAction, null);
-		this.c_CreateExternalAction = new global::Gtk.Action ("c_CreateExternalAction", null, global::Mono.Unix.Catalog.GetString ("Create External Project"), "external");
-		w1.Add (this.c_CreateExternalAction, null);
-		this.c_CreateTestsAction = new global::Gtk.Action ("c_CreateTestsAction", null, global::Mono.Unix.Catalog.GetString ("Create Test Project"), "test");
-		w1.Add (this.c_CreateTestsAction, null);
-		this.c_CreateContentAction = new global::Gtk.Action ("c_CreateContentAction", null, global::Mono.Unix.Catalog.GetString ("Create Content Project"), "content");
-		w1.Add (this.c_CreateContentAction, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
@@ -54,7 +27,7 @@ public partial class MainWindow
 		this.c_VerticalBox1 = new global::Gtk.VBox ();
 		this.c_VerticalBox1.Name = "c_VerticalBox1";
 		// Container child c_VerticalBox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><toolbar name='c_Toolbar'><toolitem name='c_CreateGameAction' action='c_CreateGameAction'/><toolitem name='c_CreateGUIAction' action='c_CreateGUIAction'/><toolitem name='c_CreateConsoleAction' action='c_CreateConsoleAction'/><toolitem name='c_CreateWebsiteAction' action='c_CreateWebsiteAction'/><toolitem name='c_CreateLibraryAction' action='c_CreateLibraryAction'/><toolitem name='c_CreateTestsAction' action='c_CreateTestsAction'/><toolitem name='c_CreateContentAction' action='c_CreateContentAction'/><toolitem name='c_CreateExternalAction' action='c_CreateExternalAction'/><toolitem name='c_CreateModuleAction' action='c_CreateModuleAction'/><toolitem name='c_RegenerateAction' action='c_RegenerateAction'/></toolbar></ui>");
+		this.UIManager.AddUiFromString ("<ui><toolbar name='c_Toolbar'><toolitem name='c_RegenerateAction' action='c_RegenerateAction'/></toolbar></ui>");
 		this.c_Toolbar = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/c_Toolbar")));
 		this.c_Toolbar.Name = "c_Toolbar";
 		this.c_Toolbar.ShowArrow = false;
@@ -83,7 +56,7 @@ public partial class MainWindow
 		this.c_CreateMessageLabel.Xpad = 10;
 		this.c_CreateMessageLabel.Ypad = 5;
 		this.c_CreateMessageLabel.Xalign = 0F;
-		this.c_CreateMessageLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("(to be replaced)");
+		this.c_CreateMessageLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("");
 		this.c_VerticalBox1.Add (this.c_CreateMessageLabel);
 		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.c_VerticalBox1 [this.c_CreateMessageLabel]));
 		w5.Position = 2;

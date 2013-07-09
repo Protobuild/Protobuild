@@ -34,6 +34,13 @@ namespace Protobuild
         public override void CreateFiles(string name, string projectRoot)
         {
         }
+        
+        public override Gdk.Pixbuf GetIcon()
+        {
+            return new Gdk.Pixbuf(
+                System.Reflection.Assembly.GetExecutingAssembly(),
+                "Protobuild.Images.color_wheel.png");
+        }
     }
 }
 

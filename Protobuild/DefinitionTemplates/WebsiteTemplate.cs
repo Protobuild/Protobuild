@@ -3,9 +3,9 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class GUITemplate : BaseTemplate
+    public class WebsiteTemplate : BaseTemplate
     {
-        public override string Type { get { return "GUI"; } }
+        public override string Type { get { return "Website"; } }
         
         public override void WriteDefinitionFile(string name, Stream output)
         {
@@ -16,15 +16,14 @@ namespace Protobuild
 <Project
   Name=""" + name + @"""
   Path=""" + name + @"""
-  Type=""GUI"">
+  Type=""Website"">
   <References>
     <Reference Include=""System"" />
     <Reference Include=""System.Core"" />
     <Reference Include=""Microsoft.CSharp"" />
-    <Reference Include=""System.Windows.Forms"" />
   </References>
   <Files>
-    <Compile Include=""Program.cs"" />
+    <Compile Include=""MyClass.cs"" />
   </Files>
 </Project>");
             }
@@ -32,19 +31,15 @@ namespace Protobuild
         
         public override void CreateFiles(string name, string projectRoot)
         {
-            using (var writer = new StreamWriter(Path.Combine(projectRoot, "Program.cs")))
+            using (var writer = new StreamWriter(Path.Combine(projectRoot, "MyClass.cs")))
             {
                 writer.Write(
 @"using System;
 
 namespace " + name + @"
 {
-    public static class Program
+    public class MyClass
     {
-        public static void Main(string[] args)
-        {
-            // TODO: Implement graphical app.
-        }
     }
 }");
             }
@@ -54,7 +49,7 @@ namespace " + name + @"
         {
             return new Gdk.Pixbuf(
                 System.Reflection.Assembly.GetExecutingAssembly(),
-                "Protobuild.Images.application_osx.png");
+                "Protobuild.Images.world.png");
         }
     }
 }

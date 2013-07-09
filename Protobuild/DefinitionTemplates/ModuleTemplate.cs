@@ -25,6 +25,13 @@ namespace Protobuild
             }
             ResourceExtractor.ExtractAll(buildFolder, name);
         }
+        
+        public override Gdk.Pixbuf GetIcon()
+        {
+            return new Gdk.Pixbuf(
+                Assembly.GetExecutingAssembly(),
+                "Protobuild.Images.box.png");
+        }
     }
 }
 

@@ -67,6 +67,7 @@ namespace Protobuild
             
             // Load the module.
             win.Module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            win.InitializeToolbar();
             win.Update();
             
             win.Show();

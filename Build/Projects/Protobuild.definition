@@ -25,10 +25,12 @@
     <Compile Include="DefinitionTemplates\BaseTemplate.cs" />
     <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
     <Compile Include="DefinitionTemplates\ContentTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ExternalTemplate.cs" />
     <Compile Include="DefinitionTemplates\GUITemplate.cs" />
     <Compile Include="DefinitionTemplates\LibraryTemplate.cs" />
     <Compile Include="DefinitionTemplates\ModuleTemplate.cs" />
     <Compile Include="DefinitionTemplates\TestsTemplate.cs" />
+    <Compile Include="DefinitionTemplates\WebsiteTemplate.cs" />
     <Compile Include="DefinitionTemplates\XNATemplate.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
     <Compile Include="gtk-gui\generated.cs" />
@@ -61,5 +63,6 @@
     <EmbeddedResource Include="Images\world.png" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
+    <None Include="gtk-gui\gui.stetic" />
   </Files>
 </Project>
