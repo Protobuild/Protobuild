@@ -14,6 +14,9 @@
   <UsingTask 
     AssemblyFile="$(RootPath)\Protobuild.exe" 
     TaskName="Protobuild.Tasks.CleanProjectsTask" />
+  <UsingTask 
+    AssemblyFile="$(RootPath)\Protobuild.exe" 
+    TaskName="Protobuild.Tasks.SyncProjectsTask" />
     
   <Target Name="Build">
     <Error
@@ -32,9 +35,10 @@
       Text="RootPath property is not set.  Build 'Main.proj' instead." />
     <CallTarget Targets="GenerateProjectsTarget" />
     <CallTarget Targets="CleanProjectsTarget" />
+    <CallTarget Targets="SyncProjectsTarget" />
   </Target>
   
-  <Target Name="GenerateProjectsTarget" Condition="'$(Clean)' == ''">
+  <Target Name="GenerateProjectsTarget" Condition="'$(Clean)' == '' And '$(Sync)' == ''">
     <GenerateProjectsTask
       SourcePath="..\Build\Projects"
       RootPath="$(RootPath)"
@@ -43,6 +47,14 @@
   </Target>
   
   <Target Name="CleanProjectsTarget" Condition="'$(Clean)' == 'True'">
+    <CleanProjectsTask
+      SourcePath="..\Build\Projects"
+      RootPath="$(RootPath)"
+      ModuleName="$(ModuleName)"
+      Platform="$(TargetPlatform)" />
+  </Target>
+  
+  <Target Name="SyncProjectsTarget" Condition="'$(Sync)' == 'True'">
     <CleanProjectsTask
       SourcePath="..\Build\Projects"
       RootPath="$(RootPath)"

@@ -32,8 +32,8 @@ namespace Protobuild
                 }
             }
         }
-    
-        public static void Resync(ModuleInfo module)
+        
+        public static void Sync(ModuleInfo module)
         {
             var definitions = module.GetDefinitions();
             foreach (var def in definitions)
@@ -47,11 +47,15 @@ namespace Protobuild
                     synchroniser.Synchronise();
                 }
             }
-            
+        }
+    
+        public static void Resync(ModuleInfo module)
+        {
+            Sync(module);
             RegenerateProjects(module.Path);
         }
         
-        private static void RegenerateProjects(string root)
+        public static void RegenerateProjects(string root)
         {
             var info = new ProcessStartInfo
             {
@@ -59,7 +63,8 @@ namespace Protobuild
                 Arguments = "Build" + System.IO.Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + DetectPlatform(),
                 WorkingDirectory = root
             };
-            Process.Start(info);
+            var p = Process.Start(info);
+            p.WaitForExit();
         }
         
         private static string DetectPlatform()
