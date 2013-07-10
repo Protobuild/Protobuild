@@ -34,6 +34,7 @@
     <Compile Include="MainWindow.cs" />
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="ModuleTreeModel.cs" />
+    <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectReader\CSharpProject.cs" />
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
@@ -43,6 +44,7 @@
     <Compile Include="Tasks\DocumentExtensions.cs" />
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
     <Compile Include="Tasks\ProjectGenerator.cs" />
+    <Compile Include="Tasks\SyncProjectsTask.cs" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
     <EmbeddedResource Include="BuildResources\Main.proj" />

@@ -6,7 +6,7 @@ namespace Protobuild
 {
     public static class ResourceExtractor
     {
-        public static void ExtractAll(string path, string projectName)
+        public static void ExtractProject(string path, string projectName)
         {
             using (var stream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("Protobuild.BuildResources.Main.proj"))
@@ -22,6 +22,11 @@ namespace Protobuild
                     }
                 }
             }
+        }
+    
+        public static void ExtractAll(string path, string projectName)
+        {
+            ExtractProject(path, projectName);
             if (!Directory.Exists(Path.Combine(path, "Projects")))
                 Directory.CreateDirectory(Path.Combine(path, "Projects"));
             var module = new ModuleInfo { Name = projectName };

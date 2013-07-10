@@ -55,15 +55,23 @@ namespace Protobuild.Tasks
             {
                 var resolver = new EmbeddedResourceResolver();
                 this.m_ProjectTransform = new XslCompiledTransform();
-                using (var reader = XmlReader.Create(
-                    Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                        "Protobuild.BuildResources.GenerateProject.xslt")))
+                Stream generateProjectStream;
+                var generateProjectXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateProjects.xslt");
+                if (File.Exists(generateProjectXSLT))
+                    generateProjectStream = File.Open(generateProjectXSLT, FileMode.Open);
+                else
+                    generateProjectStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "Protobuild.BuildResources.GenerateProject.xslt");
+                using (generateProjectStream)
                 {
-                    this.m_ProjectTransform.Load(
-                        reader,
-                        XsltSettings.TrustedXslt,
-                        resolver
-                    );
+                    using (var reader = XmlReader.Create(generateProjectStream))
+                    {
+                        this.m_ProjectTransform.Load(
+                            reader,
+                            XsltSettings.TrustedXslt,
+                            resolver
+                        );
+                    }
                 }
             }
 
@@ -137,15 +145,23 @@ namespace Protobuild.Tasks
             {
                 var resolver = new EmbeddedResourceResolver();
                 this.m_SolutionTransform = new XslCompiledTransform();
-                using (var reader = XmlReader.Create(
-                    Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                        "Protobuild.BuildResources.GenerateSolution.xslt")))
+                Stream generateSolutionStream;
+                var generateSolutionXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateSolution.xslt");
+                if (File.Exists(generateSolutionXSLT))
+                    generateSolutionStream = File.Open(generateSolutionXSLT, FileMode.Open);
+                else
+                    generateSolutionStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "Protobuild.BuildResources.GenerateSolution.xslt");
+                using (generateSolutionStream)
                 {
-                    this.m_SolutionTransform.Load(
-                        reader,
-                        XsltSettings.TrustedXslt,
-                        resolver
-                    );
+                    using (var reader = XmlReader.Create(generateSolutionStream))
+                    {
+                        this.m_SolutionTransform.Load(
+                            reader,
+                            XsltSettings.TrustedXslt,
+                            resolver
+                        );
+                    }
                 }
             }
 
