@@ -11,6 +11,7 @@ using System.Reflection;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Protobuild.Tasks
 {
@@ -51,6 +52,11 @@ namespace Protobuild.Tasks
 
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
             var definitions = module.GetDefinitions();
+            
+            // Run Protobuild in batch mode in each of the submodules
+            // where it is present.
+            foreach (var submodule in module.GetSubmodules())
+                submodule.RunProtobuild("-generate");
 
             var generator = new ProjectGenerator(
                 this.RootPath,

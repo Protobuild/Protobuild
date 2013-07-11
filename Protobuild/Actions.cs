@@ -60,7 +60,19 @@ namespace Protobuild
             var info = new ProcessStartInfo
             {
                 FileName = "xbuild",
-                Arguments = "Build" + System.IO.Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + DetectPlatform(),
+                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + DetectPlatform(),
+                WorkingDirectory = root
+            };
+            var p = Process.Start(info);
+            p.WaitForExit();
+        }
+        
+        public static void CleanProjects(string root)
+        {
+            var info = new ProcessStartInfo
+            {
+                FileName = "xbuild",
+                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + DetectPlatform() + " /p:Clean=True",
                 WorkingDirectory = root
             };
             var p = Process.Start(info);

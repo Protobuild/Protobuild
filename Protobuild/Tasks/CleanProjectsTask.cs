@@ -14,6 +14,11 @@ namespace Protobuild.Tasks
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
             var definitions = module.GetDefinitions();
             
+            // Run Protobuild in batch mode in each of the submodules
+            // where it is present.
+            foreach (var submodule in module.GetSubmodules())
+                submodule.RunProtobuild("-clean");
+                
             foreach (var definition in definitions.Select(x => x.Name))
             {
                 this.Log.LogMessage("Cleaning: " + definition);
@@ -34,6 +39,13 @@ namespace Protobuild.Tasks
                 if (File.Exists(path))
                     File.Delete(path);
             }
+            
+            var solution = Path.Combine(
+                this.RootPath,
+                this.ModuleName + "." + this.Platform + ".sln");
+            this.Log.LogMessage("Cleaning: (solution)");
+            if (File.Exists(solution))
+                File.Delete(solution);
 
             this.Log.LogMessage(
                 "Clean complete.");

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Linq;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Protobuild
 {
@@ -83,6 +84,22 @@ namespace Protobuild
             var writer = new StreamWriter(xmlFile);
             serializer.Serialize(writer, this);
             writer.Close();
+        }
+        
+        public void RunProtobuild(string args)
+        {
+            var protobuildPath = System.IO.Path.Combine(this.Path, "Protobuild.exe");
+            if (File.Exists(protobuildPath))
+            {
+                var pi = new ProcessStartInfo
+                {
+                    FileName = protobuildPath,
+                    Arguments = args,
+                    WorkingDirectory = this.Path
+                };
+                var p = Process.Start(pi);
+                p.WaitForExit();
+            }
         }
     }
 }
