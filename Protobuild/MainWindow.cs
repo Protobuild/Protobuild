@@ -1,12 +1,12 @@
-using System.Linq;
-using Gtk;
-using Protobuild;
-using Gdk;
-using System.Reflection;
+using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
-using System;
+using Gdk;
+using Gtk;
+using Protobuild;
 
 public partial class MainWindow: Gtk.Window
 {

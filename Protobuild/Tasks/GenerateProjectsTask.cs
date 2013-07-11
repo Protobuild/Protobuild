@@ -1,17 +1,8 @@
-//
-// This source code is licensed in accordance with the licensing outlined
-// on the main Tychaia website (www.tychaia.com).  Changes to the
-// license on the website apply retroactively.
-//
 using System;
 using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-using System.Reflection;
+using System.Linq;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using System.Linq;
-using System.Diagnostics;
 
 namespace Protobuild.Tasks
 {

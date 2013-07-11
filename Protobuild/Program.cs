@@ -1,7 +1,7 @@
 using System;
-using Gtk;
 using System.IO;
 using System.Reflection;
+using Gtk;
 
 namespace Protobuild
 {
