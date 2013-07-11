@@ -42,28 +42,38 @@ namespace Protobuild.Tasks
                 "Starting generation of projects for " + this.Platform);
 
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
-            var definitions = module.GetDefinitions();
+            var definitions = module.GetDefinitionsRecursively().ToArray();
             
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
             foreach (var submodule in module.GetSubmodules())
+            {
+                this.Log.LogMessage(
+                    "Invoking submodule generation for " + submodule.Name);
                 submodule.RunProtobuild("-generate");
-
+                this.Log.LogMessage(
+                    "Finished submodule generation for " + submodule.Name);
+            }
+            
             var generator = new ProjectGenerator(
                 this.RootPath,
                 this.Platform,
                 this.Log);
-            foreach (var definition in definitions.Select(x => x.Name))
+            foreach (var definition in definitions)
             {
-                this.Log.LogMessage("Loading: " + definition);
+                this.Log.LogMessage("Loading: " + definition.Name);
                 generator.Load(Path.Combine(
-                    this.SourcePath,
-                    definition + ".definition"));
+                    definition.ModulePath,
+                    "Build",
+                    "Projects",
+                    definition.Name + ".definition"),
+                    module.Path,
+                    definition.ModulePath);
             }
-            foreach (var definition in definitions.Select(x => x.Name))
+            foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
             {
-                this.Log.LogMessage("Generating: " + definition);
-                generator.Generate(definition);
+                this.Log.LogMessage("Generating: " + definition.Name);
+                generator.Generate(definition.Name);
             }
 
             var solution = Path.Combine(

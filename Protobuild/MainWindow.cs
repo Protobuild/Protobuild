@@ -57,16 +57,11 @@ public partial class MainWindow: Gtk.Window
         w1.Add(i.Type + "_icon", w2);
         w1.AddDefault();
         var act = new Gtk.Action("c_Create" + i.Type + "Action", null, "Create " + i.Type + " Project", null);
-        //act.IconName = "website";
-        //act.StockId = "website";
-        //new Gtk.Action(
         act.Activated +=
             (object sender, System.EventArgs e) =>
                 { this.PromptCreateProject(i.Type); };
         var t = act.CreateToolItem();
-        //(t as ToolButton).IconName = "website";
         (t as ToolButton).StockId = i.Type + "_icon";
-        //(t as ToolButton).IconWidget = new Gtk.Image(this.GetPixbufForType(i.Type));
         this.c_Toolbar.Add(t);
     }
     

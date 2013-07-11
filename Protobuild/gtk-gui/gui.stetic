@@ -8,118 +8,19 @@
     <widget-library name="../bin/Debug/Protobuild.exe" internal="true" />
   </import>
   <icon-factory>
-    <icon-set id="xna">
-      <source>
-        <property name="Image">resource:Protobuild.Images.controller.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="gui">
-      <source>
-        <property name="Image">resource:Protobuild.Images.application_osx.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="console">
-      <source>
-        <property name="Image">resource:Protobuild.Images.application_osx_terminal.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="website">
-      <source>
-        <property name="Image">resource:Protobuild.Images.world.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="library">
-      <source>
-        <property name="Image">resource:Protobuild.Images.bricks.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="module">
-      <source>
-        <property name="Image">resource:Protobuild.Images.box.png</property>
-      </source>
-    </icon-set>
     <icon-set id="regenerate">
       <source>
         <property name="Image">resource:Protobuild.Images.page_white_gear.png</property>
       </source>
     </icon-set>
-    <icon-set id="content">
-      <source>
-        <property name="Image">resource:Protobuild.Images.color_wheel.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="test">
-      <source>
-        <property name="Image">resource:Protobuild.Images.bug.png</property>
-      </source>
-    </icon-set>
-    <icon-set id="external">
-      <source>
-        <property name="Image">resource:Protobuild.Images.link_go.png</property>
-      </source>
-    </icon-set>
   </icon-factory>
   <widget class="Gtk.Window" id="MainWindow" design-size="479 300">
     <action-group name="Default">
-      <action id="c_CreateGameAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">xna</property>
-        <property name="Tooltip" translatable="yes">Create Protogame Project</property>
-      </action>
-      <action id="c_CreateGUIAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">gui</property>
-        <property name="Tooltip" translatable="yes">Create GUI Project</property>
-      </action>
-      <action id="c_CreateConsoleAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">console</property>
-        <property name="Tooltip" translatable="yes">Create Console Project</property>
-      </action>
-      <action id="c_CreateWebsiteAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">website</property>
-        <property name="Tooltip" translatable="yes">Create Website Project</property>
-      </action>
-      <action id="c_CreateLibraryAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">library</property>
-        <property name="Tooltip" translatable="yes">Create Library Project</property>
-      </action>
-      <action id="c_CreateModuleAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">module</property>
-        <property name="Tooltip" translatable="yes">Create Submodule</property>
-      </action>
       <action id="c_RegenerateAction">
         <property name="Type">Action</property>
         <property name="Label" translatable="yes" />
         <property name="StockId">regenerate</property>
         <property name="Tooltip" translatable="yes">Regenerate MonoDevelop Projects</property>
-      </action>
-      <action id="c_CreateExternalAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">external</property>
-        <property name="Tooltip" translatable="yes">Create External Project</property>
-      </action>
-      <action id="c_CreateTestsAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">test</property>
-        <property name="Tooltip" translatable="yes">Create Test Project</property>
-      </action>
-      <action id="c_CreateContentAction">
-        <property name="Type">Action</property>
-        <property name="Label" translatable="yes" />
-        <property name="StockId">content</property>
-        <property name="Tooltip" translatable="yes">Create Content Project</property>
       </action>
     </action-group>
     <property name="MemberName" />
@@ -136,16 +37,8 @@
             <property name="ButtonStyle">Icons</property>
             <property name="IconSize">Menu</property>
             <node name="c_Toolbar" type="Toolbar">
-              <node type="Toolitem" action="c_CreateGameAction" />
-              <node type="Toolitem" action="c_CreateGUIAction" />
-              <node type="Toolitem" action="c_CreateConsoleAction" />
-              <node type="Toolitem" action="c_CreateWebsiteAction" />
-              <node type="Toolitem" action="c_CreateLibraryAction" />
-              <node type="Toolitem" action="c_CreateTestsAction" />
-              <node type="Toolitem" action="c_CreateContentAction" />
-              <node type="Toolitem" action="c_CreateExternalAction" />
-              <node type="Toolitem" action="c_CreateModuleAction" />
               <node type="Toolitem" action="c_RegenerateAction" />
+              <node type="Separator" />
             </node>
           </widget>
           <packing>
@@ -178,7 +71,6 @@
             <property name="Xpad">10</property>
             <property name="Ypad">5</property>
             <property name="Xalign">0</property>
-            <property name="LabelProp" translatable="yes">(to be replaced)</property>
           </widget>
           <packing>
             <property name="Position">2</property>

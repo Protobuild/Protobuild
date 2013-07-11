@@ -52,6 +52,19 @@ namespace Protobuild
             return result.ToArray();
         }
         
+        public IEnumerable<DefinitionInfo> GetDefinitionsRecursively(string relative = "")
+        {
+            foreach (var definition in this.GetDefinitions())
+            {
+                definition.Path = (relative + '\\' + definition.Path).Trim('\\');
+                definition.ModulePath = this.Path;
+                yield return definition;
+            }
+            foreach (var submodule in this.GetSubmodules())
+                foreach (var definition in submodule.GetDefinitionsRecursively((relative + '\\' + submodule.Name).Trim('\\')))
+                    yield return definition;
+        }
+        
         public ModuleInfo[] GetSubmodules()
         {
             var modules = new List<ModuleInfo>();
