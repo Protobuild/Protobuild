@@ -66,6 +66,15 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
+            options["clean"] = () =>
+            {
+                if (Directory.Exists("Build"))
+                {
+                    var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                    Actions.CleanProjects(module.Path);
+                    needToExit = true;
+                }
+            };
             options["help"] = () =>
             {
                 Console.WriteLine("Protobuild.exe [-extract-xslt] [-extract-proj] [-sync] [-resync] [-generate]");
@@ -100,6 +109,10 @@ namespace Protobuild
                 Console.WriteLine("  -generate");
                 Console.WriteLine();
                 Console.WriteLine("  Generates the C# project files from the definitions.");
+                Console.WriteLine();
+                Console.WriteLine("  -clean");
+                Console.WriteLine();
+                Console.WriteLine("  Removes all generated C# project and solution files.");
                 Console.WriteLine();
                 needToExit = true;
             };
