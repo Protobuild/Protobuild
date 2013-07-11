@@ -27,7 +27,7 @@ public partial class MainWindow
 		this.c_VerticalBox1 = new global::Gtk.VBox ();
 		this.c_VerticalBox1.Name = "c_VerticalBox1";
 		// Container child c_VerticalBox1.Gtk.Box+BoxChild
-		this.UIManager.AddUiFromString ("<ui><toolbar name='c_Toolbar'><toolitem name='c_RegenerateAction' action='c_RegenerateAction'/></toolbar></ui>");
+		this.UIManager.AddUiFromString ("<ui><toolbar name='c_Toolbar'><toolitem name='c_RegenerateAction' action='c_RegenerateAction'/><separator/></toolbar></ui>");
 		this.c_Toolbar = ((global::Gtk.Toolbar)(this.UIManager.GetWidget ("/c_Toolbar")));
 		this.c_Toolbar.Name = "c_Toolbar";
 		this.c_Toolbar.ShowArrow = false;
@@ -56,7 +56,6 @@ public partial class MainWindow
 		this.c_CreateMessageLabel.Xpad = 10;
 		this.c_CreateMessageLabel.Ypad = 5;
 		this.c_CreateMessageLabel.Xalign = 0F;
-		this.c_CreateMessageLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("");
 		this.c_VerticalBox1.Add (this.c_CreateMessageLabel);
 		global::Gtk.Box.BoxChild w5 = ((global::Gtk.Box.BoxChild)(this.c_VerticalBox1 [this.c_CreateMessageLabel]));
 		w5.Position = 2;

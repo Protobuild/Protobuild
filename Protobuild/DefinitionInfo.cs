@@ -35,6 +35,12 @@ namespace Protobuild
             get;
             private set;
         }
+        
+        public string ModulePath
+        {
+            get;
+            set;
+        }
     
         public static DefinitionInfo Load(string xmlFile)
         {

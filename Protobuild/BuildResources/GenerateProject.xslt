@@ -200,7 +200,7 @@
                         /Input/Generation/Platform,
                         '.csproj'),
                       concat(
-                        $include-path,
+                        /Input/Projects/Project[@Name=$include-path]/@Path,
                         '\',
                         @Include,
                         '.',

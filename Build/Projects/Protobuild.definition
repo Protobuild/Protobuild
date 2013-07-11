@@ -33,7 +33,6 @@
     <Compile Include="gtk-gui\Protobuild.CreateProjectDialog.cs" />
     <Compile Include="MainWindow.cs" />
     <Compile Include="ModuleInfo.cs" />
-    <Compile Include="ModuleTreeModel.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectReader\CSharpProject.cs" />

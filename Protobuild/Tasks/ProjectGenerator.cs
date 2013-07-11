@@ -28,17 +28,26 @@ namespace Protobuild.Tasks
             this.m_Log = log;
         }
 
-        public void Load(string path)
+        public void Load(string path, string rootPath = null, string modulePath = null)
         {
             var doc = new XmlDocument();
             doc.Load(path);
 
             // If this is a ContentProject, we actually need to generate the
             // full project node from the files that are in the Source folder.
+            XmlDocument newDoc = null;
             if (doc.DocumentElement.Name == "ContentProject")
-                this.m_ProjectDocuments.Add(GenerateContentProject(doc));
+                newDoc = GenerateContentProject(doc);
             else
-                this.m_ProjectDocuments.Add(doc);
+                newDoc = doc;
+            if (rootPath != null && modulePath != null)
+            {
+                var additionalPath = modulePath.Substring(rootPath.Length).Replace('/', '\\');
+                newDoc.DocumentElement.Attributes["Path"].Value = 
+                    (additionalPath.Trim('\\') + '\\' + 
+                    newDoc.DocumentElement.Attributes["Path"].Value).Trim('\\');
+            }
+            this.m_ProjectDocuments.Add(newDoc);
 
             // Also add a Guid attribute if one doesn't exist.  This makes it
             // easier to define projects.
