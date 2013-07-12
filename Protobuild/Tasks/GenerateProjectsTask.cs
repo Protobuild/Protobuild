@@ -50,7 +50,7 @@ namespace Protobuild.Tasks
             {
                 this.Log.LogMessage(
                     "Invoking submodule generation for " + submodule.Name);
-                submodule.RunProtobuild("-generate");
+                submodule.RunProtobuild("-generate " + Platform);
                 this.Log.LogMessage(
                     "Finished submodule generation for " + submodule.Name);
             }
