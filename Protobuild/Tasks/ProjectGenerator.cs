@@ -43,9 +43,14 @@ namespace Protobuild.Tasks
             if (rootPath != null && modulePath != null)
             {
                 var additionalPath = modulePath.Substring(rootPath.Length).Replace('/', '\\');
-                newDoc.DocumentElement.Attributes["Path"].Value = 
-                    (additionalPath.Trim('\\') + '\\' + 
-                    newDoc.DocumentElement.Attributes["Path"].Value).Trim('\\');
+                if (newDoc.DocumentElement != null &&
+                    newDoc.DocumentElement.Attributes["Path"] != null &&
+                    additionalPath != null)
+                {
+                    newDoc.DocumentElement.Attributes["Path"].Value = 
+                        (additionalPath.Trim('\\') + '\\' + 
+                        newDoc.DocumentElement.Attributes["Path"].Value).Trim('\\');
+                }
             }
             this.m_ProjectDocuments.Add(newDoc);
 
