@@ -30,38 +30,10 @@ namespace Protobuild
             var elements = projectElement.ChildNodes.Cast<XmlNode>()
                 .Where(x => x is XmlElement).Cast<XmlElement>().ToList();
             
-            var references = elements.Cast<XmlElement>().First(x => x.Name == "References");
             var files = elements.Cast<XmlElement>().First(x => x.Name == "Files");
             
-            var existingReferences = new List<string>();
-            foreach (var reference in references.ChildNodes.Cast<XmlElement>().Select(x => x.GetAttribute("Include").Trim()))
-                if (!existingReferences.Contains(reference))
-                    existingReferences.Add(reference);
-            foreach (var reference in this.m_CSharpProject.References)
-                if (!existingReferences.Contains(reference))
-                    existingReferences.Add(reference);
-            
-            // Remove all existing references and files.
-            references.RemoveAll();
+            // Remove all existing files.
             files.RemoveAll();
-            
-            // Add the new references.
-            foreach (var reference in existingReferences.Where(x => !string.IsNullOrWhiteSpace(x)).OrderBy(x => x))
-            {
-                if (reference.StartsWith("atk-sharp,", StringComparison.Ordinal) ||
-                    reference.StartsWith("gdk-sharp,", StringComparison.Ordinal) ||
-                    reference.StartsWith("glade-sharp,", StringComparison.Ordinal) ||
-                    reference.StartsWith("glib-sharp,", StringComparison.Ordinal) ||
-                    reference.StartsWith("gtk-sharp,", StringComparison.Ordinal) ||
-                    reference.StartsWith("pango-sharp,", StringComparison.Ordinal))
-                {
-                    // These references are included with the GTK project.
-                    continue;
-                }
-                var element = document.CreateElement("Reference");
-                element.SetAttribute("Include", reference);
-                references.AppendChild(element);
-            }
             
             // Add the new files.
             foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => x.GetAttribute("Include")))

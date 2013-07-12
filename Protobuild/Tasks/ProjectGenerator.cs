@@ -51,6 +51,29 @@ namespace Protobuild.Tasks
                         (additionalPath.Trim('\\') + '\\' + 
                         newDoc.DocumentElement.Attributes["Path"].Value).Trim('\\');
                 }
+                if (newDoc.DocumentElement.Name == "ExternalProject")
+                {
+                    // Need to find all descendant Binary and Project tags
+                    // and update their paths as well.
+                    var xDoc = newDoc.ToXDocument();
+                    var projectsToUpdate = xDoc.Descendants().Where(x => x.Name == "Project");
+                    var binariesToUpdate = xDoc.Descendants().Where(x => x.Name == "Binary");
+                    foreach (var projectToUpdate in projectsToUpdate
+                        .Where(x => x.Attribute("Path") != null))
+                    {
+                        projectToUpdate.Attribute("Path").Value = 
+                            (additionalPath.Trim('\\') + '\\' + 
+                            projectToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
+                    }
+                    foreach (var binaryToUpdate in binariesToUpdate
+                        .Where(x => x.Attribute("Path") != null))
+                    {
+                        binaryToUpdate.Attribute("Path").Value = 
+                            (additionalPath.Trim('\\') + '\\' + 
+                            binaryToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
+                    }
+                    newDoc = xDoc.ToXmlDocument();
+                }
             }
             this.m_ProjectDocuments.Add(newDoc);
 
