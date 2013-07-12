@@ -10,8 +10,9 @@ namespace Protobuild
         public static void Main(string[] args)
         {
             var needToExit = false;
+            int exitCode = 0;
             var options = new Options();
-            options["extract-xslt"] = () =>
+            options["extract-xslt"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
@@ -30,7 +31,7 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["extract-proj"] = () =>
+            options["extract-proj"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
@@ -39,7 +40,7 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["sync"] = () =>
+            options["sync"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
@@ -48,7 +49,7 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["resync"] = () =>
+            options["resync"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
@@ -57,25 +58,25 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["generate"] = () =>
+            options["generate@1"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    Actions.RegenerateProjects(module.Path);
+                    exitCode = Actions.RegenerateProjects(module.Path, x.Length > 0 ? x[0] : null);
                     needToExit = true;
                 }
             };
-            options["clean"] = () =>
+            options["clean@1"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    Actions.CleanProjects(module.Path);
+                    exitCode = Actions.CleanProjects(module.Path, x.Length > 0 ? x[0] : null);
                     needToExit = true;
                 }
             };
-            options["help"] = () =>
+            options["help"] = x =>
             {
                 Console.WriteLine("Protobuild.exe [-extract-xslt] [-extract-proj] [-sync] [-resync] [-generate]");
                 Console.WriteLine();
@@ -106,11 +107,11 @@ namespace Protobuild
                 Console.WriteLine("  Synchronises the changes in the C# project files back to the");
                 Console.WriteLine("  definitions and then regenerates the projects again.");
                 Console.WriteLine();
-                Console.WriteLine("  -generate");
+                Console.WriteLine("  -generate <platform>");
                 Console.WriteLine();
                 Console.WriteLine("  Generates the C# project files from the definitions.");
                 Console.WriteLine();
-                Console.WriteLine("  -clean");
+                Console.WriteLine("  -clean <platform>");
                 Console.WriteLine();
                 Console.WriteLine("  Removes all generated C# project and solution files.");
                 Console.WriteLine();
@@ -119,7 +120,7 @@ namespace Protobuild
             options.Parse(args);
             if (needToExit)
             {
-                Environment.Exit(0);
+                Environment.Exit(exitCode);
                 return;
             }
         

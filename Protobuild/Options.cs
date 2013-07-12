@@ -5,25 +5,49 @@ namespace Protobuild
 {
     public class Options
     {
-        private Dictionary<string, Action> m_Actions = new Dictionary<string, Action>();
+        private Dictionary<string, Action<string[]>> m_Actions = new Dictionary<string, Action<string[]>>();
         
         public void Parse(string[] args)
         {
-            foreach (var arg in args)
+            for (var i = 0; i < args.Length; i++)
             {
+                var arg = args[i];
                 if (arg.StartsWith("-", StringComparison.InvariantCulture) ||
                     arg.StartsWith("/", StringComparison.InvariantCulture))
                 {
                     var realArg = arg.TrimStart('-').TrimStart('/').ToLower();
-                    if (this.m_Actions.ContainsKey(realArg))
+                    var takeArgs = this.GetParameterCountForArgument(realArg);
+                    var actionArgs = new List<string>();
+                    if (takeArgs > 0)
                     {
-                        this.m_Actions[realArg]();
+                        for (var v = 0; v < takeArgs && (i + 1) < args.Length; v++)
+                        {
+                            i++;
+                            if (args[i].StartsWith("-", StringComparison.InvariantCulture) ||
+                                args[i].StartsWith("/", StringComparison.InvariantCulture))
+                                break;
+                            actionArgs.Add(args[i]);
+                        }
                     }
+                    while (actionArgs.Count < takeArgs)
+                        actionArgs.Add(null);
+                    if (this.m_Actions.ContainsKey(realArg))
+                        this.m_Actions[realArg](actionArgs.ToArray());
+                    if (this.m_Actions.ContainsKey(realArg + "@" + takeArgs))
+                        this.m_Actions[realArg + "@" + takeArgs](actionArgs.ToArray());
                 }
             }
         }
         
-        public Action this[string key]
+        private int GetParameterCountForArgument(string arg)
+        {
+            foreach (string key in this.m_Actions.Keys)
+                if (key.StartsWith(arg + "@", StringComparison.Ordinal))
+                    return Convert.ToInt32(key.Split(new[]{'@'}, 2)[1]);
+            return 0;
+        }
+        
+        public Action<string[]> this[string key]
         {
             get { return this.m_Actions[key.ToLower()]; }
             set { this.m_Actions[key.ToLower()] = value; }

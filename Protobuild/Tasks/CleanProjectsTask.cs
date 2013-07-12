@@ -17,7 +17,7 @@ namespace Protobuild.Tasks
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
             foreach (var submodule in module.GetSubmodules())
-                submodule.RunProtobuild("-clean");
+                submodule.RunProtobuild("-clean " + Platform);
                 
             foreach (var definition in definitions.Select(x => x.Name))
             {

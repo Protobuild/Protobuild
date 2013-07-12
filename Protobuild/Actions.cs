@@ -55,28 +55,34 @@ namespace Protobuild
             RegenerateProjects(module.Path);
         }
         
-        public static void RegenerateProjects(string root)
+        public static int RegenerateProjects(string root, string platform = null)
         {
+            if (string.IsNullOrWhiteSpace(platform))
+                platform = DetectPlatform();
             var info = new ProcessStartInfo
             {
                 FileName = "xbuild",
-                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + DetectPlatform(),
+                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + platform,
                 WorkingDirectory = root
             };
             var p = Process.Start(info);
             p.WaitForExit();
+            return p.ExitCode;
         }
         
-        public static void CleanProjects(string root)
+        public static int CleanProjects(string root, string platform = null)
         {
+            if (string.IsNullOrWhiteSpace(platform))
+                platform = DetectPlatform();
             var info = new ProcessStartInfo
             {
                 FileName = "xbuild",
-                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + DetectPlatform() + " /p:Clean=True",
+                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + platform + " /p:Clean=True",
                 WorkingDirectory = root
             };
             var p = Process.Start(info);
             p.WaitForExit();
+            return p.ExitCode;
         }
         
         private static string DetectPlatform()
