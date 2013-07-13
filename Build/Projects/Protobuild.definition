@@ -1,5 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Name="Protobuild" Path="Protobuild" Type="GTK">
+  <NuGet>
+    <Version>1.0.0.1</Version>
+    <Author>James Rhodes</Author>
+    <Type>Tool</Type>
+    <Summary>Protobuild is a source-based module system; similar to NuGet.  It generates cross-platform C# projects for a maintainable code base.</Summary>
+    <Description>Protobuild is a source-based module system; similar to NuGet.  It generates cross-platform C# projects for a maintainable code base.
+
+In order to finalize the installation of Protobuild, you need to copy the "Protobuild.exe" from the "packages/Protobuild.1.0/tools/" directory to the root of the solution directory.  Then run Protobuild to create the new Protobuild module.</Description>
+  </NuGet>
   <References>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
