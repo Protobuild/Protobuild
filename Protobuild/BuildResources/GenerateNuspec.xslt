@@ -14,22 +14,37 @@
       name="project"
       select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
   
-    <package>
+    <xsl:if test="$project/NuGet">
+      <package>
         <metadata>
-            <id><xsl:value-of select="/Input/Generation/ProjectName" /></id>
-            <version>1.0</version>
-            <authors>James Rhodes</authors>
-            <description>NuGet package</description>
+          <id><xsl:value-of select="/Input/Generation/ProjectName" /></id>
+          <version><xsl:value-of select="$project/NuGet/Version" /></version>
+          <authors><xsl:value-of select="$project/NuGet/Author" /></authors>
+          <summary><xsl:value-of select="$project/NuGet/Summary" /></summary>
+          <description><xsl:value-of select="$project/NuGet/Description" /></description>
         </metadata>
         <files>
-            <file src="bin/Debug/*.exe" target="lib/net40" />
-            <file src="bin/Debug/*.exe.mdb" target="lib/net40" />
-            <file src="bin/Debug/*.exe.pdb" target="lib/net40" />
-            <file src="bin/Debug/*.dll" target="lib/net40" />
-            <file src="bin/Debug/*.dll.mdb" target="lib/net40" />
-            <file src="bin/Debug/*.dll.pdb" target="lib/net40" />
+          <xsl:choose>
+            <xsl:when test="$project/NuGet/Type = 'Tool'">
+              <file src="bin/Debug/*.exe" target="tools" />
+              <file src="bin/Debug/*.exe.mdb" target="tools" />
+              <file src="bin/Debug/*.exe.pdb" target="tools" />
+              <file src="bin/Debug/*.dll" target="tools" />
+              <file src="bin/Debug/*.dll.mdb" target="tools" />
+              <file src="bin/Debug/*.dll.pdb" target="tools" />
+            </xsl:when>
+            <xsl:otherwise>
+              <file src="bin/Debug/*.exe" target="lib/net40" />
+              <file src="bin/Debug/*.exe.mdb" target="lib/net40" />
+              <file src="bin/Debug/*.exe.pdb" target="lib/net40" />
+              <file src="bin/Debug/*.dll" target="lib/net40" />
+              <file src="bin/Debug/*.dll.mdb" target="lib/net40" />
+              <file src="bin/Debug/*.dll.pdb" target="lib/net40" />
+            </xsl:otherwise>
+          </xsl:choose>
         </files>
-    </package>
+      </package>
+    </xsl:if>
         
   </xsl:template>
   
