@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Name="Protobuild" Path="Protobuild" Type="GTK">
   <NuGet>
-    <Version>1.0.0.1</Version>
+    <Version>1.0.0.2</Version>
     <Author>James Rhodes</Author>
     <Type>Tool</Type>
     <Summary>Protobuild is a source-based module system; similar to NuGet.  It generates cross-platform C# projects for a maintainable code base.</Summary>
