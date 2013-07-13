@@ -40,6 +40,14 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
+            options["extract-util"] = x =>
+            {
+                if (Directory.Exists("Build"))
+                {
+                    ResourceExtractor.ExtractUtilities(Path.Combine(Environment.CurrentDirectory, "Build"));
+                    needToExit = true;
+                }
+            };
             options["sync"] = x =>
             {
                 if (Directory.Exists("Build"))
@@ -96,6 +104,12 @@ namespace Protobuild
                 Console.WriteLine("  Extracts the Main.proj file again to the Build\\ folder.  This is");
                 Console.WriteLine("  useful if you have updated Protobuild and need to extract the");
                 Console.WriteLine("  latest build script.");
+                Console.WriteLine();
+                Console.WriteLine("  -extract-util");
+                Console.WriteLine();
+                Console.WriteLine("  Extracts utilities again to the Build\\ folder.  This is");
+                Console.WriteLine("  useful if you the utilities have been deleted from the Build\\");
+                Console.WriteLine("  folder and you need to get them back.");
                 Console.WriteLine();
                 Console.WriteLine("  -sync");
                 Console.WriteLine();
