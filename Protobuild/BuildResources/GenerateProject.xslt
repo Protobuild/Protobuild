@@ -503,6 +503,29 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
           <Process4Assembler AssemblyFile="$(TargetPath)" />
         </Target>
       </xsl:if>
+      
+      <UsingTask  
+        TaskName="Protobuild.Tasks.NugetPackTask">
+        <xsl:attribute name="AssemblyFile">
+          <xsl:value-of select="/Input/Generation/RootPath" />
+          <xsl:text>Protobuild.exe</xsl:text>
+        </xsl:attribute>
+      </UsingTask>
+      
+      <Target Name="AfterBuild">
+        <NugetPackTask ProjectPath="$(ProjectDir)">
+          <xsl:attribute name="NuspecFile">
+            <xsl:value-of select="concat(
+              $project/@Name,
+              '.',
+              /Input/Generation/Platform,
+              '.nuspec')" />
+          </xsl:attribute>
+          <xsl:attribute name="RootPath">
+            <xsl:value-of select="/Input/Generation/RootPath" />
+          </xsl:attribute>
+        </NugetPackTask>
+      </Target>
 
     </Project>
     

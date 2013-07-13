@@ -42,11 +42,14 @@
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
+    <Compile Include="Tasks\NugetPackTask.cs" />
     <Compile Include="Tasks\ProjectGenerator.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
+    <EmbeddedResource Include="BuildResources\GenerateNuspec.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
     <EmbeddedResource Include="BuildResources\Main.proj" />
+    <EmbeddedResource Include="BuildResources\nuget.exe" />
     <EmbeddedResource Include="gtk-gui\gui.stetic">
       <LogicalName>gui.stetic</LogicalName>
     </EmbeddedResource>

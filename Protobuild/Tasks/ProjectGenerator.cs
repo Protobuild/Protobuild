@@ -14,6 +14,7 @@ namespace Protobuild.Tasks
         private string m_RootPath;
         private string m_Platform;
         private List<XmlDocument> m_ProjectDocuments = new List<XmlDocument>();
+        private XslCompiledTransform m_NuspecTransform = null;
         private XslCompiledTransform m_ProjectTransform = null;
         private XslCompiledTransform m_SolutionTransform = null;
         private TaskLoggingHelper m_Log;
@@ -93,7 +94,7 @@ namespace Protobuild.Tasks
                 var resolver = new EmbeddedResourceResolver();
                 this.m_ProjectTransform = new XslCompiledTransform();
                 Stream generateProjectStream;
-                var generateProjectXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateProjects.xslt");
+                var generateProjectXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateProject.xslt");
                 if (File.Exists(generateProjectXSLT))
                     generateProjectStream = File.Open(generateProjectXSLT, FileMode.Open);
                 else
@@ -104,6 +105,29 @@ namespace Protobuild.Tasks
                     using (var reader = XmlReader.Create(generateProjectStream))
                     {
                         this.m_ProjectTransform.Load(
+                            reader,
+                            XsltSettings.TrustedXslt,
+                            resolver
+                        );
+                    }
+                }
+            }
+            if (this.m_NuspecTransform == null)
+            {
+                var resolver = new EmbeddedResourceResolver();
+                this.m_NuspecTransform = new XslCompiledTransform();
+                Stream generateNuspecStream;
+                var generateNuspecXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateNuspec.xslt");
+                if (File.Exists(generateNuspecXSLT))
+                    generateNuspecStream = File.Open(generateNuspecXSLT, FileMode.Open);
+                else
+                    generateNuspecStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "Protobuild.BuildResources.GenerateNuspec.xslt");
+                using (generateNuspecStream)
+                {
+                    using (var reader = XmlReader.Create(generateNuspecStream))
+                    {
+                        this.m_NuspecTransform.Load(
                             reader,
                             XsltSettings.TrustedXslt,
                             resolver
@@ -157,6 +181,13 @@ namespace Protobuild.Tasks
             using (var writer = XmlWriter.Create(path, settings))
             {
                 this.m_ProjectTransform.Transform(input, writer);
+            }
+            
+            // Generate NuSpec target.
+            var nuspecPath = path.Substring(0, path.Length - ".csproj".Length) + ".nuspec";
+            using (var writer = XmlWriter.Create(nuspecPath, settings))
+            {
+                this.m_NuspecTransform.Transform(input, writer);
             }
 
             // Also remove any left over .sln or .userprefs files.
