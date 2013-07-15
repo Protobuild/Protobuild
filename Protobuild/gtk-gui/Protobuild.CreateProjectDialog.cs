@@ -30,7 +30,7 @@ namespace Protobuild
 			this.c_PromptLabel.Xpad = 5;
 			this.c_PromptLabel.Ypad = 5;
 			this.c_PromptLabel.Xalign = 0F;
-			this.c_PromptLabel.LabelProp = global::Mono.Unix.Catalog.GetString ("Project Name:");
+			this.c_PromptLabel.LabelProp = "Project Name:";
 			this.vbox2.Add (this.c_PromptLabel);
 			global::Gtk.Box.BoxChild w2 = ((global::Gtk.Box.BoxChild)(this.vbox2 [this.c_PromptLabel]));
 			w2.Position = 0;
