@@ -44,7 +44,14 @@
       
       <PropertyGroup>
         <Configuration>Debug</Configuration>
-        <Platform>AnyCPU</Platform>
+        <xsl:choose>
+          <xsl:when test="/Input/Properties/ForceArchitecture">
+            <Platform><xsl:value-of select="/Input/Properties/ForceArchitecture" /></Platform>
+          </xsl:when>
+          <xsl:otherwise>
+            <Platform>AnyCPU</Platform>
+          </xsl:otherwise>
+        </xsl:choose>
         <ProductVersion>10.0.0</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <ProjectGuid>{<xsl:value-of select="$project/@Guid" />}</ProjectGuid>
@@ -492,7 +499,8 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
       
       <xsl:if test="$project/NuGet">
         <UsingTask
-          TaskName="Protobuild.Tasks.NugetPackTask">
+          TaskName="Protobuild.Tasks.NugetPackTask"
+          ContinueOnError="WarnAndContinue">
           <xsl:attribute name="AssemblyFile">
             <xsl:value-of select="/Input/Generation/RootPath" />
             <xsl:text>Protobuild.exe</xsl:text>
@@ -500,7 +508,9 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
         </UsingTask>
         
         <Target Name="AfterBuild">
-          <NugetPackTask ProjectPath="$(ProjectDir)">
+          <NugetPackTask
+            ProjectPath="$(ProjectDir)"
+            ContinueOnError="WarnAndContinue">
             <xsl:attribute name="NuspecFile">
               <xsl:value-of select="concat(
                 $project/@Name,

@@ -69,11 +69,9 @@ namespace Protobuild
         {
         }
         
-        public override Gdk.Pixbuf GetIcon()
+        public override string GetIcon()
         {
-            return new Gdk.Pixbuf(
-                System.Reflection.Assembly.GetExecutingAssembly(),
-                "Protobuild.Images.link_go.png");
+            return "ProtobuildManager.Images.link_go.png";
         }
     }
 }

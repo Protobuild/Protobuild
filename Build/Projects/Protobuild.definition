@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Name="Protobuild" Path="Protobuild" Type="GTK">
+<Project Name="Protobuild" Path="Protobuild" Type="Console">
   <NuGet>
     <Version>1.0.0.2</Version>
     <Author>James Rhodes</Author>
@@ -18,11 +18,11 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Windows.Forms" />
   </References>
   <Files>
     <Compile Include="Actions.cs" />
     <Compile Include="BuildResources\ResourceExtractor.cs" />
-    <Compile Include="CreateProjectDialog.cs" />
     <Compile Include="DefinitionInfo.cs" />
     <Compile Include="DefinitionTemplates\BaseTemplate.cs" />
     <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
@@ -36,10 +36,6 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Compile Include="DefinitionTemplates\WebsiteTemplate.cs" />
     <Compile Include="DefinitionTemplates\XNATemplate.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
-    <Compile Include="gtk-gui\generated.cs" />
-    <Compile Include="gtk-gui\MainWindow.cs" />
-    <Compile Include="gtk-gui\Protobuild.CreateProjectDialog.cs" />
-    <Compile Include="MainWindow.cs" />
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
@@ -53,25 +49,14 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Compile Include="Tasks\NugetPackTask.cs" />
     <Compile Include="Tasks\ProjectGenerator.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
+    <EmbeddedResource Include="..\ProtobuildManager\bin\Debug\ProtobuildManager.exe">
+      <Link>ProtobuildManager.exe</Link>
+    </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\GenerateNuspec.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
     <EmbeddedResource Include="BuildResources\Main.proj" />
     <EmbeddedResource Include="BuildResources\nuget.exe" />
-    <EmbeddedResource Include="gtk-gui\gui.stetic">
-      <LogicalName>gui.stetic</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Images\application.png" />
-    <EmbeddedResource Include="Images\application_osx.png" />
-    <EmbeddedResource Include="Images\application_osx_terminal.png" />
-    <EmbeddedResource Include="Images\box.png" />
-    <EmbeddedResource Include="Images\bricks.png" />
-    <EmbeddedResource Include="Images\bug.png" />
-    <EmbeddedResource Include="Images\color_wheel.png" />
-    <EmbeddedResource Include="Images\controller.png" />
-    <EmbeddedResource Include="Images\link_go.png" />
-    <EmbeddedResource Include="Images\page_white_gear.png" />
-    <EmbeddedResource Include="Images\world.png" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
   </Files>

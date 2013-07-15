@@ -62,11 +62,9 @@ namespace " + name + @"
             }
         }
         
-        public override Gdk.Pixbuf GetIcon()
+        public override string GetIcon()
         {
-            return new Gdk.Pixbuf(
-                System.Reflection.Assembly.GetExecutingAssembly(),
-                "Protobuild.Images.bug.png");
+            return "ProtobuildManager.Images.bug.png";
         }
     }
 }
