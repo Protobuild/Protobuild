@@ -16,12 +16,12 @@ public partial class MainWindow
 		// Widget MainWindow
 		this.UIManager = new global::Gtk.UIManager ();
 		global::Gtk.ActionGroup w1 = new global::Gtk.ActionGroup ("Default");
-		this.c_RegenerateAction = new global::Gtk.Action ("c_RegenerateAction", null, global::Mono.Unix.Catalog.GetString ("Regenerate MonoDevelop Projects"), "regenerate");
+		this.c_RegenerateAction = new global::Gtk.Action ("c_RegenerateAction", null, "Regenerate MonoDevelop Projects", "regenerate");
 		w1.Add (this.c_RegenerateAction, null);
 		this.UIManager.InsertActionGroup (w1, 0);
 		this.AddAccelGroup (this.UIManager.AccelGroup);
 		this.Name = "MainWindow";
-		this.Title = global::Mono.Unix.Catalog.GetString ("Module Manager");
+		this.Title = "Module Manager";
 		this.WindowPosition = ((global::Gtk.WindowPosition)(3));
 		// Container child MainWindow.Gtk.Container+ContainerChild
 		this.c_VerticalBox1 = new global::Gtk.VBox ();
