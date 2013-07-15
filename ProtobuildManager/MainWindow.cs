@@ -53,7 +53,9 @@ public partial class MainWindow: Gtk.Window
     private void AddToToolbar(BaseTemplate i)
     {
         var w1 = new IconFactory();
-        var w2 = new IconSet(i.GetIcon());
+        var w2 = new IconSet(new Pixbuf(
+            Assembly.GetExecutingAssembly(),
+            i.GetIcon()));
         w1.Add(i.Type + "_icon", w2);
         w1.AddDefault();
         var act = new Gtk.Action("c_Create" + i.Type + "Action", null, "Create " + i.Type + " Project", null);
@@ -186,9 +188,9 @@ public partial class MainWindow: Gtk.Window
     private Pixbuf GetPixbufForType(string type)
     {
         var template = BaseTemplate.GetTemplateForType(type);
-        return template.GetIcon() ?? new Pixbuf(
+        return new Pixbuf(
             Assembly.GetExecutingAssembly(),
-            "Protobuild.Images.bricks.png");
+            template.GetIcon() ?? "ProtobuildManager.Images.bricks.png");
     }
     
     private void BuildTreeIter(TreeIter iter, ModuleInfo info)

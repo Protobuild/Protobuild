@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using Gdk;
 
 namespace Protobuild
 {
@@ -20,7 +19,7 @@ namespace Protobuild
         {
         }
         
-        public virtual Pixbuf GetIcon()
+        public virtual string GetIcon()
         {
             return null;
         }

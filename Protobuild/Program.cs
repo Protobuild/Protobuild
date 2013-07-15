@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Gtk;
+using System.Diagnostics;
 
 namespace Protobuild
 {
@@ -138,70 +138,40 @@ namespace Protobuild
                 return;
             }
         
-            Application.Init();
-            
-            MainWindow win = new MainWindow();
-                  
-            // Detect if there is a Build directory in the local folder.  If not,
-            // prompt to create a new module.
-            if (!Directory.Exists("Build"))
+            // Other we need to extract the ProtobuildManager to a temporary
+            // directory and run it since it has to run as 32-bit.
+            var random = new Random();
+            var temporary = Path.Combine(Path.GetTempPath(), "Protobuild_" + random.Next());
+            if (!Directory.Exists(temporary))
+                Directory.CreateDirectory(temporary);
+            var temporaryManager = Path.Combine(temporary, "ProtobuildManager.exe");
+            var temporaryConsole = Path.Combine(temporary, "Protobuild.exe");
+            File.Copy(Assembly.GetExecutingAssembly().Location, temporaryConsole);
+            using (var b = new BinaryWriter(File.Open(temporaryManager, FileMode.Create)))
             {
-                var confirm = new MessageDialog(
-                    win,
-                    DialogFlags.Modal,
-                    MessageType.Question,
-                    ButtonsType.YesNo,
-                    false,
-                    "The current directory is not a Protobuild module.  Would " +
-                    "you like to turn this directory into a module?");
-                var result = (ResponseType)confirm.Run();
-                if (result == ResponseType.No)
+                using (var m = Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream("Protobuild.ProtobuildManager.exe"))
                 {
-                    // We can't run the module manager if the current directory
-                    // isn't actually a module!
-                    confirm.Destroy();
-                    win.Destroy();
-                    return;
+                    m.CopyTo(b.BaseStream);
+                    b.Flush();
                 }
-                confirm.Destroy();
-                
-                var create = new CreateProjectDialog(win, "Module", true);
-                create.Modal = true;
-                if ((ResponseType)create.Run() != ResponseType.Ok)
-                {
-                    create.Destroy();
-                    win.Destroy();
-                    return;
-                }
-                string error;
-                if (!win.CreateProject(create.ProjectName, "Module", out error, true))
-                {
-                    var errorDialog = new MessageDialog(
-                        win,
-                        DialogFlags.Modal,
-                        MessageType.Error,
-                        ButtonsType.Ok,
-                        "Unable to create module: " + error);
-                    errorDialog.Run();
-                    errorDialog.Destroy();
-                    create.Destroy();
-                    win.Destroy();
-                    return;
-                }
-                Directory.CreateDirectory("Build");
-                ResourceExtractor.ExtractAll(Path.Combine(
-                    Environment.CurrentDirectory,
-                    "Build"), create.ProjectName);
-                create.Destroy();
             }
-            
-            // Load the module.
-            win.Module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-            win.InitializeToolbar();
-            win.Update();
-            
-            win.Show();
-            Application.Run();
+            // Attempt to set the executable bit if possible.  On platforms
+            // where this doesn't work, it doesn't matter anyway.
+            try
+            {
+                var pc = Process.Start("chmod", "a+x " + temporaryManager.Replace("\\", "\\\\").Replace(" ", "\\ "));
+                pc.WaitForExit();
+            }
+            catch (Exception)
+            {
+            }
+            var p = Process.Start(temporaryManager);
+            p.WaitForExit();
+            File.Delete(temporaryManager);
+            File.Delete(temporaryConsole);
+            Directory.Delete(temporary);
+            Environment.Exit(p.ExitCode);
         }
     }
 }

@@ -4,11 +4,11 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("Protobuild")]
-[assembly: AssemblyDescription("Protobuild is a source-based module system for C#.")]
+[assembly: AssemblyTitle("Protobuild Manager")]
+[assembly: AssemblyDescription("The Protobuild manager provides a UI for managing Protobuild modules.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Redpoint Software")]
-[assembly: AssemblyProduct("Protobuild")]
+[assembly: AssemblyProduct("Protobuild Manager")]
 [assembly: AssemblyCopyright("Redpoint Software")]
 [assembly: AssemblyTrademark("Redpoint Software")]
 [assembly: AssemblyCulture("")]
