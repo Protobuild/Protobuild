@@ -47,9 +47,11 @@
         <xsl:choose>
           <xsl:when test="/Input/Properties/ForceArchitecture">
             <Platform><xsl:value-of select="/Input/Properties/ForceArchitecture" /></Platform>
+            <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
           </xsl:when>
           <xsl:otherwise>
             <Platform>AnyCPU</Platform>
+            <PlatformTarget>AnyCPU</PlatformTarget>
           </xsl:otherwise>
         </xsl:choose>
         <ProductVersion>10.0.0</ProductVersion>
@@ -499,8 +501,7 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
       
       <xsl:if test="$project/NuGet">
         <UsingTask
-          TaskName="Protobuild.Tasks.NugetPackTask"
-          ContinueOnError="WarnAndContinue">
+          TaskName="Protobuild.Tasks.NugetPackTask">
           <xsl:attribute name="AssemblyFile">
             <xsl:value-of select="/Input/Generation/RootPath" />
             <xsl:text>Protobuild.exe</xsl:text>

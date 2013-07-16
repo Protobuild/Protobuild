@@ -69,7 +69,9 @@ public partial class MainWindow: Gtk.Window
     
     private void LoadBuiltinTemplates()
     {
-        foreach (var i in from concreteType in Assembly.GetExecutingAssembly().GetTypes()
+        foreach (var i in from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                          where assembly.GetName().Name.StartsWith("Protobuild")
+                          from concreteType in assembly.GetTypes()
                           where !concreteType.IsAbstract
                           where typeof(BaseTemplate).IsAssignableFrom(concreteType)
                           let i = Activator.CreateInstance(concreteType) as BaseTemplate
