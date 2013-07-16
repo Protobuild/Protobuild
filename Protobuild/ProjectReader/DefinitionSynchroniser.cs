@@ -37,7 +37,22 @@ namespace Protobuild
             
             // Add the new files.
             foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => x.GetAttribute("Include")))
+            {
+                // Ignore Content files.
+                if (element.Name == "None")
+                {
+                    var linkElement = element.ChildNodes
+                        .Cast<XmlNode>().FirstOrDefault(x => x.Name == "Link");
+                    if (linkElement != null)
+                    {
+                        if (linkElement.InnerText.Trim().Replace('\\', '/').StartsWith("Content/", StringComparison.Ordinal))
+                            continue;
+                    }
+                }
+                
+                // Append the file element.
                 files.AppendChild(document.ImportNode(element, true));
+            }
             
             // Clean empty elements as well.
             var cleaned = this.WashNamespaces(document);
