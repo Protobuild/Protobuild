@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace Protobuild
 {
@@ -136,6 +137,34 @@ namespace Protobuild
             {
                 Environment.Exit(exitCode);
                 return;
+            }
+
+            // Check to see if we would be able to load GTK# assemblies.
+            try
+            {
+                Assembly.Load("gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f");
+            }
+            catch (BadImageFormatException)
+            {
+                // This is fine, it means that GTK# is installed, but because we're
+                // not a 32-bit assembly, we can't actually load it.  Protobuild
+                // Manager is a 32-bit assembly, so it will work fine.
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("GTK# is not installed.  Install GTK# " +
+                                  "from http://www.go-mono.com/mono-downloads/download.html " +
+                                  "and try again.");
+                try
+                {
+                    MessageBox.Show("GTK# is not installed.  Install GTK# " +
+                                    "from http://www.go-mono.com/mono-downloads/download.html " +
+                                    "and try again.");
+                }
+                catch
+                {
+                    // Potentially no X server present.
+                }
             }
         
             // Other we need to extract the ProtobuildManager to a temporary
