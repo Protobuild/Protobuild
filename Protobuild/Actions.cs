@@ -6,6 +6,8 @@ namespace Protobuild
 {
     public static class Actions
     {
+        private static string m_CachedToolName = null;
+
         public static void Open(ModuleInfo root, object obj, Action update)
         {
             var definitionInfo = obj as DefinitionInfo;
@@ -54,14 +56,44 @@ namespace Protobuild
             Sync(module);
             RegenerateProjects(module.Path);
         }
-        
+
+        private static void TrySetTool(string tool)
+        {
+            if (m_CachedToolName != null)
+                return;
+            try
+            {
+                Process.Start(tool, "/?");
+                m_CachedToolName = tool;
+            }
+            catch
+            {
+            }
+        }
+
+        private static string GetBuildToolName()
+        {
+            if (m_CachedToolName != null)
+                return m_CachedToolName;
+            TrySetTool("xbuild");
+            TrySetTool("msbuild");
+            // Ugly...
+            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe");
+            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v3.5\msbuild.exe");
+            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v3.0\msbuild.exe");
+            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\msbuild.exe");
+            if (m_CachedToolName == null)
+                throw new InvalidOperationException("Neither xbuild nor msbuild is in the PATH.");
+            return m_CachedToolName;
+        }
+
         public static int RegenerateProjects(string root, string platform = null)
         {
             if (string.IsNullOrWhiteSpace(platform))
                 platform = DetectPlatform();
             var info = new ProcessStartInfo
             {
-                FileName = "xbuild",
+                FileName = GetBuildToolName(),
                 Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + platform,
                 WorkingDirectory = root
             };
@@ -76,7 +108,7 @@ namespace Protobuild
                 platform = DetectPlatform();
             var info = new ProcessStartInfo
             {
-                FileName = "xbuild",
+                FileName = GetBuildToolName(),
                 Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + platform + " /p:Clean=True",
                 WorkingDirectory = root
             };
