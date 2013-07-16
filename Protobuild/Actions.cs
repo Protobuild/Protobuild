@@ -57,14 +57,29 @@ namespace Protobuild
             RegenerateProjects(module.Path);
         }
 
-        private static void TrySetTool(string tool)
+        private static void TrySetTool(string tool, bool shellExecute = false)
         {
             if (m_CachedToolName != null)
                 return;
             try
             {
-                Process.Start(tool, "/?");
-                m_CachedToolName = tool;
+                if (shellExecute)
+                    Process.Start(tool, "/?");
+                else
+                {
+                    var info = new ProcessStartInfo
+                    {
+                        FileName = tool,
+                        Arguments = "/?",
+                        CreateNoWindow = true,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    };
+                    Process.Start(info);
+                    m_CachedToolName = tool;
+                }
             }
             catch
             {
@@ -75,13 +90,13 @@ namespace Protobuild
         {
             if (m_CachedToolName != null)
                 return m_CachedToolName;
-            TrySetTool("xbuild");
-            TrySetTool("msbuild");
-            // Ugly...
+            TrySetTool("/usr/bin/xbuild");
             TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe");
             TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v3.5\msbuild.exe");
             TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v3.0\msbuild.exe");
             TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\msbuild.exe");
+            TrySetTool("xbuild", true);
+            TrySetTool("msbuild", true);
             if (m_CachedToolName == null)
                 throw new InvalidOperationException("Neither xbuild nor msbuild is in the PATH.");
             return m_CachedToolName;
