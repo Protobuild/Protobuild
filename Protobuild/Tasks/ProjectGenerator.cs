@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Xsl;
 using Microsoft.Build.Utilities;
+using System.Text;
 
 namespace Protobuild.Tasks
 {
@@ -82,8 +83,20 @@ namespace Protobuild.Tasks
             // easier to define projects.
             if (doc.DocumentElement.Attributes["Guid"] == null)
             {
-                doc.DocumentElement.SetAttribute("Guid",
-                Guid.NewGuid().ToString().ToUpper());
+                var name = doc.DocumentElement.GetAttribute("Name");
+                var guidBytes = new byte[16];
+                for (var i = 0; i < guidBytes.Length; i++)
+                    guidBytes[i] = (byte)0;
+                var nameBytes = Encoding.ASCII.GetBytes(name);
+                unchecked
+                {
+                    for (var i = 0; i < nameBytes.Length; i++)
+                        guidBytes[i%16] += nameBytes[i];
+                    for (var i = nameBytes.Length; i < 16; i++)
+                        guidBytes[i] += nameBytes[i%nameBytes.Length];
+                }
+                var guid = new Guid(guidBytes);
+                doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
             }
         }
 
