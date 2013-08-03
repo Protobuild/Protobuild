@@ -43,14 +43,14 @@
       xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
       
       <PropertyGroup>
-        <Configuration>Debug</Configuration>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <xsl:choose>
           <xsl:when test="/Input/Properties/ForceArchitecture">
-            <Platform><xsl:value-of select="/Input/Properties/ForceArchitecture" /></Platform>
+            <Platform Condition=" '$(Platform)' == '' "><xsl:value-of select="/Input/Properties/ForceArchitecture" /></Platform>
             <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
           </xsl:when>
           <xsl:otherwise>
-            <Platform>AnyCPU</Platform>
+            <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
             <PlatformTarget>AnyCPU</PlatformTarget>
           </xsl:otherwise>
         </xsl:choose>
@@ -193,44 +193,6 @@
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
-            count(/Input/Projects/Project[@Name=$include-path]) > 0">
-            <xsl:if test="
-              count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
-
-              <ProjectReference>
-                <xsl:attribute name="Include">
-                  <xsl:value-of
-                    select="user:GetRelativePath(
-                      concat(
-                        $project/@Path,
-                        '\',
-                        $project/@Name,
-                        '.',
-                        /Input/Generation/Platform,
-                        '.csproj'),
-                      concat(
-                        /Input/Projects/Project[@Name=$include-path]/@Path,
-                        '\',
-                        @Include,
-                        '.',
-                        /Input/Generation/Platform,
-                        '.csproj'))" />
-                </xsl:attribute>
-                <Project>{<xsl:value-of 
-select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
-                <Name>
-                  <xsl:value-of select="@Include" />
-                </Name>
-              </ProjectReference>
-            </xsl:if>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-      
-      <ItemGroup>
-        <xsl:for-each select="$project/References/Reference">
-          <xsl:variable name="include-path" select="./@Include" />
-          <xsl:if test="
             count(/Input/Projects/Project[@Name=$include-path]) = 0">
             <xsl:if test="
               count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
@@ -244,65 +206,6 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
                   <xsl:text />
                 </Reference>
               </xsl:if>
-            </xsl:if>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-      
-      <ItemGroup>
-        <xsl:for-each select="$project/References/Reference">
-          <xsl:variable name="include-name" select="./@Include" />
-          <xsl:if test="
-            count(/Input/Projects/Project[@Name=$include-name]) = 0">
-            <xsl:if test="
-              count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
-
-              <xsl:variable name="extern"
-                select="/Input/Projects/ExternalProject[@Name=$include-name]" />
-            
-              <xsl:for-each select="$extern/Project">
-                <ProjectReference>
-                  <xsl:attribute name="Include">
-                    <xsl:value-of
-                      select="user:GetRelativePath(
-                        concat(
-                          $project/@Path,
-                          '\',
-                          $project/@Name,
-                          '.',
-                          /Input/Generation/Platform,
-                          '.csproj'),
-                        ./@Path)" />
-                  </xsl:attribute>
-                  <Project>{<xsl:value-of select="./@Guid" />}</Project>
-                  <Name>
-                    <xsl:value-of select="./@Name" />
-                  </Name>
-                </ProjectReference>
-              </xsl:for-each>
-              <xsl:for-each select="$extern/Platform
-                                      [@Type=/Input/Generation/Platform]">
-                <xsl:for-each select="./Project">
-                  <ProjectReference>
-                    <xsl:attribute name="Include">
-                      <xsl:value-of
-                        select="user:GetRelativePath(
-                          concat(
-                            $project/@Path,
-                            '\',
-                            $project/@Name,
-                            '.',
-                            /Input/Generation/Platform,
-                            '.csproj'),
-                          ./@Path)" />
-                    </xsl:attribute>
-                    <Project>{<xsl:value-of select="./@Guid" />}</Project>
-                    <Name>
-                      <xsl:value-of select="./@Name" />
-                    </Name>
-                  </ProjectReference>
-                </xsl:for-each>
-              </xsl:for-each>
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
@@ -499,6 +402,8 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
         </Target>
       </xsl:if>
       
+      {ADDITIONAL_TRANSFORMS}
+      
       <xsl:if test="$project/NuGet">
         <UsingTask
           TaskName="Protobuild.Tasks.NugetPackTask">
@@ -525,6 +430,105 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
           </NugetPackTask>
         </Target>
       </xsl:if>
+      
+      <ItemGroup>
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-name" select="./@Include" />
+          <xsl:if test="
+            count(/Input/Projects/Project[@Name=$include-name]) = 0">
+            <xsl:if test="
+              count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+              <xsl:variable name="extern"
+                select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+            
+              <xsl:for-each select="$extern/Project">
+                <ProjectReference>
+                  <xsl:attribute name="Include">
+                    <xsl:value-of
+                      select="user:GetRelativePath(
+                        concat(
+                          $project/@Path,
+                          '\',
+                          $project/@Name,
+                          '.',
+                          /Input/Generation/Platform,
+                          '.csproj'),
+                        ./@Path)" />
+                  </xsl:attribute>
+                  <Project>{<xsl:value-of select="./@Guid" />}</Project>
+                  <Name>
+                    <xsl:value-of select="./@Name" />
+                  </Name>
+                </ProjectReference>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=/Input/Generation/Platform]">
+                <xsl:for-each select="./Project">
+                  <ProjectReference>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
+                          concat(
+                            $project/@Path,
+                            '\',
+                            $project/@Name,
+                            '.',
+                            /Input/Generation/Platform,
+                            '.csproj'),
+                          ./@Path)" />
+                    </xsl:attribute>
+                    <Project>{<xsl:value-of select="./@Guid" />}</Project>
+                    <Name>
+                      <xsl:value-of select="./@Name" />
+                    </Name>
+                  </ProjectReference>
+                </xsl:for-each>
+              </xsl:for-each>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      
+      <ItemGroup>
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-path" select="./@Include" />
+          <xsl:if test="
+            count(/Input/Projects/Project[@Name=$include-path]) > 0">
+            <xsl:if test="
+              count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+
+              <ProjectReference>
+                <xsl:attribute name="Include">
+                  <xsl:value-of
+                    select="user:GetRelativePath(
+                      concat(
+                        $project/@Path,
+                        '\',
+                        $project/@Name,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj'),
+                      concat(
+                        /Input/Projects/Project[@Name=$include-path]/@Path,
+                        '\',
+                        @Include,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj'))" />
+                </xsl:attribute>
+                <Project>{<xsl:value-of 
+select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
+                <Name>
+                  <xsl:value-of select="@Include" />
+                  <xsl:text>.</xsl:text>
+                  <xsl:value-of select="/Input/Generation/Platform" />
+                </Name>
+              </ProjectReference>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
 
     </Project>
     

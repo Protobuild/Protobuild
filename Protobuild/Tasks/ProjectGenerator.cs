@@ -106,23 +106,13 @@ namespace Protobuild.Tasks
             {
                 var resolver = new EmbeddedResourceResolver();
                 this.m_ProjectTransform = new XslCompiledTransform();
-                Stream generateProjectStream;
-                var generateProjectXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateProject.xslt");
-                if (File.Exists(generateProjectXSLT))
-                    generateProjectStream = File.Open(generateProjectXSLT, FileMode.Open);
-                else
-                    generateProjectStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                        "Protobuild.BuildResources.GenerateProject.xslt");
-                using (generateProjectStream)
+                using (var reader = XmlReader.Create(ResourceExtractor.GetGenerateProjectXSLT(this.m_RootPath)))
                 {
-                    using (var reader = XmlReader.Create(generateProjectStream))
-                    {
-                        this.m_ProjectTransform.Load(
-                            reader,
-                            XsltSettings.TrustedXslt,
-                            resolver
-                        );
-                    }
+                    this.m_ProjectTransform.Load(
+                        reader,
+                        XsltSettings.TrustedXslt,
+                        resolver
+                    );
                 }
             }
             if (this.m_NuspecTransform == null)
