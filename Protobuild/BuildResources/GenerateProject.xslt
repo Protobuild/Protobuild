@@ -126,9 +126,6 @@
           <xsl:when test="/Input/Properties/ForceArchitecture">
             <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
           </xsl:when>
-          <xsl:otherwise>
-            <PlatformTarget>AnyCPU</PlatformTarget>
-          </xsl:otherwise>
         </xsl:choose>
       </PropertyGroup>
       <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -165,9 +162,6 @@
           <xsl:when test="/Input/Properties/ForceArchitecture">
             <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
           </xsl:when>
-          <xsl:otherwise>
-            <PlatformTarget>AnyCPU</PlatformTarget>
-          </xsl:otherwise>
         </xsl:choose>
       </PropertyGroup>
       <xsl:if test="/Input/Properties/ForceArchitecture">
@@ -207,14 +201,7 @@
           </DefineConstants>
           <ErrorReport>prompt</ErrorReport>
           <WarningLevel>4</WarningLevel>
-          <xsl:choose>
-            <xsl:when test="/Input/Properties/ForceArchitecture">
-              <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
-            </xsl:when>
-            <xsl:otherwise>
-              <PlatformTarget>AnyCPU</PlatformTarget>
-            </xsl:otherwise>
-          </xsl:choose>
+          <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
         </PropertyGroup>
         <PropertyGroup>
           <xsl:attribute name="Condition">
@@ -251,17 +238,9 @@
           </DefineConstants>
           <ErrorReport>prompt</ErrorReport>
           <WarningLevel>4</WarningLevel>
-          <xsl:choose>
-            <xsl:when test="/Input/Properties/ForceArchitecture">
-              <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
-            </xsl:when>
-            <xsl:otherwise>
-              <PlatformTarget>AnyCPU</PlatformTarget>
-            </xsl:otherwise>
-          </xsl:choose>
+          <PlatformTarget>AnyCPU</PlatformTarget>
         </PropertyGroup>
       </xsl:if>
-      
       
       <xsl:if test="/Input/Generation/UseCSCJVM = 'True'">
         <PropertyGroup>
@@ -271,8 +250,7 @@
           </CscToolExe>
         </PropertyGroup>
       </xsl:if>
-
-      <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />      
+ 
       <xsl:choose>
         <xsl:when test="$project/@Type = 'Website'">    
           <Import>
@@ -295,8 +273,8 @@
         </xsl:when>
       </xsl:choose>
       
-      <xsl:if test="$project/@Type = 'GTK'">
-        <ItemGroup>
+      <ItemGroup>
+        <xsl:if test="$project/@Type = 'GTK'">
           <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
             <SpecificVersion>False</SpecificVersion>
           </Reference>
@@ -315,10 +293,8 @@
           <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
             <SpecificVersion>False</SpecificVersion>
           </Reference>
-        </ItemGroup>
-      </xsl:if>
+        </xsl:if>
       
-      <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
@@ -338,9 +314,7 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-      </ItemGroup>
-      
-      <ItemGroup>
+        
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
@@ -395,9 +369,7 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-      </ItemGroup>
-      
-      <ItemGroup>
+        
         <xsl:for-each select="/Input/NuGet/Package">
           <Reference>
             <xsl:attribute name="Include">
@@ -505,6 +477,8 @@
         </xsl:for-each>
       </ItemGroup>
    
+      <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+      
       <xsl:if test="$project/@Type = 'Tests'">
       	<UsingTask
           TaskName="Xunit.Runner.MSBuild.xunit">
@@ -617,9 +591,7 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-      </ItemGroup>
-      
-      <ItemGroup>
+        
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
