@@ -47,16 +47,24 @@
         <xsl:choose>
           <xsl:when test="/Input/Properties/ForceArchitecture">
             <Platform Condition=" '$(Platform)' == '' "><xsl:value-of select="/Input/Properties/ForceArchitecture" /></Platform>
-            <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
           </xsl:when>
           <xsl:otherwise>
             <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-            <PlatformTarget>AnyCPU</PlatformTarget>
           </xsl:otherwise>
         </xsl:choose>
         <ProductVersion>10.0.0</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
         <ProjectGuid>{<xsl:value-of select="$project/@Guid" />}</ProjectGuid>
+        <xsl:choose>
+          <xsl:when test="$project/@Type = 'Website'">            
+            <ProjectTypeGuids>
+              <xsl:text>{349C5851-65DF-11DA-9384-00065B846F21};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
+          <xsl:otherwise>
+          </xsl:otherwise>
+        </xsl:choose>
         <OutputType>
           <xsl:choose>
             <xsl:when test="$project/@Type = 'XNA'">
@@ -76,34 +84,24 @@
             </xsl:otherwise>
           </xsl:choose>
         </OutputType>
-        <xsl:choose>
-          <xsl:when test="$project/@Type = 'Website'">            
-            <ProjectTypeGuids>
-              <xsl:text>{349C5851-65DF-11DA-9384-00065B846F21};</xsl:text>
-              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
-            </ProjectTypeGuids>
-          </xsl:when>
-          <xsl:otherwise>
-          </xsl:otherwise>
-        </xsl:choose>
         <RootNamespace>
           <xsl:value-of select="$project/@Name" />
         </RootNamespace>
         <AssemblyName>
           <xsl:value-of select="$project/@Name" />
         </AssemblyName>
-        
-        <!-- Always have debugging enabled. -->
-        <DebugSymbols>True</DebugSymbols>
+      </PropertyGroup>
+      <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
-        <Optimize>False</Optimize>
+        <Optimize>false</Optimize>
         <OutputPath>
           <xsl:choose>
             <xsl:when test="$project/@Type = 'Website'">
-              <xsl:text>bin\</xsl:text>
+              <xsl:text>bin</xsl:text>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:text>bin\Debug\</xsl:text>
+              <xsl:text>bin\Debug</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
         </OutputPath>
@@ -124,15 +122,146 @@
         </DefineConstants>
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>4</WarningLevel>
-        <ConsolePause>False</ConsolePause>
+        <xsl:choose>
+          <xsl:when test="/Input/Properties/ForceArchitecture">
+            <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
+          </xsl:when>
+          <xsl:otherwise>
+            <PlatformTarget>AnyCPU</PlatformTarget>
+          </xsl:otherwise>
+        </xsl:choose>
       </PropertyGroup>
+      <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <DebugType>full</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>
+          <xsl:choose>
+            <xsl:when test="$project/@Type = 'Website'">
+              <xsl:text>bin</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>bin\Release</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </OutputPath>
+        <DefineConstants>
+          <xsl:text>RELEASE;</xsl:text>
+          <xsl:choose>
+            <xsl:when test="/Input/Generation/Platform = 'Linux'">
+              <xsl:text>PLATFORM_LINUX</xsl:text>
+            </xsl:when>
+            <xsl:when test="/Input/Generation/Platform = 'Windows'">
+              <xsl:text>PLATFORM_WINDOWS</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>PLATFORM_UNKNOWN</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:text>;</xsl:text>
+        </DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <xsl:choose>
+          <xsl:when test="/Input/Properties/ForceArchitecture">
+            <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
+          </xsl:when>
+          <xsl:otherwise>
+            <PlatformTarget>AnyCPU</PlatformTarget>
+          </xsl:otherwise>
+        </xsl:choose>
+      </PropertyGroup>
+      <xsl:if test="/Input/Properties/ForceArchitecture">
+        <PropertyGroup>
+          <xsl:attribute name="Condition">
+            <xsl:text> '$(Configuration)|$(Platform)' == 'Debug|</xsl:text>
+            <xsl:value-of select="/Input/Properties/ForceArchitecture" />
+            <xsl:text>' </xsl:text>
+          </xsl:attribute>
+          <DebugSymbols>true</DebugSymbols>
+          <DebugType>full</DebugType>
+          <Optimize>false</Optimize>
+          <OutputPath>
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'Website'">
+                <xsl:text>bin</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>bin\Debug</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+          </OutputPath>
+          <DefineConstants>
+            <xsl:text>DEBUG;</xsl:text>
+            <xsl:choose>
+              <xsl:when test="/Input/Generation/Platform = 'Linux'">
+                <xsl:text>PLATFORM_LINUX</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                <xsl:text>PLATFORM_WINDOWS</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>PLATFORM_UNKNOWN</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:text>;</xsl:text>
+          </DefineConstants>
+          <ErrorReport>prompt</ErrorReport>
+          <WarningLevel>4</WarningLevel>
+          <xsl:choose>
+            <xsl:when test="/Input/Properties/ForceArchitecture">
+              <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
+            </xsl:when>
+            <xsl:otherwise>
+              <PlatformTarget>AnyCPU</PlatformTarget>
+            </xsl:otherwise>
+          </xsl:choose>
+        </PropertyGroup>
+        <PropertyGroup>
+          <xsl:attribute name="Condition">
+            <xsl:text> '$(Configuration)|$(Platform)' == 'Release|</xsl:text>
+            <xsl:value-of select="/Input/Properties/ForceArchitecture" />
+            <xsl:text>' </xsl:text>
+          </xsl:attribute>
+          <DebugType>full</DebugType>
+          <Optimize>true</Optimize>
+          <OutputPath>
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'Website'">
+                <xsl:text>bin</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>bin\Release</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+          </OutputPath>
+          <DefineConstants>
+            <xsl:text>RELEASE;</xsl:text>
+            <xsl:choose>
+              <xsl:when test="/Input/Generation/Platform = 'Linux'">
+                <xsl:text>PLATFORM_LINUX</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                <xsl:text>PLATFORM_WINDOWS</xsl:text>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:text>PLATFORM_UNKNOWN</xsl:text>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:text>;</xsl:text>
+          </DefineConstants>
+          <ErrorReport>prompt</ErrorReport>
+          <WarningLevel>4</WarningLevel>
+          <xsl:choose>
+            <xsl:when test="/Input/Properties/ForceArchitecture">
+              <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
+            </xsl:when>
+            <xsl:otherwise>
+              <PlatformTarget>AnyCPU</PlatformTarget>
+            </xsl:otherwise>
+          </xsl:choose>
+        </PropertyGroup>
+      </xsl:if>
       
-      <PropertyGroup
-        Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-      </PropertyGroup>
-      <PropertyGroup
-        Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-      </PropertyGroup>
       
       <xsl:if test="/Input/Generation/UseCSCJVM = 'True'">
         <PropertyGroup>
