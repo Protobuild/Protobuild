@@ -44,9 +44,9 @@ namespace Protobuild
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
             foreach (var submodule in module.GetSubmodules())
-                submodule.RunProtobuild("-sync");
+                submodule.RunProtobuild("-sync " + this.Platform);
             
-            Actions.Sync(module);
+            Actions.Sync(module, this.Platform);
             
             this.Log.LogMessage(
                 "Synchronisation complete.");
