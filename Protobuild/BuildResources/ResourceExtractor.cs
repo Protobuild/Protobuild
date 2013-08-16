@@ -104,7 +104,7 @@ namespace Protobuild
             }
         }
         
-        public static void ExtractUtilities(string path)
+        public static void ExtractDefinitions(string path)
         {
             using (var stream = Assembly.GetExecutingAssembly()
                 .GetManifestResourceStream("Protobuild.BuildResources.ReplacementDefinitions.xslt"))
@@ -119,7 +119,7 @@ namespace Protobuild
             }
         }
         
-        public static void ExtractDefinitions(string path)
+        public static void ExtractUtilities(string path)
         {
             ExtractNuGet(path);
         }
