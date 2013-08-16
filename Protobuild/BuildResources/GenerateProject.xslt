@@ -356,6 +356,37 @@
               <xsl:variable name="extern"
                 select="/Input/Projects/ExternalProject[@Name=$include-name]" />
             
+              <xsl:for-each select="$extern/Reference">
+                <Reference>
+                  <xsl:attribute name="Include">
+                    <xsl:value-of select="@Include" />
+                  </xsl:attribute>
+                </Reference>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=/Input/Generation/Platform]">
+                <xsl:for-each select="./Reference">
+                  <Reference>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of select="@Include" />
+                    </xsl:attribute>
+                  </Reference>
+                </xsl:for-each>
+              </xsl:for-each>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+        
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-name" select="./@Include" />
+          <xsl:if test="
+            count(/Input/Projects/Project[@Name=$include-name]) = 0">
+            <xsl:if test="
+              count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+              <xsl:variable name="extern"
+                select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+            
               <xsl:for-each select="$extern/Binary">
                 <Reference>
                   <xsl:attribute name="Include">
