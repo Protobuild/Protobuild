@@ -11,6 +11,7 @@ namespace Protobuild
         public static void Main(string[] args)
         {
             var needToExit = false;
+            var runModuleManager = false;
             int exitCode = 0;
             var options = new Options();
             options["extract-xslt"] = x =>
@@ -49,21 +50,21 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["sync"] = x =>
+            options["sync@1"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    Actions.Sync(module);
+                    Actions.Sync(module, x.Length > 0 ? x[0] : null);
                     needToExit = true;
                 }
             };
-            options["resync"] = x =>
+            options["resync@1"] = x =>
             {
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    Actions.Resync(module);
+                    Actions.Resync(module, x.Length > 0 ? x[0] : null);
                     needToExit = true;
                 }
             };
@@ -85,13 +86,30 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
+            options["manager-gui"] = x =>
+            {
+                runModuleManager = true;
+            };
             options["help"] = x =>
             {
                 Console.WriteLine("Protobuild.exe [-extract-xslt] [-extract-proj] [-sync] [-resync] [-generate]");
                 Console.WriteLine();
-                Console.WriteLine("By default Protobuild starts a graphical interface for managing project");
-                Console.WriteLine("definitions.  However, by using the command-line arguments it can be");
-                Console.WriteLine("run in batch mode.");
+                Console.WriteLine("By default Protobuild does resynchronises or generates projects for");
+                Console.WriteLine("the current platform.  To start a graphical interface for managing project");
+                Console.WriteLine("definitions, use the -manager-gui option.");
+                Console.WriteLine();
+                Console.WriteLine("  -manager-gui");
+                Console.WriteLine();
+                Console.WriteLine("  Starts the module manager GUI.  You will need to have a graphical");
+                Console.WriteLine("  system present in order to use this option; otherwise Protobuild will");
+                Console.WriteLine("  operate as a console application (safe for headless operation).");
+                Console.WriteLine();
+                Console.WriteLine("  -extract-xslt");
+                Console.WriteLine();
+                Console.WriteLine("  Extracts the XSLT templates to the Build\\ folder.  When present, these");
+                Console.WriteLine("  are used over the built-in versions.  This allows you to customize");
+                Console.WriteLine("  and extend the project / solution generation to support additional");
+                Console.WriteLine("  features.");
                 Console.WriteLine();
                 Console.WriteLine("  -extract-xslt");
                 Console.WriteLine();
@@ -112,23 +130,27 @@ namespace Protobuild
                 Console.WriteLine("  useful if you the utilities have been deleted from the Build\\");
                 Console.WriteLine("  folder and you need to get them back.");
                 Console.WriteLine();
-                Console.WriteLine("  -sync");
+                Console.WriteLine("  -sync <platform>");
                 Console.WriteLine();
                 Console.WriteLine("  Synchronises the changes in the C# project files back to the");
-                Console.WriteLine("  definitions, but does not regenerate the projects.");
+                Console.WriteLine("  definitions, but does not regenerate the projects.  If no");
+                Console.WriteLine("  platform is specified, synchronises for the current platform.");
                 Console.WriteLine();
-                Console.WriteLine("  -resync");
+                Console.WriteLine("  -resync <platform>");
                 Console.WriteLine();
                 Console.WriteLine("  Synchronises the changes in the C# project files back to the");
-                Console.WriteLine("  definitions and then regenerates the projects again.");
+                Console.WriteLine("  definitions and then regenerates the projects again.  If no");
+                Console.WriteLine("  platform is specified, resynchronises for the current platform.");
                 Console.WriteLine();
                 Console.WriteLine("  -generate <platform>");
                 Console.WriteLine();
-                Console.WriteLine("  Generates the C# project files from the definitions.");
+                Console.WriteLine("  Generates the C# project files from the definitions.  If no");
+                Console.WriteLine("  platform is specified, generates for the current platform.");
                 Console.WriteLine();
                 Console.WriteLine("  -clean <platform>");
                 Console.WriteLine();
-                Console.WriteLine("  Removes all generated C# project and solution files.");
+                Console.WriteLine("  Removes all generated C# project and solution files.  If no");
+                Console.WriteLine("  platform is specified, cleans for the current platform.");
                 Console.WriteLine();
                 needToExit = true;
             };

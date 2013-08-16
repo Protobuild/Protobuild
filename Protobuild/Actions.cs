@@ -35,13 +35,15 @@ namespace Protobuild
             }
         }
         
-        public static void Sync(ModuleInfo module)
+        public static void Sync(ModuleInfo module, string platform = null)
         {
+            if (string.IsNullOrWhiteSpace(platform))
+                platform = DetectPlatform();
             var definitions = module.GetDefinitions();
             foreach (var def in definitions)
             {
                 // Read the project file in.
-                var path = Path.Combine(module.Path, def.Name, def.Name + "." + DetectPlatform() + ".csproj");
+                var path = Path.Combine(module.Path, def.Name, def.Name + "." + platform + ".csproj");
                 if (File.Exists(path))
                 {
                     var project = CSharpProject.Load(path);
@@ -51,10 +53,10 @@ namespace Protobuild
             }
         }
     
-        public static void Resync(ModuleInfo module)
+        public static void Resync(ModuleInfo module, string platform = null)
         {
-            Sync(module);
-            RegenerateProjects(module.Path);
+            Sync(module, platform);
+            RegenerateProjects(module.Path, platform);
         }
 
         private static void TrySetTool(string tool, bool shellExecute = false)
