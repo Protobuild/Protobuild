@@ -42,6 +42,14 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
+            options["extract-definitions"] = x =>
+            {
+                if (Directory.Exists("Build"))
+                {
+                    ResourceExtractor.ExtractDefinitions(Path.Combine(Environment.CurrentDirectory, "Build"));
+                    needToExit = true;
+                }
+            };
             options["extract-util"] = x =>
             {
                 if (Directory.Exists("Build"))
@@ -111,18 +119,17 @@ namespace Protobuild
                 Console.WriteLine("  and extend the project / solution generation to support additional");
                 Console.WriteLine("  features.");
                 Console.WriteLine();
-                Console.WriteLine("  -extract-xslt");
-                Console.WriteLine();
-                Console.WriteLine("  Extracts the XSLT templates to the Build\\ folder.  When present, these");
-                Console.WriteLine("  are used over the built-in versions.  This allows you to customize");
-                Console.WriteLine("  and extend the project / solution generation to support additional");
-                Console.WriteLine("  features.");
-                Console.WriteLine();
                 Console.WriteLine("  -extract-proj");
                 Console.WriteLine();
                 Console.WriteLine("  Extracts the Main.proj file again to the Build\\ folder.  This is");
                 Console.WriteLine("  useful if you have updated Protobuild and need to extract the");
                 Console.WriteLine("  latest build script.");
+                Console.WriteLine();
+                Console.WriteLine("  -extract-definitions");
+                Console.WriteLine();
+                Console.WriteLine("  Extracts ReplacementDefinitions.xslt to the Build\\ folder.  This is");
+                Console.WriteLine("  useful if you need to specify different #defines for different");
+                Console.WriteLine("  platforms when projects are being generated.");
                 Console.WriteLine();
                 Console.WriteLine("  -extract-util");
                 Console.WriteLine();
