@@ -177,7 +177,7 @@ namespace Protobuild.Tasks
                     .SelectMany(x => x.ChildNodes
                         .Cast<XmlElement>()
                         .Where(y => y.Name.ToLower() == "property")));
-
+                        
             // Transform the input document using the XSLT transform.
             var settings = new XmlWriterSettings();
             settings.Indent = true;
@@ -398,6 +398,8 @@ namespace Protobuild.Tasks
         private XmlDocument GenerateContentProject(XmlDocument source)
         {
             var allFiles = new Dictionary<string, IEnumerable<string>>();
+            string sourceFile = null;
+            string sourceFileFolder = null;
             foreach (var element in source
                 .DocumentElement
                 .ChildNodes
@@ -407,6 +409,16 @@ namespace Protobuild.Tasks
                 var sourceFolder = element.GetAttribute("Include");
                 var matchFiles = element.GetAttribute("Match");
                 var originalSourceFolder = sourceFolder;
+                if (element.HasAttribute("Primary") && element.GetAttribute("Primary").ToLower() == "true")
+                {
+                    sourceFileFolder = Path.Combine(this.m_RootPath, sourceFolder);
+                    sourceFile = Path.Combine(this.m_RootPath, sourceFolder, ".source");
+                    using (var writer = new StreamWriter(sourceFile))
+                    {
+                        var dir = new DirectoryInfo(sourceFileFolder);
+                        writer.Write(dir.FullName);
+                    }
+                }
                 sourceFolder = Path.Combine(this.m_RootPath, sourceFolder);
                 var files = this.GetListOfFilesInDirectory(sourceFolder, matchFiles);
                 allFiles.Add(
@@ -447,6 +459,24 @@ namespace Protobuild.Tasks
                     fileNode.AppendChild(relativePathNode);
                     projectNode.AppendChild(fileNode);
                 }
+            }
+            
+            if (sourceFile != null)
+            {
+                var fileNode = doc.CreateElement("Compiled");
+                var fullPathNode = doc.CreateElement("FullPath");
+                var relativePathNode = doc.CreateElement("RelativePath");
+                fullPathNode.AppendChild(doc.CreateTextNode(sourceFile));
+                var index = sourceFile.Replace("\\", "/")
+                    .LastIndexOf(sourceFileFolder.Replace("\\", "/"));
+                var relativePath = "Content\\" + sourceFile
+                    .Substring(index + sourceFileFolder.Length)
+                    .Replace("/", "\\")
+                    .Trim('\\');
+                relativePathNode.AppendChild(doc.CreateTextNode(relativePath));
+                fileNode.AppendChild(fullPathNode);
+                fileNode.AppendChild(relativePathNode);
+                projectNode.AppendChild(fileNode);
             }
 
             return doc;
