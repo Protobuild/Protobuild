@@ -48,7 +48,9 @@
     ]]>
   </msxsl:script> 
   
-  <xsl:template name="configuration">
+  <xsl:template name="configuration"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    
     <xsl:param name="project" />
     <xsl:param name="debug" />
     <xsl:choose>

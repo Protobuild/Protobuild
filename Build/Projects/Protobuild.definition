@@ -21,6 +21,9 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Reference Include="System.Windows.Forms" />
   </References>
   <Files>
+    <Compile Include="PlatformSpecificTest.cs">
+      <Platforms>Windows</Platforms>
+    </Compile>
     <Compile Include="Actions.cs" />
     <Compile Include="BuildResources\ResourceExtractor.cs" />
     <Compile Include="DefinitionInfo.cs" />
@@ -57,6 +60,7 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
     <EmbeddedResource Include="BuildResources\Main.proj" />
     <EmbeddedResource Include="BuildResources\nuget.exe" />
+    <EmbeddedResource Include="BuildResources\ReplacementDefinitions.xslt" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
   </Files>

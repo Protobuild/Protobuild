@@ -48,7 +48,7 @@ namespace Protobuild
                 {
                     var project = CSharpProject.Load(path);
                     var synchroniser = new DefinitionSynchroniser(def, project);
-                    synchroniser.Synchronise();
+                    synchroniser.Synchronise(platform);
                 }
             }
         }

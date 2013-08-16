@@ -19,7 +19,7 @@ namespace Protobuild
             this.m_CSharpProject = project;
         }
         
-        public void Synchronise()
+        public void Synchronise(string platform)
         {
             var document = new XmlDocument();
             document.Load(this.m_DefinitionInfo.DefinitionPath);
@@ -32,8 +32,23 @@ namespace Protobuild
             
             var files = elements.Cast<XmlElement>().First(x => x.Name == "Files");
             
-            // Remove all existing files.
-            files.RemoveAll();
+            // Remove files that either have no Platforms child, or where the
+            // Platforms child contains the current platform that we're synchronising for.
+            // This is because if I generate a platform for Linux, and the definition
+            // has Windows-only files in it, those won't be in the project file.
+            foreach (var file in files.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement).Cast<XmlElement>().ToArray())
+            {
+                var children = file.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement).Cast<XmlElement>().ToArray();
+                if (children.Any(x => x.LocalName == "Platforms"))
+                {
+                    // This is a platform specific file.
+                    var platforms = children.First().InnerText;
+                    if (platforms.Split(',').Contains(platform, StringComparer.OrdinalIgnoreCase))
+                        files.RemoveChild(file);
+                }
+                else
+                    files.RemoveChild(file);
+            }
             
             // Add the new files.
             foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => x.GetAttribute("Include")))
