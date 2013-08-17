@@ -57,7 +57,7 @@ namespace Protobuild.Tasks
             var generator = new ProjectGenerator(
                 this.RootPath,
                 this.Platform,
-                this.Log);
+                this.LogMessage);
             foreach (var definition in definitions)
             {
                 this.LogMessage("Loading: " + definition.Name);

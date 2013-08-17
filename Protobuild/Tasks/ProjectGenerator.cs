@@ -18,12 +18,12 @@ namespace Protobuild.Tasks
         private XslCompiledTransform m_NuspecTransform = null;
         private XslCompiledTransform m_ProjectTransform = null;
         private XslCompiledTransform m_SolutionTransform = null;
-        private TaskLoggingHelper m_Log;
+        private Action<string> m_Log;
 
         public ProjectGenerator(
             string rootPath,
             string platform,
-            TaskLoggingHelper log)
+            Action<string> log)
         {
             this.m_RootPath = rootPath;
             this.m_Platform = platform;
@@ -429,7 +429,7 @@ namespace Protobuild.Tasks
                 allFiles.Add(
                     originalSourceFolder,
                     files);
-                this.m_Log.LogMessage(
+                this.m_Log(
                   "Scanning: " +
                   originalSourceFolder +
                   " (" + files.Count + " total files)"
