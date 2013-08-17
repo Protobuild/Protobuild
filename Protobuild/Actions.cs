@@ -48,7 +48,7 @@ namespace Protobuild
                 
             var task = new SyncProjectsTask
             {
-                SourcePath = @"..\Build\Projects",
+                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
                 RootPath = module.Path + Path.DirectorySeparatorChar,
                 Platform = platform,
                 ModuleName = module.Name
@@ -63,7 +63,7 @@ namespace Protobuild
                 
             var task = new GenerateProjectsTask
             {
-                SourcePath = @"..\Build\Projects",
+                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
                 RootPath = module.Path + Path.DirectorySeparatorChar,
                 Platform = platform,
                 ModuleName = module.Name
@@ -78,7 +78,7 @@ namespace Protobuild
                 
             var task = new CleanProjectsTask
             {
-                SourcePath = @"..\Build\Projects",
+                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
                 RootPath = module.Path + Path.DirectorySeparatorChar,
                 Platform = platform,
                 ModuleName = module.Name
@@ -88,7 +88,7 @@ namespace Protobuild
         
         private static string DetectPlatform()
         {
-            if (System.IO.Path.DirectorySeparatorChar == '/')
+            if (Path.DirectorySeparatorChar == '/')
             {
                 if (Directory.Exists("/home"))
                     return "Linux";
