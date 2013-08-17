@@ -86,7 +86,7 @@
         <xsl:when test="/Input/Properties/CustomDefinitions">
           <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
             <xsl:if test="/Input/Generation/Platform = ./@Name">
-              <xsl:value-of select="/Input/Properties/CustomDefinitions/Platform" />
+              <xsl:value-of select="." />
             </xsl:if>
           </xsl:for-each>
         </xsl:when>
