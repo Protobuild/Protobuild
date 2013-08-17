@@ -1,10 +1,9 @@
 using System.IO;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 
 namespace Protobuild
 {
-    public class SyncProjectsTask : Task
+    public class SyncProjectsTask : BaseTask
     {
         [Required]
         public string SourcePath
@@ -36,7 +35,7 @@ namespace Protobuild
         
         public override bool Execute()
         {
-            this.Log.LogMessage(
+            this.LogMessage(
                 "Synchronising projects for " + this.Platform);
 
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
@@ -46,9 +45,21 @@ namespace Protobuild
             foreach (var submodule in module.GetSubmodules())
                 submodule.RunProtobuild("-sync " + this.Platform);
             
-            Actions.Sync(module, this.Platform);
+            var definitions = module.GetDefinitions();
+            foreach (var definition in definitions)
+            {
+                // Read the project file in.
+                var path = Path.Combine(module.Path, definition.Name, definition.Name + "." + this.Platform + ".csproj");
+                if (File.Exists(path))
+                {
+                    this.LogMessage("Synchronising: " + definition.Name);
+                    var project = CSharpProject.Load(path);
+                    var synchroniser = new DefinitionSynchroniser(definition, project);
+                    synchroniser.Synchronise(this.Platform);
+                }
+            }
             
-            this.Log.LogMessage(
+            this.LogMessage(
                 "Synchronisation complete.");
 
             return true;

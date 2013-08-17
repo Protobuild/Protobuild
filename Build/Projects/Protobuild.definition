@@ -46,6 +46,7 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
@@ -58,9 +59,7 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <EmbeddedResource Include="BuildResources\GenerateNuspec.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
-    <EmbeddedResource Include="BuildResources\Main.proj" />
     <EmbeddedResource Include="BuildResources\nuget.exe" />
-    <EmbeddedResource Include="BuildResources\ReplacementDefinitions.xslt" />
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
   </Files>

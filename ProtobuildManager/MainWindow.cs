@@ -33,7 +33,7 @@ public partial class MainWindow: Gtk.Window
         // Register events.
         this.c_RegenerateAction.Activated += (object sender, EventArgs e) => 
         {
-            Actions.Resync(this.Module);
+            Actions.ResyncProjects(this.Module);
         };
         this.c_ProjectTreeView.RowActivated += (object o, RowActivatedArgs args) => 
         {
@@ -94,7 +94,7 @@ public partial class MainWindow: Gtk.Window
     public void Update()
     {
         this.BuildTree();
-        Actions.Resync(this.Module);
+        Actions.ResyncProjects(this.Module);
     }
     
     private void PromptCreateProject(string type)

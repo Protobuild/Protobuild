@@ -33,23 +33,6 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["extract-proj"] = x =>
-            {
-                if (Directory.Exists("Build"))
-                {
-                    var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    ResourceExtractor.ExtractProject(Path.Combine(Environment.CurrentDirectory, "Build"), module.Name);
-                    needToExit = true;
-                }
-            };
-            options["extract-definitions"] = x =>
-            {
-                if (Directory.Exists("Build"))
-                {
-                    ResourceExtractor.ExtractDefinitions(Path.Combine(Environment.CurrentDirectory, "Build"));
-                    needToExit = true;
-                }
-            };
             options["extract-util"] = x =>
             {
                 if (Directory.Exists("Build"))
@@ -63,7 +46,7 @@ namespace Protobuild
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    Actions.Sync(module, x.Length > 0 ? x[0] : null);
+                    exitCode = Actions.SyncProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
                     needToExit = true;
                 }
             };
@@ -72,7 +55,7 @@ namespace Protobuild
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    Actions.Resync(module, x.Length > 0 ? x[0] : null);
+                    exitCode = Actions.ResyncProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
                     needToExit = true;
                 }
             };
@@ -81,7 +64,7 @@ namespace Protobuild
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    exitCode = Actions.RegenerateProjects(module.Path, x.Length > 0 ? x[0] : null);
+                    exitCode = Actions.GenerateProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
                     needToExit = true;
                 }
             };
@@ -90,7 +73,7 @@ namespace Protobuild
                 if (Directory.Exists("Build"))
                 {
                     var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    exitCode = Actions.CleanProjects(module.Path, x.Length > 0 ? x[0] : null);
+                    exitCode = Actions.CleanProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
                     needToExit = true;
                 }
             };
@@ -118,18 +101,6 @@ namespace Protobuild
                 Console.WriteLine("  are used over the built-in versions.  This allows you to customize");
                 Console.WriteLine("  and extend the project / solution generation to support additional");
                 Console.WriteLine("  features.");
-                Console.WriteLine();
-                Console.WriteLine("  -extract-proj");
-                Console.WriteLine();
-                Console.WriteLine("  Extracts the Main.proj file again to the Build\\ folder.  This is");
-                Console.WriteLine("  useful if you have updated Protobuild and need to extract the");
-                Console.WriteLine("  latest build script.");
-                Console.WriteLine();
-                Console.WriteLine("  -extract-definitions");
-                Console.WriteLine();
-                Console.WriteLine("  Extracts ReplacementDefinitions.xslt to the Build\\ folder.  This is");
-                Console.WriteLine("  useful if you need to specify different #defines for different");
-                Console.WriteLine("  platforms when projects are being generated.");
                 Console.WriteLine();
                 Console.WriteLine("  -extract-util");
                 Console.WriteLine();
@@ -171,7 +142,7 @@ namespace Protobuild
             if (runModuleManager)
                 RunModuleManager();
             else
-                Actions.Resync(ModuleInfo.Load(Path.Combine("Build", "Module.xml")));
+                Actions.ResyncProjects(ModuleInfo.Load(Path.Combine("Build", "Module.xml")));
         }
         
         private static void RunModuleManager()

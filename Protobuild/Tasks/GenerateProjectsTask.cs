@@ -2,11 +2,10 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 
 namespace Protobuild.Tasks
 {
-    public class GenerateProjectsTask : Task
+    public class GenerateProjectsTask : BaseTask
     {
         [Required]
         public string SourcePath
@@ -40,7 +39,7 @@ namespace Protobuild.Tasks
         {
             try
             {
-                this.Log.LogMessage(
+                this.LogMessage(
                     "Starting generation of projects for " + this.Platform);
     
                 var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
@@ -50,10 +49,10 @@ namespace Protobuild.Tasks
                 // where it is present.
                 foreach (var submodule in module.GetSubmodules())
                 {
-                    this.Log.LogMessage(
+                    this.LogMessage(
                         "Invoking submodule generation for " + submodule.Name);
                     submodule.RunProtobuild("-generate " + Platform);
-                    this.Log.LogMessage(
+                    this.LogMessage(
                         "Finished submodule generation for " + submodule.Name);
                 }
                 
@@ -63,7 +62,7 @@ namespace Protobuild.Tasks
                     this.Log);
                 foreach (var definition in definitions)
                 {
-                    this.Log.LogMessage("Loading: " + definition.Name);
+                    this.LogMessage("Loading: " + definition.Name);
                     generator.Load(Path.Combine(
                         definition.ModulePath,
                         "Build",
@@ -74,17 +73,17 @@ namespace Protobuild.Tasks
                 }
                 foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
                 {
-                    this.Log.LogMessage("Generating: " + definition.Name);
+                    this.LogMessage("Generating: " + definition.Name);
                     generator.Generate(definition.Name);
                 }
     
                 var solution = Path.Combine(
                     this.RootPath,
                     this.ModuleName + "." + this.Platform + ".sln");
-                this.Log.LogMessage("Generating: (solution)");
+                this.LogMessage("Generating: (solution)");
                 generator.GenerateSolution(solution);
     
-                this.Log.LogMessage(
+                this.LogMessage(
                     "Generation complete.");
             }
             catch (Exception ex)

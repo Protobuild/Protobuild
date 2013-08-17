@@ -175,8 +175,7 @@ namespace Protobuild.Tasks
                     .Cast<XmlElement>()
                     .Where(x => x.Name.ToLower() == "properties")
                     .SelectMany(x => x.ChildNodes
-                        .Cast<XmlElement>()
-                        .Where(y => y.Name.ToLower() == "property")));
+                        .Cast<XmlElement>()));
                         
             // Transform the input document using the XSLT transform.
             var settings = new XmlWriterSettings();
@@ -274,10 +273,16 @@ namespace Protobuild.Tasks
             var propertiesNode = doc.CreateElement("Properties");
             foreach (var property in properties)
             {
-                var nodeName = doc.CreateElement(property.GetAttribute("Name"));
-                nodeName.AppendChild(doc.CreateTextNode(
-                    property.GetAttribute("Value")));
-                propertiesNode.AppendChild(nodeName);
+                if (property.Name.ToLower() == "property")
+                {
+                    var nodeName = doc.CreateElement(property.GetAttribute("Name"));
+                    nodeName.AppendChild(doc.CreateTextNode(
+                        property.GetAttribute("Value")));
+                    propertiesNode.AppendChild(nodeName);
+                }
+                else
+                    propertiesNode.AppendChild(
+                        doc.ImportNode(property, true));
             }
             input.AppendChild(propertiesNode);
 
