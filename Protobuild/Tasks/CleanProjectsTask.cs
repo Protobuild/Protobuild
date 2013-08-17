@@ -1,14 +1,43 @@
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Microsoft.Build.Framework;
 
 namespace Protobuild.Tasks
 {
-    public class CleanProjectsTask : GenerateProjectsTask
+    public class CleanProjectsTask : BaseTask
     {
+        [Required]
+        public string SourcePath
+        {
+            get;
+            set;
+        }
+
+        [Required]
+        public string RootPath
+        {
+            get;
+            set;
+        }
+
+        [Required]
+        public string Platform
+        {
+            get;
+            set;
+        }
+
+        [Required]
+        public string ModuleName
+        {
+            get;
+            set;
+        }
+        
         public override bool Execute()
         {
-            this.Log.LogMessage(
+            this.LogMessage(
                 "Starting clean of projects for " + this.Platform);
 
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
@@ -21,7 +50,7 @@ namespace Protobuild.Tasks
                 
             foreach (var definition in definitions.Select(x => x.Name))
             {
-                this.Log.LogMessage("Cleaning: " + definition);
+                this.LogMessage("Cleaning: " + definition);
                 var projectDoc = new XmlDocument();
                 projectDoc.Load(Path.Combine(
                     this.SourcePath,
@@ -43,11 +72,11 @@ namespace Protobuild.Tasks
             var solution = Path.Combine(
                 this.RootPath,
                 this.ModuleName + "." + this.Platform + ".sln");
-            this.Log.LogMessage("Cleaning: (solution)");
+            this.LogMessage("Cleaning: (solution)");
             if (File.Exists(solution))
                 File.Delete(solution);
 
-            this.Log.LogMessage(
+            this.LogMessage(
                 "Clean complete.");
 
             return true;

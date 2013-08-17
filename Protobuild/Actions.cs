@@ -1,13 +1,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using Protobuild.Tasks;
 
 namespace Protobuild
 {
     public static class Actions
     {
-        private static string m_CachedToolName = null;
-
         public static void Open(ModuleInfo root, object obj, Action update)
         {
             var definitionInfo = obj as DefinitionInfo;
@@ -35,103 +34,56 @@ namespace Protobuild
             }
         }
         
-        public static void Sync(ModuleInfo module, string platform = null)
+        public static bool ResyncProjects(ModuleInfo module, string platform = null)
         {
-            if (string.IsNullOrWhiteSpace(platform))
-                platform = DetectPlatform();
-            var definitions = module.GetDefinitions();
-            foreach (var def in definitions)
-            {
-                // Read the project file in.
-                var path = Path.Combine(module.Path, def.Name, def.Name + "." + platform + ".csproj");
-                if (File.Exists(path))
-                {
-                    var project = CSharpProject.Load(path);
-                    var synchroniser = new DefinitionSynchroniser(def, project);
-                    synchroniser.Synchronise(platform);
-                }
-            }
-        }
-    
-        public static void Resync(ModuleInfo module, string platform = null)
-        {
-            Sync(module, platform);
-            RegenerateProjects(module.Path, platform);
-        }
-
-        private static void TrySetTool(string tool, bool shellExecute = false)
-        {
-            if (m_CachedToolName != null)
-                return;
-            try
-            {
-                if (shellExecute)
-                    Process.Start(tool, "/?");
-                else
-                {
-                    var info = new ProcessStartInfo
-                    {
-                        FileName = tool,
-                        Arguments = "/?",
-                        CreateNoWindow = true,
-                        WindowStyle = ProcessWindowStyle.Hidden,
-                        UseShellExecute = false,
-                        RedirectStandardOutput = true,
-                        RedirectStandardError = true
-                    };
-                    Process.Start(info);
-                    m_CachedToolName = tool;
-                }
-            }
-            catch
-            {
-            }
-        }
-
-        private static string GetBuildToolName()
-        {
-            if (m_CachedToolName != null)
-                return m_CachedToolName;
-            TrySetTool("/usr/bin/xbuild");
-            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v4.0.30319\msbuild.exe");
-            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v3.5\msbuild.exe");
-            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v3.0\msbuild.exe");
-            TrySetTool(@"C:\Windows\Microsoft.NET\Framework64\v2.0.50727\msbuild.exe");
-            TrySetTool("xbuild", true);
-            TrySetTool("msbuild", true);
-            if (m_CachedToolName == null)
-                throw new InvalidOperationException("Neither xbuild nor msbuild is in the PATH.");
-            return m_CachedToolName;
-        }
-
-        public static int RegenerateProjects(string root, string platform = null)
-        {
-            if (string.IsNullOrWhiteSpace(platform))
-                platform = DetectPlatform();
-            var info = new ProcessStartInfo
-            {
-                FileName = GetBuildToolName(),
-                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + platform,
-                WorkingDirectory = root
-            };
-            var p = Process.Start(info);
-            p.WaitForExit();
-            return p.ExitCode;
+            if (!SyncProjects(module, platform))
+                return false;
+            return GenerateProjects(module, platform);
         }
         
-        public static int CleanProjects(string root, string platform = null)
+        public static bool SyncProjects(ModuleInfo module, string platform = null)
         {
             if (string.IsNullOrWhiteSpace(platform))
                 platform = DetectPlatform();
-            var info = new ProcessStartInfo
+                
+            var task = new SyncProjectsTask
             {
-                FileName = GetBuildToolName(),
-                Arguments = "Build" + Path.DirectorySeparatorChar + "Main.proj /p:TargetPlatform=" + platform + " /p:Clean=True",
-                WorkingDirectory = root
+                SourcePath = @"..\Build\Projects",
+                RootPath = module.Path + Path.DirectorySeparatorChar,
+                Platform = platform,
+                ModuleName = module.Name
             };
-            var p = Process.Start(info);
-            p.WaitForExit();
-            return p.ExitCode;
+            return task.Execute();
+        }
+
+        public static bool GenerateProjects(ModuleInfo module, string platform = null)
+        {
+            if (string.IsNullOrWhiteSpace(platform))
+                platform = DetectPlatform();
+                
+            var task = new GenerateProjectsTask
+            {
+                SourcePath = @"..\Build\Projects",
+                RootPath = module.Path + Path.DirectorySeparatorChar,
+                Platform = platform,
+                ModuleName = module.Name
+            };
+            return task.Execute();
+        }
+        
+        public static bool CleanProjects(ModuleInfo module, string platform = null)
+        {
+            if (string.IsNullOrWhiteSpace(platform))
+                platform = DetectPlatform();
+                
+            var task = new CleanProjectsTask
+            {
+                SourcePath = @"..\Build\Projects",
+                RootPath = module.Path + Path.DirectorySeparatorChar,
+                Platform = platform,
+                ModuleName = module.Name
+            };
+            return task.Execute();
         }
         
         private static string DetectPlatform()
