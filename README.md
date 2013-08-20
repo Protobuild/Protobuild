@@ -13,14 +13,19 @@ To create a new Protobuild module to work in, download the Protobuild.exe file t
 Projects
 -----------
 
-You can add new projects using the Protobuild Module Manager.  These will be default, empty projects with bare bones configuration.  The Protobuild Module Manager will run the generation script to create C# projects for the current platform you are running on, from these project definitions.  When the Protobuild Module Manager runs, it also automatically synchronises changes back from the C# project files into the definition files (this is important as it allows you to add and remove files in IDEs as you would normally, without having to manually update the definition files).
+You can add new projects by creating the `.definition` files yourself, or by using the Protobuild Module Manager.  To start the Module Manager, run `Protobuild.exe --manager-gui`.
+
+The Module Manager provides a set of templates you can use for new projects; these will be default, empty projects with bare bones configuration.  The Protobuild Module Manager will run the generation script to create C# projects for the current platform you are running on, from these project definitions.
 
 Generation
 ------------
 
-The Protobuild Module Manager will extract a `Main.proj` MSBuild script to the `Build` folder on first run.  This script uses the custom tasks inside the Module Manager to generate the C# projects.
+You can generate the projects for you current platform by just running Protobuild.  If you want to generate projects for a specific target platform, you can do so with `Protobuild.exe --generate <Platform>`.
 
-Normally the Module Manager will automatically run this script when it is started, or after adding a new project.  However you can use this script to generate the projects without interaction (for example, for build servers), or if you want to generate projects for a different platform.
+Synchronisation
+-----------------
+
+Unlike other project generators, Protobuild supports synchronising the changes made in the C# projects back into the definition files.
 
 Source Control
 -----------------
