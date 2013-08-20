@@ -25,7 +25,9 @@ You can generate the projects for you current platform by just running Protobuil
 Synchronisation
 -----------------
 
-Unlike other project generators, Protobuild supports synchronising the changes made in the C# projects back into the definition files.
+Unlike other project generators, Protobuild supports synchronising the changes made in the C# projects back into the definition files.  This means that changes you make in the IDE are automatically made in your build definitions.
+
+To synchronise your projects to the build definitions, just run Protobuild again.  You should run Protobuild before you commit to source control.
 
 Source Control
 -----------------
