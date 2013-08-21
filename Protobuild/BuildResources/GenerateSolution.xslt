@@ -28,6 +28,23 @@
         return ex.Message;
       }
     }
+    
+    public bool ProjectIsActive(string platformString, string activePlatform)
+    {
+      if (string.IsNullOrEmpty(platformString))
+      {
+        return true;
+      }
+      var platforms = platformString.Split(',');
+      foreach (var i in platforms)
+      {
+        if (i == activePlatform)
+        {
+          return true;
+        }
+      }
+      return false;
+    }
     ]]>
   </msxsl:script> 
  
@@ -37,18 +54,22 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 </xsl:text>
     <xsl:for-each select="/Input/Projects/Project">
-      <xsl:call-template name="project-definition">
-        <xsl:with-param name="type" select="current()/@Type" />
-        <xsl:with-param name="name" select="current()/@Name" />
-        <xsl:with-param name="guid" select="current()/@Guid" />
-        <xsl:with-param name="path" select="concat(
-                      current()/@Path,
-                      '\',
-                      current()/@Name,
-                      '.',
-                      /Input/Generation/Platform,
-                      '.csproj')" />
-      </xsl:call-template>
+      <xsl:if test="user:ProjectIsActive(
+          current()/@Platforms,
+          /Input/Generation/Platform)">
+        <xsl:call-template name="project-definition">
+          <xsl:with-param name="type" select="current()/@Type" />
+          <xsl:with-param name="name" select="current()/@Name" />
+          <xsl:with-param name="guid" select="current()/@Guid" />
+          <xsl:with-param name="path" select="concat(
+                        current()/@Path,
+                        '\',
+                        current()/@Name,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj')" />
+        </xsl:call-template>
+      </xsl:if>
     </xsl:for-each>
     <xsl:for-each select="/Input/Projects/ExternalProject/Project">
       <xsl:call-template name="project-definition">
@@ -76,10 +97,14 @@ Microsoft Visual Studio Solution File, Format Version 11.00
         GlobalSection(ProjectConfigurationPlatforms) = postSolution
 </xsl:text>
     <xsl:for-each select="/Input/Projects/Project">
-      <xsl:call-template name="project-configuration">
-        <xsl:with-param name="guid" select="current()/@Guid" />
-        <xsl:with-param name="root" select="current()" />
-      </xsl:call-template>
+      <xsl:if test="user:ProjectIsActive(
+          current()/@Platforms,
+          /Input/Generation/Platform)">
+        <xsl:call-template name="project-configuration">
+          <xsl:with-param name="guid" select="current()/@Guid" />
+          <xsl:with-param name="root" select="current()" />
+        </xsl:call-template>
+      </xsl:if>
     </xsl:for-each>
     <xsl:for-each select="/Input/Projects/ExternalProject/Project">
       <xsl:call-template name="project-configuration">
