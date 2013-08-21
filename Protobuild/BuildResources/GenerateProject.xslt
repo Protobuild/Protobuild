@@ -564,6 +564,40 @@
       </ItemGroup>
       
       <ItemGroup>
+        <xsl:for-each select="$project/Files/EmbeddedShaderProgram">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element 
+              name="{name()}" 
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/ShaderProgram">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element 
+              name="{name()}" 
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      
+      <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
