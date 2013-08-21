@@ -718,34 +718,39 @@
             count(/Input/Projects/Project[@Name=$include-path]) > 0">
             <xsl:if test="
               count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+          
+              <xsl:if test="user:ProjectIsActive(
+                $project/@Platforms,
+                /Input/Generation/Platform)">
 
-              <ProjectReference>
-                <xsl:attribute name="Include">
-                  <xsl:value-of
-                    select="user:GetRelativePath(
-                      concat(
-                        $project/@Path,
-                        '\',
-                        $project/@Name,
-                        '.',
-                        /Input/Generation/Platform,
-                        '.csproj'),
-                      concat(
-                        /Input/Projects/Project[@Name=$include-path]/@Path,
-                        '\',
-                        @Include,
-                        '.',
-                        /Input/Generation/Platform,
-                        '.csproj'))" />
-                </xsl:attribute>
-                <Project>{<xsl:value-of 
+                <ProjectReference>
+                  <xsl:attribute name="Include">
+                    <xsl:value-of
+                      select="user:GetRelativePath(
+                        concat(
+                          $project/@Path,
+                          '\',
+                          $project/@Name,
+                          '.',
+                          /Input/Generation/Platform,
+                          '.csproj'),
+                        concat(
+                          /Input/Projects/Project[@Name=$include-path]/@Path,
+                          '\',
+                          @Include,
+                          '.',
+                          /Input/Generation/Platform,
+                          '.csproj'))" />
+                  </xsl:attribute>
+                  <Project>{<xsl:value-of 
 select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
-                <Name>
-                  <xsl:value-of select="@Include" />
-                  <xsl:text>.</xsl:text>
-                  <xsl:value-of select="/Input/Generation/Platform" />
-                </Name>
-              </ProjectReference>
+                  <Name>
+                    <xsl:value-of select="@Include" />
+                    <xsl:text>.</xsl:text>
+                    <xsl:value-of select="/Input/Generation/Platform" />
+                  </Name>
+                </ProjectReference>
+              </xsl:if>
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
