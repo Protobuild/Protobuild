@@ -158,7 +158,7 @@ EndProject
       <xsl:value-of select="$root/ConfigurationMapping[@Old='Debug']/@New" />
     </xsl:variable>
     <xsl:variable name="release-mapping">
-      <xsl:value-of select="$root/ConfigurationMapping[@Old='Debug']/@New" />
+      <xsl:value-of select="$root/ConfigurationMapping[@Old='Release']/@New" />
     </xsl:variable>
     <xsl:text>                {</xsl:text>
     <xsl:value-of select="$guid" />
