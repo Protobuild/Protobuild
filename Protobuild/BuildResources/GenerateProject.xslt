@@ -81,7 +81,9 @@
       </xsl:choose>
     </OutputPath>
     <DefineConstants>
-      <xsl:text>DEBUG;</xsl:text>
+      <xsl:if test="$debug = 'true'">
+        <xsl:text>DEBUG;</xsl:text>
+      </xsl:if>
       <xsl:choose>
         <xsl:when test="/Input/Properties/CustomDefinitions">
           <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
