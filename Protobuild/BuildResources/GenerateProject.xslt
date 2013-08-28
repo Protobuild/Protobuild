@@ -65,7 +65,7 @@
     <DebugType>full</DebugType>
     <OutputPath>
       <xsl:choose>
-        <xsl:when test="$project/@Type = 'Website'">
+        <xsl:when test="msxsl:node-set($project)/@Type = 'Website'">
           <xsl:text>bin</xsl:text>
         </xsl:when>
         <xsl:otherwise>

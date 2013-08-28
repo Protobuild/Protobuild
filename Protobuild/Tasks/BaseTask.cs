@@ -10,7 +10,19 @@ namespace Protobuild
             get
             {
                 if (this.Log != null)
-                    return x => this.Log.LogMessage(x);
+                    return x =>
+                        {
+                            try
+                            {
+                                this.Log.LogMessage(x);
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                // Under Windows, Log is not null but an exception
+                                // is thrown when you try to use LogMessage.
+                                Console.WriteLine(x);
+                            }
+                        };
                 return Console.WriteLine;
             }
         }
