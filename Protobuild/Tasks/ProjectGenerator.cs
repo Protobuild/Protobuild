@@ -49,8 +49,8 @@ namespace Protobuild.Tasks
                     newDoc.DocumentElement.Attributes["Path"] != null &&
                     additionalPath != null)
                 {
-                    newDoc.DocumentElement.Attributes["Path"].Value = 
-                        (additionalPath.Trim('\\') + '\\' + 
+                    newDoc.DocumentElement.Attributes["Path"].Value =
+                        (additionalPath.Trim('\\') + '\\' +
                         newDoc.DocumentElement.Attributes["Path"].Value).Trim('\\');
                 }
                 if (newDoc.DocumentElement.Name == "ExternalProject")
@@ -63,15 +63,15 @@ namespace Protobuild.Tasks
                     foreach (var projectToUpdate in projectsToUpdate
                         .Where(x => x.Attribute("Path") != null))
                     {
-                        projectToUpdate.Attribute("Path").Value = 
-                            (additionalPath.Trim('\\') + '\\' + 
+                        projectToUpdate.Attribute("Path").Value =
+                            (additionalPath.Trim('\\') + '\\' +
                             projectToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
                     }
                     foreach (var binaryToUpdate in binariesToUpdate
                         .Where(x => x.Attribute("Path") != null))
                     {
-                        binaryToUpdate.Attribute("Path").Value = 
-                            (additionalPath.Trim('\\') + '\\' + 
+                        binaryToUpdate.Attribute("Path").Value =
+                            (additionalPath.Trim('\\') + '\\' +
                             binaryToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
                     }
                     newDoc = xDoc.ToXmlDocument();
@@ -91,9 +91,9 @@ namespace Protobuild.Tasks
                 unchecked
                 {
                     for (var i = 0; i < nameBytes.Length; i++)
-                        guidBytes[i%16] += nameBytes[i];
+                        guidBytes[i % 16] += nameBytes[i];
                     for (var i = nameBytes.Length; i < 16; i++)
-                        guidBytes[i] += nameBytes[i%nameBytes.Length];
+                        guidBytes[i] += nameBytes[i % nameBytes.Length];
                 }
                 var guid = new Guid(guidBytes);
                 doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
@@ -176,7 +176,7 @@ namespace Protobuild.Tasks
                     .Where(x => x.Name.ToLower() == "properties")
                     .SelectMany(x => x.ChildNodes
                         .Cast<XmlElement>()));
-                        
+
             // Transform the input document using the XSLT transform.
             var settings = new XmlWriterSettings();
             settings.Indent = true;
@@ -184,7 +184,7 @@ namespace Protobuild.Tasks
             {
                 this.m_ProjectTransform.Transform(input, writer);
             }
-            
+
             // Generate NuSpec target.
             var nuspecPath = path.Substring(0, path.Length - ".csproj".Length) + ".nuspec";
             using (var writer = XmlWriter.Create(nuspecPath, settings))
@@ -330,6 +330,8 @@ namespace Protobuild.Tasks
             {
                 var id = package.Attributes["id"].Value;
                 var version = package.Attributes["version"].Value;
+                //read targetFramework when in packages.config
+                var targetFramework = package.Attributes["targetFramework"] != null ? package.Attributes["targetFramework"].Value : null;
 
                 var packagePath = Path.Combine(
                     this.m_RootPath,
@@ -339,20 +341,33 @@ namespace Protobuild.Tasks
                 var packageDoc = new XmlDocument();
                 packageDoc.Load(packagePath);
 
-                var references = packageDoc.DocumentElement
+                //if no references are in nuspec, reference all libs
+                List<string> references = new List<string>();
+                if (packageDoc
+                    .DocumentElement
                     .FirstChild
                     .ChildNodes
-                    .Cast<XmlElement>()
-                    .First(x => x.Name == "references")
-                    .ChildNodes
-                    .Cast<XmlElement>()
-                    .Where(x => x.Name == "reference")
-                    .Select(x => x.Attributes["file"].Value)
-                    .ToList();
-
-                var clrNames = new[]
+                    .Cast<XmlElement>().Where(x => x.Name == "references")
+                    .Count() > 0)
                 {
-                    "",
+                    references = packageDoc.DocumentElement
+                        .FirstChild
+                        .ChildNodes
+                        .Cast<XmlElement>()
+                        .First(x => x.Name == "references")
+                        .ChildNodes
+                        .Cast<XmlElement>()
+                        .Where(x => x.Name == "reference")
+                        .Select(x => x.Attributes["file"].Value)
+                        .ToList();
+                }
+                //use targetFramework when specified in packages.config
+                if (targetFramework == null)
+                    targetFramework = "";
+
+                string[] clrNames = new[]
+                {
+                    targetFramework,
                     "net40-client",
                     "Net40-client",
                     "net40",
@@ -362,6 +377,9 @@ namespace Protobuild.Tasks
                     "net20",
                     "Net20"
                 };
+                
+                
+
                 var referenceBasePath = Path.Combine(
                     "packages",
                     id + "." + version,
@@ -371,6 +389,54 @@ namespace Protobuild.Tasks
                     this.m_RootPath,
                     referenceBasePath)))
                     continue;
+
+
+                //if no references are in nuspec, reference all libs
+                if (references.Count == 0)
+                {
+                    //all dlls
+                    foreach (var clrName in clrNames)
+                    {
+                        var foundClr = false;
+                        if (!Directory.Exists(
+                            Path.Combine(
+                            this.m_RootPath,
+                            referenceBasePath,
+                            clrName)))
+                            continue;
+
+                        foreach (var dll in Directory.EnumerateFiles(
+                            Path.Combine(
+                            this.m_RootPath,
+                            referenceBasePath, clrName),
+                            "*.dll"))
+                        {
+                            var packageDll = Path.Combine(
+                            referenceBasePath,
+                            clrName,
+                            Path.GetFileName(dll));
+
+                            if (File.Exists(
+                                Path.Combine(
+                                this.m_RootPath,
+                                packageDll)))
+                            {
+                                var packageReference =
+                                    document.CreateElement("Package");
+                                packageReference.SetAttribute(
+                                    "Name",
+                                    Path.GetFileNameWithoutExtension(dll));
+                                packageReference.AppendChild(
+                                    document.CreateTextNode(packageDll
+                                    .Replace('/', '\\')));
+                                nuget.AppendChild(packageReference);
+                                foundClr=true;
+                            }
+                        }
+                        if (foundClr)
+                            break;
+                    }
+                }
                 foreach (var reference in references)
                 {
                     foreach (var clrName in clrNames)
@@ -397,6 +463,8 @@ namespace Protobuild.Tasks
                         }
                     }
                 }
+
+
             }
         }
 
@@ -465,7 +533,7 @@ namespace Protobuild.Tasks
                     projectNode.AppendChild(fileNode);
                 }
             }
-            
+
             if (sourceFile != null)
             {
                 var fileNode = doc.CreateElement("Compiled");

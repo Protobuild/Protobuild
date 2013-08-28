@@ -136,6 +136,16 @@
         <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
       </xsl:when>
     </xsl:choose>
+	<xsl:choose>
+		<xsl:when test="/Input/Properties/FrameworkVersions">
+          <xsl:for-each select="/Input/Properties/FrameworkVersions/Platform">
+            <xsl:if test="/Input/Generation/Platform = ./@Name">
+              <TargetFrameworkVersion><xsl:value-of select="./Version" /></TargetFrameworkVersion>
+			  <TargetFrameworkProfile><xsl:value-of select="./Profile" /></TargetFrameworkProfile>
+            </xsl:if>
+          </xsl:for-each>
+        </xsl:when>
+	</xsl:choose>
     <xsl:choose>
       <xsl:when test="/Input/Generation/Platform = 'Android'">
         <xsl:choose>
@@ -251,7 +261,17 @@
           <xsl:value-of select="$project/@Name" />
         </AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <xsl:choose>
+		<xsl:choose>
+			<xsl:when test="/Input/Properties/FrameworkVersions">
+			  <xsl:for-each select="/Input/Properties/FrameworkVersions/Platform">
+				<xsl:if test="/Input/Generation/Platform = ./@Name">
+				  <TargetFrameworkVersion><xsl:value-of select="./Version" /></TargetFrameworkVersion>
+				  <TargetFrameworkProfile><xsl:value-of select="./Profile" /></TargetFrameworkProfile>
+				</xsl:if>
+			  </xsl:for-each>
+			</xsl:when>
+		</xsl:choose>
+		<xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
             <FileAlignment>512</FileAlignment>
             <AndroidSupportedAbis>armeabi%3barmeabi-v7a%3bx86</AndroidSupportedAbis>
@@ -275,8 +295,12 @@
             <MandroidI18n />
             <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
             <DeployExternal>False</DeployExternal>
-            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
-            <TargetFrameworkProfile />
+			<xsl:choose>
+				<xsl:when test="/Input/Properties/FrameworkVersions/Platform[@Name]=Ouya">
+					<TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+					<TargetFrameworkProfile />
+				</xsl:when>
+			</xsl:choose>
           </xsl:when>
         </xsl:choose>
       </PropertyGroup>
