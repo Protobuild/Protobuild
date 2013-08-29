@@ -676,8 +676,15 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-   
-      <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+
+      <xsl:choose>
+        <xsl:when test="/Input/Generation/Platform = 'Android'">
+          <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+        </xsl:when>
+        <xsl:otherwise>
+          <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+        </xsl:otherwise>
+      </xsl:choose>      
       
       <xsl:if test="$project/@Type = 'Tests'">
         <UsingTask
