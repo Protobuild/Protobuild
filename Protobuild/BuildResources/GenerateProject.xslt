@@ -46,8 +46,52 @@
       return false;
     }
     ]]>
-  </msxsl:script> 
-  
+  </msxsl:script>
+
+  <xsl:template name="profile_and_version"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:choose>
+      <xsl:when test="/Input/Properties/FrameworkVersions
+                      /Platform[@Name=/Input/Generation/Platform]
+                      /Version">
+        <TargetFrameworkVersion><xsl:value-of select="/Input/Properties/FrameworkVersions
+                                                      /Platform[@Name=/Input/Generation/Platform]
+                                                      /Version" /></TargetFrameworkVersion>
+      </xsl:when>
+      <xsl:when test="/Input/Properties/FrameworkVersions/Version">
+        <TargetFrameworkVersion><xsl:value-of select="/Input/Properties/FrameworkVersions/Version" /></TargetFrameworkVersion>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:choose>
+          <xsl:when test="/Input/Generation/Platform = 'Android'">
+            <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'Ouya'">
+            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+          </xsl:when>
+          <xsl:otherwise>
+            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:otherwise>
+    </xsl:choose>
+    <xsl:choose>
+      <xsl:when test="/Input/Properties/FrameworkVersions
+                      /Platform[@Name=/Input/Generation/Platform]
+                      /Profile">
+        <TargetFrameworkProfile><xsl:value-of select="/Input/Properties/FrameworkVersions
+                                                      /Platform[@Name=/Input/Generation/Platform]
+                                                      /Profile" /></TargetFrameworkProfile>
+      </xsl:when>
+      <xsl:when test="/Input/Properties/FrameworkVersions/Profile">
+        <TargetFrameworkProfile><xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" /></TargetFrameworkProfile>
+      </xsl:when>
+      <xsl:otherwise>
+        <TargetFrameworkProfile></TargetFrameworkProfile>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
   <xsl:template name="configuration"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     
@@ -136,6 +180,7 @@
         <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
       </xsl:when>
     </xsl:choose>
+    <xsl:call-template name="profile_and_version" />
     <xsl:choose>
       <xsl:when test="/Input/Generation/Platform = 'Android'">
         <xsl:choose>
@@ -251,6 +296,7 @@
           <xsl:value-of select="$project/@Name" />
         </AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <xsl:call-template name="profile_and_version" />
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
             <FileAlignment>512</FileAlignment>
@@ -275,8 +321,6 @@
             <MandroidI18n />
             <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
             <DeployExternal>False</DeployExternal>
-            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
-            <TargetFrameworkProfile />
           </xsl:when>
         </xsl:choose>
       </PropertyGroup>
@@ -636,10 +680,10 @@
       <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
       
       <xsl:if test="$project/@Type = 'Tests'">
-      	<UsingTask
+        <UsingTask
           TaskName="Xunit.Runner.MSBuild.xunit">
           <xsl:attribute name="AssemblyFile">
-          	<xsl:value-of select="concat(
+            <xsl:value-of select="concat(
 /Input/Generation/RootPath,
 'packages/xunit.runners.1.9.1/tools/xunit.runner.msbuild.dll')" />
           </xsl:attribute>
