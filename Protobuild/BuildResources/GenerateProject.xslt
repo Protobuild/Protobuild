@@ -267,6 +267,12 @@
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+            <ProjectTypeGuids>
+              <xsl:text>{BC8A1FFA-BEE3-4634-8014-F334798102B3};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
           <xsl:otherwise>
           </xsl:otherwise>
         </xsl:choose>
@@ -283,6 +289,22 @@
             </xsl:when>
             <xsl:when test="$project/@Type = 'GTK'">
               <xsl:text>WinExe</xsl:text>
+            </xsl:when>
+            <xsl:when test="$project/@Type = 'App'">
+              <xsl:choose>
+                <xsl:when test="/Input/Generation/Platform = 'Android'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                  <xsl:text>AppContainerExe</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                  <xsl:text>WinExe</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'iOS'">
+                  <xsl:text>Exe</xsl:text>
+                </xsl:when>
+              </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
               <xsl:text>Library</xsl:text>
@@ -305,11 +327,23 @@
             <MandroidI18n />
             <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
             <DeployExternal>False</DeployExternal>
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'App'">
+                <AndroidApplication>True</AndroidApplication>
+                <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+                <AndroidResgenClass>Resource</AndroidResgenClass>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
             <SynchReleaseVersion>False</SynchReleaseVersion>
             <ReleaseVersion>1.6</ReleaseVersion>
             <MtouchSdkVersion>3.0</MtouchSdkVersion>
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'App'">
+                <ConsolePause>false</ConsolePause>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'MacOS'">
             <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
