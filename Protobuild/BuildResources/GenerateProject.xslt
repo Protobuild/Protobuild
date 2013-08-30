@@ -69,6 +69,10 @@
           <xsl:when test="/Input/Generation/Platform = 'Ouya'">
             <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'iOS'">
+          </xsl:when>
           <xsl:otherwise>
             <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
           </xsl:otherwise>
@@ -338,7 +342,25 @@
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
             <SynchReleaseVersion>False</SynchReleaseVersion>
             <ReleaseVersion>1.6</ReleaseVersion>
-            <MtouchSdkVersion>3.0</MtouchSdkVersion>
+            <xsl:choose>
+              <xsl:when test="/Input/Properties/FrameworkVersions
+                      /Platform[@Name=/Input/Generation/Platform]
+                      /Profile">
+                <MtouchSdkVersion>
+                  <xsl:value-of select="/Input/Properties/FrameworkVersions
+                                                      /Platform[@Name=/Input/Generation/Platform]
+                                                      /Profile" />
+                </MtouchSdkVersion>
+              </xsl:when>
+              <xsl:when test="/Input/Properties/FrameworkVersions/Profile">
+                <MtouchSdkVersion>
+                  <xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" />
+                </MtouchSdkVersion>
+              </xsl:when>
+              <xsl:otherwise>
+                <MtouchSdkVersion>3.0</MtouchSdkVersion>
+              </xsl:otherwise>
+            </xsl:choose>
             <xsl:choose>
               <xsl:when test="$project/@Type = 'App'">
                 <ConsolePause>false</ConsolePause>
@@ -676,6 +698,55 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/ApplicationDefinition">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <Generator>MSBuild:Compile</Generator>
+              <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$project/Files/Page">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <Generator>MSBuild:Compile</Generator>
+              <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$project/Files/AppxManifest">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
       
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
@@ -714,6 +785,12 @@
       <xsl:choose>
         <xsl:when test="/Input/Generation/Platform = 'Android'">
           <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
+            <VisualStudioVersion>11.0</VisualStudioVersion>
+          </PropertyGroup>
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
