@@ -345,16 +345,16 @@
             <xsl:choose>
               <xsl:when test="/Input/Properties/FrameworkVersions
                       /Platform[@Name=/Input/Generation/Platform]
-                      /Profile">
+                      /Version">
                 <MtouchSdkVersion>
                   <xsl:value-of select="/Input/Properties/FrameworkVersions
                                                       /Platform[@Name=/Input/Generation/Platform]
-                                                      /Profile" />
+                                                      /Version" />
                 </MtouchSdkVersion>
               </xsl:when>
-              <xsl:when test="/Input/Properties/FrameworkVersions/Profile">
+              <xsl:when test="/Input/Properties/FrameworkVersions/Version">
                 <MtouchSdkVersion>
-                  <xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" />
+                  <xsl:value-of select="/Input/Properties/FrameworkVersions/Version" />
                 </MtouchSdkVersion>
               </xsl:when>
               <xsl:otherwise>
@@ -747,7 +747,22 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/InterfaceDefinition">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
