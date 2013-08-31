@@ -319,7 +319,21 @@
           <xsl:value-of select="$project/@Name" />
         </RootNamespace>
         <AssemblyName>
-          <xsl:value-of select="$project/@Name" />
+          <xsl:choose>
+          <xsl:when test="/Input/Properties/AssemblyName
+                      /Platform[@Name=/Input/Generation/Platform]">
+              <xsl:value-of select="/Input/Properties/AssemblyName
+                                                      /Platform[@Name=/Input/Generation/Platform]
+                                                      " />
+          </xsl:when>
+          <xsl:when test="/Input/Properties/AssemblyName">
+              <xsl:value-of select="/Input/Properties/AssemblyName" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$project/@Name" />
+          </xsl:otherwise>
+          </xsl:choose>
+          
         </AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <xsl:call-template name="profile_and_version" />
@@ -341,26 +355,6 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
             <SynchReleaseVersion>False</SynchReleaseVersion>
-            <ReleaseVersion>1.6</ReleaseVersion>
-            <xsl:choose>
-              <xsl:when test="/Input/Properties/FrameworkVersions
-                      /Platform[@Name=/Input/Generation/Platform]
-                      /Version">
-                <MtouchSdkVersion>
-                  <xsl:value-of select="/Input/Properties/FrameworkVersions
-                                                      /Platform[@Name=/Input/Generation/Platform]
-                                                      /Version" />
-                </MtouchSdkVersion>
-              </xsl:when>
-              <xsl:when test="/Input/Properties/FrameworkVersions/Version">
-                <MtouchSdkVersion>
-                  <xsl:value-of select="/Input/Properties/FrameworkVersions/Version" />
-                </MtouchSdkVersion>
-              </xsl:when>
-              <xsl:otherwise>
-                <MtouchSdkVersion>3.0</MtouchSdkVersion>
-              </xsl:otherwise>
-            </xsl:choose>
             <xsl:choose>
               <xsl:when test="$project/@Type = 'App'">
                 <ConsolePause>false</ConsolePause>
@@ -834,6 +828,22 @@
                 <xsl:value-of select="@Include" />
               </xsl:attribute>
               <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/BundleResource">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
               <xsl:apply-templates select="node()"/>
             </xsl:element>
           </xsl:if>
