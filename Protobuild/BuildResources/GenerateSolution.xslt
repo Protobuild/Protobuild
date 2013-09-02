@@ -103,6 +103,17 @@ Microsoft Visual Studio Solution File, Format Version 11.00
         GlobalSection(ProjectConfigurationPlatforms) = postSolution
 </xsl:text>
       </xsl:when>
+      <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+        <xsl:text>Global
+        GlobalSection(SolutionConfigurationPlatforms) = preSolution
+                Debug|x86 = Debug|x86
+                Release|x86 = Release|x86
+                Debug|ARM = Debug|ARM
+                Release|ARM = Release|ARM
+        EndGlobalSection
+        GlobalSection(ProjectConfigurationPlatforms) = postSolution
+</xsl:text>
+      </xsl:when>
       <xsl:otherwise>
         <xsl:text>Global
         GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -333,6 +344,60 @@ EndProject
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>Release|iPhoneSimulator</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+      </xsl:when>
+      <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|x86.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|x86</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|x86.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|x86</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|ARM.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|ARM</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|ARM.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|ARM</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
