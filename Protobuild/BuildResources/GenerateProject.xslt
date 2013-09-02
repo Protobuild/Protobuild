@@ -71,6 +71,10 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Windows8'">
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+            <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+            <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>            
+          </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
           </xsl:when>
           <xsl:otherwise>
@@ -277,6 +281,12 @@
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
+            <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+              <ProjectTypeGuids>
+                <xsl:text>{C089C8C0-30E0-4E22-80C0-CE093F111A43};</xsl:text>
+                <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
+              </ProjectTypeGuids>
+          </xsl:when>
           <xsl:otherwise>
           </xsl:otherwise>
         </xsl:choose>
@@ -297,6 +307,9 @@
             <xsl:when test="$project/@Type = 'App'">
               <xsl:choose>
                 <xsl:when test="/Input/Generation/Platform = 'Android'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'Windows8'">
@@ -325,9 +338,6 @@
               <xsl:value-of select="/Input/Properties/AssemblyName
                                                       /Platform[@Name=/Input/Generation/Platform]
                                                       " />
-          </xsl:when>
-          <xsl:when test="/Input/Properties/AssemblyName">
-              <xsl:value-of select="/Input/Properties/AssemblyName" />
           </xsl:when>
           <xsl:otherwise>
             <xsl:value-of select="$project/@Name" />
@@ -369,8 +379,44 @@
             <AndroidSupportedAbis>armeabi%3barmeabi-v7a%3bx86</AndroidSupportedAbis>
             <AndroidStoreUncompressedFileExtensions />
             <MandroidI18n />
-            <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+            <xsl:choose>
+              <xsl:when test="Input/Properties/ManifestPrefix">
+                <AndroidManifest><xsl:value-of select="concat(
+                                '..\',
+                                $project/@Name,
+                                '.',
+                                /Input/Generation/Platform,
+                                '\Properties\AndroidManifest.xml')"/></AndroidManifest>
+              </xsl:when>
+              <xsl:otherwise>
+                <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+              </xsl:otherwise>
+            </xsl:choose>
             <DeployExternal>False</DeployExternal>
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'App'">
+                <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+                <SilverlightApplication>true</SilverlightApplication>
+                <XapFilename><xsl:value-of select="$project/@Name" />_$(Configuration)_$(Platform).xap</XapFilename>
+                <XapOutputs>true</XapOutputs>
+                <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+                <xsl:choose>
+                  <xsl:when test="Input/Properties/ManifestPrefix">
+                    <SilverlightManifestTemplate><xsl:value-of select="concat(
+                                                               '..\',
+                                                               $project/@Name,
+                                                               '.',
+                                                               /Input/Generation/Platform,
+                                                               '\Properties\AppManifest.xml')"/></SilverlightManifestTemplate>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
         </xsl:choose>
       </PropertyGroup>
@@ -875,10 +921,12 @@
                                   /Projects
                                   /ContentProject[@Name=$include-path]
                                   /Compiled">
-              <None>
-                <xsl:attribute name="Include">
-                  <xsl:value-of
-                    select="user:GetRelativePath(
+              <xsl:choose>
+                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                  <Content>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
                       concat(
                         /Input/Generation/RootPath,
                         $project/@Path,
@@ -888,12 +936,35 @@
                         /Input/Generation/Platform,
                         '.csproj'),
                       current()/FullPath)" />
-                </xsl:attribute>
-                <Link>
-                  <xsl:value-of select="current()/RelativePath" />
-                </Link>
-                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-              </None>
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                  </Content>
+                </xsl:when>
+                <xsl:otherwise>
+                  <None>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
+                      concat(
+                        /Input/Generation/RootPath,
+                        $project/@Path,
+                        '\',
+                        $project/@Name,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj'),
+                      current()/FullPath)" />
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                  </None>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:for-each>
           </xsl:if>
         </xsl:for-each>
@@ -908,6 +979,20 @@
             <VisualStudioVersion>11.0</VisualStudioVersion>
           </PropertyGroup>
           <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
+          <Target Name="MonoGame_RemoveXnaAssemblies" AfterTargets="ImplicitlyExpandTargetFramework">
+            <Message Text="MonoGame - Removing XNA Assembly references!" Importance="normal" />
+            <ItemGroup>
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.GamerServices.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.GamerServicesExtensions.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.Input.Touch.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.MediaLibraryExtensions.dll'" />
+            </ItemGroup>
+          </Target>
         </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
