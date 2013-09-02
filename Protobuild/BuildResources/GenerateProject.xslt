@@ -69,6 +69,10 @@
           <xsl:when test="/Input/Generation/Platform = 'Ouya'">
             <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'iOS'">
+          </xsl:when>
           <xsl:otherwise>
             <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
           </xsl:otherwise>
@@ -267,6 +271,12 @@
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+            <ProjectTypeGuids>
+              <xsl:text>{BC8A1FFA-BEE3-4634-8014-F334798102B3};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
           <xsl:otherwise>
           </xsl:otherwise>
         </xsl:choose>
@@ -284,6 +294,22 @@
             <xsl:when test="$project/@Type = 'GTK'">
               <xsl:text>WinExe</xsl:text>
             </xsl:when>
+            <xsl:when test="$project/@Type = 'App'">
+              <xsl:choose>
+                <xsl:when test="/Input/Generation/Platform = 'Android'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                  <xsl:text>AppContainerExe</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                  <xsl:text>WinExe</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'iOS'">
+                  <xsl:text>Exe</xsl:text>
+                </xsl:when>
+              </xsl:choose>
+            </xsl:when>
             <xsl:otherwise>
               <xsl:text>Library</xsl:text>
             </xsl:otherwise>
@@ -293,7 +319,21 @@
           <xsl:value-of select="$project/@Name" />
         </RootNamespace>
         <AssemblyName>
-          <xsl:value-of select="$project/@Name" />
+          <xsl:choose>
+          <xsl:when test="/Input/Properties/AssemblyName
+                      /Platform[@Name=/Input/Generation/Platform]">
+              <xsl:value-of select="/Input/Properties/AssemblyName
+                                                      /Platform[@Name=/Input/Generation/Platform]
+                                                      " />
+          </xsl:when>
+          <xsl:when test="/Input/Properties/AssemblyName">
+              <xsl:value-of select="/Input/Properties/AssemblyName" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:value-of select="$project/@Name" />
+          </xsl:otherwise>
+          </xsl:choose>
+          
         </AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <xsl:call-template name="profile_and_version" />
@@ -305,11 +345,21 @@
             <MandroidI18n />
             <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
             <DeployExternal>False</DeployExternal>
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'App'">
+                <AndroidApplication>True</AndroidApplication>
+                <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+                <AndroidResgenClass>Resource</AndroidResgenClass>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
             <SynchReleaseVersion>False</SynchReleaseVersion>
-            <ReleaseVersion>1.6</ReleaseVersion>
-            <MtouchSdkVersion>3.0</MtouchSdkVersion>
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'App'">
+                <ConsolePause>false</ConsolePause>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'MacOS'">
             <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
@@ -324,18 +374,110 @@
           </xsl:when>
         </xsl:choose>
       </PropertyGroup>
-      <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <xsl:call-template name="configuration">
-          <xsl:with-param name="project"><value-of select="$project" /></xsl:with-param>
-          <xsl:with-param name="debug">true</xsl:with-param>
-        </xsl:call-template>
-      </PropertyGroup>
-      <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <xsl:call-template name="configuration">
-          <xsl:with-param name="project"><value-of select="$project" /></xsl:with-param>
-          <xsl:with-param name="debug">false</xsl:with-param>
-        </xsl:call-template>
-      </PropertyGroup>
+      <xsl:choose>
+        <xsl:when test="/Input/Generation/Platform = 'iOS'">
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhone' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+        </xsl:when>
+        <xsl:otherwise>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          </xsl:otherwise>
+        </xsl:choose>
       <xsl:if test="/Input/Properties/ForceArchitecture">
         <PropertyGroup>
           <xsl:attribute name="Condition">
@@ -642,7 +784,87 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/ApplicationDefinition">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <Generator>MSBuild:Compile</Generator>
+              <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$project/Files/Page">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <Generator>MSBuild:Compile</Generator>
+              <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$project/Files/AppxManifest">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <SubType>Designer</SubType>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/BundleResource">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/InterfaceDefinition">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
@@ -680,6 +902,12 @@
       <xsl:choose>
         <xsl:when test="/Input/Generation/Platform = 'Android'">
           <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
+            <VisualStudioVersion>11.0</VisualStudioVersion>
+          </PropertyGroup>
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
