@@ -33,3 +33,19 @@ Source Control
 -----------------
 
 Since the definition files under `Build\Projects` are the source of truth for the project structure, you should not include the C# project or solution files in your source control repository.  These will change whenever the definition files change, and they serve no benefit to be included (users can run the `Protobuild.exe` file in the root of the source control project to generate the required C# project and solution files).
+
+Platforms
+------------
+
+Protobuild supports the following platforms directly, but by customizing the project generation XSLT you can support any platform you like:
+
+* Android (via Xamarin)
+* iOS (via Xamarin)
+* Linux
+* MacOS
+* Ouya (via Xamarin)
+* Windows
+* Windows8
+* WindowsPhone
+
+For example, to generate for the WindowsPhone project, use `Protobuild.exe --generate WindowsPhone`.
