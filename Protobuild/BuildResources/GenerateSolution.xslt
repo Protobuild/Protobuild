@@ -110,6 +110,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
       <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
         <xsl:text>Global
         GlobalSection(SolutionConfigurationPlatforms) = preSolution
+                Debug|Any CPU = Debug|Any CPU
+                Release|Any CPU = Release|Any CPU
                 Debug|x86 = Debug|x86
                 Release|x86 = Release|x86
                 Debug|ARM = Debug|ARM
@@ -354,6 +356,58 @@ EndProject
 </xsl:text>
       </xsl:when>
       <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|Any CPU.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|Any CPU.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|Any CPU.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$release-mapping != ''">
+            <xsl:value-of select="$release-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|Any CPU.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$release-mapping != ''">
+            <xsl:value-of select="$release-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
         <xsl:text>                {</xsl:text>
         <xsl:value-of select="$guid" />
         <xsl:text>}.Debug|x86.ActiveCfg = </xsl:text>
