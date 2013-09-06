@@ -13,6 +13,10 @@
     <msxsl:using namespace="System" />
     <msxsl:using namespace="System.Web" />
     <![CDATA[
+    public string NormalizeXAPName(string origName)
+    {
+      return origName.Replace('.','_');
+    }
     public string GetRelativePath(string from, string to)
     {
       try
@@ -430,7 +434,9 @@
                 <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
                 <SilverlightApplication>true</SilverlightApplication>
                 <XapFilename>
-                  <xsl:value-of select="$project/@Name" />_$(Configuration)_$(Platform).xap
+                  <xsl:value-of select="concat( user:NormalizeXAPName(
+                                concat($project/@Name ,'_$(Configuration)','_$(Platform)')),'.xap'
+                                )"/>
                 </XapFilename>
                 <XapOutputs>true</XapOutputs>
                 <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
@@ -506,6 +512,22 @@
           </PropertyGroup>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
           <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
             <xsl:call-template name="configuration">
               <xsl:with-param name="project">
