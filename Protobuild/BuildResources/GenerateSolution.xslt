@@ -59,7 +59,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
           /Input/Generation/Platform)">
         <xsl:call-template name="project-definition">
           <xsl:with-param name="type" select="current()/@Type" />
-          <xsl:with-param name="name" select="current()/@Name" />
+          <!--<xsl:with-param name="name" select="current()/@Name" />-->
+          <xsl:with-param name="name" select="concat(
+                        current()/@Name,
+                        '.',
+                        /Input/Generation/Platform)" />
           <xsl:with-param name="guid" select="current()/@Guid" />
           <xsl:with-param name="path" select="concat(
                         current()/@Path,
