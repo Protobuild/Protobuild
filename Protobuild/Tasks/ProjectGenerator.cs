@@ -187,9 +187,22 @@ namespace Protobuild.Tasks
 
             // Generate NuSpec target.
             var nuspecPath = path.Substring(0, path.Length - ".csproj".Length) + ".nuspec";
-            using (var writer = XmlWriter.Create(nuspecPath, settings))
+            using (var memory = new MemoryStream())
             {
-                this.m_NuspecTransform.Transform(input, writer);
+                using (var writer = XmlWriter.Create(memory, settings))
+                {
+                    this.m_NuspecTransform.Transform(input, writer);
+                    writer.Flush();
+                }
+                if (memory.Position > 0)
+                {
+                    memory.Seek(0, SeekOrigin.Begin);
+                    using (var writer = new FileStream(nuspecPath, FileMode.Create))
+                    {
+                        memory.CopyTo(writer);
+                        writer.Flush();
+                    }
+                }
             }
 
             // Also remove any left over .sln or .userprefs files.
