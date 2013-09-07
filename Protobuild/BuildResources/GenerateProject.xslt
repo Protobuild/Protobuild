@@ -5,14 +5,18 @@
   xmlns:user="urn:my-scripts"
   exclude-result-prefixes="xsl msxsl user"
   version="1.0">
-  
+
   <xsl:output method="xml" indent="no" />
- 
+
   <msxsl:script language="C#" implements-prefix="user">
     <msxsl:assembly name="System.Web" />
     <msxsl:using namespace="System" />
     <msxsl:using namespace="System.Web" />
     <![CDATA[
+    public string NormalizeXAPName(string origName)
+    {
+      return origName.Replace('.','_');
+    }
     public string GetRelativePath(string from, string to)
     {
       try
@@ -54,12 +58,16 @@
       <xsl:when test="/Input/Properties/FrameworkVersions
                       /Platform[@Name=/Input/Generation/Platform]
                       /Version">
-        <TargetFrameworkVersion><xsl:value-of select="/Input/Properties/FrameworkVersions
+        <TargetFrameworkVersion>
+          <xsl:value-of select="/Input/Properties/FrameworkVersions
                                                       /Platform[@Name=/Input/Generation/Platform]
-                                                      /Version" /></TargetFrameworkVersion>
+                                                      /Version" />
+        </TargetFrameworkVersion>
       </xsl:when>
       <xsl:when test="/Input/Properties/FrameworkVersions/Version">
-        <TargetFrameworkVersion><xsl:value-of select="/Input/Properties/FrameworkVersions/Version" /></TargetFrameworkVersion>
+        <TargetFrameworkVersion>
+          <xsl:value-of select="/Input/Properties/FrameworkVersions/Version" />
+        </TargetFrameworkVersion>
       </xsl:when>
       <xsl:otherwise>
         <xsl:choose>
@@ -70,6 +78,10 @@
             <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+            <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
+            <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
           </xsl:when>
@@ -83,12 +95,16 @@
       <xsl:when test="/Input/Properties/FrameworkVersions
                       /Platform[@Name=/Input/Generation/Platform]
                       /Profile">
-        <TargetFrameworkProfile><xsl:value-of select="/Input/Properties/FrameworkVersions
+        <TargetFrameworkProfile>
+          <xsl:value-of select="/Input/Properties/FrameworkVersions
                                                       /Platform[@Name=/Input/Generation/Platform]
-                                                      /Profile" /></TargetFrameworkProfile>
+                                                      /Profile" />
+        </TargetFrameworkProfile>
       </xsl:when>
       <xsl:when test="/Input/Properties/FrameworkVersions/Profile">
-        <TargetFrameworkProfile><xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" /></TargetFrameworkProfile>
+        <TargetFrameworkProfile>
+          <xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" />
+        </TargetFrameworkProfile>
       </xsl:when>
       <xsl:otherwise>
         <TargetFrameworkProfile></TargetFrameworkProfile>
@@ -98,7 +114,7 @@
 
   <xsl:template name="configuration"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    
+
     <xsl:param name="project" />
     <xsl:param name="debug" />
     <xsl:choose>
@@ -181,10 +197,12 @@
     <WarningLevel>4</WarningLevel>
     <xsl:choose>
       <xsl:when test="/Input/Properties/ForceArchitecture">
-        <PlatformTarget><xsl:value-of select="/Input/Properties/ForceArchitecture" /></PlatformTarget>
+        <PlatformTarget>
+          <xsl:value-of select="/Input/Properties/ForceArchitecture" />
+        </PlatformTarget>
       </xsl:when>
     </xsl:choose>
-    <xsl:call-template name="profile_and_version" />
+    <!--<xsl:call-template name="profile_and_version" />-->
     <xsl:choose>
       <xsl:when test="/Input/Generation/Platform = 'Android'">
         <xsl:choose>
@@ -194,7 +212,7 @@
           </xsl:when>
           <xsl:otherwise>
             <AndroidUseSharedRuntime>False</AndroidUseSharedRuntime>
-            <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+            <!--<AndroidLinkMode>SdkOnly</AndroidLinkMode>-->
             <EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
           </xsl:otherwise>
         </xsl:choose>
@@ -221,23 +239,25 @@
       </xsl:when>
     </xsl:choose>
   </xsl:template>
- 
+
   <xsl:template match="/">
-  
+
     <xsl:variable
       name="project"
       select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
-  
-    <Project 
+
+    <Project
       DefaultTargets="Build"
       ToolsVersion="4.0"
       xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-      
+
       <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <xsl:choose>
           <xsl:when test="/Input/Properties/ForceArchitecture">
-            <Platform Condition=" '$(Platform)' == '' "><xsl:value-of select="/Input/Properties/ForceArchitecture" /></Platform>
+            <Platform Condition=" '$(Platform)' == '' ">
+              <xsl:value-of select="/Input/Properties/ForceArchitecture" />
+            </Platform>
           </xsl:when>
           <xsl:otherwise>
             <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -245,27 +265,29 @@
         </xsl:choose>
         <ProductVersion>10.0.0</ProductVersion>
         <SchemaVersion>2.0</SchemaVersion>
-        <ProjectGuid>{<xsl:value-of select="$project/@Guid" />}</ProjectGuid>
+        <ProjectGuid>
+          {<xsl:value-of select="$project/@Guid" />}
+        </ProjectGuid>
         <xsl:choose>
-          <xsl:when test="$project/@Type = 'Website'">            
+          <xsl:when test="$project/@Type = 'Website'">
             <ProjectTypeGuids>
               <xsl:text>{349C5851-65DF-11DA-9384-00065B846F21};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
-          <xsl:when test="/Input/Generation/Platform = 'Android'">            
+          <xsl:when test="/Input/Generation/Platform = 'Android'">
             <ProjectTypeGuids>
               <xsl:text>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
-          <xsl:when test="/Input/Generation/Platform = 'iOS'">            
+          <xsl:when test="/Input/Generation/Platform = 'iOS'">
             <ProjectTypeGuids>
               <xsl:text>{6BC8ED88-2882-458C-8E55-DFD12B67127B};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
-          <xsl:when test="/Input/Generation/Platform = 'PSMobile'">            
+          <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
             <ProjectTypeGuids>
               <xsl:text>{69878862-DA7D-4DC6-B0A1-50D8FAB4242F};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
@@ -275,6 +297,12 @@
             <ProjectTypeGuids>
               <xsl:text>{BC8A1FFA-BEE3-4634-8014-F334798102B3};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+            <ProjectTypeGuids>
+              <xsl:text>{C089C8C0-30E0-4E22-80C0-CE093F111A43};</xsl:text>
+              <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
           <xsl:otherwise>
@@ -299,6 +327,9 @@
                 <xsl:when test="/Input/Generation/Platform = 'Android'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'Windows8'">
                   <xsl:text>AppContainerExe</xsl:text>
                 </xsl:when>
@@ -320,34 +351,45 @@
         </RootNamespace>
         <AssemblyName>
           <xsl:choose>
-          <xsl:when test="/Input/Properties/AssemblyName
+            <xsl:when test="/Input/Properties/AssemblyName
                       /Platform[@Name=/Input/Generation/Platform]">
               <xsl:value-of select="/Input/Properties/AssemblyName
                                                       /Platform[@Name=/Input/Generation/Platform]
                                                       " />
-          </xsl:when>
-          <xsl:when test="/Input/Properties/AssemblyName">
-              <xsl:value-of select="/Input/Properties/AssemblyName" />
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:value-of select="$project/@Name" />
-          </xsl:otherwise>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$project/@Name" />
+            </xsl:otherwise>
           </xsl:choose>
-          
+
         </AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <xsl:call-template name="profile_and_version" />
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
             <FileAlignment>512</FileAlignment>
-            <AndroidSupportedAbis>armeabi%3barmeabi-v7a%3bx86</AndroidSupportedAbis>
+            <AndroidSupportedAbis>armeabi,armeabi-v7a,x86</AndroidSupportedAbis>
             <AndroidStoreUncompressedFileExtensions />
             <MandroidI18n />
-            <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+            <xsl:choose>
+              <xsl:when test="Input/Properties/ManifestPrefix">
+                <AndroidManifest>
+                  <xsl:value-of select="concat(
+                                '..\',
+                                $project/@Name,
+                                '.',
+                                /Input/Generation/Platform,
+                                '\Properties\AndroidManifest.xml')"/>
+                </AndroidManifest>
+              </xsl:when>
+              <xsl:otherwise>
+                <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+              </xsl:otherwise>
+            </xsl:choose>
             <DeployExternal>False</DeployExternal>
+            <AndroidApplication>True</AndroidApplication>
             <xsl:choose>
               <xsl:when test="$project/@Type = 'App'">
-                <AndroidApplication>True</AndroidApplication>
                 <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
                 <AndroidResgenClass>Resource</AndroidResgenClass>
               </xsl:when>
@@ -369,8 +411,52 @@
             <AndroidSupportedAbis>armeabi%3barmeabi-v7a%3bx86</AndroidSupportedAbis>
             <AndroidStoreUncompressedFileExtensions />
             <MandroidI18n />
-            <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+            <xsl:choose>
+              <xsl:when test="Input/Properties/ManifestPrefix">
+                <AndroidManifest>
+                  <xsl:value-of select="concat(
+                                '..\',
+                                $project/@Name,
+                                '.',
+                                /Input/Generation/Platform,
+                                '\Properties\AndroidManifest.xml')"/>
+                </AndroidManifest>
+              </xsl:when>
+              <xsl:otherwise>
+                <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
+              </xsl:otherwise>
+            </xsl:choose>
             <DeployExternal>False</DeployExternal>
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+            <xsl:choose>
+              <xsl:when test="$project/@Type = 'App'">
+                <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+                <SilverlightApplication>true</SilverlightApplication>
+                <XapFilename>
+                  <xsl:value-of select="concat( user:NormalizeXAPName(
+                                concat($project/@Name ,'_$(Configuration)','_$(Platform)')),'.xap'
+                                )"/>
+                </XapFilename>
+                <XapOutputs>true</XapOutputs>
+                <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+                <xsl:choose>
+                  <xsl:when test="Input/Properties/ManifestPrefix">
+                    <SilverlightManifestTemplate>
+                      <xsl:value-of select="concat(
+                                                               '..\',
+                                                               $project/@Name,
+                                                               '.',
+                                                               /Input/Generation/Platform,
+                                                               '\Properties\AppManifest.xml')"/>
+                    </SilverlightManifestTemplate>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </xsl:when>
+            </xsl:choose>
           </xsl:when>
         </xsl:choose>
       </PropertyGroup>
@@ -426,6 +512,22 @@
           </PropertyGroup>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">true</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+            <xsl:call-template name="configuration">
+              <xsl:with-param name="project">
+                <value-of select="$project" />
+              </xsl:with-param>
+              <xsl:with-param name="debug">false</xsl:with-param>
+            </xsl:call-template>
+          </PropertyGroup>
           <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
             <xsl:call-template name="configuration">
               <xsl:with-param name="project">
@@ -476,8 +578,8 @@
               <xsl:with-param name="debug">false</xsl:with-param>
             </xsl:call-template>
           </PropertyGroup>
-          </xsl:otherwise>
-        </xsl:choose>
+        </xsl:otherwise>
+      </xsl:choose>
       <xsl:if test="/Input/Properties/ForceArchitecture">
         <PropertyGroup>
           <xsl:attribute name="Condition">
@@ -486,7 +588,9 @@
             <xsl:text>' </xsl:text>
           </xsl:attribute>
           <xsl:call-template name="configuration">
-            <xsl:with-param name="project"><value-of select="$project" /></xsl:with-param>
+            <xsl:with-param name="project">
+              <value-of select="$project" />
+            </xsl:with-param>
             <xsl:with-param name="debug">true</xsl:with-param>
           </xsl:call-template>
         </PropertyGroup>
@@ -497,12 +601,14 @@
             <xsl:text>' </xsl:text>
           </xsl:attribute>
           <xsl:call-template name="configuration">
-            <xsl:with-param name="project"><value-of select="$project" /></xsl:with-param>
+            <xsl:with-param name="project">
+              <value-of select="$project" />
+            </xsl:with-param>
             <xsl:with-param name="debug">false</xsl:with-param>
           </xsl:call-template>
         </PropertyGroup>
       </xsl:if>
-      
+
       <xsl:if test="/Input/Generation/UseCSCJVM = 'True'">
         <PropertyGroup>
           <CscToolExe>
@@ -511,9 +617,9 @@
           </CscToolExe>
         </PropertyGroup>
       </xsl:if>
- 
+
       <xsl:choose>
-        <xsl:when test="$project/@Type = 'Website'">    
+        <xsl:when test="$project/@Type = 'Website'">
           <Import>
             <xsl:attribute name="Project">
               <xsl:text>$(MSBuildExtensionsPath)\Microsoft\</xsl:text>
@@ -533,7 +639,7 @@
           </Target>
         </xsl:when>
       </xsl:choose>
-      
+
       <ItemGroup>
         <xsl:if test="$project/@Type = 'GTK'">
           <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
@@ -555,7 +661,7 @@
             <SpecificVersion>False</SpecificVersion>
           </Reference>
         </xsl:if>
-      
+
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
@@ -575,7 +681,7 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-        
+
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
@@ -585,7 +691,7 @@
 
               <xsl:variable name="extern"
                 select="/Input/Projects/ExternalProject[@Name=$include-name]" />
-            
+
               <xsl:for-each select="$extern/Reference">
                 <Reference>
                   <xsl:attribute name="Include">
@@ -606,7 +712,7 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-        
+
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
@@ -616,7 +722,7 @@
 
               <xsl:variable name="extern"
                 select="/Input/Projects/ExternalProject[@Name=$include-name]" />
-            
+
               <xsl:for-each select="$extern/Binary">
                 <Reference>
                   <xsl:attribute name="Include">
@@ -661,7 +767,7 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-        
+
         <xsl:for-each select="/Input/NuGet/Package">
           <Reference>
             <xsl:attribute name="Include">
@@ -682,14 +788,14 @@
           </Reference>
         </xsl:for-each>
       </ItemGroup>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/Compile">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               /Input/Generation/Platform)">
-            <xsl:element 
-              name="{name()}" 
+            <xsl:element
+              name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
@@ -699,14 +805,14 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/None">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               /Input/Generation/Platform)">
-            <xsl:element 
-              name="{name()}" 
+            <xsl:element
+              name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
@@ -716,14 +822,14 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/Content">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               /Input/Generation/Platform)">
-            <xsl:element 
-              name="{name()}" 
+            <xsl:element
+              name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
@@ -733,14 +839,14 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/EmbeddedResource">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               /Input/Generation/Platform)">
-            <xsl:element 
-              name="{name()}" 
+            <xsl:element
+              name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
@@ -750,14 +856,14 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/EmbeddedShaderProgram">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               /Input/Generation/Platform)">
-            <xsl:element 
-              name="{name()}" 
+            <xsl:element
+              name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
@@ -767,14 +873,14 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/ShaderProgram">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               /Input/Generation/Platform)">
-            <xsl:element 
-              name="{name()}" 
+            <xsl:element
+              name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
@@ -866,6 +972,22 @@
         </xsl:for-each>
       </ItemGroup>
       <ItemGroup>
+        <xsl:for-each select="$project/Files/AndroidResource">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+      <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
@@ -875,10 +997,12 @@
                                   /Projects
                                   /ContentProject[@Name=$include-path]
                                   /Compiled">
-              <None>
-                <xsl:attribute name="Include">
-                  <xsl:value-of
-                    select="user:GetRelativePath(
+              <xsl:choose>
+                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                  <Content>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
                       concat(
                         /Input/Generation/RootPath,
                         $project/@Path,
@@ -888,12 +1012,35 @@
                         /Input/Generation/Platform,
                         '.csproj'),
                       current()/FullPath)" />
-                </xsl:attribute>
-                <Link>
-                  <xsl:value-of select="current()/RelativePath" />
-                </Link>
-                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-              </None>
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                  </Content>
+                </xsl:when>
+                <xsl:otherwise>
+                  <None>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
+                      concat(
+                        /Input/Generation/RootPath,
+                        $project/@Path,
+                        '\',
+                        $project/@Name,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj'),
+                      current()/FullPath)" />
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                  </None>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:for-each>
           </xsl:if>
         </xsl:for-each>
@@ -909,11 +1056,25 @@
           </PropertyGroup>
           <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
+          <Target Name="MonoGame_RemoveXnaAssemblies" AfterTargets="ImplicitlyExpandTargetFramework">
+            <Message Text="MonoGame - Removing XNA Assembly references!" Importance="normal" />
+            <ItemGroup>
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.GamerServices.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.GamerServicesExtensions.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.Input.Touch.dll'" />
+              <ReferencePath Remove="@(ReferencePath)" Condition="'%(Filename)%(Extension)'=='Microsoft.Xna.Framework.MediaLibraryExtensions.dll'" />
+            </ItemGroup>
+          </Target>
+        </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
         </xsl:otherwise>
-      </xsl:choose>      
-      
+      </xsl:choose>
+
       <xsl:if test="$project/@Type = 'Tests'">
         <UsingTask
           TaskName="Xunit.Runner.MSBuild.xunit">
@@ -939,9 +1100,9 @@
           <xunit Assembly="$(TargetPath)" />
         </Target>
       </xsl:if>
-      
+
       {ADDITIONAL_TRANSFORMS}
-      
+
       <xsl:if test="$project/NuGet">
         <UsingTask
           TaskName="Protobuild.Tasks.NugetPackTask">
@@ -950,7 +1111,7 @@
             <xsl:text>Protobuild.exe</xsl:text>
           </xsl:attribute>
         </UsingTask>
-        
+
         <Target Name="AfterBuild">
           <NugetPackTask
             ProjectPath="$(ProjectDir)"
@@ -968,7 +1129,7 @@
           </NugetPackTask>
         </Target>
       </xsl:if>
-      
+
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
@@ -979,7 +1140,7 @@
 
               <xsl:variable name="extern"
                 select="/Input/Projects/ExternalProject[@Name=$include-name]" />
-            
+
               <xsl:for-each select="$extern/Project">
                 <ProjectReference>
                   <xsl:attribute name="Include">
@@ -994,7 +1155,9 @@
                           '.csproj'),
                         ./@Path)" />
                   </xsl:attribute>
-                  <Project>{<xsl:value-of select="./@Guid" />}</Project>
+                  <Project>
+                    {<xsl:value-of select="./@Guid" />}
+                  </Project>
                   <Name>
                     <xsl:value-of select="./@Name" />
                   </Name>
@@ -1016,7 +1179,9 @@
                             '.csproj'),
                           ./@Path)" />
                     </xsl:attribute>
-                    <Project>{<xsl:value-of select="./@Guid" />}</Project>
+                    <Project>
+                      {<xsl:value-of select="./@Guid" />}
+                    </Project>
                     <Name>
                       <xsl:value-of select="./@Name" />
                     </Name>
@@ -1026,14 +1191,14 @@
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
-        
+
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
           <xsl:if test="
             count(/Input/Projects/Project[@Name=$include-path]) > 0">
             <xsl:if test="
               count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
-          
+
               <xsl:if test="user:ProjectIsActive(
                 $project/@Platforms,
                 /Input/Generation/Platform)">
@@ -1057,8 +1222,10 @@
                           /Input/Generation/Platform,
                           '.csproj'))" />
                   </xsl:attribute>
-                  <Project>{<xsl:value-of 
-select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
+                  <Project>
+                    {<xsl:value-of
+select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}
+                  </Project>
                   <Name>
                     <xsl:value-of select="@Include" />
                     <xsl:text>.</xsl:text>
@@ -1072,15 +1239,15 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
       </ItemGroup>
 
     </Project>
-    
+
   </xsl:template>
-  
+
   <xsl:template match="*">
-    <xsl:element 
-      name="{name()}" 
+    <xsl:element
+      name="{name()}"
       namespace="http://schemas.microsoft.com/developer/msbuild/2003">
       <xsl:apply-templates select="@*|node()"/>
     </xsl:element>
   </xsl:template>
-  
+
 </xsl:stylesheet>
