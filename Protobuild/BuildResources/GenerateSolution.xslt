@@ -59,7 +59,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
           /Input/Generation/Platform)">
         <xsl:call-template name="project-definition">
           <xsl:with-param name="type" select="current()/@Type" />
-          <xsl:with-param name="name" select="current()/@Name" />
+          <!--<xsl:with-param name="name" select="current()/@Name" />-->
+          <xsl:with-param name="name" select="concat(
+                        current()/@Name,
+                        '.',
+                        /Input/Generation/Platform)" />
           <xsl:with-param name="guid" select="current()/@Guid" />
           <xsl:with-param name="path" select="concat(
                         current()/@Path,
@@ -99,6 +103,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
                 Release|iPhone = Release|iPhone
                 Ad-Hoc|iPhone = Ad-Hoc|iPhone
                 AppStore|iPhone = AppStore|iPhone
+        EndGlobalSection
+        GlobalSection(ProjectConfigurationPlatforms) = postSolution
+</xsl:text>
+      </xsl:when>
+      <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+        <xsl:text>Global
+        GlobalSection(SolutionConfigurationPlatforms) = preSolution
+                Debug|Any CPU = Debug|Any CPU
+                Release|Any CPU = Release|Any CPU
+                Debug|x86 = Debug|x86
+                Release|x86 = Release|x86
+                Debug|ARM = Debug|ARM
+                Release|ARM = Release|ARM
         EndGlobalSection
         GlobalSection(ProjectConfigurationPlatforms) = postSolution
 </xsl:text>
@@ -333,6 +350,112 @@ EndProject
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>Release|iPhoneSimulator</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+      </xsl:when>
+      <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|Any CPU.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|Any CPU.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|Any CPU.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$release-mapping != ''">
+            <xsl:value-of select="$release-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|Any CPU.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$release-mapping != ''">
+            <xsl:value-of select="$release-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|Any CPU</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|x86.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|x86</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|x86.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|x86</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|ARM.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|ARM</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>                {</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|ARM.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|ARM</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>

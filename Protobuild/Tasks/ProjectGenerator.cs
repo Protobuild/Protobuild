@@ -503,6 +503,11 @@ namespace Protobuild.Tasks
                 .Where(x => x.Name == "Source"))
             {
                 var sourceFolder = element.GetAttribute("Include");
+                //Pattern matching to enable platform specific content
+                if (sourceFolder.Contains("$(Platform)"))
+                {
+                    sourceFolder = sourceFolder.Replace("$(Platform)", m_Platform);
+                }
                 var matchFiles = element.GetAttribute("Match");
                 var originalSourceFolder = sourceFolder;
                 if (element.HasAttribute("Primary") && element.GetAttribute("Primary").ToLower() == "true")
