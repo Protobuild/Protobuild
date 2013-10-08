@@ -9,8 +9,7 @@
 
 In order to finalize the installation of Protobuild, you need to copy the "Protobuild.exe" from the "packages/Protobuild.1.0/tools/" directory to the root of the solution directory.  Then run Protobuild to create the new Protobuild module.</Description>
   </NuGet>
-  <Properties>
-  </Properties>
+  <Properties />
   <References>
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.Build.Framework" />
