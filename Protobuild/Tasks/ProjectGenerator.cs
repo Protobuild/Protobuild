@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
-using Microsoft.Build.Utilities;
-using System.Text;
 
 namespace Protobuild.Tasks
 {
@@ -194,12 +193,15 @@ namespace Protobuild.Tasks
                     this.m_NuspecTransform.Transform(input, writer);
                     writer.Flush();
                 }
-                if (memory.Position > 0)
+                var content = string.Empty;
+                memory.Seek(0, SeekOrigin.Begin);
+                var reader = new StreamReader(memory);
+                content = reader.ReadToEnd().Trim();
+                if (content.Length > 0)
                 {
-                    memory.Seek(0, SeekOrigin.Begin);
-                    using (var writer = new FileStream(nuspecPath, FileMode.Create))
+                    using (var writer = new StreamWriter(nuspecPath, false, Encoding.UTF8))
                     {
-                        memory.CopyTo(writer);
+                        writer.Write(content);
                         writer.Flush();
                     }
                 }
@@ -390,13 +392,13 @@ namespace Protobuild.Tasks
                     "Net20",
                     ""
                 };
-                
+
                 // Determine the base path for all references; that is, the lib/ folder.
                 var referenceBasePath = Path.Combine(
                     "packages",
                     id + "." + version,
                     "lib");
-                
+
                 // If we don't have a lib/ folder, then we aren't able to reference anything
                 // anyway (this might be a tools only package like xunit.runners).
                 if (!Directory.Exists(
@@ -414,7 +416,7 @@ namespace Protobuild.Tasks
                     foreach (var clrName in clrNames)
                     {
                         var foundClr = false;
-                        
+
                         // If this target framework doesn't exist for this library, skip it.
                         if (!Directory.Exists(
                             Path.Combine(
@@ -435,7 +437,7 @@ namespace Protobuild.Tasks
                                 referenceBasePath,
                                 clrName,
                                 Path.GetFileName(dll));
-                            
+
                             // Confirm again that the file actually exists on disk when
                             // combined with the root path.
                             if (File.Exists(
@@ -453,19 +455,19 @@ namespace Protobuild.Tasks
                                     document.CreateTextNode(packageDll
                                     .Replace('/', '\\')));
                                 nuget.AppendChild(packageReference);
-                                
+
                                 // Mark this target framework as having provided at least
                                 // one reference.
                                 foundClr = true;
                             }
                         }
-                        
+
                         // Break if we have found at least one reference.
                         if (foundClr)
                             break;
                     }
                 }
-                
+
                 // For all of the references that were found in the original nuspec file,
                 // add those references.
                 foreach (var reference in references)
@@ -479,7 +481,7 @@ namespace Protobuild.Tasks
                             referenceBasePath,
                             clrName,
                             reference);
-                            
+
                         if (File.Exists(
                             Path.Combine(
                             this.m_RootPath,

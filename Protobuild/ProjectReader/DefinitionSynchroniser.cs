@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 
@@ -12,26 +12,26 @@ namespace Protobuild
     {
         private DefinitionInfo m_DefinitionInfo;
         private CSharpProject m_CSharpProject;
-    
+
         public DefinitionSynchroniser(DefinitionInfo info, CSharpProject project)
         {
             this.m_DefinitionInfo = info;
             this.m_CSharpProject = project;
         }
-        
+
         public void Synchronise(string platform)
         {
             var document = new XmlDocument();
             document.Load(this.m_DefinitionInfo.DefinitionPath);
-            
+
             var projectElement = document.ChildNodes.Cast<XmlNode>()
                 .Where(x => x is XmlElement).Cast<XmlElement>()
                 .FirstOrDefault(x => x.Name == "Project");
             var elements = projectElement.ChildNodes.Cast<XmlNode>()
                 .Where(x => x is XmlElement).Cast<XmlElement>().ToList();
-            
+
             var files = elements.Cast<XmlElement>().First(x => x.Name == "Files");
-            
+
             // Remove files that either have no Platforms child, or where the
             // Platforms child contains the current platform that we're synchronising for.
             // This is because if I generate a platform for Linux, and the definition
@@ -49,7 +49,7 @@ namespace Protobuild
                 else
                     files.RemoveChild(file);
             }
-            
+
             // Add the new files.
             foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => x.GetAttribute("Include")))
             {
@@ -64,30 +64,41 @@ namespace Protobuild
                             continue;
                     }
                 }
-                
+
                 // Append the file element.
                 files.AppendChild(document.ImportNode(element, true));
             }
-            
+
             // Clean empty elements as well.
             var cleaned = this.WashNamespaces(document);
             foreach (var child in cleaned.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement))
             {
                 this.CleanNodes((XmlElement)child);
             }
-            
+
             var settings = new XmlWriterSettings
             {
                 Indent = true,
                 IndentChars = "  ",
-                NewLineChars = "\n"
+                NewLineChars = "\n",
+                Encoding = Encoding.UTF8
             };
-            using (var writer = XmlWriter.Create(this.m_DefinitionInfo.DefinitionPath, settings))
+            using (var memory = new MemoryStream())
             {
-                cleaned.Save(writer);
+                using (var writer = XmlWriter.Create(memory, settings))
+                {
+                    cleaned.Save(writer);
+                }
+                memory.Seek(0, SeekOrigin.Begin);
+                var reader = new StreamReader(memory);
+                var content = reader.ReadToEnd().Trim() + Environment.NewLine;
+                using (var writer = new StreamWriter(this.m_DefinitionInfo.DefinitionPath, false, Encoding.UTF8))
+                {
+                    writer.Write(content);
+                }
             }
         }
-        
+
         private XslCompiledTransform GetCompiledTransform()
         {
             var resolver = new EmbeddedResourceResolver();
@@ -104,7 +115,7 @@ namespace Protobuild
             }
             return transform;
         }
-        
+
         private XmlDocument WashNamespaces(XmlDocument input)
         {
             using (var memory = new MemoryStream())
@@ -122,7 +133,7 @@ namespace Protobuild
                 }
             }
         }
-        
+
         private void CleanNodes(XmlElement node)
         {
             foreach (var child in node.ChildNodes.Cast<XmlNode>().Where<XmlNode>(x => x is XmlElement))
