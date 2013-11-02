@@ -627,16 +627,16 @@
               <xsl:text>Microsoft.WebApplication.targets</xsl:text>
             </xsl:attribute>
           </Import>
-          <Import>
-            <xsl:attribute name="Project">
-              <xsl:text>..\packages\</xsl:text>
-              <xsl:text>RazorGenerator.MsBuild.2.0.1\tools\</xsl:text>
-              <xsl:text>RazorGenerator.targets</xsl:text>
-            </xsl:attribute>
-          </Import>
-          <Target Name="BeforeBuild">
-            <CallTarget Targets="PrecompileRazorFiles" />
-          </Target>
+          <xsl:if test="/Input/Properties/RazorGeneratorTargetsPath != ''">
+            <Import>
+              <xsl:attribute name="Project">
+                <xsl:value-of select="/Input/Properties/RazorGeneratorTargetsPath" />
+              </xsl:attribute>
+            </Import>
+            <Target Name="BeforeBuild">
+              <CallTarget Targets="PrecompileRazorFiles" />
+            </Target>
+          </xsl:if>
         </xsl:when>
       </xsl:choose>
 
@@ -1237,7 +1237,7 @@ select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-
+      
     </Project>
 
   </xsl:template>
