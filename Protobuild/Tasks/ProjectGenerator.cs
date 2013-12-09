@@ -390,6 +390,8 @@ namespace Protobuild.Tasks
                     "Net35",
                     "net20",
                     "Net20",
+                    "20",
+                    "11",
                     ""
                 };
 
