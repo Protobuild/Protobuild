@@ -72,10 +72,10 @@
       <xsl:otherwise>
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
-            <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Ouya'">
-            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Windows8'">
           </xsl:when>
@@ -311,7 +311,23 @@
         <OutputType>
           <xsl:choose>
             <xsl:when test="$project/@Type = 'XNA'">
-              <xsl:text>Exe</xsl:text>
+              <xsl:choose>
+                <xsl:when test="/Input/Generation/Platform = 'Android'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                  <xsl:text>AppContainerExe</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                  <xsl:text>WinExe</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'iOS'">
+                  <xsl:text>Exe</xsl:text>
+                </xsl:when>
+              </xsl:choose>
             </xsl:when>
             <xsl:when test="$project/@Type = 'Console'">
               <xsl:text>Exe</xsl:text>
@@ -1074,32 +1090,6 @@
           <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
         </xsl:otherwise>
       </xsl:choose>
-
-      <xsl:if test="$project/@Type = 'Tests'">
-        <UsingTask
-          TaskName="Xunit.Runner.MSBuild.xunit">
-          <xsl:attribute name="AssemblyFile">
-            <xsl:value-of select="concat(
-/Input/Generation/RootPath,
-'packages/xunit.runners.1.9.1/tools/xunit.runner.msbuild.dll')" />
-          </xsl:attribute>
-        </UsingTask>
-        <!--
-
-          Disabling the automatic-test-on-build functionality as the MSBuild
-          task seems to occasionally crash XBuild when it runs.  We should
-          replace the MSBuild task with a task that executes the XUnit runner
-          externally and reads in the XML file so that if the XUnit runner
-          crashes it won't crash the Mono runtime used for XBuild.
-
-          Change the Condition below to be "$(SkipTestsOnBuild) != 'True'" to
-          reenable the test-on-build functionality.
-
-        -->
-        <Target Name="AfterBuild" Condition="1 == 0">
-          <xunit Assembly="$(TargetPath)" />
-        </Target>
-      </xsl:if>
 
       {ADDITIONAL_TRANSFORMS}
 
