@@ -327,6 +327,9 @@
                 <xsl:when test="/Input/Generation/Platform = 'iOS'">
                   <xsl:text>Exe</xsl:text>
                 </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>Exe</xsl:text>
+                </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
             <xsl:when test="$project/@Type = 'Console'">
@@ -355,6 +358,9 @@
                 <xsl:when test="/Input/Generation/Platform = 'iOS'">
                   <xsl:text>Exe</xsl:text>
                 </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>Exe</xsl:text>
+                </xsl:otherwise>
               </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
