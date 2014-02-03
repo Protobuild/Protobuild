@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
+using System.Collections.Generic;
 
 namespace Protobuild
 {
@@ -36,22 +37,25 @@ namespace Protobuild
             // Platforms child contains the current platform that we're synchronising for.
             // This is because if I generate a platform for Linux, and the definition
             // has Windows-only files in it, those won't be in the project file.
-            foreach (var file in files.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement).Cast<XmlElement>().ToArray())
+            foreach (var file in files.ChildNodes.OfType<XmlElement>().ToArray())
             {
-                var children = file.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement).Cast<XmlElement>().ToArray();
+                var children = file.ChildNodes.OfType<XmlElement>().ToArray();
                 if (children.Any(x => x.LocalName == "Platforms"))
                 {
                     // This is a platform specific file.
-                    var platforms = children.First().InnerText;
+                    var platforms = children.First(x => x.LocalName == "Platforms").InnerText;
                     if (platforms.Split(',').Contains(platform, StringComparer.OrdinalIgnoreCase))
+                    {
                         files.RemoveChild(file);
+                    }
                 }
                 else
                     files.RemoveChild(file);
             }
 
             // Add the new files.
-            foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => x.GetAttribute("Include")))
+            var uniquePaths = new List<string>();
+            foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => this.NormalizePath(x.GetAttribute("Include"))))
             {
                 // Ignore Content files.
                 if (element.Name == "None")
@@ -64,6 +68,20 @@ namespace Protobuild
                             continue;
                     }
                 }
+
+                var normalizedPath = this.NormalizePath(element.GetAttribute("Include"));
+
+                // Ignore files that have already been added to the list.
+                if (uniquePaths.Contains(normalizedPath))
+                {
+                    // Do not include again.
+                    continue;
+                }
+
+                uniquePaths.Add(normalizedPath);
+
+                // Change the path.
+                element.SetAttribute("Include", normalizedPath);
 
                 // Append the file element.
                 files.AppendChild(document.ImportNode(element, true));
@@ -97,6 +115,11 @@ namespace Protobuild
                     writer.Write(content);
                 }
             }
+        }
+
+        private string NormalizePath(string path)
+        {
+            return path.Replace('/', '\\');
         }
 
         private XslCompiledTransform GetCompiledTransform()
