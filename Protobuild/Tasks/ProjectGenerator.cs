@@ -568,7 +568,7 @@ namespace Protobuild.Tasks
                     fullPathNode.AppendChild(doc.CreateTextNode(file));
                     var index = file.Replace("\\", "/")
                         .LastIndexOf(originalSourceFolder.Replace("\\", "/"));
-                    var relativePath = "Content\\" + file
+                    var relativePath = "\\" + file
                         .Substring(index + originalSourceFolder.Length)
                         .Replace("/", "\\")
                         .Trim('\\');
@@ -587,7 +587,7 @@ namespace Protobuild.Tasks
                 fullPathNode.AppendChild(doc.CreateTextNode(sourceFile));
                 var index = sourceFile.Replace("\\", "/")
                     .LastIndexOf(sourceFileFolder.Replace("\\", "/"));
-                var relativePath = "Content\\" + sourceFile
+                var relativePath = "\\" + sourceFile
                     .Substring(index + sourceFileFolder.Length)
                     .Replace("/", "\\")
                     .Trim('\\');

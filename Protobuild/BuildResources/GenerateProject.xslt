@@ -1014,10 +1014,32 @@
                       current()/FullPath)" />
                     </xsl:attribute>
                     <Link>
+                      <xsl:text>Content</xsl:text>
                       <xsl:value-of select="current()/RelativePath" />
                     </Link>
                     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
                   </Content>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
+                  <AndroidAsset>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
+                      concat(
+                        /Input/Generation/RootPath,
+                        $project/@Path,
+                        '\',
+                        $project/@Name,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj'),
+                      current()/FullPath)" />
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:text>Assets</xsl:text>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                  </AndroidAsset>
                 </xsl:when>
                 <xsl:otherwise>
                   <None>
@@ -1035,6 +1057,7 @@
                       current()/FullPath)" />
                     </xsl:attribute>
                     <Link>
+                      <xsl:text>Content</xsl:text>
                       <xsl:value-of select="current()/RelativePath" />
                     </Link>
                     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
