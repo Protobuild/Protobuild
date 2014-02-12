@@ -58,7 +58,7 @@ namespace Protobuild
             foreach (var element in this.m_CSharpProject.Elements.OrderBy(x => x.Name).ThenBy(x => this.NormalizePath(x.GetAttribute("Include"))))
             {
                 // Ignore Content files.
-                if (element.Name == "None")
+                if (element.Name == "None" || element.Name == "AndroidAsset")
                 {
                     var linkElement = element.ChildNodes
                         .Cast<XmlNode>().FirstOrDefault(x => x.Name == "Link");
