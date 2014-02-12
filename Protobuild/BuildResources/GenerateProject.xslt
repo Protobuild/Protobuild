@@ -388,7 +388,7 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <xsl:call-template name="profile_and_version" />
         <xsl:choose>
-          <xsl:when test="/Input/Generation/Platform = 'Android'">
+          <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
             <FileAlignment>512</FileAlignment>
             <AndroidSupportedAbis>armeabi,armeabi-v7a,x86</AndroidSupportedAbis>
             <AndroidStoreUncompressedFileExtensions />
@@ -427,28 +427,6 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'MacOS'">
             <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
-          </xsl:when>
-          <xsl:when test="/Input/Generation/Platform = 'Ouya'">
-            <FileAlignment>512</FileAlignment>
-            <AndroidSupportedAbis>armeabi%3barmeabi-v7a%3bx86</AndroidSupportedAbis>
-            <AndroidStoreUncompressedFileExtensions />
-            <MandroidI18n />
-            <xsl:choose>
-              <xsl:when test="Input/Properties/ManifestPrefix">
-                <AndroidManifest>
-                  <xsl:value-of select="concat(
-                                '..\',
-                                $project/@Name,
-                                '.',
-                                /Input/Generation/Platform,
-                                '\Properties\AndroidManifest.xml')"/>
-                </AndroidManifest>
-              </xsl:when>
-              <xsl:otherwise>
-                <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
-              </xsl:otherwise>
-            </xsl:choose>
-            <DeployExternal>False</DeployExternal>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
             <xsl:choose>
@@ -1069,7 +1047,7 @@
       </ItemGroup>
 
       <xsl:choose>
-        <xsl:when test="/Input/Generation/Platform = 'Android'">
+        <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
           <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'Windows8'">
