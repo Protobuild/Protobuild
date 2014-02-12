@@ -75,7 +75,7 @@
             <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Ouya'">
-            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Windows8'">
           </xsl:when>
@@ -204,7 +204,7 @@
     </xsl:choose>
     <!--<xsl:call-template name="profile_and_version" />-->
     <xsl:choose>
-      <xsl:when test="/Input/Generation/Platform = 'Android'">
+      <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
         <xsl:choose>
           <xsl:when test="$debug = 'true'">
             <MonoDroidLinkMode>None</MonoDroidLinkMode>
@@ -275,7 +275,7 @@
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
-          <xsl:when test="/Input/Generation/Platform = 'Android'">
+          <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
             <ProjectTypeGuids>
               <xsl:text>{EFBA0AD7-5A72-4C68-AF49-83D382785DCF};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
@@ -312,7 +312,7 @@
           <xsl:choose>
             <xsl:when test="$project/@Type = 'XNA'">
               <xsl:choose>
-                <xsl:when test="/Input/Generation/Platform = 'Android'">
+                <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
@@ -343,7 +343,7 @@
             </xsl:when>
             <xsl:when test="$project/@Type = 'App'">
               <xsl:choose>
-                <xsl:when test="/Input/Generation/Platform = 'Android'">
+                <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
