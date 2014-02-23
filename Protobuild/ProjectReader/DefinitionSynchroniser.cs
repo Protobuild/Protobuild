@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Xsl;
 using System.Collections.Generic;
+using System.Xml.Linq;
 
 namespace Protobuild
 {
@@ -94,6 +95,19 @@ namespace Protobuild
                 this.CleanNodes((XmlElement)child);
             }
 
+            // Load into an XDocument to resort the list of elements by their Include.
+            var xRoot = this.ToXDocument(cleaned);
+            var xFiles = xRoot.Element(XName.Get("Project")).Element(XName.Get("Files"));
+            var xOrderedNodes = xFiles.Elements()
+                .OrderBy(x => x.Name.LocalName)
+                .ThenBy(x => x.Attribute(XName.Get("Include")) == null ? "" : this.NormalizePath(x.Attribute(XName.Get("Include")).Value)).ToArray();
+            xFiles.RemoveAll();
+            foreach (var a in xOrderedNodes)
+            {
+                xFiles.Add(a);
+            }
+            cleaned = this.ToXmlDocument(xRoot);
+
             var settings = new XmlWriterSettings
             {
                 Indent = true,
@@ -165,6 +179,25 @@ namespace Protobuild
             }
             if (string.IsNullOrWhiteSpace(node.InnerXml))
                 node.IsEmpty = true;
+        }
+
+        private XmlDocument ToXmlDocument(XDocument xDocument)
+        {
+            var xmlDocument = new XmlDocument();
+            using(var xmlReader = xDocument.CreateReader())
+            {
+                xmlDocument.Load(xmlReader);
+            }
+            return xmlDocument;
+        }
+
+        private XDocument ToXDocument(XmlDocument xmlDocument)
+        {
+            using (var nodeReader = new XmlNodeReader(xmlDocument))
+            {
+                nodeReader.MoveToContent();
+                return XDocument.Load(nodeReader);
+            }
         }
     }
 }
