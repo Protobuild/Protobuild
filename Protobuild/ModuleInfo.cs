@@ -19,6 +19,12 @@ namespace Protobuild
 
         public string DefaultAction { get; set; }
 
+        public string DefaultWindowsPlatforms { get; set; }
+
+        public string DefaultMacOSPlatforms { get; set; }
+
+        public string DefaultLinuxPlatforms { get; set; } 
+
         public string[] ModuleAssemblies
         {
             get;
