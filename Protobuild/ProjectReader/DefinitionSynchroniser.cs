@@ -39,17 +39,45 @@ namespace Protobuild
             foreach (var file in files.ChildNodes.OfType<XmlElement>().ToArray())
             {
                 var children = file.ChildNodes.OfType<XmlElement>().ToArray();
-                if (children.Any(x => x.LocalName == "Platforms"))
+
+                var platformsTag = children.FirstOrDefault(x => x.LocalName == "Platforms");
+                var includePlatformsTag = children.FirstOrDefault(x => x.LocalName == "IncludePlatforms");
+                var excludePlatformsTag = children.FirstOrDefault(x => x.LocalName == "ExcludePlatforms");
+
+                var platformsTagString = platformsTag != null ? platformsTag.InnerText : string.Empty;
+                var includePlatformsTagString = includePlatformsTag != null ? includePlatformsTag.InnerText : string.Empty;
+                var excludePlatformsTagString = excludePlatformsTag != null ? excludePlatformsTag.InnerText : string.Empty;
+
+                if (!string.IsNullOrEmpty(excludePlatformsTagString))
                 {
-                    // This is a platform specific file.
-                    var platforms = children.First(x => x.LocalName == "Platforms").InnerText;
-                    if (platforms.Split(',').Contains(platform, StringComparer.OrdinalIgnoreCase))
+                    if (excludePlatformsTagString.Split(',').Contains(platform, StringComparer.OrdinalIgnoreCase))
                     {
-                        files.RemoveChild(file);
+                        // This file is excluded in the C# project for this platform
+                        // and won't be present.
+                        continue;
                     }
                 }
-                else
+
+                // Fallback to <IncludePlatforms> if <Platforms> is not present.
+                if (string.IsNullOrEmpty(platformsTagString))
+                {
+                    platformsTagString = includePlatformsTagString;
+                }
+
+                // If both the <IncludePlatforms> and <Platforms> tags are not present, then this
+                // file is generated for all platforms regardless.
+                if (platformsTag == null && includePlatformsTag == null)
+                {
                     files.RemoveChild(file);
+                    continue;
+                }
+
+                // If the included platforms string contains the current platform, then we
+                // remove the file (because it will be present in the C# project).
+                if (platformsTagString.Split(',').Contains(platform, StringComparer.OrdinalIgnoreCase))
+                {
+                    files.RemoveChild(file);
+                }
             }
 
             // Add the new files.

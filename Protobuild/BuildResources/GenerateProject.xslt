@@ -33,12 +33,40 @@
       }
     }
     
-    public bool ProjectIsActive(string platformString, string activePlatform)
+    public bool ProjectIsActive(
+      string platformString,
+      string includePlatformString,
+      string excludePlatformString,
+      string activePlatform)
     {
+      // Choose either <Platforms> or <IncludePlatforms>
+      if (string.IsNullOrEmpty(platformString))
+      {
+        platformString = includePlatformString;
+      }
+      
+      // If the exclude string is set, then we must check this first.
+      if (!string.IsNullOrEmpty(excludePlatformString))
+      {
+        var excludePlatforms = excludePlatformString.Split(',');
+        foreach (var i in excludePlatforms)
+        {
+          if (i == activePlatform)
+          {
+            // This platform is excluded.
+            return false;
+          }
+        }
+      }
+      
+      // If the platform string is empty at this point, then we allow
+      // all platforms since there's no whitelist of platforms configured.
       if (string.IsNullOrEmpty(platformString))
       {
         return true;
       }
+      
+      // Otherwise ensure the platform is in the include list.
       var platforms = platformString.Split(',');
       foreach (var i in platforms)
       {
@@ -47,6 +75,7 @@
           return true;
         }
       }
+      
       return false;
     }
     ]]>
@@ -793,6 +822,8 @@
         <xsl:for-each select="$project/Files/Compile">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -810,6 +841,8 @@
         <xsl:for-each select="$project/Files/None">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -827,6 +860,8 @@
         <xsl:for-each select="$project/Files/Content">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -844,6 +879,8 @@
         <xsl:for-each select="$project/Files/EmbeddedResource">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -861,6 +898,8 @@
         <xsl:for-each select="$project/Files/EmbeddedShaderProgram">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -878,6 +917,8 @@
         <xsl:for-each select="$project/Files/ShaderProgram">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -894,6 +935,8 @@
         <xsl:for-each select="$project/Files/ApplicationDefinition">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -910,6 +953,8 @@
         <xsl:for-each select="$project/Files/Page">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -926,6 +971,8 @@
         <xsl:for-each select="$project/Files/AppxManifest">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -943,6 +990,8 @@
         <xsl:for-each select="$project/Files/BundleResource">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -959,6 +1008,8 @@
         <xsl:for-each select="$project/Files/InterfaceDefinition">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -975,6 +1026,8 @@
         <xsl:for-each select="$project/Files/AndroidResource">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
               /Input/Generation/Platform)">
             <xsl:element
               name="{name()}"
@@ -1198,6 +1251,8 @@
 
               <xsl:if test="user:ProjectIsActive(
                 $project/@Platforms,
+                '',
+                '',
                 /Input/Generation/Platform)">
 
                 <ProjectReference>
