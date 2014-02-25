@@ -5,6 +5,8 @@ using Protobuild.Tasks;
 
 namespace Protobuild
 {
+    using System.Linq;
+
     public static class Actions
     {
         public static void Open(ModuleInfo root, object obj, Action update)
@@ -99,21 +101,87 @@ namespace Protobuild
 
         public static bool DefaultAction(ModuleInfo module)
         {
-            // Developers can configure the default action for Protobuild in their project
+            var platform = DetectPlatform();
+            var primaryPlatform = platform;
+            
+            // You can generate multiple targets by default by setting the <DefaultWindowsPlatforms>
+            // <DefaultMacOSPlatforms> and <DefaultLinuxPlatforms> tags in Module.xml.  Note that
+            // synchronisation will only be done for the primary platform, as there is no correct
+            // synchronisation behaviour when dealing with multiple C# projects.
+            string multiplePlatforms = null;
+            switch (platform)
+            {
+                case "Windows":
+                    multiplePlatforms = module.DefaultWindowsPlatforms;
+                    break;
+                case "MacOS":
+                    multiplePlatforms = module.DefaultMacOSPlatforms;
+                    break;
+                case "Linux":
+                    multiplePlatforms = module.DefaultLinuxPlatforms;
+                    break;
+            }
+
+            // If no overrides are set, just use the current platform.
+            if (string.IsNullOrEmpty(multiplePlatforms))
+            {
+                multiplePlatforms = platform;
+            }
+
+            // You can configure the default action for Protobuild in their project
             // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
             // Valid options for this tag are either "Generate", "Resync" or "Sync".
+
+            // If the actions are "Resync" or "Sync", then we need to perform an initial
+            // step against the primary platform.
             switch (module.DefaultAction.ToLower())
             {
                 case "generate":
-                    return Actions.GenerateProjects(module);
+                    break;
                 case "resync":
-                    return Actions.ResyncProjects(module);
+                    if (!Actions.ResyncProjects(module, primaryPlatform))
+                    {
+                        return false;
+                    }
+
+                    break;
                 case "sync":
-                    return Actions.SyncProjects(module);
+                    return Actions.SyncProjects(module, primaryPlatform);
                 default:
                     Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
-                    return Actions.ResyncProjects(module);
+                    return Actions.ResyncProjects(module, primaryPlatform);
             }
+
+            // Now iterate through the multiple platforms specified.
+            var multiplePlatformsArray =
+                multiplePlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+            foreach (var platformIter in multiplePlatformsArray)
+            {
+                if (platformIter == primaryPlatform)
+                {
+                    // Already handled above.
+                    continue;
+                }
+
+                switch (module.DefaultAction.ToLower())
+                {
+                    case "generate":
+                    case "resync":
+                        // We do a generate under resync mode since we only want the primary platform
+                        // to have synchronisation done (and it has had above).
+                        if (!Actions.GenerateProjects(module, platformIter))
+                        {
+                            return false;
+                        }
+
+                        break;
+                    default:
+                        throw new InvalidOperationException("Code should never reach this point");
+                }
+            }
+
+            // All the steps succeeded, so return true.
+            return true;
         }
     }
 }
