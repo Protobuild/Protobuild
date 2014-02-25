@@ -1153,33 +1153,6 @@
 
       {ADDITIONAL_TRANSFORMS}
 
-      <xsl:if test="$project/NuGet">
-        <UsingTask
-          TaskName="Protobuild.Tasks.NugetPackTask">
-          <xsl:attribute name="AssemblyFile">
-            <xsl:value-of select="/Input/Generation/RootPath" />
-            <xsl:text>Protobuild.exe</xsl:text>
-          </xsl:attribute>
-        </UsingTask>
-
-        <Target Name="AfterBuild">
-          <NugetPackTask
-            ProjectPath="$(ProjectDir)"
-            ContinueOnError="WarnAndContinue">
-            <xsl:attribute name="NuspecFile">
-              <xsl:value-of select="concat(
-                $project/@Name,
-                '.',
-                /Input/Generation/Platform,
-                '.nuspec')" />
-            </xsl:attribute>
-            <xsl:attribute name="RootPath">
-              <xsl:value-of select="/Input/Generation/RootPath" />
-            </xsl:attribute>
-          </NugetPackTask>
-        </Target>
-      </xsl:if>
-
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
