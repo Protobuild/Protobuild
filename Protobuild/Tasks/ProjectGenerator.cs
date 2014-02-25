@@ -171,10 +171,10 @@ namespace Protobuild.Tasks
                 this.m_Platform,
                 packagesPath,
                 projectDoc.DocumentElement.ChildNodes
-                    .Cast<XmlElement>()
+                    .OfType<XmlElement>()
                     .Where(x => x.Name.ToLower() == "properties")
                     .SelectMany(x => x.ChildNodes
-                        .Cast<XmlElement>()));
+                        .OfType<XmlElement>()));
 
             // Transform the input document using the XSLT transform.
             var settings = new XmlWriterSettings();
@@ -338,7 +338,7 @@ namespace Protobuild.Tasks
             packagesDoc.Load(packagesPath);
             var packages = packagesDoc.DocumentElement
                 .ChildNodes
-                    .Cast<XmlElement>()
+                    .OfType<XmlElement>()
                     .Where(x => x.Name == "package")
                     .Select(x => x);
             foreach (var package in packages)
@@ -362,16 +362,16 @@ namespace Protobuild.Tasks
                     .DocumentElement
                     .FirstChild
                     .ChildNodes
-                    .Cast<XmlElement>()
+                    .OfType<XmlElement>()
                     .Count(x => x.Name == "references") > 0)
                 {
                     references = packageDoc.DocumentElement
                         .FirstChild
                         .ChildNodes
-                        .Cast<XmlElement>()
+                        .OfType<XmlElement>()
                         .First(x => x.Name == "references")
                         .ChildNodes
-                        .Cast<XmlElement>()
+                        .OfType<XmlElement>()
                         .Where(x => x.Name == "reference")
                         .Select(x => x.Attributes["file"].Value)
                         .ToList();
@@ -516,7 +516,7 @@ namespace Protobuild.Tasks
             foreach (var element in source
                 .DocumentElement
                 .ChildNodes
-                .Cast<XmlElement>()
+                .OfType<XmlElement>()
                 .Where(x => x.Name == "Source"))
             {
                 var sourceFolder = element.GetAttribute("Include");
