@@ -16,7 +16,9 @@ namespace Protobuild
             get;
             set;
         }
-        
+
+        public string DefaultAction { get; set; }
+
         public string[] ModuleAssemblies
         {
             get;
@@ -26,6 +28,7 @@ namespace Protobuild
         public ModuleInfo()
         {
             this.ModuleAssemblies = new string[0];
+            this.DefaultAction = "resync";
         }
         
         [NonSerialized]
