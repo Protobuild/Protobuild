@@ -96,7 +96,25 @@ namespace Protobuild
             }
             return "Windows";
         }
-        
+
+        public static bool DefaultAction(ModuleInfo module)
+        {
+            // Developers can configure the default action for Protobuild in their project
+            // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
+            // Valid options for this tag are either "Generate", "Resync" or "Sync".
+            switch (module.DefaultAction.ToLower())
+            {
+                case "generate":
+                    return Actions.GenerateProjects(module);
+                case "resync":
+                    return Actions.ResyncProjects(module);
+                case "sync":
+                    return Actions.SyncProjects(module);
+                default:
+                    Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
+                    return Actions.ResyncProjects(module);
+            }
+        }
     }
 }
 

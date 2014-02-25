@@ -193,7 +193,7 @@ namespace Protobuild
             if (runModuleManager)
                 RunModuleManager();
             else
-                Actions.ResyncProjects(ModuleInfo.Load(Path.Combine("Build", "Module.xml")));
+                Actions.DefaultAction(ModuleInfo.Load(Path.Combine("Build", "Module.xml")));
         }
         
         private static void RunModuleManager()
