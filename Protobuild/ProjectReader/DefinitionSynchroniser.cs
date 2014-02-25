@@ -26,13 +26,11 @@ namespace Protobuild
             var document = new XmlDocument();
             document.Load(this.m_DefinitionInfo.DefinitionPath);
 
-            var projectElement = document.ChildNodes.Cast<XmlNode>()
-                .Where(x => x is XmlElement).Cast<XmlElement>()
+            var projectElement = document.ChildNodes.OfType<XmlElement>()
                 .FirstOrDefault(x => x.Name == "Project");
-            var elements = projectElement.ChildNodes.Cast<XmlNode>()
-                .Where(x => x is XmlElement).Cast<XmlElement>().ToList();
+            var elements = projectElement.ChildNodes.OfType<XmlElement>().ToList();
 
-            var files = elements.Cast<XmlElement>().First(x => x.Name == "Files");
+            var files = elements.First(x => x.Name == "Files");
 
             // Remove files that either have no Platforms child, or where the
             // Platforms child contains the current platform that we're synchronising for.
@@ -62,7 +60,7 @@ namespace Protobuild
                 if (element.Name == "None" || element.Name == "AndroidAsset")
                 {
                     var linkElement = element.ChildNodes
-                        .Cast<XmlNode>().FirstOrDefault(x => x.Name == "Link");
+                        .OfType<XmlNode>().FirstOrDefault(x => x.Name == "Link");
                     if (linkElement != null)
                     {
                         if (linkElement.InnerText.Trim().Replace('\\', '/').StartsWith("Content/", StringComparison.Ordinal))
@@ -90,9 +88,9 @@ namespace Protobuild
 
             // Clean empty elements as well.
             var cleaned = this.WashNamespaces(document);
-            foreach (var child in cleaned.ChildNodes.Cast<XmlNode>().Where(x => x is XmlElement))
+            foreach (var child in cleaned.ChildNodes.OfType<XmlElement>())
             {
-                this.CleanNodes((XmlElement)child);
+                this.CleanNodes(child);
             }
 
             // Load into an XDocument to resort the list of elements by their Include.
@@ -173,9 +171,9 @@ namespace Protobuild
 
         private void CleanNodes(XmlElement node)
         {
-            foreach (var child in node.ChildNodes.Cast<XmlNode>().Where<XmlNode>(x => x is XmlElement))
+            foreach (var child in node.ChildNodes.OfType<XmlElement>())
             {
-                this.CleanNodes((XmlElement)child);
+                this.CleanNodes(child);
             }
             if (string.IsNullOrWhiteSpace(node.InnerXml))
                 node.IsEmpty = true;
