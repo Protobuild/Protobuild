@@ -81,7 +81,7 @@ namespace Protobuild
             {
                 runModuleManager = true;
             };
-            options["help"] = x =>
+            Action<string[]> helpAction = x =>
             {
                 Console.WriteLine("Protobuild.exe [-extract-xslt] [-extract-proj] [-sync] [-resync] [-generate]");
                 Console.WriteLine();
@@ -132,7 +132,21 @@ namespace Protobuild
                 Console.WriteLine();
                 needToExit = true;
             };
-            options.Parse(args);
+            options["help"] = helpAction;
+            options["?"] = helpAction;
+
+            try
+            {
+                options.Parse(args);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine(ex.Message);
+                helpAction(new string[0]);
+                needToExit = true;
+                exitCode = 1;
+            }
+
             if (needToExit)
             {
                 Environment.Exit(exitCode);
