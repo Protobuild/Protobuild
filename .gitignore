@@ -8,3 +8,4 @@ obj
 *.nuspec
 *.nupkg
 *.userprefs
+*.suo

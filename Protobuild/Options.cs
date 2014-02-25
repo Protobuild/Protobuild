@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
+    using System.Linq;
+
     public class Options
     {
         private Dictionary<string, Action<string[]>> m_Actions = new Dictionary<string, Action<string[]>>();
@@ -16,6 +18,11 @@ namespace Protobuild
                     arg.StartsWith("/", StringComparison.InvariantCulture))
                 {
                     var realArg = arg.TrimStart('-').TrimStart('/').ToLower();
+                    if (!this.m_Actions.Keys.Any(x => x.StartsWith(realArg + "@") || string.Compare(x, realArg, StringComparison.OrdinalIgnoreCase) == 0))
+                    {
+                        throw new InvalidOperationException("Unknown argument '" + arg + "'");
+                    }
+
                     var takeArgs = this.GetParameterCountForArgument(realArg);
                     var actionArgs = new List<string>();
                     if (takeArgs > 0)
