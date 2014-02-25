@@ -14,7 +14,6 @@ namespace Protobuild.Tasks
         private string m_RootPath;
         private string m_Platform;
         private List<XmlDocument> m_ProjectDocuments = new List<XmlDocument>();
-        private XslCompiledTransform m_NuspecTransform = null;
         private XslCompiledTransform m_ProjectTransform = null;
         private XslCompiledTransform m_SolutionTransform = null;
         private Action<string> m_Log;
@@ -114,29 +113,6 @@ namespace Protobuild.Tasks
                     );
                 }
             }
-            if (this.m_NuspecTransform == null)
-            {
-                var resolver = new EmbeddedResourceResolver();
-                this.m_NuspecTransform = new XslCompiledTransform();
-                Stream generateNuspecStream;
-                var generateNuspecXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateNuspec.xslt");
-                if (File.Exists(generateNuspecXSLT))
-                    generateNuspecStream = File.Open(generateNuspecXSLT, FileMode.Open);
-                else
-                    generateNuspecStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                        "Protobuild.BuildResources.GenerateNuspec.xslt");
-                using (generateNuspecStream)
-                {
-                    using (var reader = XmlReader.Create(generateNuspecStream))
-                    {
-                        this.m_NuspecTransform.Load(
-                            reader,
-                            XsltSettings.TrustedXslt,
-                            resolver
-                        );
-                    }
-                }
-            }
 
             // Work out what document this is.
             var projectDoc = this.m_ProjectDocuments.First(
@@ -182,29 +158,6 @@ namespace Protobuild.Tasks
             using (var writer = XmlWriter.Create(path, settings))
             {
                 this.m_ProjectTransform.Transform(input, writer);
-            }
-
-            // Generate NuSpec target.
-            var nuspecPath = path.Substring(0, path.Length - ".csproj".Length) + ".nuspec";
-            using (var memory = new MemoryStream())
-            {
-                using (var writer = XmlWriter.Create(memory, settings))
-                {
-                    this.m_NuspecTransform.Transform(input, writer);
-                    writer.Flush();
-                }
-                var content = string.Empty;
-                memory.Seek(0, SeekOrigin.Begin);
-                var reader = new StreamReader(memory);
-                content = reader.ReadToEnd().Trim();
-                if (content.Length > 0)
-                {
-                    using (var writer = new StreamWriter(nuspecPath, false, Encoding.UTF8))
-                    {
-                        writer.Write(content);
-                        writer.Flush();
-                    }
-                }
             }
 
             // Also remove any left over .sln or .userprefs files.

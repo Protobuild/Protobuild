@@ -33,14 +33,6 @@ namespace Protobuild
                     needToExit = true;
                 }
             };
-            options["extract-util"] = x =>
-            {
-                if (Directory.Exists("Build"))
-                {
-                    ResourceExtractor.ExtractUtilities(Path.Combine(Environment.CurrentDirectory, "Build"));
-                    needToExit = true;
-                }
-            };
             options["sync@1"] = x =>
             {
                 if (Directory.Exists("Build"))

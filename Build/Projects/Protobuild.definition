@@ -1,14 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Name="Protobuild" Path="Protobuild" Type="Console">
-  <NuGet>
-    <Version>1.0.0.2</Version>
-    <Author>James Rhodes</Author>
-    <Type>Tool</Type>
-    <Summary>Protobuild is a source-based module system; similar to NuGet.  It generates cross-platform C# projects for a maintainable code base.</Summary>
-    <Description>Protobuild is a source-based module system; similar to NuGet.  It generates cross-platform C# projects for a maintainable code base.
-
-In order to finalize the installation of Protobuild, you need to copy the "Protobuild.exe" from the "packages/Protobuild.1.0/tools/" directory to the root of the solution directory.  Then run Protobuild to create the new Protobuild module.</Description>
-  </NuGet>
   <Properties />
   <References>
     <Reference Include="Microsoft.Build" />
@@ -55,18 +46,15 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
-    <Compile Include="Tasks\NugetPackTask.cs" />
     <Compile Include="Tasks\ProjectGenerator.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
     <EmbeddedResource Include="..\ProtobuildManager\bin\Debug\ProtobuildManager.exe">
       <Link>ProtobuildManager.exe</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="BuildResources\GenerateNuspec.xslt" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
-    <EmbeddedResource Include="BuildResources\nuget.exe" />
     <EmbeddedResource Include="KickstartForm.resx">
       <DependentUpon>KickstartForm.cs</DependentUpon>
     </EmbeddedResource>
