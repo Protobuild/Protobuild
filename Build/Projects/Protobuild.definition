@@ -37,6 +37,12 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     <Compile Include="DefinitionTemplates\WebsiteTemplate.cs" />
     <Compile Include="DefinitionTemplates\XNATemplate.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
+    <Compile Include="KickstartForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KickstartForm.Designer.cs">
+      <DependentUpon>KickstartForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />
@@ -60,6 +66,9 @@ In order to finalize the installation of Protobuild, you need to copy the "Proto
     </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
     <EmbeddedResource Include="BuildResources\nuget.exe" />
+    <EmbeddedResource Include="KickstartForm.resx">
+      <DependentUpon>KickstartForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
   </Files>

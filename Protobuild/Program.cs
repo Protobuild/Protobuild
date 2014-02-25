@@ -153,6 +153,43 @@ namespace Protobuild
                 return;
             }
 
+            if (!File.Exists(Path.Combine("Build", "Module.xml")))
+            {
+                try
+                {
+                    // We use Windows Forms here to prompt the user on what to do.
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    var form = new KickstartForm();
+                    var result = form.ShowDialog();
+                    switch (result)
+                    {
+                        case DialogResult.Yes:
+                            RunModuleManager();
+                            return;
+                        case DialogResult.No:
+                            Directory.CreateDirectory("Build");
+                            ResourceExtractor.ExtractAll(Path.Combine(Environment.CurrentDirectory, "Build"), "MyProject");
+                            MessageBox.Show("Build" + Path.DirectorySeparatorChar + "Module.xml has been created.");
+                            Environment.Exit(0);
+                            break;
+                        default:
+                            Environment.Exit(1);
+                            break;
+                    }
+                }
+                catch (Exception)
+                {
+                    // We might be on a platform that isn't running a graphical interface
+                    // or we can't otherwise show a dialog to the user.  Output to the
+                    // console to let them know what's going on.
+                    Console.WriteLine("The current directory does not appear to be a Protobuild module.  Please either create ");
+                    Console.WriteLine("the Module.xml file manually, or run 'Protobuild.exe --manager-gui' to be guided through ");
+                    Console.WriteLine("the process of creating a new module.");
+                    Environment.Exit(1);
+                }
+            }
+
             if (runModuleManager)
                 RunModuleManager();
             else
