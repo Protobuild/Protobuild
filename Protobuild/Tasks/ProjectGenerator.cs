@@ -81,7 +81,7 @@ namespace Protobuild.Tasks
             // easier to define projects.
             if (doc.DocumentElement.Attributes["Guid"] == null)
             {
-                var name = doc.DocumentElement.GetAttribute("Name");
+                var name = doc.DocumentElement.GetAttribute("Name") + "." + this.m_Platform;
                 var guidBytes = new byte[16];
                 for (var i = 0; i < guidBytes.Length; i++)
                     guidBytes[i] = (byte)0;
