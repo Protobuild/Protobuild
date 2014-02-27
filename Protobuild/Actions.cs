@@ -92,9 +92,9 @@ namespace Protobuild
         {
             if (Path.DirectorySeparatorChar == '/')
             {
-                if (Directory.Exists("/home"))
-                    return "Linux";
-                return "MacOS";
+                if (Directory.Exists("/Library"))
+                    return "MacOS";
+                return "Linux";
             }
             return "Windows";
         }
