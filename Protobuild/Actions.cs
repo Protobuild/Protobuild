@@ -137,6 +137,11 @@ namespace Protobuild
             switch (module.DefaultAction.ToLower())
             {
                 case "generate":
+                    if (!Actions.GenerateProjects(module, primaryPlatform))
+                    {
+                        return false;
+                    }
+
                     break;
                 case "resync":
                     if (!Actions.ResyncProjects(module, primaryPlatform))
