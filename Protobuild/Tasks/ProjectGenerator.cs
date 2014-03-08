@@ -77,24 +77,41 @@ namespace Protobuild.Tasks
             }
             this.m_ProjectDocuments.Add(newDoc);
 
-            // Also add a Guid attribute if one doesn't exist.  This makes it
-            // easier to define projects.
+            // If the Guid property doesn't exist, we do one of two things:
+            //  * Check for the existance of a Guid under the ProjectGuids tag
+            //  * Autogenerate a Guid for the project
             if (doc.DocumentElement.Attributes["Guid"] == null)
             {
-                var name = doc.DocumentElement.GetAttribute("Name") + "." + this.m_Platform;
-                var guidBytes = new byte[16];
-                for (var i = 0; i < guidBytes.Length; i++)
-                    guidBytes[i] = (byte)0;
-                var nameBytes = Encoding.ASCII.GetBytes(name);
-                unchecked
+                var autogenerate = true;
+                var projectGuids = doc.DocumentElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "ProjectGuids");
+                if (projectGuids != null)
                 {
-                    for (var i = 0; i < nameBytes.Length; i++)
-                        guidBytes[i % 16] += nameBytes[i];
-                    for (var i = nameBytes.Length; i < 16; i++)
-                        guidBytes[i] += nameBytes[i % nameBytes.Length];
+                    var platform = projectGuids.ChildNodes.OfType<XmlElement>().FirstOrDefault(x =>
+                        x.Name == "Platform" && x.HasAttribute("Name") && x.GetAttribute("Name") == this.m_Platform);
+                    if (platform != null)
+                    {
+                        autogenerate = false;
+                        doc.DocumentElement.SetAttribute("Guid", platform.InnerText.Trim().ToUpper());
+                    }
                 }
-                var guid = new Guid(guidBytes);
-                doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
+
+                if (autogenerate)
+                {
+                    var name = doc.DocumentElement.GetAttribute("Name") + "." + this.m_Platform;
+                    var guidBytes = new byte[16];
+                    for (var i = 0; i < guidBytes.Length; i++)
+                        guidBytes[i] = (byte)0;
+                    var nameBytes = Encoding.ASCII.GetBytes(name);
+                    unchecked
+                    {
+                        for (var i = 0; i < nameBytes.Length; i++)
+                            guidBytes[i % 16] += nameBytes[i];
+                        for (var i = nameBytes.Length; i < 16; i++)
+                            guidBytes[i] += nameBytes[i % nameBytes.Length];
+                    }
+                    var guid = new Guid(guidBytes);
+                    doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
+                }
             }
         }
 
