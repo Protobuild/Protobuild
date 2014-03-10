@@ -25,6 +25,8 @@ namespace Protobuild
 
         public string DefaultLinuxPlatforms { get; set; } 
 
+        public string SupportedPlatforms { get; set; } 
+
         public string[] ModuleAssemblies
         {
             get;
@@ -121,6 +123,46 @@ namespace Protobuild
                 };
                 var p = Process.Start(pi);
                 p.WaitForExit();
+            }
+        }
+
+        public string NormalizePlatform(string platform)
+        {
+            var supportedPlatforms = "Android,iOS,Linux,MacOS,Ouya,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone";
+            var defaultPlatforms = true;
+
+            if (!string.IsNullOrEmpty(this.SupportedPlatforms))
+            {
+                supportedPlatforms = this.SupportedPlatforms;
+                defaultPlatforms = false;
+            }
+
+            var supportedPlatformsArray = supportedPlatforms.Split(new[] { ',' })
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToArray();
+
+            // Search the array to find a platform that matches case insensitively
+            // to the specified platform.  If we are using the default list, then we allow
+            // other platforms to be specified (in case the developer has modified the XSLT to
+            // support others but is not using <SupportedPlatforms>).  If the developer has
+            // explicitly set the supported platforms, then we return null if the user passes
+            // an unknown platform (the caller is expected to exit at this point).
+            foreach (var supportedPlatform in supportedPlatformsArray)
+            {
+                if (string.Compare(supportedPlatform, platform, true) == 0)
+                {
+                    return supportedPlatform;
+                }
+            }
+
+            if (defaultPlatforms)
+            {
+                return platform;
+            }
+            else
+            {
+                return null;
             }
         }
     }

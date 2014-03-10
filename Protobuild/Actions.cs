@@ -106,6 +106,16 @@ namespace Protobuild
                 platform = DetectPlatform();
             }
 
+            var originalPlatform = platform;
+            platform = module.NormalizePlatform(platform);
+
+            if (platform == null)
+            {
+                Console.Error.WriteLine("The platform '" + originalPlatform + "' is not supported.");
+                Environment.Exit(1);
+                return false;
+            }
+
             var primaryPlatform = platform;
             
             // You can generate multiple targets by default by setting the <DefaultWindowsPlatforms>
