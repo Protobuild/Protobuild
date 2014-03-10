@@ -36,14 +36,14 @@ namespace Protobuild
             }
         }
         
-        public static bool ResyncProjects(ModuleInfo module, string platform = null)
+        public static bool ResyncProjectsForPlatform(ModuleInfo module, string platform)
         {
-            if (!SyncProjects(module, platform))
+            if (!SyncProjectsForPlatform(module, platform))
                 return false;
-            return GenerateProjects(module, platform);
+            return GenerateProjectsForPlatform(module, platform);
         }
         
-        public static bool SyncProjects(ModuleInfo module, string platform = null)
+        public static bool SyncProjectsForPlatform(ModuleInfo module, string platform)
         {
             if (string.IsNullOrWhiteSpace(platform))
                 platform = DetectPlatform();
@@ -58,7 +58,7 @@ namespace Protobuild
             return task.Execute();
         }
 
-        public static bool GenerateProjects(ModuleInfo module, string platform = null)
+        public static bool GenerateProjectsForPlatform(ModuleInfo module, string platform)
         {
             if (string.IsNullOrWhiteSpace(platform))
                 platform = DetectPlatform();
@@ -73,7 +73,7 @@ namespace Protobuild
             return task.Execute();
         }
         
-        public static bool CleanProjects(ModuleInfo module, string platform = null)
+        public static bool CleanProjectsForPlatform(ModuleInfo module, string platform)
         {
             if (string.IsNullOrWhiteSpace(platform))
                 platform = DetectPlatform();
@@ -99,9 +99,13 @@ namespace Protobuild
             return "Windows";
         }
 
-        public static bool DefaultAction(ModuleInfo module)
+        public static bool PerformAction(ModuleInfo module, string action, string platform = null)
         {
-            var platform = DetectPlatform();
+            if (string.IsNullOrWhiteSpace(platform))
+            {
+                platform = DetectPlatform();
+            }
+
             var primaryPlatform = platform;
             
             // You can generate multiple targets by default by setting the <DefaultWindowsPlatforms>
@@ -134,27 +138,34 @@ namespace Protobuild
 
             // If the actions are "Resync" or "Sync", then we need to perform an initial
             // step against the primary platform.
-            switch (module.DefaultAction.ToLower())
+            switch (action.ToLower())
             {
                 case "generate":
-                    if (!Actions.GenerateProjects(module, primaryPlatform))
+                    if (!Actions.GenerateProjectsForPlatform(module, primaryPlatform))
                     {
                         return false;
                     }
 
                     break;
                 case "resync":
-                    if (!Actions.ResyncProjects(module, primaryPlatform))
+                    if (!Actions.ResyncProjectsForPlatform(module, primaryPlatform))
                     {
                         return false;
                     }
 
                     break;
                 case "sync":
-                    return Actions.SyncProjects(module, primaryPlatform);
+                    return Actions.SyncProjectsForPlatform(module, primaryPlatform);
+                case "clean":
+                    if (!Actions.CleanProjectsForPlatform(module, primaryPlatform))
+                    {
+                        return false;
+                    }
+
+                    break;
                 default:
                     Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
-                    return Actions.ResyncProjects(module, primaryPlatform);
+                    return Actions.ResyncProjectsForPlatform(module, primaryPlatform);
             }
 
             // Now iterate through the multiple platforms specified.
@@ -168,13 +179,20 @@ namespace Protobuild
                     continue;
                 }
 
-                switch (module.DefaultAction.ToLower())
+                switch (action.ToLower())
                 {
                     case "generate":
                     case "resync":
                         // We do a generate under resync mode since we only want the primary platform
                         // to have synchronisation done (and it has had above).
-                        if (!Actions.GenerateProjects(module, platformIter))
+                        if (!Actions.GenerateProjectsForPlatform(module, platformIter))
+                        {
+                            return false;
+                        }
+
+                        break;
+                    case "clean":
+                        if (!Actions.CleanProjectsForPlatform(module, platformIter))
                         {
                             return false;
                         }
@@ -187,6 +205,31 @@ namespace Protobuild
 
             // All the steps succeeded, so return true.
             return true;
+        }
+
+        public static bool GenerateProjects(ModuleInfo module, string platform = null)
+        {
+            return PerformAction(module, "generate", platform);
+        }
+
+        public static bool ResyncProjects(ModuleInfo module, string platform = null)
+        {
+            return PerformAction(module, "resync", platform);
+        }
+
+        public static bool SyncProjects(ModuleInfo module, string platform = null)
+        {
+            return PerformAction(module, "sync", platform);
+        }
+
+        public static bool CleanProjects(ModuleInfo module, string platform = null)
+        {
+            return PerformAction(module, "clean", platform);
+        }
+
+        public static bool DefaultAction(ModuleInfo module, string platform = null)
+        {
+            return PerformAction(module, module.DefaultAction, platform);
         }
     }
 }
