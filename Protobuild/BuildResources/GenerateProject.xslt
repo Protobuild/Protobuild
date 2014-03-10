@@ -83,6 +83,18 @@
     {
       return text.ToLower() == "true";
     }
+
+    public string ReadFile(string path)
+    {
+      path = path.Replace('/', System.IO.Path.DirectorySeparatorChar);
+      path = path.Replace('\\', System.IO.Path.DirectorySeparatorChar);
+
+      using (var reader = new System.IO.StreamReader(path))
+      {
+        return reader.ReadToEnd();
+      }
+    }
+
     ]]>
   </msxsl:script>
 
@@ -1292,6 +1304,18 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
+      <xsl:if test="/Input/Properties/MonoDevelopPoliciesFile">
+        <ProjectExtensions>
+          <MonoDevelop>
+            <Properties>
+              <xsl:value-of 
+                select="user:ReadFile(concat(/Input/Generation/RootPath, '\', /Input/Properties/MonoDevelopPoliciesFile))"
+                disable-output-escaping="yes" />
+            </Properties>
+          </MonoDevelop>
+        </ProjectExtensions>
+      </xsl:if>
 
     </Project>
 
