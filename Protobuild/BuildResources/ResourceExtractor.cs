@@ -5,8 +5,15 @@ using System.Diagnostics;
 
 namespace Protobuild
 {
+    using System.IO.Compression;
+
     public static class ResourceExtractor
     {
+        public static Stream GetTransparentDecompressionStream(Stream input)
+        {
+            return new GZipStream(input, CompressionMode.Decompress);
+        }
+
         public static StringReader GetGenerateProjectXSLT(string path)
         {
             Stream generateProjectStream;
@@ -14,8 +21,9 @@ namespace Protobuild
             if (File.Exists(generateProjectXSLT))
                 generateProjectStream = File.Open(generateProjectXSLT, FileMode.Open);
             else
-                generateProjectStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                    "Protobuild.BuildResources.GenerateProject.xslt");
+                generateProjectStream = GetTransparentDecompressionStream(
+                    Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Protobuild.BuildResources.GenerateProject.xslt.gz"));
             
             using (var stream = generateProjectStream)
             {

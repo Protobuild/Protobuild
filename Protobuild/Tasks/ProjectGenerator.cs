@@ -205,8 +205,9 @@ namespace Protobuild.Tasks
                 if (File.Exists(generateSolutionXSLT))
                     generateSolutionStream = File.Open(generateSolutionXSLT, FileMode.Open);
                 else
-                    generateSolutionStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                        "Protobuild.BuildResources.GenerateSolution.xslt");
+                    generateSolutionStream = ResourceExtractor.GetTransparentDecompressionStream(
+                        Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "Protobuild.BuildResources.GenerateSolution.xslt.gz"));
                 using (generateSolutionStream)
                 {
                     using (var reader = XmlReader.Create(generateSolutionStream))
