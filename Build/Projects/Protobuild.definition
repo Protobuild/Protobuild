@@ -48,13 +48,9 @@
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
     <Compile Include="Tasks\ProjectGenerator.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
-    <EmbeddedResource Include="..\ProtobuildManager\bin\Debug\ProtobuildManager.exe">
-      <Link>ProtobuildManager.exe</Link>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BuildResources\GenerateProject.xslt">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="BuildResources\GenerateSolution.xslt" />
+    <EmbeddedResource Include="BuildResources\ProtobuildManager.exe.gz" />
+    <EmbeddedResource Include="BuildResources\GenerateProject.xslt.gz" />
+    <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.gz" />
     <EmbeddedResource Include="KickstartForm.resx">
       <DependentUpon>KickstartForm.cs</DependentUpon>
     </EmbeddedResource>

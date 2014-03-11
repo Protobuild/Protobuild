@@ -6,6 +6,8 @@ using System.Windows.Forms;
 
 namespace Protobuild
 {
+    using System.IO.Compression;
+
     class MainClass
     {
         public static void Main(string[] args)
@@ -20,14 +22,14 @@ namespace Protobuild
                 {
                     using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.xslt")))
                     {
-                        Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                            "Protobuild.BuildResources.GenerateProject.xslt").CopyTo(writer.BaseStream);
+                        ResourceExtractor.GetTransparentDecompressionStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                            "Protobuild.BuildResources.GenerateProject.xslt.gz")).CopyTo(writer.BaseStream);
                         writer.Flush();
                     }
                     using (var writer = new StreamWriter(Path.Combine("Build", "GenerateSolution.xslt")))
                     {
-                        Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                            "Protobuild.BuildResources.GenerateSolution.xslt").CopyTo(writer.BaseStream);
+                        ResourceExtractor.GetTransparentDecompressionStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                            "Protobuild.BuildResources.GenerateSolution.xslt.gz")).CopyTo(writer.BaseStream);
                         writer.Flush();
                     }
                     needToExit = true;
@@ -68,6 +70,32 @@ namespace Protobuild
                     exitCode = Actions.CleanProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
                     needToExit = true;
                 }
+            };
+            options["compress@1"] = x =>
+            {
+                var file = x.Length > 0 ? x[0] : null;
+                if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
+                {
+                    Console.Error.WriteLine("File not found for compression.");
+                    exitCode = 1;
+                    needToExit = true;
+                    return;
+                }
+
+                using (var reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+                {
+                    using (var writer = new FileStream(file + ".gz", FileMode.Create, FileAccess.Write))
+                    {
+                        using (var gzip = new GZipStream(writer, CompressionMode.Compress, true))
+                        {
+                            reader.CopyTo(gzip);
+                        }
+                    }
+                }
+
+                Console.WriteLine(file + " compressed as " + file + ".gz");
+                exitCode = 0;
+                needToExit = true;
             };
             options["manager-gui"] = x =>
             {
@@ -229,8 +257,8 @@ namespace Protobuild
             File.Copy(Assembly.GetExecutingAssembly().Location, temporaryConsole);
             using (var b = new BinaryWriter(File.Open(temporaryManager, FileMode.Create)))
             {
-                using (var m = Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("Protobuild.ProtobuildManager.exe"))
+                using (var m = ResourceExtractor.GetTransparentDecompressionStream(Assembly.GetExecutingAssembly()
+                    .GetManifestResourceStream("Protobuild.BuildResources.ProtobuildManager.exe.gz")))
                 {
                     m.CopyTo(b.BaseStream);
                     b.Flush();
