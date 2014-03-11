@@ -101,6 +101,8 @@ namespace Protobuild
 
         public static bool PerformAction(ModuleInfo module, string action, string platform = null)
         {
+            var platformSupplied = !string.IsNullOrWhiteSpace(platform);
+
             if (string.IsNullOrWhiteSpace(platform))
             {
                 platform = DetectPlatform();
@@ -112,6 +114,16 @@ namespace Protobuild
             if (platform == null)
             {
                 Console.Error.WriteLine("The platform '" + originalPlatform + "' is not supported.");
+                Console.Error.WriteLine("The following platforms are supported by this module:");
+                foreach (
+                    var supportedPlatform in
+                        module.SupportedPlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(x => x.Trim())
+                            .Where(x => !string.IsNullOrWhiteSpace(x)))
+                {
+                    Console.Error.WriteLine("  * " + supportedPlatform);
+                }
+
                 Environment.Exit(1);
                 return false;
             }
@@ -122,18 +134,25 @@ namespace Protobuild
             // <DefaultMacOSPlatforms> and <DefaultLinuxPlatforms> tags in Module.xml.  Note that
             // synchronisation will only be done for the primary platform, as there is no correct
             // synchronisation behaviour when dealing with multiple C# projects.
+            //
+            // We only trigger this behaviour when the platform is omitted; if you explicitly
+            // specify "Windows" on the command line, we'll only generate / resync / sync
+            // the Windows platform.
             string multiplePlatforms = null;
-            switch (platform)
+            if (!platformSupplied)
             {
-                case "Windows":
-                    multiplePlatforms = module.DefaultWindowsPlatforms;
-                    break;
-                case "MacOS":
-                    multiplePlatforms = module.DefaultMacOSPlatforms;
-                    break;
-                case "Linux":
-                    multiplePlatforms = module.DefaultLinuxPlatforms;
-                    break;
+                switch (platform)
+                {
+                    case "Windows":
+                        multiplePlatforms = module.DefaultWindowsPlatforms;
+                        break;
+                    case "MacOS":
+                        multiplePlatforms = module.DefaultMacOSPlatforms;
+                        break;
+                    case "Linux":
+                        multiplePlatforms = module.DefaultLinuxPlatforms;
+                        break;
+                }
             }
 
             // If no overrides are set, just use the current platform.
