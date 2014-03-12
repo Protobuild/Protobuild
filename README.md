@@ -3,6 +3,13 @@ Protobuild
 
 Protobuild is a project generation system for C#.  It aims to make maintaining projects and their dependencies easier by requiring only minimum specification of the project requirements and by inferring the rest from the projects in the module.  It also eases cross-platform development as it allows you to specify projects that are conditional based on the platform that is being built for.
 
+Further documentation can be found on the following pages:
+  
+  * [Introduction](http://protogame.org/docs/protobuild.html)
+  * [Concepts (this README)](http://protogame.org/docs/protobuild_concepts.html)
+  * [Projects and References](http://protogame.org/docs/protobuild_referencing.html)
+  * [Advanced Options](http://protogame.org/docs/protobuild_advanced.html)
+
 Modules
 -----------
 
