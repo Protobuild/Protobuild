@@ -48,9 +48,9 @@
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
     <Compile Include="Tasks\ProjectGenerator.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
-    <EmbeddedResource Include="BuildResources\ProtobuildManager.exe.gz" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt.gz" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.gz" />
+    <EmbeddedResource Include="BuildResources\ProtobuildManager.exe.gz" />
     <EmbeddedResource Include="KickstartForm.resx">
       <DependentUpon>KickstartForm.cs</DependentUpon>
     </EmbeddedResource>

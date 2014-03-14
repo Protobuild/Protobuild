@@ -38,13 +38,27 @@ namespace Protobuild
         
         public static bool ResyncProjectsForPlatform(ModuleInfo module, string platform)
         {
-            if (!SyncProjectsForPlatform(module, platform))
-                return false;
+            if (module.DisableSynchronisation ?? false)
+            {
+                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+            }
+            else
+            {
+                if (!SyncProjectsForPlatform(module, platform))
+                    return false;
+            }
+
             return GenerateProjectsForPlatform(module, platform);
         }
         
         public static bool SyncProjectsForPlatform(ModuleInfo module, string platform)
         {
+            if (module.DisableSynchronisation ?? false)
+            {
+                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+                return false;
+            }
+
             if (string.IsNullOrWhiteSpace(platform))
                 platform = DetectPlatform();
                 
