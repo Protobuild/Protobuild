@@ -27,6 +27,8 @@ namespace Protobuild
 
         public string SupportedPlatforms { get; set; } 
 
+        public bool? DisableSynchronisation { get; set; }
+
         public string[] ModuleAssemblies
         {
             get;
