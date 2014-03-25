@@ -155,6 +155,28 @@ namespace Protobuild
                     writer.Write(content);
                 }
             }
+
+            this.HandleNuGetConfig(platform);
+        }
+
+        /// <summary>
+        /// Synchronises the package.config file back to the package.&lt;Platform&gt;.config file if it's present.
+        /// </summary>
+        /// <param name="platform"></param>
+        private void HandleNuGetConfig(string platform)
+        {
+            var rootPath = this.m_DefinitionInfo.Path;
+
+            if (File.Exists(Path.Combine(rootPath, "packages." + platform + ".config")))
+            {
+                if (File.Exists(Path.Combine(rootPath, "packages.config")))
+                {
+                    File.Copy(
+                        Path.Combine(rootPath, "packages.config"),
+                        Path.Combine(rootPath, "packages." + platform + ".config"),
+                        true);
+                }
+            }
         }
 
         private string NormalizePath(string path)
