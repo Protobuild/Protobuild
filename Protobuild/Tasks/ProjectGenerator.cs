@@ -152,10 +152,16 @@ namespace Protobuild.Tasks
                 this.m_Platform + ".csproj");
             path = new FileInfo(path).FullName;
 
+            // Handle NuGet packages.config early so that it'll be in place
+            // when the generator automatically determined dependencies.
+            this.HandleNuGetConfig(projectDoc);
+
             // Work out what path the NuGet packages.config might be at.
             var packagesPath = Path.Combine(
                 this.m_RootPath,
-                projectDoc.DocumentElement.Attributes["Path"].Value,
+                projectDoc.DocumentElement.Attributes["Path"].Value
+                    .Replace('\\', Path.DirectorySeparatorChar)
+                    .Replace('/', Path.DirectorySeparatorChar),
                 "packages.config");
 
             // Generate the input document.
@@ -192,6 +198,27 @@ namespace Protobuild.Tasks
                 File.Delete(slnPath);
             if (File.Exists(userprefsPath))
                 File.Delete(userprefsPath);
+        }
+
+        private void HandleNuGetConfig(XmlDocument projectDoc)
+        {
+            var srcPath = Path.Combine(
+                this.m_RootPath,
+                projectDoc.DocumentElement.Attributes["Path"].Value
+                    .Replace('\\', Path.DirectorySeparatorChar)
+                    .Replace('/', Path.DirectorySeparatorChar),
+                "packages." + this.m_Platform + ".config");
+            var destPath = Path.Combine(
+                this.m_RootPath,
+                projectDoc.DocumentElement.Attributes["Path"].Value
+                    .Replace('\\', Path.DirectorySeparatorChar)
+                    .Replace('/', Path.DirectorySeparatorChar),
+                "packages.config");
+
+            if (File.Exists(srcPath))
+            {
+                File.Copy(srcPath, destPath, true);
+            }
         }
 
         public void GenerateSolution(string solutionPath)
