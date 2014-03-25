@@ -360,6 +360,12 @@
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'MacOS'">
+            <ProjectTypeGuids>
+              <xsl:text>{948B3504-5B70-4649-8FE4-BDE1FB46EC69};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
             <ProjectTypeGuids>
               <xsl:text>{69878862-DA7D-4DC6-B0A1-50D8FAB4242F};</xsl:text>
