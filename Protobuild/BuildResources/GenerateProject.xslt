@@ -186,10 +186,26 @@
         <xsl:when test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
           <xsl:text>bin\</xsl:text>
           <xsl:value-of select="/Input/Generation/Platform" />
-          <xsl:text>\$(Platform)\$(Configuration)</xsl:text>
+          <xsl:text>\$(Platform)\</xsl:text>
+          <xsl:choose>
+            <xsl:when test="$debug = 'true'">
+              <xsl:text>Debug</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>Release</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>bin\$(Configuration)</xsl:text>
+          <xsl:text>bin\</xsl:text>
+          <xsl:choose>
+            <xsl:when test="$debug = 'true'">
+              <xsl:text>Debug</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>Release</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
     </OutputPath>
@@ -201,10 +217,26 @@
         <xsl:when test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
           <xsl:text>obj\</xsl:text>
           <xsl:value-of select="/Input/Generation/Platform" />
-          <xsl:text>\$(Platform)\$(Configuration)</xsl:text>
+          <xsl:text>\$(Platform)\</xsl:text>
+          <xsl:choose>
+            <xsl:when test="$debug = 'true'">
+              <xsl:text>Debug</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>Release</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>obj\$(Configuration)</xsl:text>
+          <xsl:text>obj\</xsl:text>
+          <xsl:choose>
+            <xsl:when test="$debug = 'true'">
+              <xsl:text>Debug</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>Release</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
     </IntermediateOutputPath>
