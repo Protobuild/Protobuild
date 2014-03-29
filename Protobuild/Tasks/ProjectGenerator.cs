@@ -115,8 +115,18 @@ namespace Protobuild.Tasks
             }
         }
 
-        public void Generate(string project)
+        /// <summary>
+        /// Generates a project at the target path.
+        /// </summary>
+        /// <param name="project">The path to the project file.</param>
+        /// <param name="packagesFilePath">
+        /// Either the full path to the packages.config for the
+        /// generated project if it exists, or an empty string.
+        /// </param>
+        public void Generate(string project, out string packagesFilePath)
         {
+            packagesFilePath = "";
+
             if (this.m_ProjectTransform == null)
             {
                 var resolver = new EmbeddedResourceResolver();
@@ -150,25 +160,32 @@ namespace Protobuild.Tasks
                     .Replace('/', Path.DirectorySeparatorChar),
                 projectDoc.DocumentElement.Attributes["Name"].Value + "." +
                 this.m_Platform + ".csproj");
-            path = new FileInfo(path).FullName;
+
+            // Make sure that the directory exists where the file will be stored.
+            var targetFile = new FileInfo(path);
+            if (!targetFile.Directory.Exists)
+                targetFile.Directory.Create();
+
+            path = targetFile.FullName;
 
             // Handle NuGet packages.config early so that it'll be in place
             // when the generator automatically determined dependencies.
             this.HandleNuGetConfig(projectDoc);
 
             // Work out what path the NuGet packages.config might be at.
-            var packagesPath = Path.Combine(
-                this.m_RootPath,
-                projectDoc.DocumentElement.Attributes["Path"].Value
-                    .Replace('\\', Path.DirectorySeparatorChar)
-                    .Replace('/', Path.DirectorySeparatorChar),
-                "packages.config");
+            var packagesFile = new FileInfo(
+                Path.Combine(
+                    this.m_RootPath,
+                    projectDoc.DocumentElement.Attributes["Path"].Value
+                        .Replace('\\', Path.DirectorySeparatorChar)
+                        .Replace('/', Path.DirectorySeparatorChar),
+                    "packages.config"));
 
             // Generate the input document.
             var input = this.CreateInputFor(
                 project,
                 this.m_Platform,
-                packagesPath,
+                packagesFile.FullName,
                 projectDoc.DocumentElement.ChildNodes
                     .OfType<XmlElement>()
                     .Where(x => x.Name.ToLower() == "properties")
@@ -198,6 +215,10 @@ namespace Protobuild.Tasks
                 File.Delete(slnPath);
             if (File.Exists(userprefsPath))
                 File.Delete(userprefsPath);
+
+            // Only return the package file path if it exists.
+            if (packagesFile.Exists)
+                packagesFilePath = packagesFile.FullName;
         }
 
         private void HandleNuGetConfig(XmlDocument projectDoc)
@@ -221,7 +242,7 @@ namespace Protobuild.Tasks
             }
         }
 
-        public void GenerateSolution(string solutionPath)
+        public void GenerateSolution(string solutionPath, IEnumerable<string> repositoryPaths)
         {
             if (this.m_SolutionTransform == null)
             {
@@ -252,6 +273,11 @@ namespace Protobuild.Tasks
             using (var writer = new StreamWriter(solutionPath))
             {
                 this.m_SolutionTransform.Transform(input, null, writer);
+            }
+
+            if (repositoryPaths != null && repositoryPaths.Any())
+            {
+                GenerateRepositoriesConfig(solutionPath, repositoryPaths);
             }
         }
 
@@ -350,6 +376,11 @@ namespace Protobuild.Tasks
                     "packages",
                     id + "." + version,
                     id + "." + version + ".nuspec");
+
+                // Verify the file exists before attempting to load it.
+                if (!File.Exists(packagePath))
+                    throw new FileNotFoundException("Unable to find NuGet Package", packagePath);
+
                 var packageDoc = new XmlDocument();
                 packageDoc.Load(packagePath);
 
@@ -596,6 +627,45 @@ namespace Protobuild.Tasks
             }
 
             return doc;
+        }
+
+        private static void GenerateRepositoriesConfig(
+            string solutionPath,
+            IEnumerable<string> repositoryPaths)
+        {
+            FileInfo repositoriesFile = new FileInfo(
+                Path.Combine(
+                    new FileInfo(solutionPath).Directory.FullName, 
+                    "packages", 
+                    "repositories.config"));
+            Uri repositoriesUri = new Uri(repositoriesFile.FullName);
+
+            // Always refresh this file.
+            if (repositoriesFile.Exists)
+                repositoriesFile.Delete();
+            else if (!repositoriesFile.Directory.Exists)
+                repositoriesFile.Directory.Create();
+
+            // Write out the xml to disk.
+            using (var writer = new StreamWriter(repositoriesFile.FullName))
+            {
+                writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+                writer.WriteLine("<repositories>");
+                foreach (string path in repositoryPaths.OrderBy(p => p))
+                {
+                    writer.Write("  <repository path=\"");
+
+                    // Write a relational path to the config from the repository.config.
+                    Uri current = new Uri(path);
+                    writer.Write(
+                        Uri.UnescapeDataString(
+                            repositoriesUri.MakeRelativeUri(current)
+                                .ToString()
+                               .Replace('/', Path.DirectorySeparatorChar)));
+                    writer.WriteLine("\" />");
+                }
+                writer.WriteLine("</repositories>");
+            }
         }
 
         private List<string> GetListOfFilesInDirectory(string folder, string match)
