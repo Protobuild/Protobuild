@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Framework;
@@ -69,17 +70,27 @@ namespace Protobuild.Tasks
                     module.Path,
                     definition.ModulePath);
             }
+
+            List<string> repositoryPaths = new List<string> ();
+
             foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
             {
                 this.LogMessage("Generating: " + definition.Name);
-                generator.Generate(definition.Name);
+
+                string repositoryPath;
+                generator.Generate(definition.Name, out repositoryPath);
+
+                // Only add repository paths if they should be generated.
+                if (module.GenerateNuGetRepositories &&
+                    !string.IsNullOrEmpty (repositoryPath))
+                    repositoryPaths.Add (repositoryPath);
             }
 
             var solution = Path.Combine(
                 this.RootPath,
                 this.ModuleName + "." + this.Platform + ".sln");
             this.LogMessage("Generating: (solution)");
-            generator.GenerateSolution(solution);
+            generator.GenerateSolution(solution, repositoryPaths);
 
             this.LogMessage(
                 "Generation complete.");

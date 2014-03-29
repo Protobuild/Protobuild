@@ -25,6 +25,8 @@ namespace Protobuild
 
         public string DefaultLinuxPlatforms { get; set; } 
 
+        public bool GenerateNuGetRepositories { get; set; }
+
         public string SupportedPlatforms { get; set; } 
 
         public bool? DisableSynchronisation { get; set; }
@@ -39,6 +41,7 @@ namespace Protobuild
         {
             this.ModuleAssemblies = new string[0];
             this.DefaultAction = "resync";
+            this.GenerateNuGetRepositories = true;
         }
         
         [NonSerialized]
