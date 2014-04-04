@@ -1,10 +1,8 @@
 # Ignore these files.
 bin
 obj
-*.Linux.sln
-*.Linux.csproj
-*.Windows.sln
-*.Windows.csproj
+*.sln
+*.csproj
 *.nuspec
 *.nupkg
 *.userprefs
