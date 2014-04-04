@@ -95,6 +95,11 @@
       }
     }
 
+    public bool HasXamarinMac()
+    {
+      return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
+    }
+
     ]]>
   </msxsl:script>
 
@@ -330,7 +335,24 @@
         <EnableCodeSigning>False</EnableCodeSigning>
         <CreatePackage>False</CreatePackage>
         <EnablePackageSigning>False</EnablePackageSigning>
-        <IncludeMonoRuntime>False</IncludeMonoRuntime>
+        <xsl:choose>
+          <xsl:when test="user:HasXamarinMac()">
+            <xsl:choose>
+              <xsl:when test="/Input/Properties/IncludeMonoRuntimeOnMac">
+                <IncludeMonoRuntime><xsl:value-of select="/Input/Properties/IncludeMonoRuntimeOnMac" /></IncludeMonoRuntime>
+	            <xsl:if test="/Input/Properties/MonoMacRuntimeLinkMode">
+	              <LinkMode><xsl:value-of select="/Input/Properties/MonoMacRuntimeLinkMode" /></LinkMode>
+	            </xsl:if>
+              </xsl:when>
+              <xsl:otherwise>
+                <IncludeMonoRuntime>False</IncludeMonoRuntime>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
+          <xsl:otherwise>
+            <IncludeMonoRuntime>False</IncludeMonoRuntime>
+          </xsl:otherwise>
+        </xsl:choose>
         <UseSGen>False</UseSGen>
       </xsl:when>
     </xsl:choose>
@@ -394,7 +416,14 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'MacOS'">
             <ProjectTypeGuids>
-              <xsl:text>{948B3504-5B70-4649-8FE4-BDE1FB46EC69};</xsl:text>
+              <xsl:choose>
+                <xsl:when test="user:HasXamarinMac()">
+                  <xsl:text>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>{948B3504-5B70-4649-8FE4-BDE1FB46EC69};</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
@@ -542,7 +571,9 @@
             </xsl:choose>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'MacOS'">
-            <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
+            <xsl:if test="user:HasXamarinMac() = false()">
+              <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
+            </xsl:if>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
             <xsl:choose>
@@ -767,6 +798,17 @@
           <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
             <SpecificVersion>False</SpecificVersion>
           </Reference>
+        </xsl:if>
+
+        <xsl:if test="/Input/Generation/Platform = 'MacOS'">
+          <xsl:choose>
+            <xsl:when test="user:HasXamarinMac()">
+              <Reference Include="XamMac" />
+            </xsl:when>
+            <xsl:otherwise>
+              <Reference Include="MonoMac" />
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:if>
 
         <xsl:for-each select="$project/References/Reference">
