@@ -152,6 +152,35 @@ namespace Protobuild.Tasks
                 projectDoc.DocumentElement.Name != "Project")
                 return;
 
+            // Work out what platforms this project should be generated for.
+            var platformAttribute = projectDoc.DocumentElement.Attributes["Platforms"];
+            string[] allowedPlatforms = null;
+            if (platformAttribute != null)
+            {
+                allowedPlatforms = platformAttribute.Value
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .ToArray();
+            }
+
+            // Filter on allowed platforms.
+            if (allowedPlatforms != null) 
+            {
+                var allowed = false;
+                foreach (var platform in allowedPlatforms)
+                {
+                    if (string.Compare(this.m_Platform, platform, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        allowed = true;
+                        break;
+                    }
+                }
+                if (!allowed)
+                {
+                    return;
+                }
+            }
+
             // Work out what path to save at.
             var path = Path.Combine(
                 this.m_RootPath,
