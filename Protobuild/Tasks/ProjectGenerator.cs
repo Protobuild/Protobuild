@@ -508,7 +508,7 @@ namespace Protobuild.Tasks
 
         private XmlDocument GenerateContentProject(XmlDocument source)
         {
-            var allFiles = new Dictionary<string, IEnumerable<string>>();
+            var allFiles = new List<KeyValuePair<string, IEnumerable<string>>>();
             string sourceFile = null;
             string sourceFileFolder = null;
             foreach (var element in source
@@ -538,8 +538,9 @@ namespace Protobuild.Tasks
                 sourceFolder = Path.Combine(this.m_RootPath, sourceFolder);
                 var files = this.GetListOfFilesInDirectory(sourceFolder, matchFiles);
                 allFiles.Add(
-                    originalSourceFolder,
-                    files);
+                    new KeyValuePair<string, IEnumerable<string>>(
+                        originalSourceFolder,
+                        files));
                 this.m_Log(
                   "Scanning: " +
                   originalSourceFolder +
