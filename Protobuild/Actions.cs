@@ -102,7 +102,7 @@ namespace Protobuild
             return task.Execute();
         }
         
-        private static string DetectPlatform()
+        public static string DetectPlatform()
         {
             if (Path.DirectorySeparatorChar == '/')
             {

@@ -37,7 +37,7 @@ namespace Protobuild.Tasks
             // full project node from the files that are in the Source folder.
             XmlDocument newDoc = null;
             if (doc.DocumentElement.Name == "ContentProject")
-                newDoc = GenerateContentProject(doc);
+                newDoc = GenerateContentProject(doc, modulePath);
             else
                 newDoc = doc;
             if (rootPath != null && modulePath != null)
@@ -326,6 +326,8 @@ namespace Protobuild.Tasks
             projectName.AppendChild(doc.CreateTextNode(project));
             var platformName = doc.CreateElement("Platform");
             platformName.AppendChild(doc.CreateTextNode(platform));
+            var hostPlatformName = doc.CreateElement("HostPlatform");
+            hostPlatformName.AppendChild(doc.CreateTextNode(Actions.DetectPlatform()));
             var rootName = doc.CreateElement("RootPath");
             rootName.AppendChild(doc.CreateTextNode(
                 new DirectoryInfo(this.m_RootPath).FullName));
@@ -334,6 +336,7 @@ namespace Protobuild.Tasks
                 this.IsUsingCSCJVM(platform) ? "True" : "False"));
             generation.AppendChild(projectName);
             generation.AppendChild(platformName);
+            generation.AppendChild(hostPlatformName);
             generation.AppendChild(rootName);
             generation.AppendChild(useCSCJVM);
             input.AppendChild(generation);
@@ -566,7 +569,7 @@ namespace Protobuild.Tasks
             }
         }
 
-        private XmlDocument GenerateContentProject(XmlDocument source)
+        private XmlDocument GenerateContentProject(XmlDocument source, string rootPath)
         {
             var allFiles = new List<KeyValuePair<string, IEnumerable<string>>>();
             string sourceFile = null;
@@ -587,15 +590,15 @@ namespace Protobuild.Tasks
                 var originalSourceFolder = sourceFolder;
                 if (element.HasAttribute("Primary") && element.GetAttribute("Primary").ToLower() == "true")
                 {
-                    sourceFileFolder = Path.Combine(this.m_RootPath, sourceFolder);
-                    sourceFile = Path.Combine(this.m_RootPath, sourceFolder, ".source");
+                    sourceFileFolder = Path.Combine(rootPath, sourceFolder);
+                    sourceFile = Path.Combine(rootPath, sourceFolder, ".source");
                     using (var writer = new StreamWriter(sourceFile))
                     {
                         var dir = new DirectoryInfo(sourceFileFolder);
                         writer.Write(dir.FullName);
                     }
                 }
-                sourceFolder = Path.Combine(this.m_RootPath, sourceFolder);
+                sourceFolder = Path.Combine(rootPath, sourceFolder);
                 var files = this.GetListOfFilesInDirectory(sourceFolder, matchFiles);
                 allFiles.Add(
                     new KeyValuePair<string, IEnumerable<string>>(
