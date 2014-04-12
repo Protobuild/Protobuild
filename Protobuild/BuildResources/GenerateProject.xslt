@@ -848,8 +848,8 @@
                 select="/Input/Projects/ExternalProject[@Name=$include-name]" />
 
               <xsl:for-each select="$extern/Reference">
-                <xsl:variable name="include-name" select="@Include" />
-                <xsl:if test="count(/Input/Projects/Project[@Name=$include-name]) = 0">
+                <xsl:variable name="refd-name" select="@Include" />
+                <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
                   <Reference>
                     <xsl:attribute name="Include">
                       <xsl:value-of select="@Include" />
@@ -863,8 +863,8 @@
               <xsl:for-each select="$extern/Platform
                                       [@Type=/Input/Generation/Platform]">
                 <xsl:for-each select="./Reference">
-                  <xsl:variable name="include-name" select="@Include" />
-                  <xsl:if test="count(/Input/Projects/Project[@Name=$include-name]) = 0">
+                  <xsl:variable name="refd-name" select="@Include" />
+                  <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
                     <Reference>
                       <xsl:attribute name="Include">
                         <xsl:value-of select="@Include" />
