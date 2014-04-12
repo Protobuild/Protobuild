@@ -1075,6 +1075,28 @@
         </xsl:for-each>
       </ItemGroup>
 
+      <xsl:if test="/Input/Generation/Platform = 'Web'">
+        <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console' or $project/@Type = 'GUI' or $project/@Type = 'GTK'">
+          <ItemGroup>
+            <xsl:for-each select="/Input/Generation/JSILLibraries/Library">
+              <None>
+                <xsl:attribute name="Include">
+                  <xsl:value-of select="./@Path" />
+                </xsl:attribute>
+                <Link>
+                  <xsl:text>Libraries\</xsl:text>
+                  <xsl:value-of select="./@Name" />
+                </Link>
+                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+              </None>
+            </xsl:for-each>
+            <None Include="index.htm">
+              <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            </None>
+          </ItemGroup>
+        </xsl:if>
+      </xsl:if>
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/ShaderProgram">
           <xsl:if test="user:ProjectIsActive(

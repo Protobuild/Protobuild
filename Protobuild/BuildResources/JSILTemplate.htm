@@ -1,0 +1,49 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  </head>
+  <body onload="onLoad()">
+    <!--
+      This is a default template, automatically generated for you by Protobuild
+      the first time you target the Web platform.
+    -->
+    <script type="text/javascript">
+      var jsilConfig = {
+        printStackTrace: false,
+        libraryRoot: "Libraries/",
+ 
+        manifests: [
+          "{NAME}.exe"
+        ],
+      };
+    </script>
+    <script src="Libraries/JSIL.js" type="text/javascript"></script>
+    
+    <div id="log"></div>
+ 
+    <script type="text/javascript">
+      function runMain () {
+        /*
+          This initialization code executes the main entry point 
+          of your C# program.
+          
+          For console projects, it should simply be calling the
+          static Main method like so:
+          
+            var asm = JSIL.GetAssembly("{NAME}", true);
+            asm.{NAME}.Program.Main();
+          
+          For projects that have a main loop, these need to run
+          asynchronously when running on the web.  That is,
+          all the C# code you invoke here should be prepared to
+          return immediately, as web browsers operate on a
+          callback based mechanism.
+        */
+        
+        var asm = JSIL.GetAssembly("{NAME}", true);
+        asm.{NAME}.Program.Main();
+      };
+    </script>
+  </body>
+</html>

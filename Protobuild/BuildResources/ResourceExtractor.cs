@@ -57,6 +57,34 @@ namespace Protobuild
             var module = new ModuleInfo { Name = projectName };
             module.Save(Path.Combine(path, "Module.xml"));
         }
+
+        public static void ExtractJSILTemplate(string name, string targetPath)
+        {
+            Stream jsilTemplateStream = GetTransparentDecompressionStream(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                "Protobuild.BuildResources.JSILTemplate.htm.gz"));
+
+            using (var stream = jsilTemplateStream)
+            {
+                using (var writer = new StringWriter())
+                {
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var text = reader.ReadToEnd();
+                        text = text.Replace("{NAME}", name);
+                        writer.Write(text);
+                        writer.Flush();
+                    }
+
+                    var content = writer.GetStringBuilder().ToString();
+
+                    using (var fileWriter = new StreamWriter(targetPath))
+                    {
+                        fileWriter.Write(content);
+                    }
+                }
+            }
+        }
     }
 }
 

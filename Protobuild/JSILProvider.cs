@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.IO.Compression;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.ComponentModel;
     using Microsoft.Win32;
 
@@ -143,6 +143,16 @@ namespace Protobuild
             }
             Console.WriteLine("done.");
 
+            Console.WriteLine("Creating runtime libraries... ");
+            Directory.CreateDirectory(Path.Combine(this.GetJSILRuntimeDirectory(), "Libraries"));
+            Console.WriteLine("done.");
+
+            Console.WriteLine("Copying runtime libraries... ");
+            this.RecursiveCopy(
+                Path.Combine(this.GetJSILSourceDirectory(), "Libraries"),
+                Path.Combine(this.GetJSILRuntimeDirectory(), "Libraries"));
+            Console.WriteLine("done.");
+
             Console.Write("Removing temporary build directory... ");
             try
             {
@@ -170,6 +180,25 @@ namespace Protobuild
                 jsilDirectory = null;
                 jsilCompilerFile = null;
                 return false;
+            }
+        }
+
+        private void RecursiveCopy(string source, string destination)
+        {
+            foreach (var file in new DirectoryInfo(source).GetFiles())
+            {
+                Console.WriteLine("> " + file.Name);
+                file.CopyTo(Path.Combine(destination, file.Name));
+            }
+
+            foreach (var directory in new DirectoryInfo(source).GetDirectories())
+            {
+                if (!Directory.Exists(Path.Combine(destination, directory.Name)))
+                {
+                    Directory.CreateDirectory(Path.Combine(destination, directory.Name));
+                }
+
+                this.RecursiveCopy(Path.Combine(source, directory.Name), Path.Combine(destination, directory.Name));
             }
         }
 
@@ -317,6 +346,29 @@ namespace Protobuild
                 {
                     pathOrError = "xbuild is not in your PATH";
                     return false;
+                }
+            }
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> GetJSILLibraries()
+        {
+            return this.ScanFolder(Path.Combine(this.GetJSILRuntimeDirectory(), "Libraries"), string.Empty);
+        }
+
+        private IEnumerable<KeyValuePair<string, string>> ScanFolder(string path, string name)
+        {
+            var dirInfo = new DirectoryInfo(path);
+
+            foreach (var file in dirInfo.GetFiles())
+            {
+                yield return new KeyValuePair<string, string>(file.FullName, Path.Combine(name, file.Name));
+            }
+
+            foreach (var dir in dirInfo.GetDirectories())
+            {
+                foreach (var entry in this.ScanFolder(dir.FullName, Path.Combine(name, dir.Name)))
+                {
+                    yield return entry;
                 }
             }
         }

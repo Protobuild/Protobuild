@@ -15,15 +15,12 @@ namespace Protobuild
 <Project
   Name=""" + name + @"""
   Path=""" + name + @"""
-  Type=""XNA"">
+  Type=""App"">
   <References>
     <Reference Include=""System"" />
     <Reference Include=""System.Core"" />
     <Reference Include=""Microsoft.CSharp"" />
-    <Reference Include=""Protogame"" />
-    <Reference Include=""Protogame.Efficiency"" />
-    <Reference Include=""Protogame.Structure"" />
-    <Reference Include=""MonoGame"" />
+    <Reference Include=""MonoGame.Framework"" />
     <Reference Include=""Ninject"" />
   </References>
   <Files>
