@@ -328,6 +328,25 @@ namespace Protobuild.Tasks
             platformName.AppendChild(doc.CreateTextNode(platform));
             var hostPlatformName = doc.CreateElement("HostPlatform");
             hostPlatformName.AppendChild(doc.CreateTextNode(Actions.DetectPlatform()));
+
+            if (string.Compare(platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                // Add JSIL properties
+                string jsilDirectory, jsilCompilerFile;
+                var jsilProvider = new JSILProvider();
+                if (!jsilProvider.GetJSIL(out jsilDirectory, out jsilCompilerFile))
+                {
+                    throw new InvalidOperationException("JSIL not found, but previous check passed.");
+                }
+
+                var jsilDirectoryNode = doc.CreateElement("JSILDirectory");
+                jsilDirectoryNode.AppendChild(doc.CreateTextNode(jsilDirectory));
+                generation.AppendChild(jsilDirectoryNode);
+                var jsilCompilerPathNode = doc.CreateElement("JSILCompilerFile");
+                jsilCompilerPathNode.AppendChild(doc.CreateTextNode(jsilCompilerFile));
+                generation.AppendChild(jsilCompilerPathNode);
+            }
+
             var rootName = doc.CreateElement("RootPath");
             rootName.AppendChild(doc.CreateTextNode(
                 new DirectoryInfo(this.m_RootPath).FullName));
