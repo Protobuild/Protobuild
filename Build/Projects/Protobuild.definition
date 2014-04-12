@@ -29,6 +29,7 @@
     <Compile Include="DefinitionTemplates\WebsiteTemplate.cs" />
     <Compile Include="DefinitionTemplates\XNATemplate.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
+    <Compile Include="JSILProvider.cs" />
     <Compile Include="KickstartForm.cs">
       <SubType>Form</SubType>
     </Compile>
