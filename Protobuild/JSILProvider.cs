@@ -7,6 +7,9 @@ using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
+    using System.ComponentModel;
+    using Microsoft.Win32;
+
     public class JSILProvider
     {   
         public bool GetJSIL(out string jsilDirectory, out string jsilCompilerFile)
@@ -23,9 +26,27 @@ namespace Protobuild
             Console.WriteLine("Installing into: " + this.GetJSILRuntimeDirectory());
 
             Console.Write("Removing existing JSIL runtime... ");
-            Directory.Delete(this.GetJSILSourceDirectory(), true);
-            Directory.Delete(this.GetJSILRuntimeDirectory(), true);
-            Console.WriteLine("done.");
+            try
+            {
+                Directory.Delete(this.GetJSILSourceDirectory(), true);
+                Directory.Delete(this.GetJSILRuntimeDirectory(), true);
+                Console.WriteLine("done.");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Console.WriteLine("error!");
+                Console.WriteLine("Unable to remove existing JSIL runtime or source.  Remove");
+                Console.WriteLine("the files and directories located in the following directory:");
+                Console.WriteLine();
+                Console.WriteLine("  " + this.GetJSILDirectory(string.Empty));
+                Console.WriteLine();
+                Console.WriteLine("and then try again.");
+                Console.WriteLine();
+                Console.WriteLine("=============================================================");
+                jsilDirectory = null;
+                jsilCompilerFile = null;
+                return false;
+            }
 
             Console.WriteLine("Downloading JSIL source code via Git... ");
 
@@ -123,7 +144,14 @@ namespace Protobuild
             Console.WriteLine("done.");
 
             Console.Write("Removing temporary build directory... ");
-            Directory.Delete(this.GetJSILSourceDirectory(), true);
+            try
+            {
+                Directory.Delete(this.GetJSILSourceDirectory(), true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // Ignore
+            }
             Console.WriteLine("done.");
 
             if (File.Exists(this.GetJSILCompilerPath()))
@@ -173,13 +201,24 @@ namespace Protobuild
 
         private void ExecuteGit(string args)
         {
-            var process = Process.Start(new ProcessStartInfo{
-                FileName = "git",
-                Arguments = args,
-                UseShellExecute = false,
-                WorkingDirectory = Path.Combine(this.GetJSILSourceDirectory())
-            });
-            process.WaitForExit();
+            Process process;
+            try
+            {
+                process =
+                    Process.Start(
+                        new ProcessStartInfo
+                        {
+                            FileName = "git",
+                            Arguments = args,
+                            UseShellExecute = false,
+                            WorkingDirectory = Path.Combine(this.GetJSILSourceDirectory())
+                        });
+                process.WaitForExit();
+            }
+            catch (Win32Exception)
+            {
+                throw new InvalidOperationException();
+            }
 
             if (process.ExitCode == 127)
             {
@@ -189,13 +228,24 @@ namespace Protobuild
 
         private bool ExecuteProgram(string name, string args)
         {
-            var process = Process.Start(new ProcessStartInfo{
-                FileName = name,
-                Arguments = args,
-                UseShellExecute = false,
-                WorkingDirectory = Path.Combine(this.GetJSILSourceDirectory())
-            });
-            process.WaitForExit();
+            Process process;
+            try
+            {
+                process =
+                    Process.Start(
+                        new ProcessStartInfo
+                        {
+                            FileName = name,
+                            Arguments = args,
+                            UseShellExecute = false,
+                            WorkingDirectory = Path.Combine(this.GetJSILSourceDirectory())
+                        });
+                process.WaitForExit();
+            }
+            catch (Win32Exception)
+            {
+                throw new InvalidOperationException();
+            }
 
             if (process.ExitCode == 127)
             {
@@ -231,6 +281,26 @@ namespace Protobuild
                 }
                 catch (InvalidOperationException)
                 {
+                    try
+                    {
+                        var msBuildToolsBasePath =
+                            (string)Registry.LocalMachine.OpenSubKey("SOFTWARE")
+                                .OpenSubKey("Microsoft")
+                                .OpenSubKey("MSBuild")
+                                .OpenSubKey("ToolsVersions")
+                                .OpenSubKey("4.0")
+                                .GetValue("MSBuildToolsPath");
+                        var msBuildPath = Path.Combine(msBuildToolsBasePath, "msbuild.exe");
+                        if (File.Exists(msBuildPath))
+                        {
+                            pathOrError = msBuildPath;
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
                     pathOrError = "msbuild is not in your PATH";
                     return false;
                 }
