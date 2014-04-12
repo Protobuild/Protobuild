@@ -345,6 +345,61 @@ namespace Protobuild.Tasks
                 var jsilCompilerPathNode = doc.CreateElement("JSILCompilerFile");
                 jsilCompilerPathNode.AppendChild(doc.CreateTextNode(jsilCompilerFile));
                 generation.AppendChild(jsilCompilerPathNode);
+
+                var jsilLibrariesNode = doc.CreateElement("JSILLibraries");
+
+                foreach (var entry in jsilProvider.GetJSILLibraries())
+                {
+                    var entryNode = doc.CreateElement("Library");
+                    var pathAttribute = doc.CreateAttribute("Path");
+                    pathAttribute.Value = entry.Key;
+                    var nameAttribute = doc.CreateAttribute("Name");
+                    nameAttribute.Value = entry.Value;
+                    entryNode.Attributes.Append(pathAttribute);
+                    entryNode.Attributes.Append(nameAttribute);
+                    jsilLibrariesNode.AppendChild(entryNode);
+                }
+
+                generation.AppendChild(jsilLibrariesNode);
+
+                // Automatically extract the JSIL template if not already present.
+                var currentProject =
+                    this.m_ProjectDocuments.Select(x => x.DocumentElement)
+                        .Where(x => x.Attributes != null)
+                        .Where(x => x.Attributes["Name"] != null)
+                        .FirstOrDefault(x => x.Attributes["Name"].Value == project);
+                if (currentProject != null)
+                {
+                    string type = null;
+                    string path = null;
+                    if (currentProject.Attributes != null && currentProject.Attributes["Type"] != null)
+                    {
+                        type = currentProject.Attributes["Type"].Value;
+                    }
+                    if (currentProject.Attributes != null && currentProject.Attributes["Path"] != null)
+                    {
+                        path = currentProject.Attributes["Path"].Value;
+                    }
+
+                    if (string.Compare(type, "App", StringComparison.InvariantCultureIgnoreCase) == 0
+                        || string.Compare(type, "Console", StringComparison.InvariantCultureIgnoreCase) == 0
+                        || string.Compare(type, "GUI", StringComparison.InvariantCultureIgnoreCase) == 0
+                        || string.Compare(type, "GTK", StringComparison.InvariantCultureIgnoreCase) == 0)
+                    {
+                        if (path != null)
+                        {
+                            var srcDir = Path.Combine(this.m_RootPath, path);
+                            if (Directory.Exists(srcDir))
+                            {
+                                if (!File.Exists(Path.Combine(srcDir, "index.htm")))
+                                {
+                                    Console.WriteLine("Extracting JSIL HTML template...");
+                                    ResourceExtractor.ExtractJSILTemplate(project, Path.Combine(srcDir, "index.htm"));
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             var rootName = doc.CreateElement("RootPath");
