@@ -1337,7 +1337,7 @@
       </xsl:choose>
 
       <xsl:if test="/Input/Generation/Platform = 'Web'">
-        <xsl:if test="$project/@Type = 'App'">
+        <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console' or $project/@Type = 'GUI' or $project/@Type = 'GTK'">
 
           <xsl:choose>
             <xsl:when test="user:IsTrue(/Input/Generation/Properties/IgnoreWebPlatform)">
@@ -1365,7 +1365,7 @@
                       </xsl:if>
                       <xsl:text>$(Configuration)/</xsl:text>
                     </xsl:if>
-                    <xsl:if test="/Input/Generation/Platform = 'Windows'">
+                    <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
                       <xsl:text>\bin\</xsl:text>
                       <xsl:if test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
                         <xsl:value-of select="/Input/Generation/Platform" />
@@ -1392,15 +1392,15 @@
                         <xsl:value-of select="/Input/Generation/Platform" />
                         <xsl:text>/$(Platform)/</xsl:text>
                       </xsl:if>
-                      <xsl:text>$(Configuration)/</xsl:text>
+                      <xsl:text>$(Configuration)</xsl:text>
                     </xsl:if>
-                    <xsl:if test="/Input/Generation/Platform = 'Windows'">
+                    <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
                       <xsl:text>\bin\</xsl:text>
                       <xsl:if test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
                         <xsl:value-of select="/Input/Generation/Platform" />
                         <xsl:text>\$(Platform)\</xsl:text>
                       </xsl:if>
-                      <xsl:text>$(Configuration)\</xsl:text>
+                      <xsl:text>$(Configuration)</xsl:text>
                     </xsl:if>
                     <xsl:text>"</xsl:text>
                   </xsl:attribute>
