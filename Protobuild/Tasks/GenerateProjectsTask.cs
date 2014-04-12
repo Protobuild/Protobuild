@@ -38,6 +38,17 @@ namespace Protobuild.Tasks
 
         public override bool Execute()
         {
+            if (string.Compare(this.Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
+            {
+                // Trigger JSIL provider download if needed.
+                string jsilDirectory, jsilCompilerFile;
+                var jsilProvider = new JSILProvider();
+                if (!jsilProvider.GetJSIL(out jsilDirectory, out jsilCompilerFile))
+                {
+                    return false;
+                }
+            }
+
             this.LogMessage(
                 "Starting generation of projects for " + this.Platform);
 

@@ -880,6 +880,24 @@
           </xsl:if>
         </xsl:for-each>
 
+        <xsl:if test="/Input/Generation/Platform = 'Web'">
+          <Reference>
+            <xsl:attribute name="Include">
+              <xsl:text>JSIL.Meta</xsl:text>
+            </xsl:attribute>
+            <HintPath>
+              <xsl:value-of select="/Input/Generation/JSILDirectory" />
+              <xsl:if test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
+                <xsl:text>/</xsl:text>
+              </xsl:if>
+              <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
+                <xsl:text>\</xsl:text>
+              </xsl:if>
+              <xsl:text>JSIL.Meta.dll</xsl:text>
+            </HintPath>
+          </Reference>
+        </xsl:if>
+
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
@@ -1321,10 +1339,6 @@
       <xsl:if test="/Input/Generation/Platform = 'Web'">
         <xsl:if test="$project/@Type = 'App'">
 
-          <xsl:variable
-            name="jsilcompilerproject"
-            select="/Input/Projects/Project[@Name='JSIL.Compiler']" />
-
           <xsl:choose>
             <xsl:when test="user:IsTrue(/Input/Generation/Properties/IgnoreWebPlatform)">
             </xsl:when>
@@ -1333,24 +1347,13 @@
                 <Exec>
                   <xsl:attribute name="WorkingDirectory">
                     <xsl:value-of
-                      select="user:GetRelativePath(
-                        concat(
-                          $project/@Path,
-                          '\',
-                          $project/@Name,
-                          '.',
-                          /Input/Generation/Platform,
-                          '.csproj'),
-                        concat(
-                          $jsilcompilerproject/@Path,
-                          '\bin\$(Configuration)'))" />
+                      select="/Input/Generation/JSILDirectory" />
                   </xsl:attribute>
                   <xsl:attribute name="Command">
                     <xsl:if test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
                       <xsl:text>mono </xsl:text>
                     </xsl:if>
-                    <xsl:value-of
-                      select="concat($jsilcompilerproject/@Name, '.exe')" />
+                    <xsl:value-of select="/Input/Generation/JSILCompilerFile" />
                     <xsl:text> "</xsl:text>
                     <xsl:value-of select="/Input/Generation/RootPath" />
                     <xsl:value-of select="$project/@Path" />
