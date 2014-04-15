@@ -123,7 +123,7 @@ namespace Protobuild.Tasks
         /// Either the full path to the packages.config for the
         /// generated project if it exists, or an empty string.
         /// </param>
-        public void Generate(string project, out string packagesFilePath)
+        public void Generate(string project, out string packagesFilePath, Action onActualGeneration)
         {
             packagesFilePath = "";
 
@@ -180,6 +180,9 @@ namespace Protobuild.Tasks
                     return;
                 }
             }
+
+            // Inform the user we're generating this project.
+            onActualGeneration();
 
             // Work out what path to save at.
             var path = Path.Combine(

@@ -86,10 +86,11 @@ namespace Protobuild.Tasks
 
             foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
             {
-                this.LogMessage("Generating: " + definition.Name);
-
                 string repositoryPath;
-                generator.Generate(definition.Name, out repositoryPath);
+                generator.Generate(
+                    definition.Name,
+                    out repositoryPath,
+                    () => this.LogMessage("Generating: " + definition.Name));
 
                 // Only add repository paths if they should be generated.
                 if (module.GenerateNuGetRepositories &&
