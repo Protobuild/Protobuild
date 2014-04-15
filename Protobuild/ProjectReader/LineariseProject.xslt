@@ -52,6 +52,66 @@
       <xsl:copy-of select="." />
     </Included>
   </xsl:template>
+ 
+  <xsl:template match="p:EmbeddedShaderProgram">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:ShaderProgram">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:ApplicationDefinition">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:Page">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:AppxManifest">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:BundleResource">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:InterfaceDefinition">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:AndroidResource">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:SplashScreen">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
+  <xsl:template match="p:Resource">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
   
   <xsl:template match="*"></xsl:template>
   <xsl:template match="text()"></xsl:template>

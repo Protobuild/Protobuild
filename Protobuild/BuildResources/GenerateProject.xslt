@@ -1115,6 +1115,7 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/ApplicationDefinition">
           <xsl:if test="user:ProjectIsActive(
@@ -1128,12 +1129,13 @@
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
               </xsl:attribute>
-              <Generator>MSBuild:Compile</Generator>
-              <SubType>Designer</SubType>
               <xsl:apply-templates select="node()"/>
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
+      </ItemGroup>
+
+      <ItemGroup>
         <xsl:for-each select="$project/Files/Page">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
@@ -1146,12 +1148,13 @@
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
               </xsl:attribute>
-              <Generator>MSBuild:Compile</Generator>
-              <SubType>Designer</SubType>
               <xsl:apply-templates select="node()"/>
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
+      </ItemGroup>
+
+      <ItemGroup>
         <xsl:for-each select="$project/Files/AppxManifest">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
@@ -1164,12 +1167,12 @@
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
               </xsl:attribute>
-              <SubType>Designer</SubType>
               <xsl:apply-templates select="node()"/>
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/BundleResource">
           <xsl:if test="user:ProjectIsActive(
@@ -1188,6 +1191,7 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/InterfaceDefinition">
           <xsl:if test="user:ProjectIsActive(
@@ -1206,6 +1210,7 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
       <ItemGroup>
         <xsl:for-each select="$project/Files/AndroidResource">
           <xsl:if test="user:ProjectIsActive(
@@ -1224,8 +1229,9 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
       <ItemGroup>
-        <xsl:for-each select="$project/Files/InterfaceDefinition">
+        <xsl:for-each select="$project/Files/SplashScreen">
           <xsl:if test="user:ProjectIsActive(
               ./Platforms,
               ./IncludePlatforms,
@@ -1242,6 +1248,26 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
+
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/Resource">
+          <xsl:if test="user:ProjectIsActive(
+              ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
+              /Input/Generation/Platform)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-path" select="./@Include" />
