@@ -51,11 +51,15 @@
     <Compile Include="Tasks\SyncProjectsTask.cs" />
     <EmbeddedResource Include="BuildResources\GenerateProject.xslt.gz" />
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.gz" />
+    <EmbeddedResource Include="BuildResources\JSILTemplate.htm.gz" />
     <EmbeddedResource Include="BuildResources\ProtobuildManager.exe.gz" />
     <EmbeddedResource Include="KickstartForm.resx">
       <DependentUpon>KickstartForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ProjectReader\LineariseProject.xslt" />
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt" />
+    <None Include="BuildResources\GenerateProject.xslt" />
+    <None Include="BuildResources\GenerateSolution.xslt" />
+    <None Include="BuildResources\JSILTemplate.htm" />
   </Files>
 </Project>

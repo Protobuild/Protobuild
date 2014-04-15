@@ -204,8 +204,13 @@ namespace Protobuild
 
         private string GetJSILDirectory(string type)
         {
-            var appdata = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var jsil = Path.Combine(appdata, ".jsil", type);
+            var targetdir = Environment.GetEnvironmentVariable("JSIL_DIRECTORY");
+            if (string.IsNullOrEmpty(targetdir))
+            {
+                targetdir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".jsil");
+            }
+
+            var jsil = Path.Combine(targetdir, type);
             if (!Directory.Exists(jsil))
             {
                 Directory.CreateDirectory(jsil);
