@@ -103,6 +103,21 @@
     ]]>
   </msxsl:script>
 
+  <xsl:variable name="assembly_name">
+    <xsl:choose>
+      <xsl:when test="/Input/Properties/AssemblyName
+	        /Platform[@Name=/Input/Generation/Platform]">
+        <xsl:value-of select="/Input/Properties/AssemblyName/Platform[@Name=/Input/Generation/Platform]" />
+      </xsl:when>
+      <xsl:when test="/Input/Properties/AssemblyName">
+        <xsl:value-of select="/Input/Properties/AssemblyName" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]/@Name" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+
   <xsl:template name="profile_and_version"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <xsl:choose>
@@ -183,13 +198,12 @@
       </xsl:otherwise>
     </xsl:choose>
     <DebugType>full</DebugType>
-    <OutputPath>
+    <xsl:variable name="platform_path">
       <xsl:choose>
         <xsl:when test="$type = 'Website'">
-          <xsl:text>bin</xsl:text>
+          <xsl:text></xsl:text>
         </xsl:when>
         <xsl:when test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
-          <xsl:text>bin\</xsl:text>
           <xsl:value-of select="/Input/Generation/Platform" />
           <xsl:text>\$(Platform)\</xsl:text>
           <xsl:choose>
@@ -202,7 +216,6 @@
           </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>bin\</xsl:text>
           <xsl:choose>
             <xsl:when test="$debug = 'true'">
               <xsl:text>Debug</xsl:text>
@@ -213,38 +226,10 @@
           </xsl:choose>
         </xsl:otherwise>
       </xsl:choose>
-    </OutputPath>
-    <IntermediateOutputPath>
-      <xsl:choose>
-        <xsl:when test="$type = 'Website'">
-          <xsl:text>obj</xsl:text>
-        </xsl:when>
-        <xsl:when test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
-          <xsl:text>obj\</xsl:text>
-          <xsl:value-of select="/Input/Generation/Platform" />
-          <xsl:text>\$(Platform)\</xsl:text>
-          <xsl:choose>
-            <xsl:when test="$debug = 'true'">
-              <xsl:text>Debug</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>Release</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:text>obj\</xsl:text>
-          <xsl:choose>
-            <xsl:when test="$debug = 'true'">
-              <xsl:text>Debug</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>Release</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:otherwise>
-      </xsl:choose>
-    </IntermediateOutputPath>
+    </xsl:variable>
+    <OutputPath><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /></OutputPath>
+    <IntermediateOutputPath><xsl:text>obj\</xsl:text><xsl:copy-of select="$platform_path" /></IntermediateOutputPath>
+    <DocumentationFile><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /><xsl:text>\</xsl:text><xsl:copy-of select="$assembly_name" /><xsl:text>.xml</xsl:text></DocumentationFile>
     <DefineConstants>
       <xsl:if test="$debug = 'true'">
         <xsl:text>DEBUG;</xsl:text>
@@ -521,23 +506,7 @@
             </xsl:otherwise>
           </xsl:choose>
         </RootNamespace>
-        <AssemblyName>
-          <xsl:choose>
-            <xsl:when test="/Input/Properties/AssemblyName
-                      /Platform[@Name=/Input/Generation/Platform]">
-              <xsl:value-of select="/Input/Properties/AssemblyName
-                                                      /Platform[@Name=/Input/Generation/Platform]
-                                                      " />
-            </xsl:when>
-            <xsl:when test="/Input/Properties/AssemblyName">
-              <xsl:value-of select="/Input/Properties/AssemblyName" />
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="$project/@Name" />
-            </xsl:otherwise>
-          </xsl:choose>
-
-        </AssemblyName>
+        <AssemblyName><xsl:copy-of select="$assembly_name" /></AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <xsl:call-template name="profile_and_version" />
         <xsl:choose>
