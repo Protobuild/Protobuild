@@ -185,9 +185,18 @@
 
   <xsl:template name="configuration"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
     <xsl:param name="type" />
     <xsl:param name="debug" />
+    <xsl:param name="config" />
+    <xsl:param name="platform" />
+    <PropertyGroup>
+      <xsl:attribute name="Condition">
+        <xsl:text> '$(Configuration)|$(Platform)' == '</xsl:text>
+        <xsl:value-of select="$config" />
+	<xsl:text>|</xsl:text>
+	<xsl:value-of select="$platform" />
+        <xsl:text>' </xsl:text>
+      </xsl:attribute>
     <xsl:choose>
       <xsl:when test="$debug = 'true'">
         <DebugSymbols>true</DebugSymbols>
@@ -205,25 +214,13 @@
         </xsl:when>
         <xsl:when test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
           <xsl:value-of select="/Input/Generation/Platform" />
-          <xsl:text>\$(Platform)\</xsl:text>
-          <xsl:choose>
-            <xsl:when test="$debug = 'true'">
-              <xsl:text>Debug</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>Release</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
+	  <xsl:text>\</xsl:text>
+	  <xsl:value-of select="$platform" />
+	  <xsl:text>\</xsl:text>
+	  <xsl:value-of select="$config" />
         </xsl:when>
         <xsl:otherwise>
-          <xsl:choose>
-            <xsl:when test="$debug = 'true'">
-              <xsl:text>Debug</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>Release</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
+          <xsl:value-of select="$config" />
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
@@ -344,6 +341,7 @@
         <UseSGen>False</UseSGen>
       </xsl:when>
     </xsl:choose>
+    </PropertyGroup>
   </xsl:template>
 
   <xsl:template match="/">
@@ -584,153 +582,110 @@
       </PropertyGroup>
       <xsl:choose>
         <xsl:when test="/Input/Generation/Platform = 'iOS'">
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">true</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">true</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Ad-Hoc|iPhone' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'AppStore|iPhone' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">iPhoneSimulator</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">iPhoneSimulator</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Ad-Hoc</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">AppStore</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+          </xsl:call-template>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">true</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">true</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|ARM' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">true</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|ARM' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">x86</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">x86</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">ARM</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">ARM</xsl:with-param>
+          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">true</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
-          <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-            <xsl:call-template name="configuration">
-              <xsl:with-param name="type">
-                <xsl:value-of select="$project/@Type" />
-              </xsl:with-param>
-              <xsl:with-param name="debug">false</xsl:with-param>
-            </xsl:call-template>
-          </PropertyGroup>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+          </xsl:call-template>
         </xsl:otherwise>
       </xsl:choose>
       <xsl:if test="/Input/Properties/ForceArchitecture">
-        <PropertyGroup>
-          <xsl:attribute name="Condition">
-            <xsl:text> '$(Configuration)|$(Platform)' == 'Debug|</xsl:text>
-            <xsl:value-of select="/Input/Properties/ForceArchitecture" />
-            <xsl:text>' </xsl:text>
-          </xsl:attribute>
-          <xsl:call-template name="configuration">
-            <xsl:with-param name="type">
-              <xsl:value-of select="$project/@Type" />
-            </xsl:with-param>
-            <xsl:with-param name="debug">true</xsl:with-param>
-          </xsl:call-template>
-        </PropertyGroup>
-        <PropertyGroup>
-          <xsl:attribute name="Condition">
-            <xsl:text> '$(Configuration)|$(Platform)' == 'Release|</xsl:text>
-            <xsl:value-of select="/Input/Properties/ForceArchitecture" />
-            <xsl:text>' </xsl:text>
-          </xsl:attribute>
-          <xsl:call-template name="configuration">
-            <xsl:with-param name="type">
-              <xsl:value-of select="$project/@Type" />
-            </xsl:with-param>
-            <xsl:with-param name="debug">false</xsl:with-param>
-          </xsl:call-template>
-        </PropertyGroup>
+        <xsl:call-template name="configuration">
+          <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+          <xsl:with-param name="debug">true</xsl:with-param>
+          <xsl:with-param name="config">Debug</xsl:with-param>
+          <xsl:with-param name="platform"><xsl:value-of select="/Input/Properties/ForceArchitecture" /></xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="configuration">
+          <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+          <xsl:with-param name="debug">false</xsl:with-param>
+          <xsl:with-param name="config">Release</xsl:with-param>
+          <xsl:with-param name="platform"><xsl:value-of select="/Input/Properties/ForceArchitecture" /></xsl:with-param>
+        </xsl:call-template>
       </xsl:if>
-
       <xsl:choose>
         <xsl:when test="$project/@Type = 'Website'">
           <Import>
