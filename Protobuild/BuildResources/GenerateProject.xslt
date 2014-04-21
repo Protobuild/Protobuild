@@ -1246,7 +1246,7 @@
                     </Link>
                   </AndroidAsset>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'MacOS'">
+                <xsl:when test="/Input/Generation/Platform = 'MacOS' or /Input/Generation/Platform = 'iOS'">
                   <Content>
                     <xsl:attribute name="Include">
                       <xsl:value-of
