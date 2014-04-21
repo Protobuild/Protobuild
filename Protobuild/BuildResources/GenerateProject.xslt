@@ -1246,6 +1246,28 @@
                     </Link>
                   </AndroidAsset>
                 </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'MacOS'">
+                  <Content>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
+                      concat(
+                        /Input/Generation/RootPath,
+                        $project/@Path,
+                        '\',
+                        $project/@Name,
+                        '.',
+                        /Input/Generation/Platform,
+                        '.csproj'),
+                      current()/FullPath)" />
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:text>Content</xsl:text>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                  </Content>
+                </xsl:when>
                 <xsl:otherwise>
                   <None>
                     <xsl:attribute name="Include">
