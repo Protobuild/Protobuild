@@ -506,6 +506,7 @@
         </RootNamespace>
         <AssemblyName><xsl:copy-of select="$assembly_name" /></AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<NoWarn><xsl:value-of select="/Input/Properties/NoWarn" /></NoWarn>
         <xsl:call-template name="profile_and_version" />
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
