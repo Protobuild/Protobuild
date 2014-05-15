@@ -21,6 +21,22 @@ namespace Protobuild
                 return true;
             }
 
+            if (this.BuggyMonoDetected())
+            {
+                Console.WriteLine("=============== Please update Mono ===============");
+                Console.WriteLine("Mono 3.2.6 is known to be buggy when building ");
+                Console.WriteLine("JSIL.  To update Mono, upgrade via your package ");
+                Console.WriteLine("manager on Linux, or if you are on Mac update Mono ");
+                Console.WriteLine("by downloading the latest version from: ");
+                Console.WriteLine();
+                Console.WriteLine("  http://www.go-mono.com/mono-downloads/download.html");
+                Console.WriteLine();
+                Console.WriteLine("=============================================================");
+                jsilDirectory = null;
+                jsilCompilerFile = null;
+                return false;
+            }
+
             Console.WriteLine("=============== JSIL runtime is not installed ===============");
             Console.WriteLine("I will now download and build JSIL for the Web platform.");
             Console.WriteLine("Installing into: " + this.GetJSILRuntimeDirectory());
@@ -352,6 +368,46 @@ namespace Protobuild
                     pathOrError = "xbuild is not in your PATH";
                     return false;
                 }
+            }
+        }
+
+        private bool BuggyMonoDetected()
+        {
+            string builder;
+            if (!this.DetectBuilder(out builder))
+            {
+                // Can't detect build system, will fail later.
+                return false;
+            }
+
+            if (builder != "xbuild")
+            {
+                // MSBuild available, so we aren't running Mono.
+                return false;
+            }
+
+            try
+            {
+                var processStartInfo = new ProcessStartInfo();
+                processStartInfo.FileName = "mono";
+                processStartInfo.Arguments = "--version";
+                processStartInfo.RedirectStandardOutput = true;
+                processStartInfo.UseShellExecute = false;
+                var process = Process.Start(processStartInfo);
+                var text = process.StandardOutput.ReadToEnd();
+
+                if (text.Contains("version 3.2.6"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
+            {
+                return false;
             }
         }
 
