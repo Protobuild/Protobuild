@@ -125,6 +125,32 @@ namespace Protobuild
             var originalPlatform = platform;
             platform = module.NormalizePlatform(platform);
 
+            if (platform == null && !platformSupplied)
+            {
+                // The current host platform isn't supported, so we shouldn't try to
+                // operate on it.
+                string firstPlatform = null;
+                switch (DetectPlatform())
+                {
+                    case "Windows":
+                        firstPlatform = module.DefaultWindowsPlatforms.Split(',').FirstOrDefault();
+                        break;
+                    case "MacOS":
+                        firstPlatform = module.DefaultMacOSPlatforms.Split(',').FirstOrDefault();
+                        break;
+                    case "Linux":
+                        firstPlatform = module.DefaultLinuxPlatforms.Split(',').FirstOrDefault();
+                        break;
+                }
+
+                if (firstPlatform != null)
+                {
+                    // This will end up null if the first platform isn't supported
+                    // either and hence throw the right message.
+                    platform = module.NormalizePlatform(firstPlatform);
+                }
+            }
+
             if (platform == null)
             {
                 Console.Error.WriteLine("The platform '" + originalPlatform + "' is not supported.");

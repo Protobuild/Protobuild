@@ -215,7 +215,7 @@ namespace Protobuild
             else
                 Actions.DefaultAction(ModuleInfo.Load(Path.Combine("Build", "Module.xml")));
         }
-        
+
         private static void RunModuleManager()
         {
             // Check to see if we would be able to load GTK# assemblies.
