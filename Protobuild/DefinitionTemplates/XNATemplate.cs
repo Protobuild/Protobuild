@@ -4,7 +4,7 @@ namespace Protobuild
 {
     public class XNATemplate : BaseTemplate
     {
-        public override string Type { get { return "XNA"; } }
+        public override string Type { get { return "App"; } }
         
         public override void WriteDefinitionFile(string name, Stream output)
         {
