@@ -1435,6 +1435,9 @@
                   </xsl:attribute>
                   <Project>{<xsl:value-of select="./@Guid" />}</Project>
                   <Name><xsl:value-of select="./@Name" /></Name>
+                  <xsl:if test="./@Aliases != ''">
+                    <Aliases><xsl:value-of select="./@Aliases" /></Aliases>
+                  </xsl:if>
                 </ProjectReference>
               </xsl:for-each>
 
@@ -1456,6 +1459,9 @@
                     </xsl:attribute>
                     <Project>{<xsl:value-of select="./@Guid" />}</Project>
                     <Name><xsl:value-of select="./@Name" /></Name>
+                    <xsl:if test="./@Aliases != ''">
+                      <Aliases><xsl:value-of select="./@Aliases" /></Aliases>
+                    </xsl:if>
                   </ProjectReference>
                 </xsl:for-each>
               </xsl:for-each>
@@ -1493,6 +1499,9 @@
                       </xsl:attribute>
                       <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
                       <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                      <xsl:if test="$refd/@Aliases != ''">
+                        <Aliases><xsl:value-of select="$refd/@Aliases" /></Aliases>
+                      </xsl:if>
                     </ProjectReference>
                   </xsl:if>
 
@@ -1535,6 +1544,9 @@
                         </xsl:attribute>
                         <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
                         <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                        <xsl:if test="$refd/@Aliases != ''">
+                          <Aliases><xsl:value-of select="$refd/@Aliases" /></Aliases>
+                        </xsl:if>
                       </ProjectReference>
                     </xsl:if>
 
@@ -1580,6 +1592,9 @@
                   </xsl:attribute>
                   <Project>{<xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
                   <Name><xsl:value-of select="@Include" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                  <xsl:if test="@Aliases != ''">
+                    <Aliases><xsl:value-of select="@Aliases" /></Aliases>
+                   </xsl:if>
                 </ProjectReference>
               </xsl:if>
             </xsl:if>
