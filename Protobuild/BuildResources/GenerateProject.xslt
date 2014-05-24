@@ -779,9 +779,11 @@
                     <xsl:attribute name="Include">
                       <xsl:value-of select="@Include" />
                     </xsl:attribute>
-                    <xsl:if test="@Aliases != ''">
-                      <Aliases><xsl:value-of select="@Aliases" /></Aliases>
-                    </xsl:if>
+                    <xsl:for-each select="./Alias">
+                      <xsl:if test="@Platform = /Input/Generation/Platform">
+                        <Aliases><xsl:value-of select="." /></Aliases>
+                      </xsl:if>
+                    </xsl:for-each>
                   </Reference>
                 </xsl:if>
               </xsl:for-each>
@@ -794,9 +796,11 @@
                       <xsl:attribute name="Include">
                         <xsl:value-of select="@Include" />
                       </xsl:attribute>
-                      <xsl:if test="@Aliases != ''">
-                        <Aliases><xsl:value-of select="@Aliases" /></Aliases>
-                      </xsl:if>
+                      <xsl:for-each select="./Alias">
+                        <xsl:if test="@Platform = /Input/Generation/Platform">
+                          <Aliases><xsl:value-of select="." /></Aliases>
+                        </xsl:if>
+                      </xsl:for-each>
                     </Reference>
                   </xsl:if>
                 </xsl:for-each>
@@ -838,9 +842,11 @@
                   <xsl:attribute name="Include">
                     <xsl:value-of select="@Name" />
                   </xsl:attribute>
-                  <xsl:if test="@Aliases != ''">
-                    <Aliases><xsl:value-of select="@Aliases" /></Aliases>
-                  </xsl:if>
+                  <xsl:for-each select="./Alias">
+                    <xsl:if test="@Platform = /Input/Generation/Platform">
+                      <Aliases><xsl:value-of select="." /></Aliases>
+                    </xsl:if>
+                  </xsl:for-each>
                   <HintPath>
                     <xsl:value-of
                       select="user:GetRelativePath(
@@ -862,9 +868,11 @@
                     <xsl:attribute name="Include">
                       <xsl:value-of select="@Name" />
                     </xsl:attribute>
-                    <xsl:if test="@Aliases != ''">
-                      <Aliases><xsl:value-of select="@Aliases" /></Aliases>
-                    </xsl:if>
+                    <xsl:for-each select="./Alias">
+                      <xsl:if test="@Platform = /Input/Generation/Platform">
+                        <Aliases><xsl:value-of select="." /></Aliases>
+                      </xsl:if>
+                    </xsl:for-each>
                     <HintPath>
                       <xsl:value-of
                         select="user:GetRelativePath(
@@ -1435,9 +1443,11 @@
                   </xsl:attribute>
                   <Project>{<xsl:value-of select="./@Guid" />}</Project>
                   <Name><xsl:value-of select="./@Name" /></Name>
-                  <xsl:if test="./@Aliases != ''">
-                    <Aliases><xsl:value-of select="./@Aliases" /></Aliases>
-                  </xsl:if>
+                  <xsl:for-each select="./Alias">
+                    <xsl:if test="@Platform = /Input/Generation/Platform">
+                      <Aliases><xsl:value-of select="." /></Aliases>
+                    </xsl:if>
+                  </xsl:for-each>
                 </ProjectReference>
               </xsl:for-each>
 
@@ -1459,9 +1469,11 @@
                     </xsl:attribute>
                     <Project>{<xsl:value-of select="./@Guid" />}</Project>
                     <Name><xsl:value-of select="./@Name" /></Name>
-                    <xsl:if test="./@Aliases != ''">
-                      <Aliases><xsl:value-of select="./@Aliases" /></Aliases>
-                    </xsl:if>
+                    <xsl:for-each select="./Alias">
+                      <xsl:if test="@Platform = /Input/Generation/Platform">
+                        <Aliases><xsl:value-of select="." /></Aliases>
+                      </xsl:if>
+                    </xsl:for-each>
                   </ProjectReference>
                 </xsl:for-each>
               </xsl:for-each>
@@ -1499,9 +1511,11 @@
                       </xsl:attribute>
                       <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
                       <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                      <xsl:if test="$refd/@Aliases != ''">
-                        <Aliases><xsl:value-of select="$refd/@Aliases" /></Aliases>
-                      </xsl:if>
+                      <xsl:for-each select="$refd/Alias">
+                        <xsl:if test="@Platform = /Input/Generation/Platform">
+                          <Aliases><xsl:value-of select="." /></Aliases>
+                        </xsl:if>
+                      </xsl:for-each>
                     </ProjectReference>
                   </xsl:if>
 
@@ -1544,9 +1558,11 @@
                         </xsl:attribute>
                         <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
                         <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                        <xsl:if test="$refd/@Aliases != ''">
-                          <Aliases><xsl:value-of select="$refd/@Aliases" /></Aliases>
-                        </xsl:if>
+                        <xsl:for-each select="$refd/Alias">
+                          <xsl:if test="@Platform = /Input/Generation/Platform">
+                            <Aliases><xsl:value-of select="." /></Aliases>
+                          </xsl:if>
+                        </xsl:for-each>
                       </ProjectReference>
                     </xsl:if>
 
@@ -1592,9 +1608,11 @@
                   </xsl:attribute>
                   <Project>{<xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
                   <Name><xsl:value-of select="@Include" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                  <xsl:if test="@Aliases != ''">
-                    <Aliases><xsl:value-of select="@Aliases" /></Aliases>
-                   </xsl:if>
+                  <xsl:for-each select="./Alias">
+                    <xsl:if test="@Platform = /Input/Generation/Platform">
+                      <Aliases><xsl:value-of select="." /></Aliases>
+                    </xsl:if>
+                  </xsl:for-each>
                 </ProjectReference>
               </xsl:if>
             </xsl:if>
