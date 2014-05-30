@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Console" Path="Console" Type="Console">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Dependencies>
+    <Uses Name="Library/ServiceB">
+      <Platforms>Windows</Platforms>
+    </Uses>
+  </Dependencies>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>

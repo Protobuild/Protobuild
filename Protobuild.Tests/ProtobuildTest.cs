@@ -14,7 +14,8 @@
 
         protected void SetupTest(string name)
         {
-            var moduleInfoType = typeof(ModuleInfo);
+            // This is used to ensure Protobuild.exe is referenced.
+            Console.WriteLine(typeof(ModuleInfo).FullName);
 
             this.m_TestName = name;
 
@@ -27,6 +28,26 @@
             this.m_TestLocation = dataLocation;
 
             this.DeployProtobuildToTestFolder(dataLocation, protobuildLocation);
+        }
+
+        private void PurgeSolutionsAndProjects(string dataLocation)
+        {
+            var dir = new DirectoryInfo(dataLocation);
+
+            foreach (var solution in dir.GetFiles("*.sln"))
+            {
+                solution.Delete();
+            }
+
+            foreach (var project in dir.GetFiles("*.csproj"))
+            {
+                project.Delete();
+            }
+
+            foreach (var sub in dir.GetDirectories())
+            {
+                this.PurgeSolutionsAndProjects(sub.FullName);
+            }
         }
 
         private void DeployProtobuildToTestFolder(string dataLocation, string protobuildLocation)
@@ -44,16 +65,36 @@
 
         protected void Generate(string platform = null, string args = null)
         {
+            this.PurgeSolutionsAndProjects(this.m_TestLocation);
+
             var pi = new ProcessStartInfo
             {
                 FileName = Path.Combine(this.m_TestLocation, "Protobuild.exe"),
                 Arguments = "--generate " + (platform ?? "Windows") + " " + (args ?? string.Empty),
                 WorkingDirectory = this.m_TestLocation,
                 CreateNoWindow = true,
-                UseShellExecute = false
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
             };
             var p = new Process { StartInfo = pi };
+            p.OutputDataReceived += (sender, eventArgs) =>
+            {
+                if (!string.IsNullOrEmpty(eventArgs.Data))
+                {
+                    Console.WriteLine(eventArgs.Data);
+                }
+            };
+            p.ErrorDataReceived += (sender, eventArgs) =>
+            {
+                if (!string.IsNullOrEmpty(eventArgs.Data))
+                {
+                    Console.WriteLine(eventArgs.Data);
+                }
+            };
             p.Start();
+            p.BeginOutputReadLine();
+            p.BeginErrorReadLine();
             p.WaitForExit();
         }
 
