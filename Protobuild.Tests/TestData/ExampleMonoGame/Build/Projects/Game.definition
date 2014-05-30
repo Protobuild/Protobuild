@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Game" Path="Game" Type="Console">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Dependencies>
+    <Uses Name="MonoGame.Framework/Default" />
+  </Dependencies>
+  <Services>
+    <Service Name="WindowsGLHook">
+      <Platforms>WindowsGL</Platforms>
+      <Requires>MonoGame.Framework/GLBackend</Requires>
+      <DefaultForRoot>True</DefaultForRoot>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>

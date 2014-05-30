@@ -3,7 +3,7 @@
     using System.IO;
     using Xunit;
 
-    public class EnableTest : ProtobuildTest
+    public class ServicesEnableTest : ProtobuildTest
     {
         [Fact]
         public void GenerationIsCorrect()

@@ -3,12 +3,12 @@
     using System.IO;
     using Xunit;
 
-    public class NotDefaultForRootTest : ProtobuildTest
+    public class ServicesRelativeRequireTest : ProtobuildTest
     {
         [Fact]
         public void GenerationIsCorrect()
         {
-            this.SetupTest("ServicesNotDefaultForRoot");
+            this.SetupTest("ServicesRelativeRequire");
 
             this.Generate();
 
@@ -16,7 +16,8 @@
 
             var projectContents = this.ReadFile(@"Console\Console.Windows.csproj");
 
-            Assert.DoesNotContain("CONSOLE_SERVICE;", projectContents);
+            Assert.Contains("CONSOLE_SERVICE_A;", projectContents);
+            Assert.Contains("CONSOLE_SERVICE_B;", projectContents);
         }
     }
 }

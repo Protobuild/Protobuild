@@ -9,16 +9,19 @@
     <Reference Include="Protobuild" />
   </References>
   <Files>
-    <Compile Include="CrossProjectRequireTest.cs" />
-    <Compile Include="DefaultForRootTest.cs" />
-    <Compile Include="DependenciesPlatformsTest.cs" />
-    <Compile Include="DependenciesTest.cs" />
-    <Compile Include="DisableTest.cs" />
-    <Compile Include="EnableTest.cs" />
-    <Compile Include="LibraryNotBuiltWhenNotUsedTest.cs" />
-    <Compile Include="NotDefaultForRootTest.cs" />
+    <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
-    <Compile Include="RelativeRequireTest.cs" />
+    <Compile Include="ServicesCrossProjectRequireTest.cs" />
+    <Compile Include="ServicesDefaultForRootTest.cs" />
+    <Compile Include="ServicesDependenciesPlatformsTest.cs" />
+    <Compile Include="ServicesDependenciesTest.cs" />
+    <Compile Include="ServicesDisableTest.cs" />
+    <Compile Include="ServicesEnableTest.cs" />
+    <Compile Include="ServicesLibraryNotBuiltWhenNotUsedTest.cs" />
+    <Compile Include="ServicesNotDefaultForRootTest.cs" />
+    <Compile Include="ServicesRelativeRequireTest.cs" />
+    <Content Include="TestData\ExampleMonoGame\Build\Module.xml" />
+    <Content Include="TestData\ExampleMonoGame\MonoGame\Build\Module.xml" />
     <Content Include="TestData\ServicesBaseTest\Build\Module.xml" />
     <Content Include="TestData\ServicesBaseTest\Submodule\Build\Module.xml" />
     <Content Include="TestData\ServicesCrossProjectRequire\Build\Module.xml" />
@@ -40,6 +43,10 @@
     <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
     <None Include="packages.config" />
+    <None Include="TestData\ExampleMonoGame\Build\Projects\Game.definition" />
+    <None Include="TestData\ExampleMonoGame\Game\Program.cs" />
+    <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
+    <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.cs" />
     <None Include="TestData\ServicesBaseTest\Build\Projects\Console.definition" />
     <None Include="TestData\ServicesBaseTest\Console\Program.cs" />
     <None Include="TestData\ServicesBaseTest\Submodule\Build\Projects\Library.definition" />

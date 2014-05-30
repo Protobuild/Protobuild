@@ -43,5 +43,7 @@ namespace Protobuild.Services
         public List<string> Conflicts { get; set; }
 
         public bool IsEnabled { get; set; }
+
+        public bool InfersReference { get; set; }
     }
 }

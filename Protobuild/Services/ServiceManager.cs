@@ -12,6 +12,8 @@
     /// </summary>
     public class ServiceManager
     {
+        private const int SERIALIZATION_VERSION = 1;
+
         private readonly ProjectGenerator m_Generator;
 
         private readonly List<string> m_EnabledServices;
@@ -180,12 +182,14 @@
                 var defaultForRoot = SelectElementsFromService(service, "DefaultForRoot").FirstOrDefault();
                 var requires = SelectElementsFromService(service, "Requires");
                 var conflicts = SelectElementsFromService(service, "Conflicts");
+                var infersReference = SelectElementsFromService(service, "InfersReference").FirstOrDefault();
 
                 service.AddDefines.AddRange(addDefine.SelectMany(x => x.InnerText.Split(',')));
                 service.AddReferences.AddRange(reference.Select(x => x.GetAttribute("Include")));
                 service.DefaultForRoot = defaultForRoot != null && string.Equals(defaultForRoot.InnerText, "True", StringComparison.InvariantCultureIgnoreCase);
                 service.Requires.AddRange(requires.SelectMany(x => x.InnerText.Split(',')).Select(x => this.AbsolutizeServiceReference(service.ProjectName, x)));
                 service.Conflicts.AddRange(conflicts.SelectMany(x => x.InnerText.Split(',')).Select(x => this.AbsolutizeServiceReference(service.ProjectName, x)));
+                service.InfersReference = infersReference == null || string.Equals(infersReference.InnerText, "True", StringComparison.InvariantCultureIgnoreCase);
             }
         }
 
@@ -289,6 +293,15 @@
 
             using (var reader = new BinaryReader(new FileStream(serviceSpecPath, FileMode.Open, FileAccess.Read)))
             {
+                var version = reader.ReadInt32();
+
+                if (version != SERIALIZATION_VERSION)
+                {
+                    throw new InvalidOperationException(
+                        "The calling version of Protobuild has a different serialization version for the service "
+                        + "specification.  Upgrade Protobuild to the latest version.");
+                }
+
                 var count = reader.ReadInt32();
 
                 for (var i = 0; i < count; i++)
@@ -300,6 +313,7 @@
                     var defaultForRoot = reader.ReadBoolean();
                     var requires = this.ReadList(reader);
                     var conflicts = this.ReadList(reader);
+                    var infersReference = reader.ReadBoolean();
 
                     services.Add(new Service
                     {
@@ -309,7 +323,8 @@
                         AddReferences = addReferences,
                         DefaultForRoot = defaultForRoot,
                         Requires = requires,
-                        Conflicts = conflicts
+                        Conflicts = conflicts,
+                        InfersReference = infersReference
                     });
                 }
             }
@@ -336,6 +351,8 @@
 
             using (var writer = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
             {
+                writer.Write(SERIALIZATION_VERSION);
+
                 writer.Write(services.Count);
 
                 foreach (var service in services)
@@ -351,6 +368,7 @@
                     writer.Write(service.DefaultForRoot);
                     this.WriteList(writer, service.Requires);
                     this.WriteList(writer, service.Conflicts);
+                    writer.Write(service.InfersReference);
                 }
             }
 
