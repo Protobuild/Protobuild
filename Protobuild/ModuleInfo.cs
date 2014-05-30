@@ -124,9 +124,31 @@ namespace Protobuild
                 {
                     FileName = protobuildPath,
                     Arguments = args,
-                    WorkingDirectory = this.Path
+                    WorkingDirectory = this.Path,
+                    CreateNoWindow = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
                 };
-                var p = Process.Start(pi);
+                var p = new Process { StartInfo = pi };
+                p.OutputDataReceived += (sender, eventArgs) =>
+                {
+                    if (!string.IsNullOrEmpty(eventArgs.Data))
+                    {
+                        Console.WriteLine(eventArgs.Data);
+                    }
+                };
+                p.ErrorDataReceived += (sender, eventArgs) =>
+                {
+                    if (!string.IsNullOrEmpty(eventArgs.Data))
+                    {
+                        Console.Error.WriteLine(eventArgs.Data);
+                    }
+                };
+                p.Start();
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
                 p.WaitForExit();
             }
         }

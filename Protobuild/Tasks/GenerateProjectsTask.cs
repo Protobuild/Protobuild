@@ -6,6 +6,8 @@ using Microsoft.Build.Framework;
 
 namespace Protobuild.Tasks
 {
+    using Protobuild.Services;
+
     public class GenerateProjectsTask : BaseTask
     {
         [Required]
@@ -36,6 +38,15 @@ namespace Protobuild.Tasks
             set;
         }
 
+        [Required]
+        public string[] EnableServices { get; set; }
+
+        [Required]
+        public string[] DisableServices { get; set; }
+
+        [Required]
+        public string ServiceSpecPath { get; set; }
+
         public override bool Execute()
         {
             if (string.Compare(this.Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
@@ -54,18 +65,7 @@ namespace Protobuild.Tasks
 
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
             var definitions = module.GetDefinitionsRecursively().ToArray();
-            
-            // Run Protobuild in batch mode in each of the submodules
-            // where it is present.
-            foreach (var submodule in module.GetSubmodules())
-            {
-                this.LogMessage(
-                    "Invoking submodule generation for " + submodule.Name);
-                submodule.RunProtobuild("-generate " + Platform);
-                this.LogMessage(
-                    "Finished submodule generation for " + submodule.Name);
-            }
-            
+
             var generator = new ProjectGenerator(
                 this.RootPath,
                 this.Platform,
@@ -82,27 +82,95 @@ namespace Protobuild.Tasks
                     definition.ModulePath);
             }
 
-            List<string> repositoryPaths = new List<string> ();
+            var serviceManager = new ServiceManager(generator);
+            List<Service> services;
+            string serviceSpecPath;
+
+            if (this.ServiceSpecPath == null)
+            {
+                serviceManager.SetRootDefinitions(module.GetDefinitions());
+
+                if (this.EnableServices == null)
+                {
+                    this.EnableServices = new string[0];
+                }
+
+                if (this.DisableServices == null)
+                {
+                    this.DisableServices = new string[0];
+                }
+
+                foreach (var service in this.EnableServices)
+                {
+                    serviceManager.EnableService(service);
+                }
+
+                foreach (var service in this.DisableServices)
+                {
+                    serviceManager.DisableService(service);
+                }
+
+                try
+                {
+                    services = serviceManager.CalculateDependencyGraph();
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine("Error during service resolution: " + ex.Message);
+                    return false;
+                }
+
+                serviceSpecPath = serviceManager.SaveServiceSpec(services);
+
+                foreach (var service in services)
+                {
+                    if (service.ServiceName != null)
+                    {
+                        this.LogMessage("Enabled service: " + service.FullName);
+                    }
+                }
+            }
+            else
+            {
+                services = serviceManager.LoadServiceSpec(this.ServiceSpecPath);
+                serviceSpecPath = this.ServiceSpecPath;
+            }
+
+            // Run Protobuild in batch mode in each of the submodules
+            // where it is present.
+            foreach (var submodule in module.GetSubmodules())
+            {
+                this.LogMessage(
+                    "Invoking submodule generation for " + submodule.Name);
+                submodule.RunProtobuild("-generate " + this.Platform + " -spec " + serviceSpecPath);
+                this.LogMessage(
+                    "Finished submodule generation for " + submodule.Name);
+            }
+
+            var repositoryPaths = new List<string>();
 
             foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
             {
                 string repositoryPath;
+                var definitionCopy = definition;
                 generator.Generate(
                     definition.Name,
+                    services,
                     out repositoryPath,
-                    () => this.LogMessage("Generating: " + definition.Name));
+                    () => this.LogMessage("Generating: " + definitionCopy.Name));
 
                 // Only add repository paths if they should be generated.
-                if (module.GenerateNuGetRepositories &&
-                    !string.IsNullOrEmpty (repositoryPath))
-                    repositoryPaths.Add (repositoryPath);
+                if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
+                {
+                    repositoryPaths.Add(repositoryPath);
+                }
             }
 
             var solution = Path.Combine(
                 this.RootPath,
                 this.ModuleName + "." + this.Platform + ".sln");
             this.LogMessage("Generating: (solution)");
-            generator.GenerateSolution(solution, repositoryPaths);
+            generator.GenerateSolution(solution, services, repositoryPaths);
 
             this.LogMessage(
                 "Generation complete.");

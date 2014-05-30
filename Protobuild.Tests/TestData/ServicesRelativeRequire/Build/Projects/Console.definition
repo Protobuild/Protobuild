@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Console" Path="Console" Type="Console">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Services>
+    <Service Name="ServiceA">
+      <DefaultForRoot>True</DefaultForRoot>
+      <AddDefine>CONSOLE_SERVICE_A</AddDefine>
+      <Requires>ServiceB</Requires>
+    </Service>
+    <Service Name="ServiceB">
+      <DefaultForRoot>True</DefaultForRoot>
+      <AddDefine>CONSOLE_SERVICE_B</AddDefine>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>

@@ -6,6 +6,7 @@ using System.Windows.Forms;
 
 namespace Protobuild
 {
+    using System.Collections.Generic;
     using System.IO.Compression;
 
     class MainClass
@@ -16,90 +17,217 @@ namespace Protobuild
             var runModuleManager = false;
             int exitCode = 0;
             var options = new Options();
+            var enabledServices = new List<string>();
+            var disabledServices = new List<string>();
+            string serviceSpecPath = null;
+            Action actionHandler = null;
+
             options["extract-xslt"] = x =>
             {
-                if (Directory.Exists("Build"))
+                if (actionHandler != null)
                 {
-                    using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.xslt")))
-                    {
-                        ResourceExtractor.GetTransparentDecompressionStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                            "Protobuild.BuildResources.GenerateProject.xslt.gz")).CopyTo(writer.BaseStream);
-                        writer.Flush();
-                    }
-                    using (var writer = new StreamWriter(Path.Combine("Build", "GenerateSolution.xslt")))
-                    {
-                        ResourceExtractor.GetTransparentDecompressionStream(Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                            "Protobuild.BuildResources.GenerateSolution.xslt.gz")).CopyTo(writer.BaseStream);
-                        writer.Flush();
-                    }
-                    needToExit = true;
+                    throw new InvalidOperationException("More than one action option specified.");
                 }
+
+                actionHandler = () =>
+                {
+                    if (Directory.Exists("Build"))
+                    {
+                        using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.xslt")))
+                        {
+                            ResourceExtractor.GetTransparentDecompressionStream(
+                                Assembly.GetExecutingAssembly()
+                                    .GetManifestResourceStream("Protobuild.BuildResources.GenerateProject.xslt.gz"))
+                                .CopyTo(writer.BaseStream);
+                            writer.Flush();
+                        }
+                        using (var writer = new StreamWriter(Path.Combine("Build", "GenerateSolution.xslt")))
+                        {
+                            ResourceExtractor.GetTransparentDecompressionStream(
+                                Assembly.GetExecutingAssembly()
+                                    .GetManifestResourceStream("Protobuild.BuildResources.GenerateSolution.xslt.gz"))
+                                .CopyTo(writer.BaseStream);
+                            writer.Flush();
+                        }
+                        needToExit = true;
+                    }
+                };
             };
             options["sync@1"] = x =>
             {
-                if (Directory.Exists("Build"))
+                if (actionHandler != null)
                 {
-                    var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    exitCode = Actions.SyncProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
-                    needToExit = true;
+                    throw new InvalidOperationException("More than one action option specified.");
                 }
+
+                actionHandler = () =>
+                {
+                    if (Directory.Exists("Build"))
+                    {
+                        var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                        exitCode = Actions.PerformAction(
+                            module,
+                            "sync",
+                            x.Length > 0 ? x[0] : null,
+                            enabledServices.ToArray(),
+                            disabledServices.ToArray(),
+                            serviceSpecPath)
+                                       ? 0
+                                       : 1;
+                        needToExit = true;
+                    }
+                };
             };
             options["resync@1"] = x =>
             {
-                if (Directory.Exists("Build"))
+                if (actionHandler != null)
                 {
-                    var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    exitCode = Actions.ResyncProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
-                    needToExit = true;
+                    throw new InvalidOperationException("More than one action option specified.");
                 }
+
+                actionHandler = () =>
+                {
+                    if (Directory.Exists("Build"))
+                    {
+                        var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                        exitCode = Actions.PerformAction(
+                            module,
+                            "resync",
+                            x.Length > 0 ? x[0] : null,
+                            enabledServices.ToArray(),
+                            disabledServices.ToArray(),
+                            serviceSpecPath)
+                                       ? 0
+                                       : 1;
+                        needToExit = true;
+                    }
+                };
             };
             options["generate@1"] = x =>
             {
-                if (Directory.Exists("Build"))
+                if (actionHandler != null)
                 {
-                    var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    exitCode = Actions.GenerateProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
-                    needToExit = true;
+                    throw new InvalidOperationException("More than one action option specified.");
                 }
+
+                actionHandler = () =>
+                {
+                    if (Directory.Exists("Build"))
+                    {
+                        var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                        exitCode = Actions.PerformAction(
+                            module,
+                            "generate",
+                            x.Length > 0 ? x[0] : null,
+                            enabledServices.ToArray(),
+                            disabledServices.ToArray(),
+                            serviceSpecPath)
+                                       ? 0
+                                       : 1;
+                        needToExit = true;
+                    }
+                };
             };
             options["clean@1"] = x =>
             {
-                if (Directory.Exists("Build"))
+                if (actionHandler != null)
                 {
-                    var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                    exitCode = Actions.CleanProjects(module, x.Length > 0 ? x[0] : null) ? 0 : 1;
-                    needToExit = true;
+                    throw new InvalidOperationException("More than one action option specified.");
                 }
+
+                actionHandler = () =>
+                {
+                    if (Directory.Exists("Build"))
+                    {
+                        var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                        exitCode = Actions.PerformAction(
+                            module,
+                            "clean",
+                            x.Length > 0 ? x[0] : null,
+                            enabledServices.ToArray(),
+                            disabledServices.ToArray(),
+                            serviceSpecPath)
+                                       ? 0
+                                       : 1;
+                        needToExit = true;
+                    }
+                };
             };
             options["compress@1"] = x =>
             {
-                var file = x.Length > 0 ? x[0] : null;
-                if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
+                if (actionHandler != null)
                 {
-                    Console.Error.WriteLine("File not found for compression.");
-                    exitCode = 1;
-                    needToExit = true;
-                    return;
+                    throw new InvalidOperationException("More than one action option specified.");
                 }
 
-                using (var reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+                actionHandler = () =>
                 {
-                    using (var writer = new FileStream(file + ".gz", FileMode.Create, FileAccess.Write))
+                    var file = x.Length > 0 ? x[0] : null;
+                    if (string.IsNullOrWhiteSpace(file) || !File.Exists(file))
                     {
-                        using (var gzip = new GZipStream(writer, CompressionMode.Compress, true))
+                        Console.Error.WriteLine("File not found for compression.");
+                        exitCode = 1;
+                        needToExit = true;
+                        return;
+                    }
+
+                    using (var reader = new FileStream(file, FileMode.Open, FileAccess.Read))
+                    {
+                        using (var writer = new FileStream(file + ".gz", FileMode.Create, FileAccess.Write))
                         {
-                            reader.CopyTo(gzip);
+                            using (var gzip = new GZipStream(writer, CompressionMode.Compress, true))
+                            {
+                                reader.CopyTo(gzip);
+                            }
                         }
                     }
+
+                    Console.WriteLine(file + " compressed as " + file + ".gz");
+                    exitCode = 0;
+                    needToExit = true;
+                };
+            };
+            options["enable@1"] = x =>
+            {
+                if (x.Length == 0)
+                {
+                    throw new InvalidOperationException("You must provide an argument to the -enable option");
                 }
 
-                Console.WriteLine(file + " compressed as " + file + ".gz");
-                exitCode = 0;
-                needToExit = true;
+                enabledServices.Add(x[0]);
+            };
+            options["disable@1"] = x =>
+            {
+                if (x.Length == 0)
+                {
+                    throw new InvalidOperationException("You must provide an argument to the -disable option");
+                }
+
+                disabledServices.Add(x[0]);
+            };
+            options["spec@1"] = x =>
+            {
+                if (x.Length == 0)
+                {
+                    throw new InvalidOperationException("You must provide an argument to the -spec option");
+                }
+
+                if (serviceSpecPath != null)
+                {
+                    throw new InvalidOperationException("Multiple -spec options passed.");
+                }
+
+                serviceSpecPath = x[0];
             };
             options["manager-gui"] = x =>
             {
-                runModuleManager = true;
+                if (actionHandler != null)
+                {
+                    throw new InvalidOperationException("More than one action option specified.");
+                }
+
+                actionHandler = () =>
+                { runModuleManager = true; };
             };
             Action<string[]> helpAction = x =>
             {
@@ -167,6 +295,11 @@ namespace Protobuild
                 exitCode = 1;
             }
 
+            if (actionHandler != null)
+            {
+                actionHandler();
+            }
+
             if (needToExit)
             {
                 Environment.Exit(exitCode);
@@ -210,10 +343,13 @@ namespace Protobuild
                 }
             }
 
-            if (runModuleManager)
-                RunModuleManager();
+            if (runModuleManager) RunModuleManager();
             else
-                Actions.DefaultAction(ModuleInfo.Load(Path.Combine("Build", "Module.xml")));
+                Actions.DefaultAction(
+                    ModuleInfo.Load(Path.Combine("Build", "Module.xml")),
+                    enabledServices: enabledServices.ToArray(),
+                    disabledServices: disabledServices.ToArray(),
+                    serviceSpecPath: serviceSpecPath);
         }
 
         private static void RunModuleManager()

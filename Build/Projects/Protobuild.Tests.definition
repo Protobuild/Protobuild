@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Protobuild.Tests" Path="Protobuild.Tests" Type="Library">
+  <Properties />
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Protobuild" />
+  </References>
+  <Files>
+    <Compile Include="CrossProjectRequireTest.cs" />
+    <Compile Include="DefaultForRootTest.cs" />
+    <Compile Include="NotDefaultForRootTest.cs" />
+    <Compile Include="ProtobuildTest.cs" />
+    <Compile Include="RelativeRequireTest.cs" />
+    <Content Include="TestData\ServicesBaseTest\Build\Module.xml" />
+    <Content Include="TestData\ServicesBaseTest\Submodule\Build\Module.xml" />
+    <Content Include="TestData\ServicesCrossProjectRequire\Build\Module.xml" />
+    <Content Include="TestData\ServicesCrossProjectRequire\Submodule\Build\Module.xml" />
+    <Content Include="TestData\ServicesDefaultForRoot\Build\Module.xml" />
+    <Content Include="TestData\ServicesDefaultForRoot\Submodule\Build\Module.xml" />
+    <Content Include="TestData\ServicesNotDefaultForRoot\Build\Module.xml" />
+    <Content Include="TestData\ServicesNotDefaultForRoot\Submodule\Build\Module.xml" />
+    <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
+    <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
+    <None Include="packages.config" />
+    <None Include="TestData\ServicesBaseTest\Build\Projects\Console.definition" />
+    <None Include="TestData\ServicesBaseTest\Console\Program.cs" />
+    <None Include="TestData\ServicesBaseTest\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\ServicesBaseTest\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\ServicesCrossProjectRequire\Build\Projects\Console.definition" />
+    <None Include="TestData\ServicesCrossProjectRequire\Console\Program.cs" />
+    <None Include="TestData\ServicesCrossProjectRequire\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\ServicesCrossProjectRequire\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\ServicesDefaultForRoot\Build\Projects\Console.definition" />
+    <None Include="TestData\ServicesDefaultForRoot\Console\Program.cs" />
+    <None Include="TestData\ServicesDefaultForRoot\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\ServicesDefaultForRoot\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\ServicesNotDefaultForRoot\Build\Projects\Console.definition" />
+    <None Include="TestData\ServicesNotDefaultForRoot\Console\Program.cs" />
+    <None Include="TestData\ServicesNotDefaultForRoot\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\ServicesNotDefaultForRoot\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\ServicesRelativeRequire\Build\Projects\Console.definition" />
+    <None Include="TestData\ServicesRelativeRequire\Console\Program.cs" />
+    <None Include="TestData\ServicesRelativeRequire\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\ServicesRelativeRequire\Submodule\Library\MyClass.cs" />
+  </Files>
+</Project>
