@@ -3,7 +3,7 @@
     using System.IO;
     using Xunit;
 
-    public class LibraryNotBuiltWhenNotUsedTest : ProtobuildTest
+    public class ServicesLibraryNotBuiltWhenNotUsedTest : ProtobuildTest
     {
         [Fact]
         public void GenerationIsCorrect()

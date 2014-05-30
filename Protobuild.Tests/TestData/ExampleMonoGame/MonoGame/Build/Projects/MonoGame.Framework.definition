@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="MonoGame.Framework" Path="MonoGame.Framework" Type="Library">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Services>
+    <Service Name="Default">
+      <AddDefine>SERVICE_DEFAULT</AddDefine>
+    </Service>
+    <Service Name="GLBackend">
+      <AddDefine>SERVICE_ENABLE_GL</AddDefine>
+    </Service>
+    <Service Name="WindowsGLHook">
+      <Platforms>WindowsGL</Platforms>
+      <Requires>GLBackend</Requires>
+      <DefaultForRoot>True</DefaultForRoot>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="MyClass.cs" />
+  </Files>
+</Project>

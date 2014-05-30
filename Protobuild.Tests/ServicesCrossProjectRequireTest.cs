@@ -3,7 +3,7 @@
     using System.IO;
     using Xunit;
 
-    public class CrossProjectRequireTest : ProtobuildTest
+    public class ServicesCrossProjectRequireTest : ProtobuildTest
     {
         [Fact]
         public void GenerationIsCorrect()
