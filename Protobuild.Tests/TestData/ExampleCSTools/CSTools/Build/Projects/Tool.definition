@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Tool" Path="Tool" Type="Console">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Services>
+    <Service Name="Build">
+      <InfersReference>False</InfersReference>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="MyClass.cs" />
+  </Files>
+</Project>

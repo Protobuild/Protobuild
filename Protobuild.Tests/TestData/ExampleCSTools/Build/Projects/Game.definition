@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Game" Path="Game" Type="Console">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Dependencies>
+    <Uses Name="Tool/Build" />
+  </Dependencies>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>
