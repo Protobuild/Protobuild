@@ -49,11 +49,11 @@
 
             this.CalculateServices(services);
 
-            this.EnableDefaultAndExplicitServices(services);
-
             this.EnableReferencedProjects(services);
 
             this.EnableRootProjects(services);
+
+            this.EnableDefaultAndExplicitServices(services);
 
             return this.ResolveServices(services);
         }
@@ -269,7 +269,7 @@
 
         private bool ContainsActivePlatform(XmlElement xmlElement)
         {
-            var platform = xmlElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "Platform");
+            var platform = xmlElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "Platforms");
             if (platform == null)
             {
                 return true;
