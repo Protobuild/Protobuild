@@ -43,6 +43,8 @@
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Service.cs" />
+    <Compile Include="Services\ServiceManager.cs" />
     <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />

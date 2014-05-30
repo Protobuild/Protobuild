@@ -31,11 +31,8 @@ public partial class MainWindow: Gtk.Window
         this.c_ProjectTreeView.HeadersVisible = false;
         
         // Register events.
-        this.c_RegenerateAction.Activated += (object sender, EventArgs e) => 
-        {
-            Actions.ResyncProjects(this.Module);
-        };
-        this.c_ProjectTreeView.RowActivated += (object o, RowActivatedArgs args) => 
+        this.c_RegenerateAction.Activated += (sender, e) => Actions.PerformAction(this.Module, "resync");
+        this.c_ProjectTreeView.RowActivated += (o, args) => 
         {
             TreeIter iter;
             this.m_Store.GetIter(out iter, args.Path);
@@ -94,7 +91,7 @@ public partial class MainWindow: Gtk.Window
     public void Update()
     {
         this.BuildTree();
-        Actions.ResyncProjects(this.Module);
+        Actions.PerformAction(this.Module, "resync");
     }
     
     private void PromptCreateProject(string type)

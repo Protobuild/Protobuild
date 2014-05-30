@@ -9,11 +9,10 @@ using System.Xml.Xsl;
 
 namespace Protobuild.Tasks
 {
+    using Protobuild.Services;
+
     public class ProjectGenerator
     {
-        private string m_RootPath;
-        private string m_Platform;
-        private List<XmlDocument> m_ProjectDocuments = new List<XmlDocument>();
         private XslCompiledTransform m_ProjectTransform = null;
         private XslCompiledTransform m_SolutionTransform = null;
         private Action<string> m_Log;
@@ -23,10 +22,17 @@ namespace Protobuild.Tasks
             string platform,
             Action<string> log)
         {
-            this.m_RootPath = rootPath;
-            this.m_Platform = platform;
+            this.Documents = new List<XmlDocument>();
+            this.RootPath = rootPath;
+            this.Platform = platform;
             this.m_Log = log;
         }
+
+        public List<XmlDocument> Documents { get; private set; }
+
+        public string RootPath { get; private set; }
+
+        public string Platform { get; private set; }
 
         public void Load(string path, string rootPath = null, string modulePath = null)
         {
@@ -75,7 +81,7 @@ namespace Protobuild.Tasks
                     newDoc = xDoc.ToXmlDocument();
                 }
             }
-            this.m_ProjectDocuments.Add(newDoc);
+            this.Documents.Add(newDoc);
 
             // If the Guid property doesn't exist, we do one of two things:
             //  * Check for the existance of a Guid under the ProjectGuids tag
@@ -87,7 +93,7 @@ namespace Protobuild.Tasks
                 if (projectGuids != null)
                 {
                     var platform = projectGuids.ChildNodes.OfType<XmlElement>().FirstOrDefault(x =>
-                        x.Name == "Platform" && x.HasAttribute("Name") && x.GetAttribute("Name") == this.m_Platform);
+                        x.Name == "Platform" && x.HasAttribute("Name") && x.GetAttribute("Name") == this.Platform);
                     if (platform != null)
                     {
                         autogenerate = false;
@@ -97,7 +103,7 @@ namespace Protobuild.Tasks
 
                 if (autogenerate)
                 {
-                    var name = doc.DocumentElement.GetAttribute("Name") + "." + this.m_Platform;
+                    var name = doc.DocumentElement.GetAttribute("Name") + "." + this.Platform;
                     var guidBytes = new byte[16];
                     for (var i = 0; i < guidBytes.Length; i++)
                         guidBytes[i] = (byte)0;
@@ -119,11 +125,13 @@ namespace Protobuild.Tasks
         /// Generates a project at the target path.
         /// </summary>
         /// <param name="project">The path to the project file.</param>
+        /// <param name="services"></param>
         /// <param name="packagesFilePath">
         /// Either the full path to the packages.config for the
         /// generated project if it exists, or an empty string.
         /// </param>
-        public void Generate(string project, out string packagesFilePath, Action onActualGeneration)
+        /// <param name="onActualGeneration"></param>
+        public void Generate(string project, List<Service> services, out string packagesFilePath, Action onActualGeneration)
         {
             packagesFilePath = "";
 
@@ -131,7 +139,7 @@ namespace Protobuild.Tasks
             {
                 var resolver = new EmbeddedResourceResolver();
                 this.m_ProjectTransform = new XslCompiledTransform();
-                using (var reader = XmlReader.Create(ResourceExtractor.GetGenerateProjectXSLT(this.m_RootPath)))
+                using (var reader = XmlReader.Create(ResourceExtractor.GetGenerateProjectXSLT(this.RootPath)))
                 {
                     this.m_ProjectTransform.Load(
                         reader,
@@ -142,7 +150,7 @@ namespace Protobuild.Tasks
             }
 
             // Work out what document this is.
-            var projectDoc = this.m_ProjectDocuments.First(
+            var projectDoc = this.Documents.First(
                 x => x.DocumentElement.Attributes["Name"].Value == project);
 
             // Check to see if we have a Project node; if not
@@ -169,7 +177,7 @@ namespace Protobuild.Tasks
                 var allowed = false;
                 foreach (var platform in allowedPlatforms)
                 {
-                    if (string.Compare(this.m_Platform, platform, StringComparison.InvariantCultureIgnoreCase) == 0)
+                    if (string.Compare(this.Platform, platform, StringComparison.InvariantCultureIgnoreCase) == 0)
                     {
                         allowed = true;
                         break;
@@ -181,17 +189,26 @@ namespace Protobuild.Tasks
                 }
             }
 
+            // If the project has a <Services> node, but there are no entries in /Input/Services,
+            // then nothing depends on this service (if there is a <Reference> to this project, it will
+            // use the default service).  So for service-aware projects without any services being
+            // referenced, we exclude them from the generation.
+            if (this.IsExcludedServiceAwareProject(projectDoc.DocumentElement.Attributes["Name"].Value, projectDoc, services))
+            {
+                return;
+            }
+
             // Inform the user we're generating this project.
             onActualGeneration();
 
             // Work out what path to save at.
             var path = Path.Combine(
-                this.m_RootPath,
+                this.RootPath,
                 projectDoc.DocumentElement.Attributes["Path"].Value
                     .Replace('\\', Path.DirectorySeparatorChar)
                     .Replace('/', Path.DirectorySeparatorChar),
                 projectDoc.DocumentElement.Attributes["Name"].Value + "." +
-                this.m_Platform + ".csproj");
+                this.Platform + ".csproj");
 
             // Make sure that the directory exists where the file will be stored.
             var targetFile = new FileInfo(path);
@@ -207,7 +224,7 @@ namespace Protobuild.Tasks
             // Work out what path the NuGet packages.config might be at.
             var packagesFile = new FileInfo(
                 Path.Combine(
-                    this.m_RootPath,
+                    this.RootPath,
                     projectDoc.DocumentElement.Attributes["Path"].Value
                         .Replace('\\', Path.DirectorySeparatorChar)
                         .Replace('/', Path.DirectorySeparatorChar),
@@ -216,13 +233,14 @@ namespace Protobuild.Tasks
             // Generate the input document.
             var input = this.CreateInputFor(
                 project,
-                this.m_Platform,
+                this.Platform,
                 packagesFile.FullName,
                 projectDoc.DocumentElement.ChildNodes
                     .OfType<XmlElement>()
                     .Where(x => x.Name.ToLower() == "properties")
                     .SelectMany(x => x.ChildNodes
-                        .OfType<XmlElement>()));
+                        .OfType<XmlElement>()),
+                services);
 
             // Transform the input document using the XSLT transform.
             var settings = new XmlWriterSettings();
@@ -234,15 +252,15 @@ namespace Protobuild.Tasks
 
             // Also remove any left over .sln or .userprefs files.
             var slnPath = Path.Combine(
-                this.m_RootPath,
+                this.RootPath,
                 projectDoc.DocumentElement.Attributes["Path"].Value,
                 projectDoc.DocumentElement.Attributes["Name"].Value + "." +
-                this.m_Platform + ".sln");
+                this.Platform + ".sln");
             var userprefsPath = Path.Combine(
-                this.m_RootPath,
+                this.RootPath,
                 projectDoc.DocumentElement.Attributes["Path"].Value,
                 projectDoc.DocumentElement.Attributes["Name"].Value + "." +
-                this.m_Platform + ".userprefs");
+                this.Platform + ".userprefs");
             if (File.Exists(slnPath))
                 File.Delete(slnPath);
             if (File.Exists(userprefsPath))
@@ -253,16 +271,22 @@ namespace Protobuild.Tasks
                 packagesFilePath = packagesFile.FullName;
         }
 
+        private bool IsExcludedServiceAwareProject(string name, XmlDocument projectDoc, List<Service> services)
+        {
+            return projectDoc.DocumentElement.ChildNodes.OfType<XmlElement>().Any(x => x.Name == "Services")
+                   && services.All(x => x.ProjectName != name);
+        }
+
         private void HandleNuGetConfig(XmlDocument projectDoc)
         {
             var srcPath = Path.Combine(
-                this.m_RootPath,
+                this.RootPath,
                 projectDoc.DocumentElement.Attributes["Path"].Value
                     .Replace('\\', Path.DirectorySeparatorChar)
                     .Replace('/', Path.DirectorySeparatorChar),
-                "packages." + this.m_Platform + ".config");
+                "packages." + this.Platform + ".config");
             var destPath = Path.Combine(
-                this.m_RootPath,
+                this.RootPath,
                 projectDoc.DocumentElement.Attributes["Path"].Value
                     .Replace('\\', Path.DirectorySeparatorChar)
                     .Replace('/', Path.DirectorySeparatorChar),
@@ -274,14 +298,14 @@ namespace Protobuild.Tasks
             }
         }
 
-        public void GenerateSolution(string solutionPath, IEnumerable<string> repositoryPaths)
+        public void GenerateSolution(string solutionPath, List<Service> services, IEnumerable<string> repositoryPaths)
         {
             if (this.m_SolutionTransform == null)
             {
                 var resolver = new EmbeddedResourceResolver();
                 this.m_SolutionTransform = new XslCompiledTransform();
                 Stream generateSolutionStream;
-                var generateSolutionXSLT = Path.Combine(this.m_RootPath, "Build", "GenerateSolution.xslt");
+                var generateSolutionXSLT = Path.Combine(this.RootPath, "Build", "GenerateSolution.xslt");
                 if (File.Exists(generateSolutionXSLT))
                     generateSolutionStream = File.Open(generateSolutionXSLT, FileMode.Open);
                 else
@@ -301,7 +325,7 @@ namespace Protobuild.Tasks
                 }
             }
 
-            var input = this.CreateInputFor(this.m_Platform);
+            var input = this.CreateInputFor(this.Platform, services);
             using (var writer = new StreamWriter(solutionPath))
             {
                 this.m_SolutionTransform.Transform(input, null, writer);
@@ -313,16 +337,14 @@ namespace Protobuild.Tasks
             }
         }
 
-        private XmlDocument CreateInputFor(
-            string project,
-            string platform,
-            string packagesPath,
-            IEnumerable<XmlElement> properties)
+        private XmlDocument CreateInputFor(string project, string platform, string packagesPath, IEnumerable<XmlElement> properties, List<Service> services)
         {
             var doc = new XmlDocument();
             doc.AppendChild(doc.CreateXmlDeclaration("1.0", "UTF-8", null));
             var input = doc.CreateElement("Input");
             doc.AppendChild(input);
+
+            input.AppendChild(this.CreateServicesInputFor(doc, project, services));
 
             var generation = doc.CreateElement("Generation");
             var projectName = doc.CreateElement("ProjectName");
@@ -367,7 +389,7 @@ namespace Protobuild.Tasks
 
                 // Automatically extract the JSIL template if not already present.
                 var currentProject =
-                    this.m_ProjectDocuments.Select(x => x.DocumentElement)
+                    this.Documents.Select(x => x.DocumentElement)
                         .Where(x => x.Attributes != null)
                         .Where(x => x.Attributes["Name"] != null)
                         .FirstOrDefault(x => x.Attributes["Name"].Value == project);
@@ -391,7 +413,7 @@ namespace Protobuild.Tasks
                     {
                         if (path != null)
                         {
-                            var srcDir = Path.Combine(this.m_RootPath, path);
+                            var srcDir = Path.Combine(this.RootPath, path);
                             if (Directory.Exists(srcDir))
                             {
                                 if (!File.Exists(Path.Combine(srcDir, "index.htm")))
@@ -407,7 +429,7 @@ namespace Protobuild.Tasks
 
             var rootName = doc.CreateElement("RootPath");
             rootName.AppendChild(doc.CreateTextNode(
-                new DirectoryInfo(this.m_RootPath).FullName));
+                new DirectoryInfo(this.RootPath).FullName));
             var useCSCJVM = doc.CreateElement("UseCSCJVM");
             useCSCJVM.AppendChild(doc.CreateTextNode(
                 this.IsUsingCSCJVM(platform) ? "True" : "False"));
@@ -439,7 +461,7 @@ namespace Protobuild.Tasks
 
             var projects = doc.CreateElement("Projects");
             input.AppendChild(projects);
-            foreach (var projectDoc in this.m_ProjectDocuments)
+            foreach (var projectDoc in this.Documents)
             {
                 projects.AppendChild(doc.ImportNode(
                     projectDoc.DocumentElement,
@@ -458,6 +480,62 @@ namespace Protobuild.Tasks
             }
 
             return doc;
+        }
+
+        private XmlNode CreateServicesInputFor(XmlDocument doc, string projectName, IEnumerable<Service> services)
+        {
+            var servicesElements = doc.CreateElement("Services");
+            string activeServiceNames = null;
+
+            foreach (var service in services)
+            {
+                var serviceElement = doc.CreateElement("Service");
+                serviceElement.SetAttribute("Name", service.FullName);
+                serviceElement.SetAttribute("Project", service.ProjectName);
+                this.AddList(doc, serviceElement, service.AddDefines, "AddDefines", "AddDefine");
+                this.AddList(doc, serviceElement, service.AddReferences, "AddReferences", "AddReference");
+                servicesElements.AppendChild(serviceElement);
+
+                if (activeServiceNames == null)
+                {
+                    activeServiceNames = service.FullName;
+                }
+                else
+                {
+                    activeServiceNames += "," + service.FullName;
+                }
+
+                if (projectName != null)
+                {
+                    if (!string.IsNullOrEmpty(service.ServiceName))
+                    {
+                        if (service.ProjectName == projectName)
+                        {
+                            // Include relative service name in list.
+                            activeServiceNames += "," + service.ServiceName;
+                        }
+                    }
+                }
+            }
+
+            var activeServicesNamesElement = doc.CreateElement("ActiveServicesNames");
+            activeServicesNamesElement.InnerText = activeServiceNames ?? string.Empty;
+            servicesElements.AppendChild(activeServicesNamesElement);
+
+            return servicesElements;
+        }
+
+        private void AddList(XmlDocument doc, XmlElement serviceElement, IEnumerable<string> entries, string containerName, string entryName)
+        {
+            var element = doc.CreateElement(containerName);
+            serviceElement.AppendChild(element);
+
+            foreach (var entry in entries)
+            {
+                var entryElement = doc.CreateElement(entryName);
+                entryElement.InnerText = entry;
+                element.AppendChild(entryElement);
+            }
         }
 
         private void DetectNuGetPackages(
@@ -481,38 +559,32 @@ namespace Protobuild.Tasks
                 var targetFramework = (package.Attributes["targetFramework"] != null ? package.Attributes["targetFramework"].Value : null) ?? "";
 
                 var packagePath = Path.Combine(
-                    this.m_RootPath,
+                    this.RootPath,
                     "packages",
                     id + "." + version,
                     id + "." + version + ".nuspec");
 
-                // Verify the file exists before attempting to load it.
-                if (!File.Exists(packagePath))
-                    throw new FileNotFoundException("Unable to find NuGet Package", packagePath);
-
-                var packageDoc = new XmlDocument();
-                packageDoc.Load(packagePath);
-
-                // If the references are explicitly provided in the nuspec, use
-                // those as to what files should be referenced by the projects.
+                // Use the nuspec file if it exists.
                 List<string> references = new List<string>();
-                if (packageDoc
-                    .DocumentElement
-                    .FirstChild
-                    .ChildNodes
-                    .OfType<XmlElement>()
-                    .Count(x => x.Name == "references") > 0)
+                if (File.Exists(packagePath))
                 {
-                    references = packageDoc.DocumentElement
-                        .FirstChild
-                        .ChildNodes
-                        .OfType<XmlElement>()
-                        .First(x => x.Name == "references")
-                        .ChildNodes
-                        .OfType<XmlElement>()
-                        .Where(x => x.Name == "reference")
-                        .Select(x => x.Attributes["file"].Value)
-                        .ToList();
+                    var packageDoc = new XmlDocument();
+                    packageDoc.Load(packagePath);
+
+                    // If the references are explicitly provided in the nuspec, use
+                    // those as to what files should be referenced by the projects.
+                    if (
+                        packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                            .Count(x => x.Name == "references") > 0)
+                    {
+                        references =
+                            packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                                .First(x => x.Name == "references")
+                                .ChildNodes.OfType<XmlElement>()
+                                .Where(x => x.Name == "reference")
+                                .Select(x => x.Attributes["file"].Value)
+                                .ToList();
+                    }
                 }
 
                 // Determine the priority of the frameworks that we want to target
@@ -543,7 +615,7 @@ namespace Protobuild.Tasks
                 // anyway (this might be a tools only package like xunit.runners).
                 if (!Directory.Exists(
                     Path.Combine(
-                    this.m_RootPath,
+                    this.RootPath,
                     referenceBasePath)))
                     continue;
 
@@ -560,7 +632,7 @@ namespace Protobuild.Tasks
                         // If this target framework doesn't exist for this library, skip it.
                         if (!Directory.Exists(
                             Path.Combine(
-                            this.m_RootPath,
+                            this.RootPath,
                             referenceBasePath,
                             clrName)))
                             continue;
@@ -568,7 +640,7 @@ namespace Protobuild.Tasks
                         // Otherwise enumerate through all of the libraries in this folder.
                         foreach (var dll in Directory.EnumerateFiles(
                             Path.Combine(
-                            this.m_RootPath,
+                            this.RootPath,
                             referenceBasePath, clrName),
                             "*.dll"))
                         {
@@ -582,7 +654,7 @@ namespace Protobuild.Tasks
                             // combined with the root path.
                             if (File.Exists(
                                 Path.Combine(
-                                this.m_RootPath,
+                                this.RootPath,
                                 packageDll)))
                             {
                                 // Create the library reference.
@@ -624,7 +696,7 @@ namespace Protobuild.Tasks
 
                         if (File.Exists(
                             Path.Combine(
-                            this.m_RootPath,
+                            this.RootPath,
                             packageDll)))
                         {
                             // Create the library reference.
@@ -661,7 +733,7 @@ namespace Protobuild.Tasks
                 //Pattern matching to enable platform specific content
                 if (sourceFolder.Contains("$(Platform)"))
                 {
-                    sourceFolder = sourceFolder.Replace("$(Platform)", m_Platform);
+                    sourceFolder = sourceFolder.Replace("$(Platform)", this.Platform);
                 }
                 var matchFiles = element.GetAttribute("Match");
                 var originalSourceFolder = sourceFolder;
@@ -801,12 +873,14 @@ namespace Protobuild.Tasks
             return false;
         }
 
-        private XmlDocument CreateInputFor(string platform)
+        private XmlDocument CreateInputFor(string platform, List<Service> services)
         {
             var doc = new XmlDocument();
             doc.AppendChild(doc.CreateXmlDeclaration("1.0", "UTF-8", null));
             var input = doc.CreateElement("Input");
             doc.AppendChild(input);
+
+            input.AppendChild(this.CreateServicesInputFor(doc, null, services));
 
             var generation = doc.CreateElement("Generation");
             var platformName = doc.CreateElement("Platform");
@@ -820,7 +894,7 @@ namespace Protobuild.Tasks
 
             var projects = doc.CreateElement("Projects");
             input.AppendChild(projects);
-            foreach (var projectDoc in this.m_ProjectDocuments)
+            foreach (var projectDoc in this.Documents)
             {
                 projects.AppendChild(doc.ImportNode(
                     projectDoc.DocumentElement,

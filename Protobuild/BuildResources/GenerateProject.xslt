@@ -9,8 +9,10 @@
   <xsl:output method="xml" indent="no" />
 
   <msxsl:script language="C#" implements-prefix="user">
+    <msxsl:assembly name="System.Core" />
     <msxsl:assembly name="System.Web" />
     <msxsl:using namespace="System" />
+    <msxsl:using namespace="System.Linq" />
     <msxsl:using namespace="System.Web" />
     <![CDATA[
     public string NormalizeXAPName(string origName)
@@ -31,6 +33,63 @@
       {
         return ex.Message;
       }
+    }
+
+    public bool ProjectAndServiceIsActive(
+      string platformString,
+      string includePlatformString,
+      string excludePlatformString,
+      string serviceString,
+      string includeServiceString,
+      string excludeServiceString,
+      string activePlatform,
+      string activeServicesString)
+    {
+      if (!ProjectIsActive(platformString, includePlatformString, excludePlatformString, activePlatform))
+      {
+        return false;
+      }
+      
+      var activeServices = activeServicesString.Split(',');
+    
+      // Choose either <Services> or <IncludeServices>
+      if (string.IsNullOrEmpty(serviceString))
+      {
+        serviceString = includeServiceString;
+      }
+
+      // If the exclude string is set, then we must check this first.
+      if (!string.IsNullOrEmpty(excludeServiceString))
+      {
+        var excludeServices = excludeServiceString.Split(',');
+        foreach (var i in excludeServices)
+        {
+          if (activeServices.Contains(i))
+          {
+            // This service is excluded.
+            return false;
+          }
+        }
+      }
+
+      // If the service string is empty at this point, then we allow
+      // all services since there's no whitelist of services configured.
+      if (string.IsNullOrEmpty(serviceString))
+      {
+        return true;
+      }
+
+      // Otherwise ensure the service is in the include list.
+      var services = serviceString.Split(',');
+      foreach (var i in services)
+      {
+        if (activeServices.Contains(i))
+        {
+          return true;
+        }
+      }
+
+      return false;
     }
 
     public bool ProjectIsActive(
@@ -231,6 +290,12 @@
       <xsl:if test="$debug = 'true'">
         <xsl:text>DEBUG;</xsl:text>
       </xsl:if>
+      <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+        <xsl:for-each select="./AddDefines/AddDefine">
+          <xsl:value-of select="." />
+          <xsl:text>;</xsl:text>
+        </xsl:for-each>
+      </xsl:for-each>
       <xsl:choose>
         <xsl:when test="/Input/Properties/CustomDefinitions">
           <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
@@ -915,11 +980,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/Compile">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -934,11 +1003,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/None">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -953,11 +1026,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/Content">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -972,11 +1049,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/EmbeddedResource">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -991,11 +1072,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/EmbeddedShaderProgram">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1032,11 +1117,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/ShaderProgram">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1051,11 +1140,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/ApplicationDefinition">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1070,11 +1163,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/Page">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1089,11 +1186,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/AppxManifest">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1108,11 +1209,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/BundleResource">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1127,11 +1232,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/InterfaceDefinition">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1146,11 +1255,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/AndroidResource">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1165,11 +1278,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/SplashScreen">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -1184,11 +1301,15 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/Resource">
-          <xsl:if test="user:ProjectIsActive(
+          <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
               ./ExcludePlatforms,
-              /Input/Generation/Platform)">
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">

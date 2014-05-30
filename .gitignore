@@ -3,7 +3,8 @@ bin
 obj
 *.sln
 *.csproj
-*.nuspec
 *.nupkg
 *.userprefs
 *.suo
+*.user
+Protobuild.Tests/TestData/**/Protobuild.exe
