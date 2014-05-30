@@ -9,6 +9,7 @@
     <Reference Include="Protobuild" />
   </References>
   <Files>
+    <Compile Include="ExampleCocos2DXNATest.cs" />
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
@@ -21,6 +22,8 @@
     <Compile Include="ServicesLibraryNotBuiltWhenNotUsedTest.cs" />
     <Compile Include="ServicesNotDefaultForRootTest.cs" />
     <Compile Include="ServicesRelativeRequireTest.cs" />
+    <Content Include="TestData\ExampleCocos2DXNA\Build\Module.xml" />
+    <Content Include="TestData\ExampleCocos2DXNA\MonoGame\Build\Module.xml" />
     <Content Include="TestData\ExampleCSTools\Build\Module.xml" />
     <Content Include="TestData\ExampleCSTools\CSTools\Build\Module.xml" />
     <Content Include="TestData\ExampleMonoGame\Build\Module.xml" />
@@ -46,6 +49,11 @@
     <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
     <None Include="packages.config" />
+    <None Include="TestData\ExampleCocos2DXNA\Build\Projects\Cocos2DXNA.definition" />
+    <None Include="TestData\ExampleCocos2DXNA\Build\Projects\Cocos2DXNA.ThirdParty.definition" />
+    <None Include="TestData\ExampleCocos2DXNA\Cocos2DXNA\Program.cs" />
+    <None Include="TestData\ExampleCocos2DXNA\MonoGame\Build\Projects\MonoGame.Framework.definition" />
+    <None Include="TestData\ExampleCocos2DXNA\MonoGame\MonoGame.Framework\MyClass.cs" />
     <None Include="TestData\ExampleCSTools\Build\Projects\Game.definition" />
     <None Include="TestData\ExampleCSTools\CSTools\Build\Projects\Tool.definition" />
     <None Include="TestData\ExampleCSTools\CSTools\Tool\MyClass.cs" />

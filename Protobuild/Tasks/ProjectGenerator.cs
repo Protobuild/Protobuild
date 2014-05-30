@@ -533,6 +533,21 @@ namespace Protobuild.Tasks
                 }
             }
 
+            foreach (var service in services.Where(x => x.ProjectName == projectName))
+            {
+                foreach (var addRef in service.AddReferences)
+                {
+                    if (
+                        !references.ChildNodes.OfType<XmlElement>()
+                             .Any(x => x.Name == "Reference" && x.GetAttribute("Include") == addRef))
+                    {
+                        var referenceElement = importNode.OwnerDocument.CreateElement("Reference");
+                        referenceElement.SetAttribute("Include", addRef);
+                        references.AppendChild(referenceElement);
+                    }
+                }
+            }
+
             return importNode;
         }
 

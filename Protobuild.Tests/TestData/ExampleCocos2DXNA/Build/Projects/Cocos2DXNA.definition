@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Cocos2DXNA" Path="Cocos2DXNA" Type="Library">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="Cocos2DXNA.ThirdParty" />
+  </References>
+  <Dependencies>
+    <Uses Name="MonoGame.Framework/Default">
+      <Platforms>MacOS,Linux</Platforms>
+    </Uses>
+  </Dependencies>
+  <Services>
+    <Service Name="WindowsGLHook">
+      <Platforms>WindowsGL</Platforms>
+      <Requires>MonoGame.Framework/GLBackend</Requires>
+      <DefaultForRoot>True</DefaultForRoot>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>
