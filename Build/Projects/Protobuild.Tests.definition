@@ -9,6 +9,7 @@
     <Reference Include="Protobuild" />
   </References>
   <Files>
+    <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
@@ -20,6 +21,8 @@
     <Compile Include="ServicesLibraryNotBuiltWhenNotUsedTest.cs" />
     <Compile Include="ServicesNotDefaultForRootTest.cs" />
     <Compile Include="ServicesRelativeRequireTest.cs" />
+    <Content Include="TestData\ExampleCSTools\Build\Module.xml" />
+    <Content Include="TestData\ExampleCSTools\CSTools\Build\Module.xml" />
     <Content Include="TestData\ExampleMonoGame\Build\Module.xml" />
     <Content Include="TestData\ExampleMonoGame\MonoGame\Build\Module.xml" />
     <Content Include="TestData\ServicesBaseTest\Build\Module.xml" />
@@ -43,6 +46,10 @@
     <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
     <None Include="packages.config" />
+    <None Include="TestData\ExampleCSTools\Build\Projects\Game.definition" />
+    <None Include="TestData\ExampleCSTools\CSTools\Build\Projects\Tool.definition" />
+    <None Include="TestData\ExampleCSTools\CSTools\Tool\MyClass.cs" />
+    <None Include="TestData\ExampleCSTools\Game\Program.cs" />
     <None Include="TestData\ExampleMonoGame\Build\Projects\Game.definition" />
     <None Include="TestData\ExampleMonoGame\Game\Program.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
