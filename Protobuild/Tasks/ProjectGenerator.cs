@@ -896,6 +896,14 @@ namespace Protobuild.Tasks
             input.AppendChild(projects);
             foreach (var projectDoc in this.Documents)
             {
+                if (this.IsExcludedServiceAwareProject(
+                    projectDoc.DocumentElement.GetAttribute("Name"),
+                    projectDoc,
+                    services))
+                {
+                    continue;
+                }
+
                 projects.AppendChild(doc.ImportNode(
                     projectDoc.DocumentElement,
                     true));
