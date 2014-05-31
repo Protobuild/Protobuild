@@ -8,3 +8,5 @@ obj
 *.suo
 *.user
 Protobuild.Tests/TestData/**/Protobuild.exe
+*.speccache
+packages/repositories.config
