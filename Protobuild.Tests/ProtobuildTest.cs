@@ -20,7 +20,7 @@
             this.m_TestName = name;
 
             var location = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
-            var dataLocation = Path.Combine(location, @"..\..\TestData", this.m_TestName);
+            var dataLocation = Path.Combine(location, "..", "..", "TestData", this.m_TestName);
 
             var protobuildLocation =
                 AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name == "Protobuild").Location;
@@ -96,10 +96,14 @@
             p.BeginOutputReadLine();
             p.BeginErrorReadLine();
             p.WaitForExit();
+
+            Xunit.Assert.Equal(0, p.ExitCode);
         }
 
         protected string ReadFile(string path)
         {
+            path = path.Replace('\\', Path.DirectorySeparatorChar);
+
             using (var reader = new StreamReader(Path.Combine(this.m_TestLocation, path)))
             {
                 return reader.ReadToEnd();
@@ -108,6 +112,7 @@
 
         protected string GetPath(string path)
         {
+            path = path.Replace('\\', Path.DirectorySeparatorChar);
             return Path.Combine(this.m_TestLocation, path);
         }
     }
