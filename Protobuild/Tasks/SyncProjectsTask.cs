@@ -61,7 +61,7 @@ namespace Protobuild
                 {
                     this.LogMessage("Synchronising: " + definition.Name);
                     var project = CSharpProject.Load(path);
-                    var synchroniser = new DefinitionSynchroniser(definition, project);
+                    var synchroniser = new DefinitionSynchroniser(module, definition, project);
                     synchroniser.Synchronise(this.Platform);
                 }
             }
