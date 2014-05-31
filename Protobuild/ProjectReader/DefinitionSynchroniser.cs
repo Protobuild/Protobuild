@@ -10,19 +10,36 @@ using System.Xml.Linq;
 
 namespace Protobuild
 {
+    using System.Runtime.Remoting.Messaging;
+    using Protobuild.Services;
+
     public class DefinitionSynchroniser
     {
+        private readonly ModuleInfo m_ModuleInfo;
+
         private DefinitionInfo m_DefinitionInfo;
         private CSharpProject m_CSharpProject;
 
-        public DefinitionSynchroniser(DefinitionInfo info, CSharpProject project)
+        public DefinitionSynchroniser(ModuleInfo moduleInfo, DefinitionInfo info, CSharpProject project)
         {
+            this.m_ModuleInfo = moduleInfo;
             this.m_DefinitionInfo = info;
             this.m_CSharpProject = project;
         }
 
         public void Synchronise(string platform)
         {
+            var serviceCache = Path.Combine(
+                this.m_ModuleInfo.Path,
+                this.m_ModuleInfo.Name + "." + platform + ".speccache");
+            var ignoreServiceFiles = !File.Exists(serviceCache);
+            var serviceManager = new ServiceManager(null);
+            List<Service> services = null;
+            if (!ignoreServiceFiles)
+            {
+                services = serviceManager.LoadServiceSpec(serviceCache);
+            }
+
             var document = new XmlDocument();
             document.Load(this.m_DefinitionInfo.DefinitionPath);
 
@@ -36,6 +53,11 @@ namespace Protobuild
             // Platforms child contains the current platform that we're synchronising for.
             // This is because if I generate a platform for Linux, and the definition
             // has Windows-only files in it, those won't be in the project file.
+            // Also for files that have services in them, check to see if we have the
+            // service cache.  If we don't have a service cache, don't remove any entries
+            // that are conditional on services (because we don't know what services 
+            // were enabled when the project was generated).  Otherwise only allow removal
+            // if the service was active at the time.
             foreach (var file in files.ChildNodes.OfType<XmlElement>().ToArray())
             {
                 var children = file.ChildNodes.OfType<XmlElement>().ToArray();
@@ -47,6 +69,98 @@ namespace Protobuild
                 var platformsTagString = platformsTag != null ? platformsTag.InnerText : string.Empty;
                 var includePlatformsTagString = includePlatformsTag != null ? includePlatformsTag.InnerText : string.Empty;
                 var excludePlatformsTagString = excludePlatformsTag != null ? excludePlatformsTag.InnerText : string.Empty;
+
+                var servicesTag = children.FirstOrDefault(x => x.LocalName == "Services");
+                var includeServicesTag = children.FirstOrDefault(x => x.LocalName == "IncludeServices");
+                var excludeServicesTag = children.FirstOrDefault(x => x.LocalName == "ExcludeServices");
+
+                var servicesTagString = servicesTag != null ? servicesTag.InnerText : string.Empty;
+                var includeServicesTagString = includeServicesTag != null ? includeServicesTag.InnerText : string.Empty;
+                var excludeServicesTagString = excludeServicesTag != null ? excludeServicesTag.InnerText : string.Empty;
+
+                if (!string.IsNullOrEmpty(servicesTagString) || !string.IsNullOrEmpty(includeServicesTagString)
+                    || !string.IsNullOrEmpty(excludeServicesTagString))
+                {
+                    if (ignoreServiceFiles)
+                    {
+                        // We don't know whether the service was enabled or not during generation, so we can't determine
+                        // if the user wanted to remove this entry.
+                        continue;
+                    }
+
+                    if (!string.IsNullOrEmpty(excludeServicesTagString))
+                    {
+                        var excluded = false;
+
+                        foreach (var service in services)
+                        {
+                            if (excludeServicesTagString.Split(',').Contains(service.FullName, StringComparer.OrdinalIgnoreCase) ||
+                                (service.ProjectName == this.m_DefinitionInfo.Name && excludeServicesTagString.Split(',').Contains(service.ServiceName, StringComparer.OrdinalIgnoreCase)))
+                            {
+                                // This file is excluded in the C# project for this platform
+                                // and won't be present.
+                                excluded = true;
+                            }
+                        }
+
+                        if (excluded)
+                        {
+                            // This file is excluded in the C# project for this platform
+                            // and won't be present.
+                            continue;
+                        }
+                    }
+
+                    // Fallback to <IncludeServices> if <Services> is not present.
+                    if (string.IsNullOrEmpty(servicesTagString))
+                    {
+                        servicesTagString = includeServicesTagString;
+                    }
+
+                    var allowFallthrough = false;
+
+                    // If both the <IncludeServices> and <Services> tags are not present, then this
+                    // file is generated for all services regardless.
+                    if (servicesTag == null && includeServicesTag == null)
+                    {
+                        allowFallthrough = true;
+                    }
+                    else
+                    {
+                        var included = false;
+
+                        foreach (var service in services)
+                        {
+                            // If the included services string contains any enabled service, then we
+                            // remove the file (because it will be present in the C# project).
+                            if (servicesTagString.Split(',')
+                                    .Contains(service.FullName, StringComparer.OrdinalIgnoreCase)
+                                || (service.ProjectName == this.m_DefinitionInfo.Name
+                                    && servicesTagString.Split(',')
+                                           .Contains(service.ServiceName, StringComparer.OrdinalIgnoreCase)))
+                            {
+                                included = true;
+                                break;
+                            }
+                        }
+
+                        if (included)
+                        {
+                            // This file is included in the C# project for this service.
+                            allowFallthrough = true;
+                        }
+                    }
+
+                    if (!allowFallthrough)
+                    {
+                        // We weren't included with <Services> or <IncludeServices> so we won't
+                        // be present regardless of platform settings.
+                        continue;
+                    }
+
+                    // We were included by a service, but we might not have passed the platform check
+                    // so continue performing checks.
+                }
 
                 if (!string.IsNullOrEmpty(excludePlatformsTagString))
                 {

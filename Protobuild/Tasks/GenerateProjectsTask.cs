@@ -172,6 +172,14 @@ namespace Protobuild.Tasks
             this.LogMessage("Generating: (solution)");
             generator.GenerateSolution(solution, services, repositoryPaths);
 
+            // Only save the specification cache if we allow synchronisation
+            if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)
+            {
+                var serviceCache = Path.Combine(this.RootPath, this.ModuleName + "." + this.Platform + ".speccache");
+                this.LogMessage("Saving service specification");
+                File.Copy(serviceSpecPath, serviceCache, true);
+            }
+
             this.LogMessage(
                 "Generation complete.");
             
