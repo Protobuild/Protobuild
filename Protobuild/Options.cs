@@ -30,9 +30,12 @@ namespace Protobuild
                         for (var v = 0; v < takeArgs && (i + 1) < args.Length; v++)
                         {
                             i++;
-                            if (args[i].StartsWith("-", StringComparison.InvariantCulture) ||
-                                args[i].StartsWith("/", StringComparison.InvariantCulture))
+
+                            // We can't break on the / character, as this is used in paths
+                            // on Linux and Mac OS.
+                            if (args[i].StartsWith("-", StringComparison.InvariantCulture))
                                 break;
+
                             actionArgs.Add(args[i]);
                         }
                     }
