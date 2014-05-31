@@ -12,7 +12,6 @@
     <msxsl:assembly name="System.Core" />
     <msxsl:assembly name="System.Web" />
     <msxsl:using namespace="System" />
-    <msxsl:using namespace="System.Linq" />
     <msxsl:using namespace="System.Web" />
     <![CDATA[
     public string NormalizeXAPName(string origName)
@@ -64,7 +63,7 @@
         var excludeServices = excludeServiceString.Split(',');
         foreach (var i in excludeServices)
         {
-          if (activeServices.Contains(i))
+          if (System.Linq.Enumerable.Contains(activeServices, i))
           {
             // This service is excluded.
             return false;
@@ -83,7 +82,7 @@
       var services = serviceString.Split(',');
       foreach (var i in services)
       {
-        if (activeServices.Contains(i))
+        if (System.Linq.Enumerable.Contains(activeServices, i))
         {
           return true;
         }
