@@ -189,7 +189,7 @@ namespace Protobuild
             };
             options["enable@1"] = x =>
             {
-                if (x.Length == 0)
+                if (x.Length == 0 || x[0] == null)
                 {
                     throw new InvalidOperationException("You must provide an argument to the -enable option");
                 }
@@ -198,7 +198,7 @@ namespace Protobuild
             };
             options["disable@1"] = x =>
             {
-                if (x.Length == 0)
+                if (x.Length == 0 || x[0] == null)
                 {
                     throw new InvalidOperationException("You must provide an argument to the -disable option");
                 }
@@ -207,7 +207,7 @@ namespace Protobuild
             };
             options["spec@1"] = x =>
             {
-                if (x.Length == 0)
+                if (x.Length == 0 || x[0] == null)
                 {
                     throw new InvalidOperationException("You must provide an argument to the -spec option");
                 }
@@ -277,6 +277,18 @@ namespace Protobuild
                 Console.WriteLine();
                 Console.WriteLine("  Removes all generated C# project and solution files.  If no");
                 Console.WriteLine("  platform is specified, cleans for the current platform.");
+                Console.WriteLine();
+                Console.WriteLine("  -enable <service>");
+                Console.WriteLine();
+                Console.WriteLine("  Enables the specified service.");
+                Console.WriteLine();
+                Console.WriteLine("  -disable <service>");
+                Console.WriteLine();
+                Console.WriteLine("  Disables the specified service.");
+                Console.WriteLine();
+                Console.WriteLine("  -spec <path>");
+                Console.WriteLine();
+                Console.WriteLine("  Internally used to pass the service specification.");
                 Console.WriteLine();
                 needToExit = true;
             };
