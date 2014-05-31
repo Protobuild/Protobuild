@@ -49,19 +49,24 @@
     <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
     <None Include="packages.config" />
-    <None Include="TestData\ExampleCocos2DXNA\Build\Projects\Cocos2DXNA.definition" />
+    <None Include="TestData\ExampleCocos2DXNA\Build\Projects\Cocos2DXNA.definition">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestData\ExampleCocos2DXNA\Build\Projects\Cocos2DXNA.ThirdParty.definition" />
     <None Include="TestData\ExampleCocos2DXNA\Cocos2DXNA\Program.cs" />
     <None Include="TestData\ExampleCocos2DXNA\MonoGame\Build\Projects\MonoGame.Framework.definition" />
     <None Include="TestData\ExampleCocos2DXNA\MonoGame\MonoGame.Framework\MyClass.cs" />
     <None Include="TestData\ExampleCSTools\Build\Projects\Game.definition" />
-    <None Include="TestData\ExampleCSTools\CSTools\Build\Projects\Tool.definition" />
+    <None Include="TestData\ExampleCSTools\CSTools\Build\Projects\Tool.definition">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestData\ExampleCSTools\CSTools\Tool\MyClass.cs" />
     <None Include="TestData\ExampleCSTools\Game\Program.cs" />
     <None Include="TestData\ExampleMonoGame\Build\Projects\Game.definition" />
     <None Include="TestData\ExampleMonoGame\Game\Program.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
-    <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.cs" />
+    <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.DirectX.cs" />
+    <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.OpenGL.cs" />
     <None Include="TestData\ServicesBaseTest\Build\Projects\Console.definition" />
     <None Include="TestData\ServicesBaseTest\Console\Program.cs" />
     <None Include="TestData\ServicesBaseTest\Submodule\Build\Projects\Library.definition" />

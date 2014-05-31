@@ -17,6 +17,11 @@
     </Service>
   </Services>
   <Files>
-    <Compile Include="MyClass.cs" />
+    <Compile Include="MyClass.DirectX.cs">
+      <ExcludeServices>GLBackend</ExcludeServices>
+    </Compile>
+    <Compile Include="MyClass.OpenGL.cs">
+      <IncludeServices>GLBackend</IncludeServices>
+    </Compile>
   </Files>
 </Project>

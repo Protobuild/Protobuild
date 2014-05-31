@@ -21,6 +21,8 @@
             Assert.Contains("MonoGame.Framework.Windows", gameContents);
             Assert.Contains("SERVICE_DEFAULT;", frameworkContents);
             Assert.DoesNotContain("SERVICE_ENABLE_GL;", frameworkContents);
+            Assert.Contains("MyClass.DirectX.cs", frameworkContents);
+            Assert.DoesNotContain("MyClass.OpenGL.cs", frameworkContents);
 
             this.Generate("WindowsGL");
 
@@ -33,6 +35,8 @@
             Assert.Contains("MonoGame.Framework.Windows", gameContents);
             Assert.Contains("SERVICE_DEFAULT;", frameworkContents);
             Assert.Contains("SERVICE_ENABLE_GL;", frameworkContents);
+            Assert.DoesNotContain("MyClass.DirectX.cs", frameworkContents);
+            Assert.Contains("MyClass.OpenGL.cs", frameworkContents);
 
             this.Generate("Windows", "--enable MonoGame.Framework/GLBackend");
 
@@ -45,6 +49,8 @@
             Assert.Contains("MonoGame.Framework.Windows", gameContents);
             Assert.Contains("SERVICE_DEFAULT;", frameworkContents);
             Assert.Contains("SERVICE_ENABLE_GL;", frameworkContents);
+            Assert.DoesNotContain("MyClass.DirectX.cs", frameworkContents);
+            Assert.Contains("MyClass.OpenGL.cs", frameworkContents);
 
             this.Generate("Windows", "--enable GLBackend");
 
@@ -57,6 +63,8 @@
             Assert.Contains("MonoGame.Framework.Windows", gameContents);
             Assert.Contains("SERVICE_DEFAULT;", frameworkContents);
             Assert.Contains("SERVICE_ENABLE_GL;", frameworkContents);
+            Assert.DoesNotContain("MyClass.DirectX.cs", frameworkContents);
+            Assert.Contains("MyClass.OpenGL.cs", frameworkContents);
         }
     }
 }
