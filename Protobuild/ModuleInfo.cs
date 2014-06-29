@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 
 namespace Protobuild
 {
+    [System.Diagnostics.DebuggerDisplay("{Name}")]
     [Serializable]
     public class ModuleInfo
     {
@@ -76,11 +77,23 @@ namespace Protobuild
                 definition.ModulePath = this.Path;
                 yield return definition;
             }
+
+            var tmp = new HashSet<string>();
             foreach (var submodule in this.GetSubmodules())
+            {
                 foreach (var definition in submodule.GetDefinitionsRecursively((relative + '\\' + submodule.Name).Trim('\\')))
+                {
+                    if (tmp.Contains(definition.DefinitionPath))
+                    {
+                        continue;
+                    }
+
+                    tmp.Add(definition.DefinitionPath);
                     yield return definition;
+                }
+            }
         }
-        
+
         public ModuleInfo[] GetSubmodules()
         {
             var modules = new List<ModuleInfo>();
@@ -92,11 +105,16 @@ namespace Protobuild
                 var module = build.GetFiles().FirstOrDefault(x => x.Name == "Module.xml");
                 if (module == null)
                     continue;
-                modules.Add(ModuleInfo.Load(module.FullName));
+
+                // Add this module and get Submodules recursively.
+                var info = ModuleInfo.Load(module.FullName);
+                modules.Add(info);
+                modules.AddRange(info.GetSubmodules());
             }
+
             return modules.ToArray();
         }
-        
+
         public static ModuleInfo Load(string xmlFile)
         {
             var serializer = new XmlSerializer(typeof(ModuleInfo));

@@ -4,6 +4,7 @@ using System.Xml.Linq;
 
 namespace Protobuild
 {
+    [System.Diagnostics.DebuggerDisplay("{DefinitionPath}")]
     public class DefinitionInfo
     {
         public string Name

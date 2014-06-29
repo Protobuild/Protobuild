@@ -268,7 +268,10 @@
                 }
             }
 
-            return services;
+            // Filter duplicates and return it as list.
+            return services.GroupBy(s => s.FullName)
+                .Select(g => g.First ())
+                .ToList();
         }
 
         private bool ContainsActivePlatform(XmlElement xmlElement)
