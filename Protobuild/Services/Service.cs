@@ -3,6 +3,7 @@ namespace Protobuild.Services
     using System.Collections.Generic;
     using System.Xml;
 
+    [System.Diagnostics.DebuggerDisplay("{FullName}")]
     public class Service
     {
         public Service()
