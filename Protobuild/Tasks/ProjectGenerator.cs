@@ -161,8 +161,8 @@ namespace Protobuild.Tasks
                 return;
             }
 
-            if (generationOptions.SkipLastFolder != null && 
-                ((bool)generationOptions.SkipLastFolder) == true) 
+            if (generationOptions.SkipLast != null && 
+                ((bool)generationOptions.SkipLast) == true) 
             {
                 // Skipping the last Folder
                 var parts = path.Split(Path.DirectorySeparatorChar).ToList();

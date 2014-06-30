@@ -6,12 +6,12 @@
     public class GenerateSolutionFolders
     {
         public string Action { get; set; }
-        public bool? SkipLastFolder { get; set; }
+        public bool? SkipLast { get; set; }
 
         public GenerateSolutionFolders()
         {
             Action = string.Empty;
-            SkipLastFolder = false;
+            SkipLast = false;
         }
     }
 }
