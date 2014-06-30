@@ -80,9 +80,9 @@
             var lookup = services.ToDictionary(k => k.FullName, v => v);
 
             var references = from definition in this.m_Generator.Documents
-                             where definition.Name == "Project"
+                             where definition.DocumentElement.Name == "Project"
                              select
-                                 definition.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "References")
+                                 definition.DocumentElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "References")
                              into referencesElement
                              where referencesElement != null
                              select
