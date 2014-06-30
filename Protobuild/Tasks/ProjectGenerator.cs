@@ -128,13 +128,12 @@ namespace Protobuild.Tasks
                 }
             }
 
-            if (module.GenerateSolutionFolders.Action != string.Empty && doc.DocumentElement.Name != "ContentProject" && doc.DocumentElement.Name != "ExternalProject") 
+            if (module.GenerateSolutionFolders.Action != string.Empty && 
+                doc.DocumentElement.Name != "ContentProject" && 
+                doc.DocumentElement.Name != "ExternalProject") 
             {
                 switch (module.GenerateSolutionFolders.Action.ToLower()) 
                 {
-                    case "":
-                        // Ignore if no Action has been given.
-                        break;
                     case "mirrorfilesystem":
                         // Add folders by mirroring the FileSystem
                         this.GenerateProjectFolders(
@@ -1105,7 +1104,7 @@ namespace Protobuild.Tasks
                     continue;
                 }
 
-                var folderGuid = this.GenerateGUIDForName(longPath + "." + this.Platform);
+                var folderGuid = this.GenerateGUIDForName("Folder." + longPath + this.Platform);
                 this.m_PathToGUID.Add(longPath, folderGuid);
 
                 // Create a Folder Project for the XSLT Parser
