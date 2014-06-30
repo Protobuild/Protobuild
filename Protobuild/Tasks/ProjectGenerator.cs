@@ -27,7 +27,11 @@ namespace Protobuild.Tasks
             this.RootPath = rootPath;
             this.Platform = platform;
             this.m_Log = log;
-        }
+
+            this.XMLFolders = new List<XmlDocument>();
+            this.XMLNestedProjects = new List<XmlDocument>();
+            this.m_pathToGuid = new Dictionary<string, string>();
+        }           
 
         public List<XmlDocument> Documents { get; private set; }
 
@@ -35,7 +39,7 @@ namespace Protobuild.Tasks
 
         public string Platform { get; private set; }
 
-        public void Load(string path, string rootPath = null, string modulePath = null)
+        public void Load(string path, ModuleInfo module, string modulePath = null)
         {
             var doc = new XmlDocument();
             doc.Load(path);
@@ -47,9 +51,9 @@ namespace Protobuild.Tasks
                 newDoc = GenerateContentProject(doc, modulePath);
             else
                 newDoc = doc;
-            if (rootPath != null && modulePath != null)
+            if (module.Path != null && modulePath != null)
             {
-                var additionalPath = modulePath.Substring(rootPath.Length).Replace('/', '\\');
+                var additionalPath = modulePath.Substring(module.Path.Length).Replace('/', '\\');
                 if (newDoc.DocumentElement != null &&
                     newDoc.DocumentElement.Attributes["Path"] != null &&
                     additionalPath != null)
@@ -104,23 +108,128 @@ namespace Protobuild.Tasks
 
                 if (autogenerate)
                 {
-                    var name = doc.DocumentElement.GetAttribute("Name") + "." + this.Platform;
-                    var guidBytes = new byte[16];
-                    for (var i = 0; i < guidBytes.Length; i++)
-                        guidBytes[i] = (byte)0;
-                    var nameBytes = Encoding.ASCII.GetBytes(name);
-                    unchecked
-                    {
-                        for (var i = 0; i < nameBytes.Length; i++)
-                            guidBytes[i % 16] += nameBytes[i];
-                        for (var i = nameBytes.Length; i < 16; i++)
-                            guidBytes[i] += nameBytes[i % nameBytes.Length];
+                    doc.DocumentElement.SetAttribute("Guid", 
+                        generateGUIDForName(doc.DocumentElement.GetAttribute("Name") + "." + this.Platform)
+                    );
+                }
+            }
+
+            if (module.GenerateSolutionFolders.Action != string.Empty) {
+
+                switch (module.GenerateSolutionFolders.Action.ToLower()) {
+                case "":
+                    // Ignore if no Action has been given.
+                    break;
+                case "mirrorfilesystem":
+                    // Add folders by mirroring the FileSystem
+                    generateProjectFolders (
+                        newDoc.DocumentElement.Attributes ["Path"].Value.Replace('\\', Path.DirectorySeparatorChar), 
+                        doc.DocumentElement.Attributes ["Guid"].Value,
+                        module.GenerateSolutionFolders
+                    );
+                    break;
+                case "permodule":
+                    // Add one folder per module.
+                    if (modulePath != module.Path) {
+                        generateProjectFolders (
+                            modulePath.Substring (module.Path.Length + 1),
+                            doc.DocumentElement.Attributes ["Guid"].Value,
+                            module.GenerateSolutionFolders
+                        );
                     }
-                    var guid = new Guid(guidBytes);
-                    doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
+                    break;
+                default:
+                    m_Log (string.Format (
+                        "Unkown GenerationSolutionFolders Action \"{0}\" in Module \"{1}\".",
+                        module.GenerateSolutionFolders.Action,
+                        module.Path)
+                    );
+                    break;
                 }
             }
         }
+
+        #region Folder generation
+        public List<XmlDocument> XMLFolders { get; private set; }
+        public List<XmlDocument> XMLNestedProjects { get; private set; }
+
+        private Dictionary<string, string> m_pathToGuid;
+
+        private void generateProjectFolders(string path, string projectGuid, GenerateSolutionFolders generationOptions)
+        {
+            if (path == string.Empty) {
+                return;
+            }
+
+            if (generationOptions.SkipLastFolder != null && 
+                ((bool)generationOptions.SkipLastFolder) == true) 
+            {
+                // Skipping the last Folder
+                var parts = path.Split(Path.DirectorySeparatorChar).ToList();
+                parts.RemoveAt(parts.Count - 1);
+                path = string.Join(Path.DirectorySeparatorChar.ToString(), parts);
+            }
+
+            path += Path.DirectorySeparatorChar;
+
+            if (!m_pathToGuid.ContainsKey (path)) {
+                generateFoldersForPath(path);
+            }
+
+            // Add that Project to the generated FolderProject.
+            if (m_pathToGuid.ContainsKey (path)) {
+                var nestedDoc = new XmlDocument ();
+                nestedDoc.LoadXml (
+                    string.Format ("<NestedProject To=\"{0}\" From=\"{1}\" />",
+                        projectGuid, m_pathToGuid [path])
+                );
+                this.XMLNestedProjects.Add (nestedDoc);
+            }
+        }
+
+        private void generateFoldersForPath(string path)
+        {
+            var parts = path.Split(Path.DirectorySeparatorChar);
+            string longPath = string.Empty;
+            string lastGuid = string.Empty;
+            foreach (var part in parts) {
+                if (part == string.Empty) {
+                    continue;
+                }
+
+                longPath = string.Format("{0}{1}{2}", longPath, part, Path.DirectorySeparatorChar);
+                if (m_pathToGuid.ContainsKey(longPath)) {
+                    lastGuid = m_pathToGuid[longPath];
+                    continue;
+                }
+
+                var folderGuid = generateGUIDForName(longPath + "." + this.Platform);
+                m_pathToGuid.Add(longPath, folderGuid);
+
+                // Create a Folder Project for the XSLT Parser
+                var projectDoc = new XmlDocument();
+                projectDoc.LoadXml(
+                    string.Format("<Project Type=\"Folder\" Name=\"{0}\" Guid=\"{1}\" Path=\"{2}\" />", 
+                        part, folderGuid, part)
+                );
+                XMLFolders.Add(projectDoc);
+
+                // Create a NestedProject for the XSLT Parser
+                if (lastGuid != string.Empty) 
+                {
+                    // For the Folder
+                    var nestedDoc = new XmlDocument ();
+                    nestedDoc.LoadXml (
+                        string.Format ("<NestedProject To=\"{0}\" From=\"{1}\" />",
+                            folderGuid, lastGuid)
+                    );
+                    this.XMLNestedProjects.Add (nestedDoc);
+                }
+
+                lastGuid = folderGuid;
+            }
+        }
+        #endregion
 
         /// <summary>
         /// Generates a project at the target path.
@@ -977,7 +1086,43 @@ namespace Protobuild.Tasks
                     projectDoc.DocumentElement,
                     true));
             }
+
+            // Append Folder Projects
+            foreach (var folderDoc in this.XMLFolders) 
+            {
+                projects.AppendChild(doc.ImportNode(
+                    folderDoc.DocumentElement, 
+                    true));
+            }
+
+            // Append Folder Mappings
+            var nested = doc.CreateElement("NestedProjects");
+            input.AppendChild(nested);
+            foreach (var mappingDoc in this.XMLNestedProjects) 
+            {
+                nested.AppendChild (doc.ImportNode (
+                    mappingDoc.DocumentElement,
+                    true));
+            }
+
             return doc;
+        }
+
+        private string generateGUIDForName(string name)
+        {
+            var guidBytes = new byte[16];
+            for (var i = 0; i < guidBytes.Length; i++)
+                guidBytes[i] = (byte)0;
+            var nameBytes = Encoding.ASCII.GetBytes(name);
+            unchecked
+            {
+                for (var i = 0; i < nameBytes.Length; i++)
+                    guidBytes[i % 16] += nameBytes[i];
+                for (var i = nameBytes.Length; i < 16; i++)
+                    guidBytes[i] += nameBytes[i % nameBytes.Length];
+            }
+            var guid = new Guid(guidBytes);
+            return guid.ToString().ToUpper();
         }
     }
 }

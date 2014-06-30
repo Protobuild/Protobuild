@@ -36,12 +36,15 @@ namespace Protobuild
             get;
             set;
         }
+
+        public GenerateSolutionFolders GenerateSolutionFolders { get; set; }
         
         public ModuleInfo()
         {
             this.ModuleAssemblies = new string[0];
             this.DefaultAction = "resync";
             this.GenerateNuGetRepositories = true;
+            this.GenerateSolutionFolders = new GenerateSolutionFolders();
         }
         
         [NonSerialized]

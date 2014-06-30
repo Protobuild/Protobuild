@@ -65,24 +65,36 @@
       <xsl:if test="user:ProjectIsActive(
           current()/@Platforms,
           /Input/Generation/Platform)">
-        <xsl:call-template name="project-definition">
-          <xsl:with-param name="type" select="current()/@Type" />
-          <!--<xsl:with-param name="name" select="current()/@Name" />-->
-          <xsl:with-param name="name" select="concat(
-                        current()/@Name,
-                        '.',
-                        /Input/Generation/Platform)" />
-          <xsl:with-param name="guid" select="current()/@Guid" />
-          <xsl:with-param name="path" select="concat(
-                        current()/@Path,
-                        '\',
-                        current()/@Name,
-                        '.',
-                        /Input/Generation/Platform,
-                        '.csproj')" />
-        </xsl:call-template>
+        <xsl:choose>
+          <xsl:when test="current()/@Type = 'Folder'">
+            <xsl:call-template name="project-definition">
+              <xsl:with-param name="type" select="current()/@Type" />
+              <xsl:with-param name="name" select="current()/@Name" />
+              <xsl:with-param name="guid" select="current()/@Guid" />
+              <xsl:with-param name="path" select="current()/@Path" />
+            </xsl:call-template>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:call-template name="project-definition">
+              <xsl:with-param name="type" select="current()/@Type" />
+              <!--<xsl:with-param name="name" select="current()/@Name" />-->
+              <xsl:with-param name="name" select="concat(
+                            current()/@Name,
+                            '.',
+                            /Input/Generation/Platform)" />
+              <xsl:with-param name="guid" select="current()/@Guid" />
+              <xsl:with-param name="path" select="concat(
+                            current()/@Path,
+                            '\',
+                            current()/@Name,
+                            '.',
+                            /Input/Generation/Platform,
+                            '.csproj')" />             
+            </xsl:call-template>            
+          </xsl:otherwise>
+        </xsl:choose>          
       </xsl:if>
-    </xsl:for-each>
+    </xsl:for-each>     
     <xsl:for-each select="/Input/Projects/ExternalProject/Project">
       <xsl:call-template name="project-definition">
         <xsl:with-param name="type" select="current()/@Type" />
@@ -162,8 +174,23 @@
       </xsl:call-template>
     </xsl:for-each>
     <xsl:text>        EndGlobalSection
-EndGlobal
 </xsl:text>
+    
+    <!-- NestedProjects for Folders -->
+    <xsl:text>        GlobalSection(NestedProjects) = preSolution
+</xsl:text>
+    <xsl:for-each select="/Input/NestedProjects/NestedProject">
+      <xsl:text>                {</xsl:text>
+      <xsl:value-of select="current()/@To" />
+      <xsl:text>} = {</xsl:text>
+      <xsl:value-of select="current()/@From" />
+      <xsl:text>}
+</xsl:text>
+    </xsl:for-each> 
+    <xsl:text>        EndGlobalSection
+</xsl:text>
+
+    <xsl:text>EndGlobal</xsl:text>
   </xsl:template>
   
   <xsl:template name="project-definition">
@@ -176,6 +203,9 @@ EndGlobal
       <xsl:when test="$type = 'Content'">
         <xsl:text>9344BDBB-3E7F-41FC-A0DD-8665D75EE146</xsl:text>
       </xsl:when>
+      <xsl:when test="$type = 'Folder'">
+        <xsl:text>2150E333-8FDC-42A3-9474-1A3956D46DE8</xsl:text>
+      </xsl:when>      
       <xsl:otherwise>
         <xsl:text>FAE04EC0-301F-11D3-BF4B-00C04F79EFBC</xsl:text>
       </xsl:otherwise>
