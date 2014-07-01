@@ -9,14 +9,18 @@ using System.Xml.Xsl;
 
 namespace Protobuild.Tasks
 {
-    using System.Runtime.InteropServices.ComTypes;
+    using System.Globalization;
     using Protobuild.Services;
 
     public class ProjectGenerator
     {
         private XslCompiledTransform m_ProjectTransform = null;
+
         private XslCompiledTransform m_SolutionTransform = null;
+
         private Action<string> m_Log;
+
+        private Dictionary<string, string> m_PathToGUID;
 
         public ProjectGenerator(
             string rootPath,
@@ -27,7 +31,11 @@ namespace Protobuild.Tasks
             this.RootPath = rootPath;
             this.Platform = platform;
             this.m_Log = log;
-        }
+
+            this.XMLFolders = new List<XmlDocument>();
+            this.XMLNestedProjects = new List<XmlDocument>();
+            this.m_PathToGUID = new Dictionary<string, string>();
+        }           
 
         public List<XmlDocument> Documents { get; private set; }
 
@@ -35,21 +43,30 @@ namespace Protobuild.Tasks
 
         public string Platform { get; private set; }
 
-        public void Load(string path, string rootPath = null, string modulePath = null)
+        public List<XmlDocument> XMLFolders { get; private set; }
+
+        public List<XmlDocument> XMLNestedProjects { get; private set; }
+
+        public void Load(string path, ModuleInfo module, string modulePath = null)
         {
             var doc = new XmlDocument();
             doc.Load(path);
 
             // If this is a ContentProject, we actually need to generate the
             // full project node from the files that are in the Source folder.
-            XmlDocument newDoc = null;
+            XmlDocument newDoc;
             if (doc.DocumentElement.Name == "ContentProject")
-                newDoc = GenerateContentProject(doc, modulePath);
-            else
-                newDoc = doc;
-            if (rootPath != null && modulePath != null)
             {
-                var additionalPath = modulePath.Substring(rootPath.Length).Replace('/', '\\');
+                newDoc = GenerateContentProject(doc, modulePath);
+            }
+            else
+            {
+                newDoc = doc;
+            }
+
+            if (module.Path != null && modulePath != null)
+            {
+                var additionalPath = modulePath.Substring(module.Path.Length).Replace('/', '\\');
                 if (newDoc.DocumentElement != null &&
                     newDoc.DocumentElement.Attributes["Path"] != null &&
                     additionalPath != null)
@@ -63,7 +80,13 @@ namespace Protobuild.Tasks
                     // Need to find all descendant Binary and Project tags
                     // and update their paths as well.
                     var xDoc = newDoc.ToXDocument();
-                    var projectsToUpdate = xDoc.Descendants().Where(x => x.Name == "Project");
+
+                    var platformProjects = xDoc.Descendants().Where(
+                        p => p.Name == "Platform" && 
+                        p.Attribute ("Type").Value == this.Platform)
+                        .SelectMany(p => p.Elements());
+
+                    var projectsToUpdate = platformProjects.Where(x => x.Name == "Project");
                     var binariesToUpdate = xDoc.Descendants().Where(x => x.Name == "Binary");
                     foreach (var projectToUpdate in projectsToUpdate
                         .Where(x => x.Attribute("Path") != null))
@@ -71,6 +94,8 @@ namespace Protobuild.Tasks
                         projectToUpdate.Attribute("Path").Value =
                             (additionalPath.Trim('\\') + '\\' +
                             projectToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
+
+                        GenerateProjectFolders(projectToUpdate.ToXmlDocument(), module, modulePath);
                     }
                     foreach (var binaryToUpdate in binariesToUpdate
                         .Where(x => x.Attribute("Path") != null))
@@ -82,6 +107,7 @@ namespace Protobuild.Tasks
                     newDoc = xDoc.ToXmlDocument();
                 }
             }
+
             this.Documents.Add(newDoc);
 
             // If the Guid property doesn't exist, we do one of two things:
@@ -104,21 +130,17 @@ namespace Protobuild.Tasks
 
                 if (autogenerate)
                 {
-                    var name = doc.DocumentElement.GetAttribute("Name") + "." + this.Platform;
-                    var guidBytes = new byte[16];
-                    for (var i = 0; i < guidBytes.Length; i++)
-                        guidBytes[i] = (byte)0;
-                    var nameBytes = Encoding.ASCII.GetBytes(name);
-                    unchecked
-                    {
-                        for (var i = 0; i < nameBytes.Length; i++)
-                            guidBytes[i % 16] += nameBytes[i];
-                        for (var i = nameBytes.Length; i < 16; i++)
-                            guidBytes[i] += nameBytes[i % nameBytes.Length];
-                    }
-                    var guid = new Guid(guidBytes);
-                    doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
+                    doc.DocumentElement.SetAttribute(
+                        "Guid", 
+                        this.GenerateGUIDForName(doc.DocumentElement.GetAttribute("Name") + "." + this.Platform));
                 }
+            }
+
+            if (module.GenerateSolutionFolders.Action != string.Empty && 
+                doc.DocumentElement.Name != "ContentProject" && 
+                doc.DocumentElement.Name != "ExternalProject") 
+            {
+                GenerateProjectFolders(doc, module, modulePath);
             }
         }
 
@@ -977,7 +999,139 @@ namespace Protobuild.Tasks
                     projectDoc.DocumentElement,
                     true));
             }
+
+            // Append Folder Projects
+            foreach (var folderDoc in this.XMLFolders) 
+            {
+                projects.AppendChild(doc.ImportNode(
+                    folderDoc.DocumentElement, 
+                    true));
+            }
+
+            // Append Folder Mappings
+            var nested = doc.CreateElement("NestedProjects");
+            input.AppendChild(nested);
+            foreach (var mappingDoc in this.XMLNestedProjects) 
+            {
+                nested.AppendChild (doc.ImportNode (
+                    mappingDoc.DocumentElement,
+                    true));
+            }
+
             return doc;
+        }
+
+        private string GenerateGUIDForName(string name)
+        {
+            var guidBytes = new byte[16];
+            for (var i = 0; i < guidBytes.Length; i++)
+                guidBytes[i] = (byte)0;
+            var nameBytes = Encoding.ASCII.GetBytes(name);
+            unchecked
+            {
+                for (var i = 0; i < nameBytes.Length; i++)
+                    guidBytes[i % 16] += nameBytes[i];
+                for (var i = nameBytes.Length; i < 16; i++)
+                    guidBytes[i] += nameBytes[i % nameBytes.Length];
+            }
+            var guid = new Guid(guidBytes);
+            return guid.ToString().ToUpper();
+        }
+
+        private void GenerateProjectFolders(XmlDocument projectDoc, ModuleInfo module, string modulePath)
+        {
+            var path = string.Empty;
+            var projectGuid = projectDoc.DocumentElement.Attributes["Guid"].Value;
+            switch (module.GenerateSolutionFolders.Action.ToLower()) 
+            {
+            case "mirrorfilesystem":
+                // Add folders by mirroring the FileSystem
+                path = projectDoc.DocumentElement.Attributes ["Path"].Value.Replace ('\\', Path.DirectorySeparatorChar);
+                break;
+            case "permodule":
+                // Add one folder per module.
+                if (modulePath == module.Path || modulePath == null || module.Path == null) {
+                    return;
+                }
+                path = modulePath.Substring (module.Path.Length + 1);
+                break;
+            default:
+                this.m_Log(
+                    string.Format(
+                        "Unkown GenerationSolutionFolders Action \"{0}\" in Module \"{1}\".",
+                        module.GenerateSolutionFolders.Action,
+                        module.Path));
+                return;
+            }
+
+            if (path == string.Empty)
+            {
+                return;
+            }
+
+            if (module.GenerateSolutionFolders.SkipLast)
+            {
+                // Skipping the last Folder
+                var parts = path.Split(Path.DirectorySeparatorChar).ToList();
+                parts.RemoveAt(parts.Count - 1);
+                path = string.Join(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture), parts);
+            }
+
+            path += Path.DirectorySeparatorChar;
+
+            if (!this.m_PathToGUID.ContainsKey(path))
+            {
+                this.GenerateFoldersForPath(path);
+            }
+
+            // Add that Project to the generated FolderProject.
+            if (this.m_PathToGUID.ContainsKey(path))
+            {
+                var nestedDoc = new XmlDocument();
+                nestedDoc.LoadXml(
+                    string.Format("<NestedProject To=\"{0}\" From=\"{1}\" />", projectGuid, this.m_PathToGUID[path]));
+                this.XMLNestedProjects.Add(nestedDoc);
+            }
+        }
+
+        private void GenerateFoldersForPath(string path)
+        {
+            var parts = path.Split(Path.DirectorySeparatorChar);
+            var longPath = string.Empty;
+            var lastGuid = string.Empty;
+            foreach (var part in parts.Where(part => part != string.Empty))
+            {
+                longPath = string.Format("{0}{1}{2}", longPath, part, Path.DirectorySeparatorChar);
+                if (this.m_PathToGUID.ContainsKey(longPath))
+                {
+                    lastGuid = this.m_PathToGUID[longPath];
+                    continue;
+                }
+
+                var folderGuid = this.GenerateGUIDForName("Folder." + longPath + this.Platform);
+                this.m_PathToGUID.Add(longPath, folderGuid);
+
+                // Create a Folder Project for the XSLT Parser
+                var projectDoc = new XmlDocument();
+                projectDoc.LoadXml(
+                    string.Format(
+                        "<Project Type=\"Folder\" Name=\"{0}\" Guid=\"{1}\" Path=\"{2}\" />",
+                        part,
+                        folderGuid,
+                        part));
+                this.XMLFolders.Add(projectDoc);
+
+                // Create a NestedProject for the XSLT Parser
+                if (lastGuid != string.Empty)
+                {
+                    // For the Folder
+                    var nestedDoc = new XmlDocument();
+                    nestedDoc.LoadXml(string.Format("<NestedProject To=\"{0}\" From=\"{1}\" />", folderGuid, lastGuid));
+                    this.XMLNestedProjects.Add(nestedDoc);
+                }
+
+                lastGuid = folderGuid;
+            }
         }
     }
 }

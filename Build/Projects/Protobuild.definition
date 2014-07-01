@@ -36,6 +36,7 @@
     <Compile Include="KickstartForm.Designer.cs">
       <DependentUpon>KickstartForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="GenerateSolutionFolders.cs" />
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Program.cs" />

@@ -73,12 +73,13 @@ namespace Protobuild.Tasks
             foreach (var definition in definitions)
             {
                 this.LogMessage("Loading: " + definition.Name);
-                generator.Load(Path.Combine(
-                    definition.ModulePath,
-                    "Build",
-                    "Projects",
-                    definition.Name + ".definition"),
-                    module.Path,
+                generator.Load(
+                    Path.Combine(
+                        definition.ModulePath,
+                        "Build",
+                        "Projects",
+                        definition.Name + ".definition"),
+                    module,
                     definition.ModulePath);
             }
 
