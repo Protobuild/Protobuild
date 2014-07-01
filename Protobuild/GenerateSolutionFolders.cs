@@ -6,7 +6,7 @@
     public class GenerateSolutionFolders
     {
         public string Action { get; set; }
-        public bool? SkipLast { get; set; }
+        public bool SkipLast { get; set; }
 
         public GenerateSolutionFolders()
         {

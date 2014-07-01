@@ -80,7 +80,13 @@ namespace Protobuild.Tasks
                     // Need to find all descendant Binary and Project tags
                     // and update their paths as well.
                     var xDoc = newDoc.ToXDocument();
-                    var projectsToUpdate = xDoc.Descendants().Where(x => x.Name == "Project");
+
+                    var platformProjects = xDoc.Descendants().Where(
+                        p => p.Name == "Platform" && 
+                        p.Attribute ("Type").Value == this.Platform)
+                        .SelectMany(p => p.Elements());
+
+                    var projectsToUpdate = platformProjects.Where(x => x.Name == "Project");
                     var binariesToUpdate = xDoc.Descendants().Where(x => x.Name == "Binary");
                     foreach (var projectToUpdate in projectsToUpdate
                         .Where(x => x.Attribute("Path") != null))
@@ -88,6 +94,8 @@ namespace Protobuild.Tasks
                         projectToUpdate.Attribute("Path").Value =
                             (additionalPath.Trim('\\') + '\\' +
                             projectToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
+
+                        GenerateProjectFolders(projectToUpdate.ToXmlDocument(), module, modulePath);
                     }
                     foreach (var binaryToUpdate in binariesToUpdate
                         .Where(x => x.Attribute("Path") != null))
@@ -132,34 +140,7 @@ namespace Protobuild.Tasks
                 doc.DocumentElement.Name != "ContentProject" && 
                 doc.DocumentElement.Name != "ExternalProject") 
             {
-                switch (module.GenerateSolutionFolders.Action.ToLower()) 
-                {
-                    case "mirrorfilesystem":
-                        // Add folders by mirroring the FileSystem
-                        this.GenerateProjectFolders(
-                            newDoc.DocumentElement.Attributes["Path"].Value.Replace('\\', Path.DirectorySeparatorChar),
-                            doc.DocumentElement.Attributes["Guid"].Value,
-                            module.GenerateSolutionFolders);
-                        break;
-                    case "permodule":
-                        // Add one folder per module.
-                        if (modulePath != module.Path && modulePath != null && module.Path != null)
-                        {
-                            this.GenerateProjectFolders(
-                                modulePath.Substring(module.Path.Length + 1),
-                                doc.DocumentElement.Attributes["Guid"].Value,
-                                module.GenerateSolutionFolders);
-                        }
-
-                        break;
-                    default:
-                        this.m_Log(
-                            string.Format(
-                                "Unkown GenerationSolutionFolders Action \"{0}\" in Module \"{1}\".",
-                                module.GenerateSolutionFolders.Action,
-                                module.Path));
-                        break;
-                }
+                GenerateProjectFolders(doc, module, modulePath);
             }
         }
 
@@ -1057,15 +1038,38 @@ namespace Protobuild.Tasks
             return guid.ToString().ToUpper();
         }
 
-        private void GenerateProjectFolders(string path, string projectGuid, GenerateSolutionFolders generationOptions)
+        private void GenerateProjectFolders(XmlDocument projectDoc, ModuleInfo module, string modulePath)
         {
+            var path = string.Empty;
+            var projectGuid = projectDoc.DocumentElement.Attributes["Guid"].Value;
+            switch (module.GenerateSolutionFolders.Action.ToLower()) 
+            {
+            case "mirrorfilesystem":
+                // Add folders by mirroring the FileSystem
+                path = projectDoc.DocumentElement.Attributes ["Path"].Value.Replace ('\\', Path.DirectorySeparatorChar);
+                break;
+            case "permodule":
+                // Add one folder per module.
+                if (modulePath == module.Path || modulePath == null || module.Path == null) {
+                    return;
+                }
+                path = modulePath.Substring (module.Path.Length + 1);
+                break;
+            default:
+                this.m_Log(
+                    string.Format(
+                        "Unkown GenerationSolutionFolders Action \"{0}\" in Module \"{1}\".",
+                        module.GenerateSolutionFolders.Action,
+                        module.Path));
+                return;
+            }
+
             if (path == string.Empty)
             {
                 return;
             }
 
-            if (generationOptions.SkipLast != null &&
-                ((bool)generationOptions.SkipLast))
+            if (module.GenerateSolutionFolders.SkipLast)
             {
                 // Skipping the last Folder
                 var parts = path.Split(Path.DirectorySeparatorChar).ToList();
