@@ -1,14 +1,47 @@
-using System;
-using System.Diagnostics;
-using System.IO;
-using Protobuild.Tasks;
-
+//-----------------------------------------------------------------------
+// <copyright file="Actions.cs" company="Protobuild Project">
+// The MIT License (MIT)
+// 
+// Copyright (c) Various Authors
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+// 
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Protobuild
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
+    using Protobuild.Tasks;
 
+    /// <summary>
+    /// Provides utility methods for performing general actions in Protobuild.
+    /// </summary>
     public static class Actions
     {
+        /// <summary>
+        /// Opens the specified object in MonoDevelop (to edit the definition file).
+        /// </summary>
+        /// <param name="root">The module that contains the object.</param>
+        /// <param name="obj">The object to edit (either DefinitionInfo or ModuleInfo).</param>
+        /// <param name="update">The callback when the module has been updated.</param>
         public static void Open(ModuleInfo root, object obj, Action update)
         {
             var definitionInfo = obj as DefinitionInfo;
@@ -18,6 +51,7 @@ namespace Protobuild
                 // Open XML in editor.
                 Process.Start("monodevelop", definitionInfo.DefinitionPath);
             }
+
             if (moduleInfo != null)
             {
                 // Start the module's Protobuild unless it's also our
@@ -36,90 +70,35 @@ namespace Protobuild
             }
         }
 
-        public static bool ResyncProjectsForPlatform(ModuleInfo module, string platform, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
-        {
-            if (module.DisableSynchronisation ?? false)
-            {
-                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
-            }
-            else
-            {
-                if (!SyncProjectsForPlatform(module, platform))
-                    return false;
-            }
-
-            return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath);
-        }
-        
-        public static bool SyncProjectsForPlatform(ModuleInfo module, string platform)
-        {
-            if (module.DisableSynchronisation ?? false)
-            {
-                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
-                return false;
-            }
-
-            if (string.IsNullOrWhiteSpace(platform))
-                platform = DetectPlatform();
-                
-            var task = new SyncProjectsTask
-            {
-                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
-                RootPath = module.Path + Path.DirectorySeparatorChar,
-                Platform = platform,
-                ModuleName = module.Name
-            };
-            return task.Execute();
-        }
-
-        public static bool GenerateProjectsForPlatform(
-            ModuleInfo module,
-            string platform,
-            string[] enabledServices = null,
-            string[] disabledServices = null,
-            string serviceSpecPath = null)
-        {
-            if (string.IsNullOrWhiteSpace(platform)) platform = DetectPlatform();
-
-            var task = new GenerateProjectsTask
-            {
-                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
-                RootPath = module.Path + Path.DirectorySeparatorChar,
-                Platform = platform,
-                ModuleName = module.Name,
-                EnableServices = enabledServices,
-                DisableServices = disabledServices,
-                ServiceSpecPath = serviceSpecPath
-            };
-            return task.Execute();
-        }
-
-        public static bool CleanProjectsForPlatform(ModuleInfo module, string platform)
-        {
-            if (string.IsNullOrWhiteSpace(platform))
-                platform = DetectPlatform();
-                
-            var task = new CleanProjectsTask
-            {
-                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
-                RootPath = module.Path + Path.DirectorySeparatorChar,
-                Platform = platform,
-                ModuleName = module.Name
-            };
-            return task.Execute();
-        }
-        
+        /// <summary>
+        /// Detects the current executing (host) platform.
+        /// </summary>
+        /// <returns>The executing, host platform.</returns>
         public static string DetectPlatform()
         {
             if (Path.DirectorySeparatorChar == '/')
             {
                 if (Directory.Exists("/Library"))
+                {
                     return "MacOS";
+                }
+
                 return "Linux";
             }
+
             return "Windows";
         }
 
+        /// <summary>
+        /// Performs a resynchronisation, synchronisation, generation or clean on the specified module.
+        /// </summary>
+        /// <returns><c>true</c>, if the action succeeded, <c>false</c> otherwise.</returns>
+        /// <param name="module">The module to perform the action on.</param>
+        /// <param name="action">The action to perform, either "resync", "sync", "generate" or "clean".</param>
+        /// <param name="platform">The platform to perform the action for.</param>
+        /// <param name="enabledServices">A list of enabled services.</param>
+        /// <param name="disabledServices">A list of disabled services.</param>
+        /// <param name="serviceSpecPath">The service specification path.</param>
         public static bool PerformAction(ModuleInfo module, string action, string platform = null, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
@@ -283,10 +262,130 @@ namespace Protobuild
             return true;
         }
 
+        /// <summary>
+        /// Performs the default action on the specified module.
+        /// </summary>
+        /// <returns><c>true</c>, if the default action succeeded, <c>false</c> otherwise.</returns>
+        /// <param name="module">The module to perform the action on.</param>
+        /// <param name="platform">The platform to perform the action for.</param>
+        /// <param name="enabledServices">A list of enabled services.</param>
+        /// <param name="disabledServices">A list of disabled services.</param>
+        /// <param name="serviceSpecPath">The service specification path.</param>
         public static bool DefaultAction(ModuleInfo module, string platform = null, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
         {
             return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath);
         }
+
+        /// <summary>
+        /// Resynchronises the projects for the specified platform.
+        /// </summary>
+        /// <returns><c>true</c>, if the resynchronisation succeeded, <c>false</c> otherwise.</returns>
+        /// <param name="module">The module to resynchronise.</param>
+        /// <param name="platform">The platform to resynchronise for.</param>
+        /// <param name="enabledServices">A list of enabled services.</param>
+        /// <param name="disabledServices">A list of disabled services.</param>
+        /// <param name="serviceSpecPath">The service specification path.</param>
+        private static bool ResyncProjectsForPlatform(ModuleInfo module, string platform, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
+        {
+            if (module.DisableSynchronisation ?? false)
+            {
+                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+            }
+            else
+            {
+                if (!SyncProjectsForPlatform(module, platform))
+                {
+                    return false;
+                }
+            }
+
+            return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath);
+        }
+
+        /// <summary>
+        /// Synchronises the projects for the specified platform.
+        /// </summary>
+        /// <returns><c>true</c>, if the synchronisation succeeded, <c>false</c> otherwise.</returns>
+        /// <param name="module">The module to synchronise.</param>
+        /// <param name="platform">The platform to synchronise for.</param>
+        private static bool SyncProjectsForPlatform(ModuleInfo module, string platform)
+        {
+            if (module.DisableSynchronisation ?? false)
+            {
+                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(platform))
+            {
+                platform = DetectPlatform();
+            }
+
+            var task = new SyncProjectsTask
+            {
+                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
+                RootPath = module.Path + Path.DirectorySeparatorChar,
+                Platform = platform,
+                ModuleName = module.Name
+            };
+            return task.Execute();
+        }
+
+        /// <summary>
+        /// Generates the projects for the specified platform.
+        /// </summary>
+        /// <returns><c>true</c>, if the generation succeeded, <c>false</c> otherwise.</returns>
+        /// <param name="module">The module whose projects should be generated.</param>
+        /// <param name="platform">The platform to generate for.</param>
+        /// <param name="enabledServices">A list of enabled services.</param>
+        /// <param name="disabledServices">A list of disabled services.</param>
+        /// <param name="serviceSpecPath">The service specification path.</param>
+        private static bool GenerateProjectsForPlatform(
+            ModuleInfo module,
+            string platform,
+            string[] enabledServices = null,
+            string[] disabledServices = null,
+            string serviceSpecPath = null)
+        {
+            if (string.IsNullOrWhiteSpace(platform)) 
+            {
+                platform = DetectPlatform();
+            }
+
+            var task = new GenerateProjectsTask
+            {
+                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
+                RootPath = module.Path + Path.DirectorySeparatorChar,
+                Platform = platform,
+                ModuleName = module.Name,
+                EnableServices = enabledServices,
+                DisableServices = disabledServices,
+                ServiceSpecPath = serviceSpecPath
+            };
+            return task.Execute();
+        }
+
+        /// <summary>
+        /// Cleans the projects for the specified platform.
+        /// </summary>
+        /// <returns><c>true</c>, if projects were cleaned successfully, <c>false</c> otherwise.</returns>
+        /// <param name="module">The module to clean projects in.</param>
+        /// <param name="platform">The platform to clean for.</param>
+        private static bool CleanProjectsForPlatform(ModuleInfo module, string platform)
+        {
+            if (string.IsNullOrWhiteSpace(platform))
+            {
+                platform = DetectPlatform();
+            }
+
+            var task = new CleanProjectsTask
+            {
+                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
+                RootPath = module.Path + Path.DirectorySeparatorChar,
+                Platform = platform,
+                ModuleName = module.Name
+            };
+            return task.Execute();
+        }
     }
 }
-

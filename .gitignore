@@ -10,3 +10,4 @@ obj
 Protobuild.Tests/TestData/**/Protobuild.exe
 *.speccache
 packages/repositories.config
+StyleCop.Cache
