@@ -1,17 +1,58 @@
-﻿using System;
-using System.IO;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
-
+﻿//-----------------------------------------------------------------------
+// <copyright file="Actions.cs" company="Protobuild Project">
+// The MIT License (MIT)
+// 
+// Copyright (c) Various Authors
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+//     The above copyright notice and this permission notice shall be included in
+//     all copies or substantial portions of the Software.
+// 
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//     THE SOFTWARE.
+// </copyright>
+//-----------------------------------------------------------------------
 namespace Protobuild
 {
+    using System;
+    using System.IO;
+    using System.Diagnostics;
+    using System.Text.RegularExpressions;
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
     using Microsoft.Win32;
 
+    /// <summary>
+    /// Provides services for JSIL, such as downloading and installation of JSIL.
+    /// </summary>
+    /// <remarks>
+    /// This is used by Protobuild to automatically download and build JSIL when the user
+    /// first targets the Web platform.
+    /// </remarks>
     public class JSILProvider
-    {   
+    {
+        /// <summary>
+        /// Returns the required JSIL directories, downloading and building JSIL if necessary.
+        /// </summary>
+        /// <remarks>
+        /// If this returns <c>false</c>, then an error was encountered while downloading or
+        /// building JSIL.
+        /// </remarks>
+        /// <returns><c>true</c>, if JSIL was available or was installed successfully, <c>false</c> otherwise.</returns>
+        /// <param name="jsilDirectory">The runtime directory of JSIL.</param>
+        /// <param name="jsilCompilerFile">The JSIL compiler executable.</param>
         public bool GetJSIL(out string jsilDirectory, out string jsilCompilerFile)
         {
             if (File.Exists(this.GetJSILCompilerPath()))
@@ -157,6 +198,7 @@ namespace Protobuild
                 Console.WriteLine("> " + file.Name);
                 file.CopyTo(Path.Combine(this.GetJSILRuntimeDirectory(), file.Name));
             }
+
             Console.WriteLine("done.");
 
             Console.WriteLine("Creating runtime libraries... ");
@@ -178,6 +220,7 @@ namespace Protobuild
             {
                 // Ignore
             }
+
             Console.WriteLine("done.");
 
             if (File.Exists(this.GetJSILCompilerPath()))
@@ -199,6 +242,11 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Recursively copies files from the source directory to the destination.
+        /// </summary>
+        /// <param name="source">The source directory.</param>
+        /// <param name="destination">The destination directory.</param>
         private void RecursiveCopy(string source, string destination)
         {
             foreach (var file in new DirectoryInfo(source).GetFiles())
@@ -218,6 +266,15 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Gets one of the JSIL directories, either "runtime" or "source".
+        /// </summary>
+        /// <remarks>
+        /// This defaults to %appdata%\.jsil\{type}, or the JSIL_DIRECTORY environment variable
+        /// if it is set (with {type} as a subdirectory).
+        /// </remarks>
+        /// <returns>The JSIL root directory.</returns>
+        /// <param name="type">Type.</param>
         private string GetJSILDirectory(string type)
         {
             var targetdir = Environment.GetEnvironmentVariable("JSIL_DIRECTORY");
@@ -231,24 +288,41 @@ namespace Protobuild
             {
                 Directory.CreateDirectory(jsil);
             }
+
             return jsil;
         }
 
+        /// <summary>
+        /// Gets the JSIL source directory.
+        /// </summary>
+        /// <returns>The JSIL source directory.</returns>
         private string GetJSILSourceDirectory()
         {
             return this.GetJSILDirectory("source");
         }
 
+        /// <summary>
+        /// Gets the JSIL runtime directory.
+        /// </summary>
+        /// <returns>The JSIL runtime directory.</returns>
         private string GetJSILRuntimeDirectory()
         {
             return this.GetJSILDirectory("runtime");
         }
 
+        /// <summary>
+        /// Gets the path to the JSIL compiler executable.
+        /// </summary>
+        /// <returns>The path to JSIL compiler executable.</returns>
         private string GetJSILCompilerPath()
         {
             return Path.Combine(this.GetJSILRuntimeDirectory(), "JSILc.exe");
         }
 
+        /// <summary>
+        /// Executes Git to clone or update the source files for JSIL.
+        /// </summary>
+        /// <param name="args">The arguments to pass to Git.</param>
         private void ExecuteGit(string args)
         {
             Process process;
@@ -276,6 +350,12 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Executes a program, such as MSBuild during the build or installation of JSIL.
+        /// </summary>
+        /// <returns><c>true</c>, if program had a successful exit code, <c>false</c> otherwise.</returns>
+        /// <param name="name">The full path to the program.</param>
+        /// <param name="args">The arguments to the program.</param>
         private bool ExecuteProgram(string name, string args)
         {
             Process process;
@@ -305,6 +385,11 @@ namespace Protobuild
             return process.ExitCode == 0;
         }
 
+        /// <summary>
+        /// Patches the file by passing it's contents through the specified modification function.
+        /// </summary>
+        /// <param name="path">The file to modify.</param>
+        /// <param name="modify">The function to modify the file's text.</param>
         private void PatchFile(string path, Func<string, string> modify)
         {
             string projectText;
@@ -312,13 +397,20 @@ namespace Protobuild
             {
                 projectText = reader.ReadToEnd();
             }
+
             projectText = modify(projectText);
+
             using (var writer = new StreamWriter(path))
             {
                 writer.Write(projectText);
             }
         }
 
+        /// <summary>
+        /// Detects the appropriate build tool, either MSBuild or xbuild.
+        /// </summary>
+        /// <returns><c>true</c>, if build tool was detected, <c>false</c> otherwise.</returns>
+        /// <param name="pathOrError">The path of the build tool if successful, or the error message on failure.</param>
         private bool DetectBuilder(out string pathOrError)
         {
             if (Actions.DetectPlatform() == "Windows")
@@ -371,6 +463,11 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Detects if the user is currently running a buggy version of Mono, under which
+        /// JSIL will not build successfully.
+        /// </summary>
+        /// <returns><c>true</c>, if the user is running a buggy version of Mono, <c>false</c> otherwise.</returns>
         private bool BuggyMonoDetected()
         {
             string builder;
@@ -411,11 +508,23 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Gets a list of JSIL runtime libraries (i.e. the Javascript files), so they can
+        /// be included in the projects as copy-on-output.
+        /// </summary>
+        /// <returns>The JSIL libraries to include in the project.</returns>
         public IEnumerable<KeyValuePair<string, string>> GetJSILLibraries()
         {
             return this.ScanFolder(Path.Combine(this.GetJSILRuntimeDirectory(), "Libraries"), string.Empty);
         }
 
+        /// <summary>
+        /// Recursively scans the specified folder, returning all of the entries as
+        /// original path, new path pairs.
+        /// </summary>
+        /// <returns>The key value pairs of files that were scanned.</returns>
+        /// <param name="path">The path to scan.</param>
+        /// <param name="name">The "destination" path, under which the files are mapped.</param>
         private IEnumerable<KeyValuePair<string, string>> ScanFolder(string path, string name)
         {
             var dirInfo = new DirectoryInfo(path);
@@ -435,4 +544,3 @@ namespace Protobuild
         }
     }
 }
-
