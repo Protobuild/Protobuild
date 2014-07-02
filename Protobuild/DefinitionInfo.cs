@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="Actions.cs" company="Protobuild Project">
+// <copyright file="DefinitionInfo.cs" company="Protobuild Project">
 // The MIT License (MIT)
 // 
 // Copyright (c) Various Authors
@@ -98,6 +98,7 @@ namespace Protobuild
         /// Loads a project definition from the specified XML file.
         /// </summary>
         /// <param name="xmlFile">The path of the XML file to load.</param>
+        /// <returns>The loaded project definition.</returns>
         public static DefinitionInfo Load(string xmlFile)
         {
             var def = new DefinitionInfo();
@@ -138,4 +139,3 @@ namespace Protobuild
         }
     }
 }
-
