@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="Actions.cs" company="Protobuild Project">
+// <copyright file="JSILProvider.cs" company="Protobuild Project">
 // The MIT License (MIT)
 // 
 // Copyright (c) Various Authors
@@ -26,12 +26,12 @@
 namespace Protobuild
 {
     using System;
-    using System.IO;
-    using System.Diagnostics;
-    using System.Text.RegularExpressions;
     using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Text.RegularExpressions;
     using Microsoft.Win32;
 
     /// <summary>
@@ -243,6 +243,16 @@ namespace Protobuild
         }
 
         /// <summary>
+        /// Gets a list of JSIL runtime libraries (i.e. the Javascript files), so they can
+        /// be included in the projects as copy-on-output.
+        /// </summary>
+        /// <returns>The JSIL libraries to include in the project.</returns>
+        public IEnumerable<KeyValuePair<string, string>> GetJSILLibraries()
+        {
+            return this.ScanFolder(Path.Combine(this.GetJSILRuntimeDirectory(), "Libraries"), string.Empty);
+        }
+
+        /// <summary>
         /// Recursively copies files from the source directory to the destination.
         /// </summary>
         /// <param name="source">The source directory.</param>
@@ -274,7 +284,7 @@ namespace Protobuild
         /// if it is set (with {type} as a subdirectory).
         /// </remarks>
         /// <returns>The JSIL root directory.</returns>
-        /// <param name="type">Type.</param>
+        /// <param name="type">The type of directory to return (either "runtime" or "source").</param>
         private string GetJSILDirectory(string type)
         {
             var targetdir = Environment.GetEnvironmentVariable("JSIL_DIRECTORY");
@@ -425,17 +435,17 @@ namespace Protobuild
                 {
                     try
                     {
-                        var msBuildToolsBasePath =
+                        var msbuildToolsBasePath =
                             (string)Registry.LocalMachine.OpenSubKey("SOFTWARE")
                                 .OpenSubKey("Microsoft")
                                 .OpenSubKey("MSBuild")
                                 .OpenSubKey("ToolsVersions")
                                 .OpenSubKey("4.0")
                                 .GetValue("MSBuildToolsPath");
-                        var msBuildPath = Path.Combine(msBuildToolsBasePath, "msbuild.exe");
-                        if (File.Exists(msBuildPath))
+                        var msbuildPath = Path.Combine(msbuildToolsBasePath, "msbuild.exe");
+                        if (File.Exists(msbuildPath))
                         {
-                            pathOrError = msBuildPath;
+                            pathOrError = msbuildPath;
                             return true;
                         }
                     }
@@ -506,16 +516,6 @@ namespace Protobuild
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Gets a list of JSIL runtime libraries (i.e. the Javascript files), so they can
-        /// be included in the projects as copy-on-output.
-        /// </summary>
-        /// <returns>The JSIL libraries to include in the project.</returns>
-        public IEnumerable<KeyValuePair<string, string>> GetJSILLibraries()
-        {
-            return this.ScanFolder(Path.Combine(this.GetJSILRuntimeDirectory(), "Libraries"), string.Empty);
         }
 
         /// <summary>

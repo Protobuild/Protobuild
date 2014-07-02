@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="Actions.cs" company="Protobuild Project">
+// <copyright file="EmbeddedResourceResolver.cs" company="Protobuild Project">
 // The MIT License (MIT)
 // 
 // Copyright (c) Various Authors
@@ -41,7 +41,7 @@ namespace Protobuild
         /// <returns>The XML entity.</returns>
         /// <param name="absoluteUri">The absolute URI.</param>
         /// <param name="role">The role of the XML entity.</param>
-        /// <param name="ofObjectToReturn">The tyep of object to return.</param>
+        /// <param name="typeOfObjectToReturn">The tyep of object to return.</param>
         public override object GetEntity(
             Uri absoluteUri,
             string role,
