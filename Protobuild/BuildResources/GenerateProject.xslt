@@ -196,10 +196,10 @@
       <xsl:otherwise>
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
-            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Ouya'">
-            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Windows8'">
           </xsl:when>
