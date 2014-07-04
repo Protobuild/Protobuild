@@ -53,6 +53,12 @@
     </Included>
   </xsl:template>
  
+  <xsl:template match="p:EmbeddedNativeLibrary">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+ 
   <xsl:template match="p:EmbeddedShaderProgram">
     <Included>
       <xsl:copy-of select="." />
