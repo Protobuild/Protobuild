@@ -196,10 +196,10 @@
       <xsl:otherwise>
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
-            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Ouya'">
-            <TargetFrameworkVersion>v4.1</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Windows8'">
           </xsl:when>
@@ -1034,6 +1034,29 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/EmbeddedResource">
+          <xsl:if test="user:ProjectAndServiceIsActive(
+              ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/EmbeddedNativeLibrary">
           <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
