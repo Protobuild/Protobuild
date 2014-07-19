@@ -1711,7 +1711,7 @@
               count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
 
               <xsl:if test="user:ProjectIsActive(
-                $project/@Platforms,
+                /Input/Projects/Project[@Name=$include-path]/@Platforms,
                 '',
                 '',
                 /Input/Generation/Platform)">
