@@ -118,6 +118,12 @@
       <xsl:copy-of select="." />
     </Included>
   </xsl:template>
+
+  <xsl:template match="p:XamarinComponentReference">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
   
   <xsl:template match="*"></xsl:template>
   <xsl:template match="text()"></xsl:template>
