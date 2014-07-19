@@ -160,13 +160,23 @@
 
     public bool CodesignKeyExists()
     {
-      var path = System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("HOME"), ".codesignkey");
+      var home = System.Environment.GetEnvironmentVariable("HOME");
+      if (string.IsNullOrEmpty(home))
+      {
+        home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+      }
+      var path = System.IO.Path.Combine(home, ".codesignkey");
       return System.IO.File.Exists(path);
     }
     
     public string GetCodesignKey()
     {
-      var path = System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("HOME"), ".codesignkey");
+      var home = System.Environment.GetEnvironmentVariable("HOME");
+      if (string.IsNullOrEmpty(home))
+      {
+        home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+      }
+      var path = System.IO.Path.Combine(home, ".codesignkey");
       using (var reader = new System.IO.StreamReader(path))
       {
         return reader.ReadToEnd().Trim();
