@@ -158,6 +158,21 @@
       return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
     }
 
+    public bool CodesignKeyExists()
+    {
+      var path = System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("HOME"), ".codesignkey");
+      return System.IO.File.Exists(path);
+    }
+    
+    public string GetCodesignKey()
+    {
+      var path = System.IO.Path.Combine(System.Environment.GetEnvironmentVariable("HOME"), ".codesignkey");
+      using (var reader = new System.IO.StreamReader(path))
+      {
+        return reader.ReadToEnd().Trim();
+      }
+    }
+
     ]]>
   </msxsl:script>
 
@@ -368,17 +383,56 @@
         </xsl:choose>
       </xsl:when>
       <xsl:when test="/Input/Generation/Platform = 'iOS'">
-        <xsl:choose>
-          <xsl:when test="$debug = 'true'">
-            <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-            <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-            <MtouchDebug>True</MtouchDebug>
-            <MtouchUseArmv7>false</MtouchUseArmv7>
-          </xsl:when>
-          <xsl:otherwise>
-            <MtouchUseArmv7>false</MtouchUseArmv7>
-          </xsl:otherwise>
-        </xsl:choose>
+        <xsl:if test="$debug = 'true'">
+          <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+          <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+          <MtouchDebug>True</MtouchDebug>
+        </xsl:if>
+        <MtouchUseArmv7>
+          <xsl:choose>
+            <xsl:when test="/Input/Properties/iOSUseArmv7">
+              <xsl:value-of select="/Input/Properties/iOSUseArmv7" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>false</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </MtouchUseArmv7>
+        <xsl:if test="/Input/Properties/iOSUseLlvm">
+          <MtouchUseLlvm>
+            <xsl:value-of select="/Input/Properties/iOSUseLlvm" />
+          </MtouchUseLlvm>
+        </xsl:if>
+        <xsl:if test="/Input/Properties/iOSUseSGen">
+          <MtouchUseSGen>
+            <xsl:value-of select="/Input/Properties/iOSUseSGen" />
+          </MtouchUseSGen>
+        </xsl:if>
+        <xsl:if test="/Input/Properties/iOSUseRefCounting">
+          <MtouchUseRefCounting>
+            <xsl:value-of select="/Input/Properties/iOSUseRefCounting" />
+          </MtouchUseRefCounting>
+        </xsl:if>
+        <xsl:if test="/Input/Properties/iOSI18n">
+          <MtouchI18n>
+            <xsl:value-of select="/Input/Properties/iOSI18n" />
+          </MtouchI18n>
+        </xsl:if>
+        <xsl:if test="/Input/Properties/iOSArch">
+          <MtouchArch>
+            <xsl:value-of select="/Input/Properties/iOSArch" />
+          </MtouchArch>
+        </xsl:if>
+        <xsl:if test="/Input/Properties/SignAssembly">
+          <SignAssembly>
+            <xsl:value-of select="/Input/Properties/SignAssembly" />
+          </SignAssembly>
+        </xsl:if>
+        <xsl:if test="user:CodesignKeyExists()">
+          <CodesignKey>
+            <xsl:value-of select="user:GetCodesignKey()" />
+          </CodesignKey>
+        </xsl:if>
       </xsl:when>
       <xsl:when test="/Input/Generation/Platform = 'MacOS'">
         <EnableCodeSigning>False</EnableCodeSigning>
@@ -570,7 +624,7 @@
         </RootNamespace>
         <AssemblyName><xsl:copy-of select="$assembly_name" /></AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<NoWarn><xsl:value-of select="/Input/Properties/NoWarn" /></NoWarn>
+        <NoWarn><xsl:value-of select="/Input/Properties/NoWarn" /></NoWarn>
         <xsl:call-template name="profile_and_version" />
         <xsl:choose>
           <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
@@ -1309,6 +1363,29 @@
 
       <ItemGroup>
         <xsl:for-each select="$project/Files/Resource">
+          <xsl:if test="user:ProjectAndServiceIsActive(
+              ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
+            <xsl:element
+              name="{name()}"
+              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+              <xsl:attribute name="Include">
+                <xsl:value-of select="@Include" />
+              </xsl:attribute>
+              <xsl:apply-templates select="node()"/>
+            </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+
+      <ItemGroup>
+        <xsl:for-each select="$project/Files/XamarinComponentReference">
           <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
