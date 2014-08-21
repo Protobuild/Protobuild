@@ -786,6 +786,39 @@ namespace Protobuild.Tasks
 
             }
         }
+        /// <summary>
+        /// Checks if the childs for Platforms conditions and returns true if current platform should include element
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        private bool includedPlatform(XmlElement element)
+        {
+            var children = element.ChildNodes.OfType<XmlElement>().ToArray();
+
+            var platformsTag = children.FirstOrDefault(x => x.LocalName == "Platforms");
+            var includePlatformsTag = children.FirstOrDefault(x => x.LocalName == "IncludePlatforms");
+            var excludePlatformsTag = children.FirstOrDefault(x => x.LocalName == "ExcludePlatforms");
+
+            var platformsTagString = platformsTag != null ? platformsTag.InnerText : string.Empty;
+            var includePlatformsTagString = includePlatformsTag != null ? includePlatformsTag.InnerText : string.Empty;
+            var excludePlatformsTagString = excludePlatformsTag != null ? excludePlatformsTag.InnerText : string.Empty;
+
+            // Fallback to <IncludePlatforms> if <Platforms> is not present.
+            if (string.IsNullOrEmpty(platformsTagString))
+            {
+                platformsTagString = includePlatformsTagString;
+            }
+            if (string.IsNullOrEmpty(platformsTagString))
+            {
+                return !excludePlatformsTagString.Split(',').Contains(this.Platform, StringComparer.OrdinalIgnoreCase);
+            }
+            // If the included platforms string contains the current platform pass the test
+            if (platformsTagString.Split(',').Contains(this.Platform, StringComparer.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+            return false;
+        }
 
         private XmlDocument GenerateContentProject(XmlDocument source, string rootPath)
         {
@@ -799,6 +832,9 @@ namespace Protobuild.Tasks
                 .Where(x => x.Name == "Source"))
             {
                 var sourceFolder = element.GetAttribute("Include");
+                // Skip if platform is not in the
+                if (!includedPlatform(element))
+                    continue;
                 //Pattern matching to enable platform specific content
                 if (sourceFolder.Contains("$(Platform)"))
                 {
