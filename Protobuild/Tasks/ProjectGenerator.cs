@@ -787,7 +787,7 @@ namespace Protobuild.Tasks
             }
         }
         /// <summary>
-        /// Checks if the childs for Platforms conditions and returns true if current platform should include element
+        /// Checks node for Platforms conditions and returns true if current platform should include element
         /// </summary>
         /// <param name="element"></param>
         /// <returns></returns>
@@ -832,7 +832,7 @@ namespace Protobuild.Tasks
                 .Where(x => x.Name == "Source"))
             {
                 var sourceFolder = element.GetAttribute("Include");
-                // Skip if platform is not in the
+                // Skip if platform is not in the Platforms/IncludePlatforms or is in the ExcludePlatforms
                 if (!includedPlatform(element))
                     continue;
                 //Pattern matching to enable platform specific content
