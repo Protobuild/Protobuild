@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="ThirdParty1">
+  <Project
+    Name="ThirdParty"
+    Guid="B950DE10-AC5D-4BD9-B817-51247C4A732D"
+    Path="Path/To/ThirdParty1.csproj">
+  </Project>
+</ExternalProject>

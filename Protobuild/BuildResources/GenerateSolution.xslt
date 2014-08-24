@@ -83,7 +83,8 @@
         </xsl:call-template>
       </xsl:if>
     </xsl:for-each>
-    <xsl:for-each select="/Input/Projects/ExternalProject/Project">
+    <xsl:for-each select="/Input/Projects/ExternalProject
+                          /Project[not(@Guid=preceding::Project/@Guid)]">
       <xsl:call-template name="project-definition">
         <xsl:with-param name="type" select="current()/@Type" />
         <xsl:with-param name="name" select="current()/@Name" />
@@ -93,7 +94,7 @@
     </xsl:for-each>
     <xsl:for-each select="/Input/Projects/ExternalProject
                           /Platform[@Type=/Input/Generation/Platform]
-                          /Project">
+                          /Project[not(@Guid=preceding::Project/@Guid)]">
       <xsl:call-template name="project-definition">
         <xsl:with-param name="type" select="current()/@Type" />
         <xsl:with-param name="name" select="current()/@Name" />
@@ -147,7 +148,8 @@
         </xsl:call-template>
       </xsl:if>
     </xsl:for-each>
-    <xsl:for-each select="/Input/Projects/ExternalProject/Project">
+    <xsl:for-each select="/Input/Projects/ExternalProject
+                          /Project[not(@Guid=preceding::Project/@Guid)]">
       <xsl:call-template name="project-configuration">
         <xsl:with-param name="guid" select="current()/@Guid" />
         <xsl:with-param name="root" select="current()" />
@@ -155,7 +157,7 @@
     </xsl:for-each>
     <xsl:for-each select="/Input/Projects/ExternalProject
                           /Platform[@Type=/Input/Generation/Platform]
-                          /Project">
+                          /Project[not(@Guid=preceding::Project/@Guid)]">
       <xsl:call-template name="project-configuration">
         <xsl:with-param name="guid" select="current()/@Guid" />
         <xsl:with-param name="root" select="current()" />
