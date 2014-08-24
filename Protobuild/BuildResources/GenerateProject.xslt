@@ -142,6 +142,11 @@
       return text.ToLower() == "true";
     }
 
+    public bool IsTrueDefault(string text)
+    {
+      return text.ToLower() != "false";
+    }
+
     public string ReadFile(string path)
     {
       path = path.Replace('/', System.IO.Path.DirectorySeparatorChar);
@@ -295,7 +300,7 @@
         <xsl:when test="$type = 'Website'">
           <xsl:text></xsl:text>
         </xsl:when>
-        <xsl:when test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
+        <xsl:when test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
           <xsl:value-of select="/Input/Generation/Platform" />
 	  <xsl:text>\</xsl:text>
 	  <xsl:value-of select="$platform" />
@@ -1578,7 +1583,7 @@
                     <xsl:value-of select="$project/@Path" />
                     <xsl:if test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
                       <xsl:text>/bin/</xsl:text>
-                      <xsl:if test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
+                      <xsl:if test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
                         <xsl:value-of select="/Input/Generation/Platform" />
                         <xsl:text>/$(Platform)/</xsl:text>
                       </xsl:if>
@@ -1586,7 +1591,7 @@
                     </xsl:if>
                     <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
                       <xsl:text>\bin\</xsl:text>
-                      <xsl:if test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
+                      <xsl:if test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
                         <xsl:value-of select="/Input/Generation/Platform" />
                         <xsl:text>\$(Platform)\</xsl:text>
                       </xsl:if>
@@ -1607,7 +1612,7 @@
                     <xsl:value-of select="$project/@Path" />
                     <xsl:if test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
                       <xsl:text>/bin/</xsl:text>
-                      <xsl:if test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
+                      <xsl:if test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
                         <xsl:value-of select="/Input/Generation/Platform" />
                         <xsl:text>/$(Platform)/</xsl:text>
                       </xsl:if>
@@ -1615,7 +1620,7 @@
                     </xsl:if>
                     <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
                       <xsl:text>\bin\</xsl:text>
-                      <xsl:if test="user:IsTrue(/Input/Properties/PlatformSpecificOutputFolder)">
+                      <xsl:if test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
                         <xsl:value-of select="/Input/Generation/Platform" />
                         <xsl:text>\$(Platform)\</xsl:text>
                       </xsl:if>
