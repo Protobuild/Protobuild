@@ -219,6 +219,15 @@ namespace Protobuild
 
                 serviceSpecPath = x[0];
             };
+            options["add@1"] = x =>
+            {
+                if (x.Length == 0 || x[0] == null)
+                {
+                    throw new InvalidOperationException("You must provide an argument to the -add option");
+                }
+
+                Actions.AddSubmodule(ModuleInfo.Load(Path.Combine("Build", "Module.xml")), x[0]);
+            };
             options["manager-gui"] = x =>
             {
                 if (actionHandler != null)
@@ -289,6 +298,11 @@ namespace Protobuild
                 Console.WriteLine("  -spec <path>");
                 Console.WriteLine();
                 Console.WriteLine("  Internally used to pass the service specification.");
+                Console.WriteLine();
+                Console.WriteLine("  -add <url>");
+                Console.WriteLine();
+                Console.WriteLine("  Add a package or submodule URL to the current module.");
+                Console.WriteLine("  WARNING: This feature is currently experimental.");
                 Console.WriteLine();
                 needToExit = true;
             };

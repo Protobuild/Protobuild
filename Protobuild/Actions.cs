@@ -26,6 +26,7 @@
 namespace Protobuild
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -187,6 +188,10 @@ namespace Protobuild
                 multiplePlatforms = platform;
             }
 
+            // Resolve submodules as needed.
+            var submoduleManager = new Submodules.SubmoduleManager();
+            submoduleManager.ResolveAll(module, primaryPlatform, false);
+
             // You can configure the default action for Protobuild in their project
             // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
             // Valid options for this tag are either "Generate", "Resync" or "Sync".
@@ -234,6 +239,9 @@ namespace Protobuild
                     continue;
                 }
 
+                // Resolve submodules as needed.
+                submoduleManager.ResolveAll(module, platformIter, false);
+
                 switch (action.ToLower())
                 {
                     case "generate":
@@ -274,6 +282,27 @@ namespace Protobuild
         public static bool DefaultAction(ModuleInfo module, string platform = null, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
         {
             return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath);
+        }
+
+        public static void AddSubmodule(ModuleInfo module, string url)
+        {
+            if (module.Submodules == null)
+            {
+                module.Submodules = new List<SubmoduleRef>();
+            }
+
+            var uri = new Uri(url);
+
+            var submodule = new SubmoduleRef
+            {
+                Uri = url,
+                GitRef = "master",
+                Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
+            };
+
+            Console.WriteLine("Adding " + url + " as " + submodule.Folder + "...");
+            module.Submodules.Add(submodule);
+            module.Save(Path.Combine("Build", "Module.xml"));
         }
 
         /// <summary>
