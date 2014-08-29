@@ -46,6 +46,17 @@
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
+    <Compile Include="SubmoduleRef.cs" />
+    <Compile Include="Submodules\SubmoduleManager.cs" />
+    <Compile Include="TAR\DataWriter.cs" />
+    <Compile Include="TAR\IArchiveDataWriter.cs" />
+    <Compile Include="TAR\ITarHeader.cs" />
+    <Compile Include="TAR\LegacyTarWriter.cs" />
+    <Compile Include="TAR\TarException.cs" />
+    <Compile Include="TAR\TarHeader.cs" />
+    <Compile Include="TAR\TarReader.cs" />
+    <Compile Include="TAR\TarWriter.cs" />
+    <Compile Include="TAR\UsTarHeader.cs" />
     <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />
