@@ -20,7 +20,7 @@
             this.m_TestName = name;
 
             var location = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
-            var dataLocation = Path.Combine(location, "..", "..", "TestData", this.m_TestName);
+            var dataLocation = Path.Combine(location, "..", "..", "..", "..", "TestData", this.m_TestName);
 
             var protobuildLocation =
                 AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name == "Protobuild").Location;
