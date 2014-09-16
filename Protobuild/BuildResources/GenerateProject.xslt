@@ -237,6 +237,12 @@
             <TargetFrameworkVersion>v8.0</TargetFrameworkVersion>
             <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+            <TargetPlatformIdentifier>WindowsPhoneApp</TargetPlatformIdentifier>
+            <TargetPlatformVersion>8.1</TargetPlatformVersion>
+            <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
+            <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
+          </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS' or /Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
           <xsl:otherwise>
@@ -364,6 +370,9 @@
             </xsl:when>
             <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
               <xsl:text>PLATFORM_WINDOWSPHONE</xsl:text>
+            </xsl:when>
+            <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+              <xsl:text>PLATFORM_WINDOWSPHONE81</xsl:text>
             </xsl:when>
             <xsl:when test="/Input/Generation/Platform = 'Web'">
               <xsl:text>PLATFORM_WEB</xsl:text>
@@ -564,6 +573,12 @@
               <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+            <ProjectTypeGuids>
+              <xsl:text>{76F1466A-8B6D-4E39-A767-685A06062A39};</xsl:text>
+              <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
           <xsl:otherwise>
           </xsl:otherwise>
         </xsl:choose>
@@ -575,6 +590,9 @@
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                 <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'Windows8'">
@@ -606,6 +624,9 @@
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+                  <xsl:text>Library</xsl:text>
+                </xsl:when>
+                <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
                 <xsl:when test="/Input/Generation/Platform = 'Windows8'">
@@ -754,6 +775,44 @@
           </xsl:call-template>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">x86</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">x86</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">ARM</xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">ARM</xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
           <xsl:call-template name="configuration">
             <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
             <xsl:with-param name="debug">true</xsl:with-param>
