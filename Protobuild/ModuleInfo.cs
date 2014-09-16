@@ -273,7 +273,7 @@ namespace Protobuild
         /// <param name="platform">The normalized platform string.</param>
         public string NormalizePlatform(string platform)
         {
-            var supportedPlatforms = "Android,iOS,Linux,MacOS,Ouya,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone";
+            var supportedPlatforms = "Android,iOS,Linux,MacOS,Ouya,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81";
             var defaultPlatforms = true;
 
             if (!string.IsNullOrEmpty(this.SupportedPlatforms))

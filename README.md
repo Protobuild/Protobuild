@@ -49,6 +49,7 @@ Protobuild supports the following platforms directly, but by customizing the pro
 * Windows
 * Windows8
 * WindowsPhone
+* WindowsPhone81
 * Web (via [JSIL](https://github.com/sq/JSIL))
 
 For example, to generate for the WindowsPhone project, use `Protobuild.exe --generate WindowsPhone`.
