@@ -562,6 +562,7 @@ namespace Protobuild.Tasks
                 serviceElement.SetAttribute("Name", service.FullName);
                 serviceElement.SetAttribute("Project", service.ProjectName);
                 this.AddList(doc, serviceElement, service.AddDefines, "AddDefines", "AddDefine");
+                this.AddList(doc, serviceElement, service.RemoveDefines, "RemoveDefines", "RemoveDefine");
                 this.AddList(doc, serviceElement, service.AddReferences, "AddReferences", "AddReference");
                 servicesElements.AppendChild(serviceElement);
 

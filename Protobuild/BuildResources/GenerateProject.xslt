@@ -188,6 +188,30 @@
       }
     }
 
+    public string CalculateDefines(string addDefines, string removeDefines)
+    {
+      var addArray = addDefines.Trim(';').Split(';');
+      var removeArray = removeDefines.Trim(';').Split(';');
+
+      var list = new System.Collections.Generic.List<string>();
+      foreach (var a in addArray)
+      {
+        if (!list.Contains(a))
+        {
+          list.Add(a);
+        }
+      }
+      foreach (var r in removeArray)
+      {
+        if (list.Contains(r))
+        {
+          list.Remove(r);
+        }
+      }
+
+      return string.Join(";", list.ToArray());
+    }
+
     ]]>
   </msxsl:script>
 
@@ -322,65 +346,76 @@
     <IntermediateOutputPath><xsl:text>obj\</xsl:text><xsl:copy-of select="$platform_path" /></IntermediateOutputPath>
     <DocumentationFile><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /><xsl:text>\</xsl:text><xsl:copy-of select="$assembly_name" /><xsl:text>.xml</xsl:text></DocumentationFile>
     <DefineConstants>
-      <xsl:if test="$debug = 'true'">
-        <xsl:text>DEBUG;</xsl:text>
-      </xsl:if>
-      <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
-        <xsl:for-each select="./AddDefines/AddDefine">
-          <xsl:value-of select="." />
-          <xsl:text>;</xsl:text>
-        </xsl:for-each>
-      </xsl:for-each>
-      <xsl:choose>
-        <xsl:when test="/Input/Properties/CustomDefinitions">
-          <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
-            <xsl:if test="/Input/Generation/Platform = ./@Name">
-              <xsl:value-of select="." />
-            </xsl:if>
+      <xsl:variable name="addDefines">
+        <xsl:if test="$debug = 'true'">
+          <xsl:text>DEBUG;</xsl:text>
+        </xsl:if>
+        <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+          <xsl:for-each select="./AddDefines/AddDefine">
+            <xsl:value-of select="." />
+            <xsl:text>;</xsl:text>
           </xsl:for-each>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:choose>
-            <xsl:when test="/Input/Generation/Platform = 'Android'">
-              <xsl:text>PLATFORM_ANDROID</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'iOS'">
-              <xsl:text>PLATFORM_IOS</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'Linux'">
-              <xsl:text>PLATFORM_LINUX</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'MacOS'">
-              <xsl:text>PLATFORM_MACOS</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'Ouya'">
-              <xsl:text>PLATFORM_OUYA</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
-              <xsl:text>PLATFORM_PSMOBILE</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'Windows'">
-              <xsl:text>PLATFORM_WINDOWS</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'Windows8'">
-              <xsl:text>PLATFORM_WINDOWS8</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'WindowsGL'">
-              <xsl:text>PLATFORM_WINDOWSGL</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
-              <xsl:text>PLATFORM_WINDOWSPHONE</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
-              <xsl:text>PLATFORM_WINDOWSPHONE81</xsl:text>
-            </xsl:when>
-            <xsl:when test="/Input/Generation/Platform = 'Web'">
-              <xsl:text>PLATFORM_WEB</xsl:text>
-            </xsl:when>
-          </xsl:choose>
-          <xsl:text>;</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
+        </xsl:for-each>
+        <xsl:choose>
+          <xsl:when test="/Input/Properties/CustomDefinitions">
+            <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
+              <xsl:if test="/Input/Generation/Platform = ./@Name">
+                <xsl:value-of select="." />
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:choose>
+              <xsl:when test="/Input/Generation/Platform = 'Android'">
+                <xsl:text>PLATFORM_ANDROID</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'iOS'">
+                <xsl:text>PLATFORM_IOS</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Linux'">
+                <xsl:text>PLATFORM_LINUX</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'MacOS'">
+                <xsl:text>PLATFORM_MACOS</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Ouya'">
+                <xsl:text>PLATFORM_OUYA</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
+                <xsl:text>PLATFORM_PSMOBILE</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                <xsl:text>PLATFORM_WINDOWS</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                <xsl:text>PLATFORM_WINDOWS8</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'WindowsGL'">
+                <xsl:text>PLATFORM_WINDOWSGL</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+                <xsl:text>PLATFORM_WINDOWSPHONE</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+                <xsl:text>PLATFORM_WINDOWSPHONE81</xsl:text>
+              </xsl:when>
+              <xsl:when test="/Input/Generation/Platform = 'Web'">
+                <xsl:text>PLATFORM_WEB</xsl:text>
+              </xsl:when>
+            </xsl:choose>
+            <xsl:text>;</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+      <xsl:variable name="removeDefines">
+        <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+          <xsl:for-each select="./RemoveDefines/RemoveDefine">
+            <xsl:value-of select="." />
+            <xsl:text>;</xsl:text>
+          </xsl:for-each>
+        </xsl:for-each>
+      </xsl:variable>
+      <xsl:value-of select="user:CalculateDefines($addDefines, $removeDefines)" />
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

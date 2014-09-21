@@ -8,6 +8,7 @@ namespace Protobuild.Services
         public Service()
         {
             this.AddDefines = new List<string>();
+            this.RemoveDefines = new List<string>();
             this.AddReferences = new List<string>();
             this.Requires = new List<string>();
             this.Conflicts = new List<string>();
@@ -33,6 +34,8 @@ namespace Protobuild.Services
         }
 
         public List<string> AddDefines { get; set; }
+
+        public List<string> RemoveDefines { get; set; }
 
         public List<string> AddReferences { get; set; }
 
