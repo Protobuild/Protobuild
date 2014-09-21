@@ -12,7 +12,7 @@
     /// </summary>
     public class ServiceManager
     {
-        private const int SERIALIZATION_VERSION = 1;
+        private const int SERIALIZATION_VERSION = 2;
 
         private readonly ProjectGenerator m_Generator;
 
@@ -148,6 +148,12 @@
 
                 foreach (var require in service.Requires)
                 {
+                    if (!lookup.ContainsKey(require))
+                    {
+                        throw new InvalidOperationException(
+                            service.FullName + " requires " + require + ", but it does not exist.");
+                    }
+
                     if (!lookup[require].IsEnabled)
                     {
                         lookup[require].IsEnabled = true;
@@ -157,6 +163,14 @@
 
                 foreach (var conflict in service.Conflicts)
                 {
+                    if (!lookup.ContainsKey(conflict))
+                    {
+                        // The service that the conflict is declared with may
+                        // not exist because it's not available on the current
+                        // platform, in which case it can't be enabled anyway.
+                        continue;
+                    }
+
                     if (lookup[conflict].IsEnabled)
                     {
                         throw new InvalidOperationException(
@@ -178,13 +192,15 @@
                 }
 
                 var addDefine = SelectElementsFromService(service, "AddDefine");
+                var removeDefine = SelectElementsFromService(service, "RemoveDefine");
                 var reference = SelectElementsFromService(service, "Reference");
                 var defaultForRoot = SelectElementsFromService(service, "DefaultForRoot").FirstOrDefault();
                 var requires = SelectElementsFromService(service, "Requires");
                 var conflicts = SelectElementsFromService(service, "Conflicts");
                 var infersReference = SelectElementsFromService(service, "InfersReference").FirstOrDefault();
 
-                service.AddDefines.AddRange(addDefine.SelectMany(x => x.InnerText.Split(',')));
+                service.AddDefines.AddRange(addDefine.SelectMany(x => x.InnerText.Split(new[] { ',', ';' })));
+                service.RemoveDefines.AddRange(removeDefine.SelectMany(x => x.InnerText.Split(new[] { ',', ';' })));
                 service.AddReferences.AddRange(reference.Select(x => x.GetAttribute("Include")));
                 service.DefaultForRoot = defaultForRoot != null && string.Equals(defaultForRoot.InnerText, "True", StringComparison.InvariantCultureIgnoreCase);
                 service.Requires.AddRange(requires.SelectMany(x => x.InnerText.Split(',')).Select(x => this.AbsolutizeServiceReference(service.ProjectName, x)));
@@ -309,6 +325,7 @@
                     var projectName = reader.ReadString();
                     var serviceName = reader.ReadBoolean() ? reader.ReadString() : null;
                     var addDefines = this.ReadList(reader);
+                    var removeDefines = this.ReadList(reader);
                     var addReferences = this.ReadList(reader);
                     var defaultForRoot = reader.ReadBoolean();
                     var requires = this.ReadList(reader);
@@ -320,6 +337,7 @@
                         ProjectName = projectName,
                         ServiceName = serviceName,
                         AddDefines = addDefines,
+                        RemoveDefines = removeDefines,
                         AddReferences = addReferences,
                         DefaultForRoot = defaultForRoot,
                         Requires = requires,
@@ -364,6 +382,7 @@
                         writer.Write(service.ServiceName);
                     }
                     this.WriteList(writer, service.AddDefines);
+                    this.WriteList(writer, service.RemoveDefines);
                     this.WriteList(writer, service.AddReferences);
                     writer.Write(service.DefaultForRoot);
                     this.WriteList(writer, service.Requires);
