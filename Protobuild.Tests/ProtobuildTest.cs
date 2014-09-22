@@ -63,7 +63,7 @@
             }
         }
 
-        protected void Generate(string platform = null, string args = null)
+        protected void Generate(string platform = null, string args = null, bool expectFailure = false)
         {
             this.PurgeSolutionsAndProjects(this.m_TestLocation);
 
@@ -97,7 +97,14 @@
             p.BeginErrorReadLine();
             p.WaitForExit();
 
-            Xunit.Assert.Equal(0, p.ExitCode);
+            if (expectFailure)
+            {
+                Xunit.Assert.Equal(1, p.ExitCode);
+            }
+            else
+            {
+                Xunit.Assert.Equal(0, p.ExitCode);
+            }
         }
 
         protected string ReadFile(string path)
