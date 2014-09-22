@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Library" Path="Library" Type="Library">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Services>
+    <Service Name="ServiceB">
+      <AddDefine>LIBRARY_SERVICE_B</AddDefine>
+    </Service>
+    <Service Name="ServiceA">
+      <AddDefine>LIBRARY_SERVICE_A</AddDefine>
+      <Conflicts>ServiceB</Conflicts>
+    </Service>
+    <Service Name="ServiceC">
+      <AddDefine>LIBRARY_SERVICE_C</AddDefine>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="MyClass.cs" />
+  </Files>
+</Project>

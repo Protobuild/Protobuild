@@ -12,7 +12,7 @@
     /// </summary>
     public class ServiceManager
     {
-        private const int SERIALIZATION_VERSION = 2;
+        private const int SERIALIZATION_VERSION = 3;
 
         private readonly ProjectGenerator m_Generator;
 
@@ -70,7 +70,7 @@
 
                 if (defaultService != null)
                 {
-                    defaultService.IsEnabled = true;
+                    defaultService.DesiredLevel = ServiceDesiredLevel.Default;
                 }
             }
         }
@@ -96,7 +96,7 @@
 
             foreach (var reference in references)
             {
-                lookup[reference].IsEnabled = true;
+                lookup[reference].DesiredLevel = ServiceDesiredLevel.Required;
             }
         }
 
@@ -108,18 +108,18 @@
                 {
                     if (this.m_RootDefinitions.Any(x => x.Name == service.ProjectName))
                     {
-                        service.IsEnabled = true;
+                        service.DesiredLevel = ServiceDesiredLevel.Default;
                     }
                 }
 
                 if (this.m_EnabledServices.Any(x => x == service.ServiceName || x == service.FullName))
                 {
-                    service.IsEnabled = true;
+                    service.DesiredLevel = ServiceDesiredLevel.Required;
                 }
 
                 if (this.m_DisabledServices.Any(x => x == service.ServiceName || x == service.FullName))
                 {
-                    service.IsEnabled = false;
+                    service.DesiredLevel = ServiceDesiredLevel.Disabled;
                 }
             }
         }
@@ -131,7 +131,7 @@
                 // Returns true if it made any modifications.
             }
 
-            return services.Where(x => x.IsEnabled).ToList();
+            return services.Where(x => x.DesiredLevel != ServiceDesiredLevel.Disabled && x.DesiredLevel != ServiceDesiredLevel.Unused).ToList();
         }
 
         private bool PerformResolutionPass(List<Service> services)
@@ -141,7 +141,7 @@
 
             foreach (var service in services)
             {
-                if (!service.IsEnabled)
+                if (service.DesiredLevel == ServiceDesiredLevel.Disabled || service.DesiredLevel == ServiceDesiredLevel.Unused)
                 {
                     continue;
                 }
@@ -154,9 +154,32 @@
                             service.FullName + " requires " + require + ", but it does not exist.");
                     }
 
-                    if (!lookup[require].IsEnabled)
+                    if (lookup[require].DesiredLevel == ServiceDesiredLevel.Disabled)
                     {
-                        lookup[require].IsEnabled = true;
+                        throw new InvalidOperationException(
+                            service.FullName + " requires " + require + ", but you have explicitly requested it be disabled.");
+                    }
+
+                    if (lookup[require].DesiredLevel != ServiceDesiredLevel.Required)
+                    {
+                        lookup[require].DesiredLevel = ServiceDesiredLevel.Required;
+                        modified = true;
+                    }
+                }
+
+                foreach (var recommend in service.Recommends)
+                {
+                    if (!lookup.ContainsKey(recommend))
+                    {
+                        throw new InvalidOperationException(
+                            service.FullName + " recommends " + recommend + ", but it does not exist.");
+                    }
+
+                    if (lookup[recommend].DesiredLevel != ServiceDesiredLevel.Disabled &&
+                        lookup[recommend].DesiredLevel != ServiceDesiredLevel.Recommended &&
+                        lookup[recommend].DesiredLevel != ServiceDesiredLevel.Required)
+                    {
+                        lookup[recommend].DesiredLevel = ServiceDesiredLevel.Recommended;
                         modified = true;
                     }
                 }
@@ -171,10 +194,18 @@
                         continue;
                     }
 
-                    if (lookup[conflict].IsEnabled)
+                    if (lookup[conflict].DesiredLevel == ServiceDesiredLevel.Required)
                     {
                         throw new InvalidOperationException(
-                            service.FullName + " conflicts with " + lookup[conflict].FullName + ", but both are enabled.");
+                            service.FullName + " conflicts with " + lookup[conflict].FullName + ", but both are enabled (and required).");
+                    }
+
+                    if (lookup[conflict].DesiredLevel == ServiceDesiredLevel.Recommended)
+                    {
+                        // The service this conflicts with is only recommended, so we can
+                        // safely disable it.
+                        lookup[conflict].DesiredLevel = ServiceDesiredLevel.Disabled;
+                        modified = true;
                     }
                 }
             }
@@ -196,6 +227,7 @@
                 var reference = SelectElementsFromService(service, "Reference");
                 var defaultForRoot = SelectElementsFromService(service, "DefaultForRoot").FirstOrDefault();
                 var requires = SelectElementsFromService(service, "Requires");
+                var recommends = SelectElementsFromService(service, "Recommends");
                 var conflicts = SelectElementsFromService(service, "Conflicts");
                 var infersReference = SelectElementsFromService(service, "InfersReference").FirstOrDefault();
 
@@ -204,6 +236,7 @@
                 service.AddReferences.AddRange(reference.Select(x => x.GetAttribute("Include")));
                 service.DefaultForRoot = defaultForRoot != null && string.Equals(defaultForRoot.InnerText, "True", StringComparison.InvariantCultureIgnoreCase);
                 service.Requires.AddRange(requires.SelectMany(x => x.InnerText.Split(',')).Select(x => this.AbsolutizeServiceReference(service.ProjectName, x)));
+                service.Recommends.AddRange(recommends.SelectMany(x => x.InnerText.Split(',')).Select(x => this.AbsolutizeServiceReference(service.ProjectName, x)));
                 service.Conflicts.AddRange(conflicts.SelectMany(x => x.InnerText.Split(',')).Select(x => this.AbsolutizeServiceReference(service.ProjectName, x)));
                 service.InfersReference = infersReference == null || string.Equals(infersReference.InnerText, "True", StringComparison.InvariantCultureIgnoreCase);
             }
@@ -239,7 +272,11 @@
 
                 // Add project default service.  This is used to enable service-aware projects
                 // based on <Reference> tags.
-                var defaultService = new Service { ProjectName = doc.DocumentElement.GetAttribute("Name") };
+                var defaultService = new Service
+                {
+                    ProjectName = doc.DocumentElement.GetAttribute("Name"),
+                    DesiredLevel = ServiceDesiredLevel.Unused
+                };
                 services.Add(defaultService);
 
                 var declaredServices =
@@ -260,7 +297,8 @@
                                     Declaration = serviceElement,
                                     ProjectName = doc.DocumentElement.GetAttribute("Name"),
                                     ServiceName = serviceElement.GetAttribute("Name"),
-                                    Requires = { defaultService.FullName }
+                                    Requires = { defaultService.FullName },
+                                    DesiredLevel = ServiceDesiredLevel.Unused
                                 }));
                 }
 
@@ -276,6 +314,17 @@
                         if (this.ContainsActivePlatform(usage))
                         {
                             defaultService.Requires.Add(
+                                this.AbsolutizeServiceReference(
+                                    doc.DocumentElement.GetAttribute("Name"),
+                                    usage.GetAttribute("Name")));
+                        }
+                    }
+
+                    foreach (var usage in declaredDependencies.ChildNodes.OfType<XmlElement>().Where(x => x.Name == "Recommends"))
+                    {
+                        if (this.ContainsActivePlatform(usage))
+                        {
+                            defaultService.Recommends.Add(
                                 this.AbsolutizeServiceReference(
                                     doc.DocumentElement.GetAttribute("Name"),
                                     usage.GetAttribute("Name")));
@@ -329,6 +378,7 @@
                     var addReferences = this.ReadList(reader);
                     var defaultForRoot = reader.ReadBoolean();
                     var requires = this.ReadList(reader);
+                    var recommends = this.ReadList(reader);
                     var conflicts = this.ReadList(reader);
                     var infersReference = reader.ReadBoolean();
 
@@ -341,6 +391,7 @@
                         AddReferences = addReferences,
                         DefaultForRoot = defaultForRoot,
                         Requires = requires,
+                        Recommends = recommends,
                         Conflicts = conflicts,
                         InfersReference = infersReference
                     });
@@ -386,6 +437,7 @@
                     this.WriteList(writer, service.AddReferences);
                     writer.Write(service.DefaultForRoot);
                     this.WriteList(writer, service.Requires);
+                    this.WriteList(writer, service.Recommends);
                     this.WriteList(writer, service.Conflicts);
                     writer.Write(service.InfersReference);
                 }

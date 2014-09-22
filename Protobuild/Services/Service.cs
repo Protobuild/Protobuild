@@ -11,6 +11,7 @@ namespace Protobuild.Services
             this.RemoveDefines = new List<string>();
             this.AddReferences = new List<string>();
             this.Requires = new List<string>();
+            this.Recommends = new List<string>();
             this.Conflicts = new List<string>();
         }
 
@@ -43,9 +44,11 @@ namespace Protobuild.Services
 
         public List<string> Requires { get; set; }
 
+        public List<string> Recommends { get; set; }
+
         public List<string> Conflicts { get; set; }
 
-        public bool IsEnabled { get; set; }
+        public ServiceDesiredLevel DesiredLevel { get; set; }
 
         public bool InfersReference { get; set; }
     }
