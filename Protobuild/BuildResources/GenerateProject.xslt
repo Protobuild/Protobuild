@@ -48,47 +48,8 @@
       {
         return false;
       }
-      
-      var activeServices = activeServicesString.Split(',');
-    
-      // Choose either <Services> or <IncludeServices>
-      if (string.IsNullOrEmpty(serviceString))
-      {
-        serviceString = includeServiceString;
-      }
 
-      // If the exclude string is set, then we must check this first.
-      if (!string.IsNullOrEmpty(excludeServiceString))
-      {
-        var excludeServices = excludeServiceString.Split(',');
-        foreach (var i in excludeServices)
-        {
-          if (System.Linq.Enumerable.Contains(activeServices, i))
-          {
-            // This service is excluded.
-            return false;
-          }
-        }
-      }
-
-      // If the service string is empty at this point, then we allow
-      // all services since there's no whitelist of services configured.
-      if (string.IsNullOrEmpty(serviceString))
-      {
-        return true;
-      }
-
-      // Otherwise ensure the service is in the include list.
-      var services = serviceString.Split(',');
-      foreach (var i in services)
-      {
-        if (System.Linq.Enumerable.Contains(activeServices, i))
-        {
-          return true;
-        }
-      }
-
-      return false;
+      return ServiceIsActive(serviceString, includeServiceString, excludeServiceString, activeServicesString);
     }
 
     public bool ProjectIsActive(
@@ -129,6 +90,54 @@
       foreach (var i in platforms)
       {
         if (i == activePlatform)
+        {
+          return true;
+        }
+      }
+
+      return false;
+    }
+
+    public bool ServiceIsActive(
+      string serviceString,
+      string includeServiceString,
+      string excludeServiceString,
+      string activeServicesString)
+    {
+      var activeServices = activeServicesString.Split(',');
+    
+      // Choose either <Services> or <IncludeServices>
+      if (string.IsNullOrEmpty(serviceString))
+      {
+        serviceString = includeServiceString;
+      }
+
+      // If the exclude string is set, then we must check this first.
+      if (!string.IsNullOrEmpty(excludeServiceString))
+      {
+        var excludeServices = excludeServiceString.Split(',');
+        foreach (var i in excludeServices)
+        {
+          if (System.Linq.Enumerable.Contains(activeServices, i))
+          {
+            // This service is excluded.
+            return false;
+          }
+        }
+      }
+
+      // If the service string is empty at this point, then we allow
+      // all services since there's no whitelist of services configured.
+      if (string.IsNullOrEmpty(serviceString))
+      {
+        return true;
+      }
+
+      // Otherwise ensure the service is in the include list.
+      var services = serviceString.Split(',');
+      foreach (var i in services)
+      {
+        if (System.Linq.Enumerable.Contains(activeServices, i))
         {
           return true;
         }
@@ -1017,6 +1026,52 @@
                     </Reference>
                   </xsl:if>
                 </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Reference">
+                      <xsl:variable name="refd-name" select="@Include" />
+                      <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
+                        <Reference>
+                          <xsl:attribute name="Include">
+                            <xsl:value-of select="@Include" />
+                          </xsl:attribute>
+                          <xsl:for-each select="./Alias">
+                            <xsl:if test="@Platform = /Input/Generation/Platform">
+                              <Aliases><xsl:value-of select="." /></Aliases>
+                            </xsl:if>
+                          </xsl:for-each>
+                        </Reference>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  /Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./Reference">
+                    <xsl:variable name="refd-name" select="@Include" />
+                    <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
+                      <Reference>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of select="@Include" />
+                        </xsl:attribute>
+                        <xsl:for-each select="./Alias">
+                          <xsl:if test="@Platform = /Input/Generation/Platform">
+                            <Aliases><xsl:value-of select="." /></Aliases>
+                          </xsl:if>
+                        </xsl:for-each>
+                      </Reference>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:if>
               </xsl:for-each>
             </xsl:if>
           </xsl:if>
@@ -1100,6 +1155,70 @@
                     </HintPath>
                   </Reference>
                 </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Binary">
+                      <Reference>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of select="@Name" />
+                        </xsl:attribute>
+                        <xsl:for-each select="./Alias">
+                          <xsl:if test="@Platform = /Input/Generation/Platform">
+                            <Aliases><xsl:value-of select="." /></Aliases>
+                          </xsl:if>
+                        </xsl:for-each>
+                        <HintPath>
+                          <xsl:value-of
+                            select="user:GetRelativePath(
+                              concat(
+                                $project/@Path,
+                                '\',
+                                $project/@Name,
+                                '.',
+                                /Input/Generation/Platform,
+                                '.csproj'),
+                              @Path)" />
+                        </HintPath>
+                      </Reference>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  /Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./Binary">
+                    <Reference>
+                      <xsl:attribute name="Include">
+                        <xsl:value-of select="@Name" />
+                      </xsl:attribute>
+                      <xsl:for-each select="./Alias">
+                        <xsl:if test="@Platform = /Input/Generation/Platform">
+                          <Aliases><xsl:value-of select="." /></Aliases>
+                        </xsl:if>
+                      </xsl:for-each>
+                      <HintPath>
+                        <xsl:value-of
+                          select="user:GetRelativePath(
+                            concat(
+                              $project/@Path,
+                              '\',
+                              $project/@Name,
+                              '.',
+                              /Input/Generation/Platform,
+                              '.csproj'),
+                            @Path)" />
+                      </HintPath>
+                    </Reference>
+                  </xsl:for-each>
+                </xsl:if>
               </xsl:for-each>
             </xsl:if>
           </xsl:if>
@@ -1791,6 +1910,68 @@
                     </xsl:for-each>
                   </ProjectReference>
                 </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Project">
+                      <ProjectReference>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of
+                            select="user:GetRelativePath(
+                              concat(
+                                $project/@Path,
+                                '\',
+                                $project/@Name,
+                                '.',
+                                /Input/Generation/Platform,
+                                '.csproj'),
+                              ./@Path)" />
+                        </xsl:attribute>
+                        <Project>{<xsl:value-of select="./@Guid" />}</Project>
+                        <Name><xsl:value-of select="./@Name" /></Name>
+                        <xsl:for-each select="./Alias">
+                          <xsl:if test="@Platform = /Input/Generation/Platform">
+                            <Aliases><xsl:value-of select="." /></Aliases>
+                          </xsl:if>
+                        </xsl:for-each>
+                      </ProjectReference>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  /Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./Project">
+                    <ProjectReference>
+                      <xsl:attribute name="Include">
+                        <xsl:value-of
+                          select="user:GetRelativePath(
+                            concat(
+                              $project/@Path,
+                              '\',
+                              $project/@Name,
+                              '.',
+                              /Input/Generation/Platform,
+                              '.csproj'),
+                            ./@Path)" />
+                      </xsl:attribute>
+                      <Project>{<xsl:value-of select="./@Guid" />}</Project>
+                      <Name><xsl:value-of select="./@Name" /></Name>
+                      <xsl:for-each select="./Alias">
+                        <xsl:if test="@Platform = /Input/Generation/Platform">
+                          <Aliases><xsl:value-of select="." /></Aliases>
+                        </xsl:if>
+                      </xsl:for-each>
+                    </ProjectReference>
+                  </xsl:for-each>
+                </xsl:if>
               </xsl:for-each>
 
               <xsl:for-each select="$extern/Reference">
@@ -1883,6 +2064,108 @@
 
                   </xsl:if>
                 </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Reference">
+                      <xsl:variable name="refd-name" select="./@Include" />
+                      <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                        <xsl:variable name="refd"
+                          select="/Input/Projects/Project[@Name=$refd-name]" />
+
+                        <xsl:if test="user:ProjectIsActive(
+                          $refd/@Platforms,
+                          '',
+                          '',
+                          /Input/Generation/Platform)">
+
+                          <ProjectReference>
+                            <xsl:attribute name="Include">
+                              <xsl:value-of
+                                select="user:GetRelativePath(
+                                  concat(
+                                    $project/@Path,
+                                    '\',
+                                    $project/@Name,
+                                    '.',
+                                    /Input/Generation/Platform,
+                                    '.csproj'),
+                                  concat(
+                                    $refd/@Path,
+                                    '\',
+                                    $refd/@Name,
+                                    '.',
+                                    /Input/Generation/Platform,
+                                    '.csproj'))" />
+                            </xsl:attribute>
+                            <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
+                            <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                            <xsl:for-each select="$refd/Alias">
+                              <xsl:if test="@Platform = /Input/Generation/Platform">
+                                <Aliases><xsl:value-of select="." /></Aliases>
+                              </xsl:if>
+                            </xsl:for-each>
+                          </ProjectReference>
+                        </xsl:if>
+
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  /Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./Reference">
+                    <xsl:variable name="refd-name" select="./@Include" />
+                    <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                      <xsl:variable name="refd"
+                        select="/Input/Projects/Project[@Name=$refd-name]" />
+
+                      <xsl:if test="user:ProjectIsActive(
+                        $refd/@Platforms,
+                        '',
+                        '',
+                        /Input/Generation/Platform)">
+
+                        <ProjectReference>
+                          <xsl:attribute name="Include">
+                            <xsl:value-of
+                              select="user:GetRelativePath(
+                                concat(
+                                  $project/@Path,
+                                  '\',
+                                  $project/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.csproj'),
+                                concat(
+                                  $refd/@Path,
+                                  '\',
+                                  $refd/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.csproj'))" />
+                          </xsl:attribute>
+                          <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
+                          <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                          <xsl:for-each select="$refd/Alias">
+                            <xsl:if test="@Platform = /Input/Generation/Platform">
+                              <Aliases><xsl:value-of select="." /></Aliases>
+                            </xsl:if>
+                          </xsl:for-each>
+                        </ProjectReference>
+                      </xsl:if>
+
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:if>
               </xsl:for-each>
 
             </xsl:if>

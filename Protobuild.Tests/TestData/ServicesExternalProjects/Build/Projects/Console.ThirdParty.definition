@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="Console.ThirdParty">
+
+  <Platform Type="Windows">
+
+    <Service Name="RefGACPlatform">
+      <Reference Include="RefGACPlatform" />
+    </Service>
+
+    <Service Name="RefBinaryPlatform">
+      <Binary
+        Name="RefBinaryPlatform"
+        Path="RefBinaryPlatform.dll" />
+    </Service>
+
+    <Service Name="RefProjectPlatform">
+      <Project
+        Name="RefProjectPlatform"
+        Guid="734EAA48-F1CA-481A-B391-0285BC0E8B40"
+        Path="RefProjectPlatform.csproj" />
+    </Service>
+
+    <Service Name="RefProtobuildPlatform">
+      <Reference Include="RefProtobuildPlatform" />
+    </Service>
+
+  </Platform>
+
+  <Service Name="RefGACNoPlatform">
+    <Reference Include="RefGACNoPlatform" />
+  </Service>
+
+  <Service Name="RefBinaryNoPlatform">
+    <Binary
+      Name="RefBinaryNoPlatform"
+      Path="RefBinaryNoPlatform.dll" />
+  </Service>
+
+  <Service Name="RefProjectNoPlatform">
+    <Project
+      Name="RefProjectNoPlatform"
+      Guid="734EAA48-F1CA-481A-B391-0285BC0E8B40"
+      Path="RefProjectNoPlatform.csproj" />
+  </Service>
+
+  <Service Name="RefProtobuildNoPlatform">
+    <Reference Include="RefProtobuildNoPlatform" />
+  </Service>
+
+</ExternalProject>
