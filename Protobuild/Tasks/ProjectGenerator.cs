@@ -501,7 +501,7 @@ namespace Protobuild.Tasks
             if (references == null)
             {
                 references = importNode.OwnerDocument.CreateElement("References");
-                importNode.OwnerDocument.AppendChild(references);
+                importNode.OwnerDocument.DocumentElement.AppendChild(references);
             }
 
             var lookup = services.ToDictionary(k => k.FullName, v => v);

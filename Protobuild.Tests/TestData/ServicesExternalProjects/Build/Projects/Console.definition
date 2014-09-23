@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Console" Path="Console" Type="Console">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="Console.ThirdParty" />
+  </References>
+  <Dependencies>
+    <Recommends Name="RefGACNoPlatform" />
+    <Recommends Name="RefBinaryNoPlatform" />
+    <Recommends Name="RefProjectNoPlatform" />
+    <Recommends Name="RefProtobuildNoPlatform" />
+    <Recommends Name="RefGACPlatform" />
+    <Recommends Name="RefBinaryPlatform" />
+    <Recommends Name="RefProjectPlatform" />
+    <Recommends Name="RefProtobuildPlatform" />
+  </Dependencies>
+  <Services>
+    <Service Name="RefGACPlatform" />
+    <Service Name="RefGACNoPlatform" />
+    <Service Name="RefGACUnused" />
+    <Service Name="RefBinaryPlatform" />
+    <Service Name="RefBinaryNoPlatform" />
+    <Service Name="RefBinaryUnused" />
+    <Service Name="RefProjectPlatform" />
+    <Service Name="RefProjectNoPlatform" />
+    <Service Name="RefProjectUnused" />
+    <Service Name="RefProtobuildPlatform" />
+    <Service Name="RefProtobuildNoPlatform" />
+    <Service Name="RefProtobuildUnused" />
+  </Services>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>
