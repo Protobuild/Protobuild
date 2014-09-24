@@ -8,46 +8,6 @@
   
   <xsl:output method="text" indent="no" />
  
-  <msxsl:script language="C#" implements-prefix="user">
-    <msxsl:assembly name="System.Web" />
-    <msxsl:using namespace="System" />
-    <msxsl:using namespace="System.Web" />
-    <![CDATA[
-    public string GetRelativePath(string from, string to)
-    {
-      try
-      {
-        var current = Environment.CurrentDirectory;
-        from = System.IO.Path.Combine(current, from.Replace('\\', '/'));
-        to = System.IO.Path.Combine(current, to.Replace('\\', '/'));
-        return (new Uri(from).MakeRelativeUri(new Uri(to)))
-          .ToString().Replace('/', '\\');
-      }
-      catch (Exception ex)
-      {
-        return ex.Message;
-      }
-    }
-    
-    public bool ProjectIsActive(string platformString, string activePlatform)
-    {
-      if (string.IsNullOrEmpty(platformString))
-      {
-        return true;
-      }
-      var platforms = platformString.Split(',');
-      foreach (var i in platforms)
-      {
-        if (i == activePlatform)
-        {
-          return true;
-        }
-      }
-      return false;
-    }
-    ]]>
-  </msxsl:script> 
- 
   <xsl:template match="/">
     <xsl:choose>
       <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
@@ -66,45 +26,12 @@
 </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:for-each select="/Input/Projects/Project">
-      <xsl:if test="user:ProjectIsActive(
-          current()/@Platforms,
-          /Input/Generation/Platform)">
-        <xsl:call-template name="project-definition">
-          <xsl:with-param name="type" select="current()/@Type" />
-          <!--<xsl:with-param name="name" select="current()/@Name" />-->
-          <xsl:with-param name="name" select="concat(
-                        current()/@Name,
-                        '.',
-                        /Input/Generation/Platform)" />
-          <xsl:with-param name="guid" select="current()/@Guid" />
-          <xsl:with-param name="path" select="concat(
-                        current()/@Path,
-                        '\',
-                        current()/@Name,
-                        '.',
-                        /Input/Generation/Platform,
-                        '.csproj')" />
-        </xsl:call-template>
-      </xsl:if>
-    </xsl:for-each>
-    <xsl:for-each select="/Input/Projects/ExternalProject
-                          /Project[not(@Guid=preceding::Project/@Guid)]">
+    <xsl:for-each select="/Projects/Project">
       <xsl:call-template name="project-definition">
-        <xsl:with-param name="type" select="current()/@Type" />
-        <xsl:with-param name="name" select="current()/@Name" />
-        <xsl:with-param name="guid" select="current()/@Guid" />
-        <xsl:with-param name="path" select="current()/@Path" />
-      </xsl:call-template>
-    </xsl:for-each>
-    <xsl:for-each select="/Input/Projects/ExternalProject
-                          /Platform[@Type=/Input/Generation/Platform]
-                          /Project[not(@Guid=preceding::Project/@Guid)]">
-      <xsl:call-template name="project-definition">
-        <xsl:with-param name="type" select="current()/@Type" />
-        <xsl:with-param name="name" select="current()/@Name" />
-        <xsl:with-param name="guid" select="current()/@Guid" />
-        <xsl:with-param name="path" select="current()/@Path" />
+        <xsl:with-param name="type" select="current()/Type" />
+        <xsl:with-param name="name" select="current()/Name" />
+        <xsl:with-param name="guid" select="current()/Guid" />
+        <xsl:with-param name="path" select="current()/Path" />
       </xsl:call-template>
     </xsl:for-each>
     <xsl:choose>
@@ -153,29 +80,9 @@
 </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    
-    <xsl:for-each select="/Input/Projects/Project">
-      <xsl:if test="user:ProjectIsActive(
-          current()/@Platforms,
-          /Input/Generation/Platform)">
-        <xsl:call-template name="project-configuration">
-          <xsl:with-param name="guid" select="current()/@Guid" />
-          <xsl:with-param name="root" select="current()" />
-        </xsl:call-template>
-      </xsl:if>
-    </xsl:for-each>
-    <xsl:for-each select="/Input/Projects/ExternalProject
-                          /Project[not(@Guid=preceding::Project/@Guid)]">
+    <xsl:for-each select="/Projects/Project">
       <xsl:call-template name="project-configuration">
-        <xsl:with-param name="guid" select="current()/@Guid" />
-        <xsl:with-param name="root" select="current()" />
-      </xsl:call-template>
-    </xsl:for-each>
-    <xsl:for-each select="/Input/Projects/ExternalProject
-                          /Platform[@Type=/Input/Generation/Platform]
-                          /Project[not(@Guid=preceding::Project/@Guid)]">
-      <xsl:call-template name="project-configuration">
-        <xsl:with-param name="guid" select="current()/@Guid" />
+        <xsl:with-param name="guid" select="current()/Guid" />
         <xsl:with-param name="root" select="current()" />
       </xsl:call-template>
     </xsl:for-each>
