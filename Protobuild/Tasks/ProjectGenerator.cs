@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Xsl;
 
 namespace Protobuild.Tasks
@@ -15,7 +16,8 @@ namespace Protobuild.Tasks
     public class ProjectGenerator
     {
         private XslCompiledTransform m_ProjectTransform = null;
-        private XslCompiledTransform m_SolutionTransform = null;
+        private XslCompiledTransform m_GenerateSolutionTransform = null;
+        private XslCompiledTransform m_SelectSolutionTransform = null;
         private Action<string> m_Log;
 
         public ProjectGenerator(
@@ -301,10 +303,10 @@ namespace Protobuild.Tasks
 
         public void GenerateSolution(string solutionPath, List<Service> services, IEnumerable<string> repositoryPaths)
         {
-            if (this.m_SolutionTransform == null)
+            if (this.m_GenerateSolutionTransform == null)
             {
                 var resolver = new EmbeddedResourceResolver();
-                this.m_SolutionTransform = new XslCompiledTransform();
+                this.m_GenerateSolutionTransform = new XslCompiledTransform();
                 Stream generateSolutionStream;
                 var generateSolutionXSLT = Path.Combine(this.RootPath, "Build", "GenerateSolution.xslt");
                 if (File.Exists(generateSolutionXSLT))
@@ -317,7 +319,32 @@ namespace Protobuild.Tasks
                 {
                     using (var reader = XmlReader.Create(generateSolutionStream))
                     {
-                        this.m_SolutionTransform.Load(
+                        this.m_GenerateSolutionTransform.Load(
+                            reader,
+                            XsltSettings.TrustedXslt,
+                            resolver
+                        );
+                    }
+                }
+            }
+
+            if (this.m_SelectSolutionTransform == null)
+            {
+                var resolver = new EmbeddedResourceResolver();
+                this.m_SelectSolutionTransform = new XslCompiledTransform();
+                Stream selectSolutionStream;
+                var selectSolutionXSLT = Path.Combine(this.RootPath, "Build", "SelectSolution.xslt");
+                if (File.Exists(selectSolutionXSLT))
+                    selectSolutionStream = File.Open(selectSolutionXSLT, FileMode.Open);
+                else
+                    selectSolutionStream = ResourceExtractor.GetTransparentDecompressionStream(
+                        Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                            "Protobuild.BuildResources.SelectSolution.xslt.gz"));
+                using (selectSolutionStream)
+                {
+                    using (var reader = XmlReader.Create(selectSolutionStream))
+                    {
+                        this.m_SelectSolutionTransform.Load(
                             reader,
                             XsltSettings.TrustedXslt,
                             resolver
@@ -327,9 +354,37 @@ namespace Protobuild.Tasks
             }
 
             var input = this.CreateInputFor(this.Platform, services);
-            using (var writer = new StreamWriter(solutionPath))
+            using (var memory = new MemoryStream())
             {
-                this.m_SolutionTransform.Transform(input, null, writer);
+                this.m_SelectSolutionTransform.Transform(input, null, memory);
+
+                memory.Seek(0, SeekOrigin.Begin);
+
+                var document = new XmlDocument();
+                document.Load(memory);
+
+                var existingGuids = new List<string>();
+                foreach (var element in document.DocumentElement.SelectNodes("/Projects/Project").OfType<XmlElement>().ToList())
+                {
+                    var f = element.SelectNodes("Guid").OfType<XmlElement>().FirstOrDefault();
+
+                    if (f != null)
+                    {
+                        if (existingGuids.Contains(f.InnerText.Trim()))
+                        {
+                            element.ParentNode.RemoveChild(element);
+                        }
+                        else
+                        {
+                            existingGuids.Add(f.InnerText.Trim());
+                        }
+                    }
+                }
+
+                using (var writer = new StreamWriter(solutionPath))
+                {
+                    this.m_GenerateSolutionTransform.Transform(document, null, writer);
+                }
             }
 
             if (repositoryPaths != null && repositoryPaths.Any())
