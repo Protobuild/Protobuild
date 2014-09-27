@@ -869,30 +869,6 @@
             <xsl:with-param name="config">Release</xsl:with-param>
             <xsl:with-param name="platform">AnyCPU</xsl:with-param>
           </xsl:call-template>
-          <xsl:call-template name="configuration">
-            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
-            <xsl:with-param name="debug">true</xsl:with-param>
-            <xsl:with-param name="config">Debug</xsl:with-param>
-            <xsl:with-param name="platform">x86</xsl:with-param>
-          </xsl:call-template>
-          <xsl:call-template name="configuration">
-            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
-            <xsl:with-param name="debug">false</xsl:with-param>
-            <xsl:with-param name="config">Release</xsl:with-param>
-            <xsl:with-param name="platform">x86</xsl:with-param>
-          </xsl:call-template>
-          <xsl:call-template name="configuration">
-            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
-            <xsl:with-param name="debug">true</xsl:with-param>
-            <xsl:with-param name="config">Debug</xsl:with-param>
-            <xsl:with-param name="platform">ARM</xsl:with-param>
-          </xsl:call-template>
-          <xsl:call-template name="configuration">
-            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
-            <xsl:with-param name="debug">false</xsl:with-param>
-            <xsl:with-param name="config">Release</xsl:with-param>
-            <xsl:with-param name="platform">ARM</xsl:with-param>
-          </xsl:call-template>
         </xsl:when>
         <xsl:otherwise>
           <xsl:call-template name="configuration">
