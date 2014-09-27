@@ -353,7 +353,7 @@ namespace Protobuild.Tasks
                 }
             }
 
-            var input = this.CreateInputFor(this.Platform, services);
+            var input = this.CreateInputForSelectSolution(this.Platform, services);
             using (var memory = new MemoryStream())
             {
                 this.m_SelectSolutionTransform.Transform(input, null, memory);
@@ -381,9 +381,13 @@ namespace Protobuild.Tasks
                     }
                 }
 
+                var documentInput = this.CreateInputForGenerateSolution(
+                    this.Platform,
+                    document.DocumentElement.SelectNodes("/Projects/Project").OfType<XmlElement>());
+
                 using (var writer = new StreamWriter(solutionPath))
                 {
-                    this.m_GenerateSolutionTransform.Transform(document, null, writer);
+                    this.m_GenerateSolutionTransform.Transform(documentInput, null, writer);
                 }
             }
 
@@ -998,7 +1002,7 @@ namespace Protobuild.Tasks
             return false;
         }
 
-        private XmlDocument CreateInputFor(string platform, List<Service> services)
+        private XmlDocument CreateInputForSelectSolution(string platform, List<Service> services)
         {
             var doc = new XmlDocument();
             doc.AppendChild(doc.CreateXmlDeclaration("1.0", "UTF-8", null));
@@ -1033,6 +1037,34 @@ namespace Protobuild.Tasks
                     projectDoc.DocumentElement,
                     true));
             }
+            return doc;
+        }
+
+        private XmlDocument CreateInputForGenerateSolution(string platform, IEnumerable<XmlElement> projectElements)
+        {
+            var doc = new XmlDocument();
+            doc.AppendChild(doc.CreateXmlDeclaration("1.0", "UTF-8", null));
+            var input = doc.CreateElement("Input");
+            doc.AppendChild(input);
+
+            var generation = doc.CreateElement("Generation");
+            var platformName = doc.CreateElement("Platform");
+            platformName.AppendChild(doc.CreateTextNode(platform));
+            var useCSCJVM = doc.CreateElement("UseCSCJVM");
+            useCSCJVM.AppendChild(doc.CreateTextNode(
+                this.IsUsingCSCJVM(platform) ? "True" : "False"));
+            generation.AppendChild(useCSCJVM);
+            generation.AppendChild(platformName);
+            input.AppendChild(generation);
+
+            var projects = doc.CreateElement("Projects");
+            input.AppendChild(projects);
+
+            foreach (var projectElem in projectElements)
+            {
+                projects.AppendChild(doc.ImportNode(projectElem, true));
+            }
+
             return doc;
         }
     }
