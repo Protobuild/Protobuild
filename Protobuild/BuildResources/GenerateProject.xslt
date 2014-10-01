@@ -276,6 +276,7 @@
             <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
             <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
             <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
+            <VisualStudioVersion>12.0</VisualStudioVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS' or /Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
@@ -569,7 +570,7 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:choose>
-          <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81'">
             <ProductVersion>8.0.30703</ProductVersion>
           </xsl:when>
           <xsl:otherwise>
