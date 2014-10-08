@@ -275,6 +275,8 @@
             <TargetPlatformVersion>8.1</TargetPlatformVersion>
             <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
             <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
+            <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
+            <VisualStudioVersion>12.0</VisualStudioVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS' or /Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
@@ -536,12 +538,22 @@
       name="project"
       select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
 
+    <xsl:variable name="ToolsVersion">
+      <xsl:choose>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+          <xsl:text>12.0</xsl:text>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:text>4.0</xsl:text>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
     <Project
       DefaultTargets="Build"
-      ToolsVersion="4.0"
-      xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-      <xsl:if test="/Input/Generation/Platform = 'Windows8'">
+      xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="{$ToolsVersion}">
+      
+      <xsl:if test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81'">
         <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
       </xsl:if>
 
@@ -558,7 +570,7 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:choose>
-          <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+          <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81'">
             <ProductVersion>8.0.30703</ProductVersion>
           </xsl:when>
           <xsl:otherwise>
@@ -1722,6 +1734,12 @@
         <xsl:when test="/Input/Generation/Platform = 'Windows8'">
           <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
             <VisualStudioVersion>11.0</VisualStudioVersion>
+          </PropertyGroup>
+          <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+          <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
+            <VisualStudioVersion>12.0</VisualStudioVersion>
           </PropertyGroup>
           <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
