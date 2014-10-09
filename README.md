@@ -1,7 +1,7 @@
 Protobuild
 ==========
 
-_Cross-platform C# project generation_
+_Cross-platform project generation for C#_
 
 Define your project content once and compile code for every platform, in any IDE or build system, on any operating system.  See http://protobuild.org/ for more information.
 
