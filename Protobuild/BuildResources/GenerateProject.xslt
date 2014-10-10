@@ -330,6 +330,10 @@
       <xsl:when test="$debug = 'true'">
         <DebugSymbols>true</DebugSymbols>
         <Optimize>false</Optimize>
+        <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
+          <!-- This ensures that DirectX errors are reported to the Output window on Windows. -->
+          <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+        </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <Optimize>true</Optimize>
