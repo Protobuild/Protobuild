@@ -1,7 +1,7 @@
 echo "Recompressing resources..."
 
 cd %~dp0
-cd Protobuild\bin\Windows\AnyCPU\Release
+cd Protobuild\bin\Windows\AnyCPU\Debug
 Protobuild.exe --compress ..\..\..\..\BuildResources\GenerateProject.xslt
 Protobuild.exe --compress ..\..\..\..\BuildResources\GenerateSolution.xslt
 Protobuild.exe --compress ..\..\..\..\BuildResources\SelectSolution.xslt
