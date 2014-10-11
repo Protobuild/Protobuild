@@ -642,6 +642,9 @@
           <xsl:otherwise>
           </xsl:otherwise>
         </xsl:choose>
+        <xsl:if test="/Input/Properties/WindowsApplicationIcon">
+          <ApplicationIcon><xsl:value-of select="/Input/Properties/WindowsApplicationIcon" /></ApplicationIcon>
+        </xsl:if>
         <OutputType>
           <xsl:choose>
             <xsl:when test="$project/@Type = 'XNA'">
