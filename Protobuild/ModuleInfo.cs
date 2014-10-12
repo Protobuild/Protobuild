@@ -117,6 +117,12 @@ namespace Protobuild
         public string[] ModuleAssemblies { get; set; }
 
         /// <summary>
+        /// Gets or sets the name of the default startup project.
+        /// </summary>
+        /// <value>The name of the default startup project.</value>
+        public string DefaultStartupProject { get; set; } 
+
+        /// <summary>
         /// Loads the Protobuild module from the Module.xml file.
         /// </summary>
         /// <param name="xmlFile">The path to a Module.xml file.</param>
