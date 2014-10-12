@@ -280,6 +280,11 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS' or /Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'PCL'">
+            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+            <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+            <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+          </xsl:when>
           <xsl:otherwise>
             <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
           </xsl:otherwise>
@@ -301,7 +306,7 @@
           <xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" />
         </TargetFrameworkProfile>
       </xsl:when>
-      <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'PSMobile'">
+      <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'PSMobile' or /Input/Generation/Platform = 'PCL'">
       </xsl:when>
       <xsl:otherwise>
         <TargetFrameworkProfile></TargetFrameworkProfile>
@@ -554,7 +559,7 @@
 
     <xsl:variable name="ToolsVersion">
       <xsl:choose>
-        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81' or /Input/Generation/Platform = 'PCL'">
           <xsl:text>12.0</xsl:text>
         </xsl:when>
         <xsl:otherwise>
@@ -567,7 +572,7 @@
       DefaultTargets="Build"
       xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="{$ToolsVersion}">
       
-      <xsl:if test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81'">
+      <xsl:if test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81' or /Input/Generation/Platform = 'PCL'">
         <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
       </xsl:if>
 
@@ -647,6 +652,12 @@
             <ProjectTypeGuids>
               <xsl:text>{76F1466A-8B6D-4E39-A767-685A06062A39};</xsl:text>
               <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'PCL'">
+            <ProjectTypeGuids>
+              <xsl:text>{786C830F-07A1-408B-BD7F-6EE04809D6DB};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
           <xsl:otherwise>
@@ -732,7 +743,9 @@
           </xsl:choose>
         </RootNamespace>
         <AssemblyName><xsl:copy-of select="$assembly_name" /></AssemblyName>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <xsl:if test="/Input/Generation/Platform != 'PCL'">
+          <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        </xsl:if>
         <NoWarn><xsl:value-of select="/Input/Properties/NoWarn" /></NoWarn>
         <xsl:call-template name="profile_and_version" />
         <xsl:choose>
@@ -1795,6 +1808,9 @@
         <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
           <Import Project="$(MSBuildExtensionsPath)\Sce\Sce.Psm.CSharp.targets" />
         </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'PCL'">
+          <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+        </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
         </xsl:otherwise>
@@ -2244,7 +2260,7 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-
+        
       <xsl:if test="/Input/Properties/MonoDevelopPoliciesFile">
         <ProjectExtensions>
           <MonoDevelop>
