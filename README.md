@@ -20,6 +20,8 @@ Protobuild supports the following platforms out-of-the-box, but by customizing t
   * Linux
   * MacOS
   * Ouya (via Xamarin)
+  * PCL (for [Bait-and-Switch PCL](http://log.paulbetts.org/the-bait-and-switch-pcl-trick/) only)
+  * PSMobile
   * Windows
   * Windows8
   * WindowsPhone
