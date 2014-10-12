@@ -170,7 +170,7 @@ namespace Protobuild.Tasks
                 this.RootPath,
                 this.ModuleName + "." + this.Platform + ".sln");
             this.LogMessage("Generating: (solution)");
-            generator.GenerateSolution(solution, services, repositoryPaths);
+            generator.GenerateSolution(module, solution, services, repositoryPaths);
 
             // Only save the specification cache if we allow synchronisation
             if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)

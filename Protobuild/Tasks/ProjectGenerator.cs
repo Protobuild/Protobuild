@@ -301,7 +301,7 @@ namespace Protobuild.Tasks
             }
         }
 
-        public void GenerateSolution(string solutionPath, List<Service> services, IEnumerable<string> repositoryPaths)
+        public void GenerateSolution(ModuleInfo moduleInfo, string solutionPath, List<Service> services, IEnumerable<string> repositoryPaths)
         {
             if (this.m_GenerateSolutionTransform == null)
             {
@@ -363,6 +363,7 @@ namespace Protobuild.Tasks
                 var document = new XmlDocument();
                 document.Load(memory);
 
+                var defaultProject = (XmlElement)null;
                 var existingGuids = new List<string>();
                 foreach (var element in document.DocumentElement.SelectNodes("/Projects/Project").OfType<XmlElement>().ToList())
                 {
@@ -373,12 +374,32 @@ namespace Protobuild.Tasks
                         if (existingGuids.Contains(f.InnerText.Trim()))
                         {
                             element.ParentNode.RemoveChild(element);
+                            continue;
                         }
                         else
                         {
                             existingGuids.Add(f.InnerText.Trim());
                         }
                     }
+
+                    var n = element.SelectNodes("RawName").OfType<XmlElement>().FirstOrDefault();
+
+                    if (n != null)
+                    {
+                        if (n.InnerText.Trim() == moduleInfo.DefaultStartupProject)
+                        {
+                            defaultProject = element;
+                        }
+                    }
+                }
+
+                if (defaultProject != null)
+                {
+                    // Move the default project to the first element of it's parent.  The first project
+                    // in the solution is the default startup project.
+                    var parent = defaultProject.ParentNode;
+                    parent.RemoveChild(defaultProject);
+                    parent.InsertBefore(defaultProject, parent.FirstChild);
                 }
 
                 var documentInput = this.CreateInputForGenerateSolution(

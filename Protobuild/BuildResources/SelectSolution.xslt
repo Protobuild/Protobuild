@@ -63,6 +63,9 @@
             <Type>
               <xsl:value-of select="current()/@Type" />
             </Type>
+            <RawName>
+              <xsl:value-of select="current()/@Name" />
+            </RawName>
             <Name>
               <xsl:value-of select="concat(
                 current()/@Name,
@@ -89,6 +92,9 @@
                             /Project">
         <Project>
           <Type>External</Type>
+          <RawName>
+            <xsl:value-of select="current()/@Name" />
+          </RawName>
           <Name>
             <xsl:value-of select="current()/@Name" />
           </Name>
@@ -105,6 +111,9 @@
                             /Project">
         <Project>
           <Type>External</Type>
+          <RawName>
+            <xsl:value-of select="current()/@Name" />
+          </RawName>
           <Name>
             <xsl:value-of select="current()/@Name" />
           </Name>
@@ -125,6 +134,9 @@
           <xsl:for-each select="./Project">
             <Project>
               <Type>External</Type>
+              <RawName>
+                <xsl:value-of select="current()/@Name" />
+              </RawName>
               <Name>
                 <xsl:value-of select="current()/@Name" />
               </Name>
@@ -146,6 +158,9 @@
           <xsl:for-each select="./Project">
             <Project>
               <Type>External</Type>
+              <RawName>
+                <xsl:value-of select="current()/@Name" />
+              </RawName>
               <Name>
                 <xsl:value-of select="current()/@Name" />
               </Name>
