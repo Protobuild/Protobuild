@@ -12,6 +12,7 @@
     <Compile Include="ExampleCocos2DXNATest.cs" />
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
+    <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
     <Compile Include="ServicesDefaultForRootTest.cs" />
@@ -28,6 +29,7 @@
     <Content Include="TestData\ExampleCSTools\CSTools\Build\Module.xml" />
     <Content Include="TestData\ExampleMonoGame\Build\Module.xml" />
     <Content Include="TestData\ExampleMonoGame\MonoGame\Build\Module.xml" />
+    <Content Include="TestData\ProjectSpecificOutputFolder\Build\Module.xml" />
     <Content Include="TestData\ServicesBaseTest\Build\Module.xml" />
     <Content Include="TestData\ServicesBaseTest\Submodule\Build\Module.xml" />
     <Content Include="TestData\ServicesCrossProjectRequire\Build\Module.xml" />
@@ -67,6 +69,10 @@
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.DirectX.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.OpenGL.cs" />
+    <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
+    <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
+    <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />
+    <None Include="TestData\ProjectSpecificOutputFolder\ConsoleB\Program.cs" />
     <None Include="TestData\ServicesBaseTest\Build\Projects\Console.definition" />
     <None Include="TestData\ServicesBaseTest\Console\Program.cs" />
     <None Include="TestData\ServicesBaseTest\Submodule\Build\Projects\Library.definition" />
