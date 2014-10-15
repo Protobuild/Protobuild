@@ -512,6 +512,11 @@
             <xsl:value-of select="/Input/Properties/iOSArch" />
           </MtouchArch>
         </xsl:if>
+        <xsl:if test="/Input/Properties/iOSExtraArgs">
+          <MtouchExtraArgs>
+            <xsl:value-of select="/Input/Properties/iOSExtraArgs" />
+          </MtouchExtraArgs>
+        </xsl:if>
         <xsl:if test="/Input/Properties/SignAssembly">
           <SignAssembly>
             <xsl:value-of select="/Input/Properties/SignAssembly" />
