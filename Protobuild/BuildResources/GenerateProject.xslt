@@ -336,6 +336,7 @@
       <xsl:when test="$debug = 'true'">
         <DebugSymbols>true</DebugSymbols>
         <Optimize>false</Optimize>
+    		<DebugType>full</DebugType>
         <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
           <!-- This ensures that DirectX errors are reported to the Output window on Windows. -->
           <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
@@ -343,9 +344,9 @@
       </xsl:when>
       <xsl:otherwise>
         <Optimize>true</Optimize>
+    		<DebugType>none</DebugType>
       </xsl:otherwise>
     </xsl:choose>
-    <DebugType>full</DebugType>
     <xsl:variable name="platform_path">
       <xsl:choose>
         <xsl:when test="$type = 'Website'">
