@@ -11,7 +11,7 @@ fi
 
 mono Protobuild.exe --generate $PLATFORM
 xbuild /p:Configuration=Debug Protobuild.$PLATFORM.sln
-./recompress.sh
 xbuild /p:Configuration=Release Protobuild.$PLATFORM.sln
+./recompress.sh
 cp Protobuild/bin/$PLATFORM/AnyCPU/Release/Protobuild.exe ./
 mono Protobuild.exe --generate $PLATFORM
