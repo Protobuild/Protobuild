@@ -1685,7 +1685,7 @@
                                   /ContentProject[@Name=$include-path]
                                   /Compiled">
               <xsl:choose>
-                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'Windows'">
                   <Content>
                     <xsl:attribute name="Include">
                       <xsl:value-of
