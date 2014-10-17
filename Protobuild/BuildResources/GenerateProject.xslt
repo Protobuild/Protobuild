@@ -336,16 +336,26 @@
       <xsl:when test="$debug = 'true'">
         <DebugSymbols>true</DebugSymbols>
         <Optimize>false</Optimize>
+        <DebugType>full</DebugType>
         <xsl:if test="/Input/Generation/HostPlatform = 'Windows'">
           <!-- This ensures that DirectX errors are reported to the Output window on Windows. -->
-          <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+        <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
         </xsl:if>
       </xsl:when>
       <xsl:otherwise>
         <Optimize>true</Optimize>
+				<DebugType>
+          <xsl:choose>
+            <xsl:when test="/Input/Properties/DebugSymbolsOnRelease">
+              <xsl:value-of select="/Input/Properties/DebugSymbolsOnRelease" />
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>none</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+				</DebugType>
       </xsl:otherwise>
     </xsl:choose>
-    <DebugType>full</DebugType>
     <xsl:variable name="platform_path">
       <xsl:choose>
         <xsl:when test="$type = 'Website'">
@@ -1685,7 +1695,7 @@
                                   /ContentProject[@Name=$include-path]
                                   /Compiled">
               <xsl:choose>
-                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'Windows'">
                   <Content>
                     <xsl:attribute name="Include">
                       <xsl:value-of
