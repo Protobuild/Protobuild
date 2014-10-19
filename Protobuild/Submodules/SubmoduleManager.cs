@@ -57,19 +57,26 @@ occur until this functionality is stabilized.
 
             var sourceUri = indexData[0];
 
-            try
+            if (string.IsNullOrWhiteSpace(sourceUri))
             {
-                new Uri(sourceUri);
+                try
+                {
+                    new Uri(sourceUri);
+                }
+                catch
+                {
+                    throw new InvalidOperationException(
+                        "Received invalid Git URL when loading package from " + indexUri);
+                }
             }
-            catch
+            else
             {
-                throw new InvalidOperationException(
-                    "Received invalid Git URL when loading package from " + indexUri);
+                Console.WriteLine("WARNING: This package does not have a source repository set.");
             }
 
             Directory.CreateDirectory(reference.Folder);
 
-            if (source)
+            if (source && !string.IsNullOrWhiteSpace(sourceUri))
             {
                 this.ResolveSource(reference, sourceUri);
             }
@@ -126,7 +133,6 @@ occur until this functionality is stabilized.
             Console.WriteLine("Creating and emptying " + folder);
             this.EmptyReferenceFolder(reference.Folder);
             Directory.CreateDirectory(folder);
-            this.SetupEmptyModule(reference.Folder);
 
             Console.WriteLine("Marking " + reference.Folder + " as ignored for Git");
             this.MarkIgnored(reference.Folder);
@@ -136,9 +142,18 @@ occur until this functionality is stabilized.
 
             if (!availableRefs.Contains(reference.GitRef))
             {
-                Console.WriteLine("Unable to resolve binary package for version \"" + reference.GitRef + "\", falling back to source version");
-                this.ResolveSource(reference, source);
-                return;
+                if (string.IsNullOrWhiteSpace(source))
+                {
+                    throw new InvalidOperationException(
+                        "Unable to resolve binary package for version \"" + reference.GitRef + 
+                        "\" and this package does not have a source repository");
+                }
+                else
+                {
+                    Console.WriteLine("Unable to resolve binary package for version \"" + reference.GitRef + "\", falling back to source version");
+                    this.ResolveSource(reference, source);
+                    return;
+                }
             }
 
             var baseUri = reference.UriObject;
@@ -152,9 +167,18 @@ occur until this functionality is stabilized.
 
             if (!platforms.Contains(platformName))
             {
-                Console.WriteLine("Unable to resolve binary package for platform \"" + platformName + "\", falling back to source version");
-                this.ResolveSource(reference, source);
-                return;
+                if (string.IsNullOrWhiteSpace(source))
+                {
+                    throw new InvalidOperationException(
+                        "Unable to resolve binary package for platform \"" + platformName + 
+                        "\" and this package does not have a source repository");
+                }
+                else
+                {
+                    Console.WriteLine("Unable to resolve binary package for platform \"" + platformName + "\", falling back to source version");
+                    this.ResolveSource(reference, source);
+                    return;
+                }
             }
 
             var uri = baseUri + "/" + reference.GitRef + "/" + platformName + ".tar.gz";
@@ -201,29 +225,44 @@ occur until this functionality is stabilized.
             {
                 using (var client = new WebClient())
                 {
-                    return client.DownloadData(packageUri);
+                    var done = false;
+                    byte[] result = null;
+                    Exception ex = null;
+                    client.DownloadDataCompleted += (sender, e) => {
+                        if (e.Error != null)
+                        {
+                            ex = e.Error;
+                        }
+
+                        result = e.Result;
+                        done = true;
+                    };
+                    client.DownloadProgressChanged += (sender, e) => {
+                        if (!done)
+                        {
+                            Console.Write("\rDownloading package; " + e.ProgressPercentage + "% complete (" + (e.BytesReceived / 1024) + "kb received)");
+                        }
+                    };
+                    client.DownloadDataAsync(new Uri(packageUri));
+                    while (!done)
+                    {
+                        System.Threading.Thread.Sleep(0);
+                    }
+
+                    Console.WriteLine();
+
+                    if (ex != null)
+                    {
+                        throw new InvalidOperationException("Download error", ex);
+                    }
+
+                    return result;
                 }
             }
             catch (WebException)
             {
                 Console.WriteLine("Web exception when retrieving: " + packageUri);
                 throw;
-            }
-        }
-
-        private void SetupEmptyModule(string folder)
-        {
-            var source = typeof(SubmoduleManager).Assembly.Location;
-            File.Copy(source, Path.Combine(folder, "Protobuild.exe"), true);
-            Directory.CreateDirectory(Path.Combine(folder, "Build", "Projects"));
-
-            using (var writer = new StreamWriter(Path.Combine(folder, "Build", "Module.xml")))
-            {
-                writer.Write(@"<?xml version=""1.0"" encoding=""utf-8""?>
-<ModuleInfo xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <Name>" + folder + @".BinReferences</Name>
-</ModuleInfo>
-");
             }
         }
 
