@@ -64,7 +64,7 @@ namespace Protobuild.Tasks
                 "Starting generation of projects for " + this.Platform);
 
             var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
-            var definitions = module.GetDefinitionsRecursively().ToArray();
+            var definitions = module.GetDefinitionsRecursively(this.Platform).ToArray();
 
             var generator = new ProjectGenerator(
                 this.RootPath,
@@ -138,7 +138,7 @@ namespace Protobuild.Tasks
 
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
-            foreach (var submodule in module.GetSubmodules())
+            foreach (var submodule in module.GetSubmodules(this.Platform))
             {
                 this.LogMessage(
                     "Invoking submodule generation for " + submodule.Name);

@@ -177,7 +177,7 @@ namespace Protobuild
         /// </summary>
         /// <returns>The loaded project definitions.</returns>
         /// <param name="relative">The current directory being scanned.</param>
-        public IEnumerable<DefinitionInfo> GetDefinitionsRecursively(string relative = "")
+        public IEnumerable<DefinitionInfo> GetDefinitionsRecursively(string platform = null, string relative = "")
         {
             foreach (var definition in this.GetDefinitions())
             {
@@ -186,9 +186,9 @@ namespace Protobuild
                 yield return definition;
             }
 
-            foreach (var submodule in this.GetSubmodules())
+            foreach (var submodule in this.GetSubmodules(platform))
             {
-                foreach (var definition in submodule.GetDefinitionsRecursively((relative + '\\' + submodule.Name).Trim('\\')))
+                foreach (var definition in submodule.GetDefinitionsRecursively(platform, (relative + '\\' + submodule.Name).Trim('\\')))
                 {
                     yield return definition;
                 }
@@ -199,7 +199,7 @@ namespace Protobuild
         /// Loads all of the submodules present in this module.
         /// </summary>
         /// <returns>The loaded submodules.</returns>
-        public ModuleInfo[] GetSubmodules()
+        public ModuleInfo[] GetSubmodules(string platform = null)
         {
             var modules = new List<ModuleInfo>();
             foreach (var directory in new DirectoryInfo(this.Path).GetDirectories())
@@ -217,6 +217,33 @@ namespace Protobuild
                 }
 
                 modules.Add(ModuleInfo.Load(module.FullName));
+            }
+
+            if (platform != null)
+            {
+                foreach (var directory in new DirectoryInfo(this.Path).GetDirectories())
+                {
+                    var platformDirectory = new DirectoryInfo(System.IO.Path.Combine(directory.FullName, platform));
+
+                    if (!platformDirectory.Exists)
+                    {
+                        continue;
+                    }
+
+                    var build = platformDirectory.GetDirectories().FirstOrDefault(x => x.Name == "Build");
+                    if (build == null)
+                    {
+                        continue;
+                    }
+
+                    var module = build.GetFiles().FirstOrDefault(x => x.Name == "Module.xml");
+                    if (module == null)
+                    {
+                        continue;
+                    }
+
+                    modules.Add(ModuleInfo.Load(module.FullName));
+                }
             }
 
             return modules.ToArray();
