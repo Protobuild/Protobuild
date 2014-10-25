@@ -105,7 +105,7 @@
       string activeServicesString)
     {
       var activeServices = activeServicesString.Split(',');
-    
+
       // Choose either <Services> or <IncludeServices>
       if (string.IsNullOrEmpty(serviceString))
       {
@@ -182,7 +182,7 @@
       var path = System.IO.Path.Combine(home, ".codesignkey");
       return System.IO.File.Exists(path);
     }
-    
+
     public string GetCodesignKey()
     {
       var home = System.Environment.GetEnvironmentVariable("HOME");
@@ -219,6 +219,11 @@
       }
 
       return string.Join(";", list.ToArray());
+    }
+
+    public string GetFilename(string name)
+    {
+      return new System.IO.FileInfo(name).Name;
     }
 
     ]]>
@@ -566,6 +571,29 @@
     </PropertyGroup>
   </xsl:template>
 
+  <xsl:template name="NativeBinary"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:param name="project_path" />
+    <xsl:param name="project_name" />
+    <xsl:param name="path" />
+    <None>
+      <xsl:attribute name="Include">
+        <xsl:value-of
+          select="user:GetRelativePath(
+            concat(
+              $project_path,
+              '\',
+              $project_name,
+              '.',
+              /Input/Generation/Platform,
+              '.csproj'),
+            $path)" />
+      </xsl:attribute>
+      <Link><xsl:value-of select="user:GetFilename($path)" /></Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </xsl:template>
+
   <xsl:template match="/">
 
     <xsl:variable
@@ -586,7 +614,7 @@
     <Project
       DefaultTargets="Build"
       xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="{$ToolsVersion}">
-      
+
       <xsl:if test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81' or /Input/Generation/Platform = 'PCL'">
         <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
       </xsl:if>
@@ -1336,6 +1364,67 @@
               </xsl:attribute>
               <xsl:apply-templates select="node()"/>
             </xsl:element>
+          </xsl:if>
+        </xsl:for-each>
+
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-name" select="./@Include" />
+          <xsl:if test="
+            count(/Input/Projects/Project[@Name=$include-name]) = 0">
+            <xsl:if test="
+              count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+              <xsl:variable name="extern"
+                select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+              <xsl:for-each select="$extern/NativeBinary">
+                <xsl:call-template name="NativeBinary">
+                  <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                  <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                  <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                </xsl:call-template>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=/Input/Generation/Platform]">
+                <xsl:for-each select="./NativeBinary">
+                  <xsl:call-template name="NativeBinary">
+                    <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                    <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                    <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                  </xsl:call-template>
+                </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./NativeBinary">
+                      <xsl:call-template name="NativeBinary">
+                        <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                        <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                        <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                      </xsl:call-template>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  /Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./NativeBinary">
+                    <xsl:call-template name="NativeBinary">
+                      <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                      <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                      <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                    </xsl:call-template>
+                  </xsl:for-each>
+                </xsl:if>
+              </xsl:for-each>
+            </xsl:if>
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
@@ -2275,7 +2364,7 @@
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>
-        
+
       <xsl:if test="/Input/Properties/MonoDevelopPoliciesFile">
         <ProjectExtensions>
           <MonoDevelop>
