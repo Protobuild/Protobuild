@@ -291,12 +291,20 @@ namespace Protobuild
                 module.Submodules = new List<SubmoduleRef>();
             }
 
+            var branch = "master";
+            if (url.LastIndexOf('@') > url.LastIndexOf('/'))
+            {
+                // A branch / commit ref is specified.
+                branch = url.Substring(url.LastIndexOf('@') + 1);
+                url = url.Substring(0, url.LastIndexOf('@'));
+            }
+
             var uri = new Uri(url);
 
             var submodule = new SubmoduleRef
             {
                 Uri = url,
-                GitRef = "master",
+                GitRef = branch,
                 Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
             };
 
