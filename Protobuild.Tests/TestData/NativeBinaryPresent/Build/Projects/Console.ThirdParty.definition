@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="Console.ThirdParty">
+
+  <NativeBinary Path="ThirdParty/All" />
+
+  <Platform Type="Windows">
+    <NativeBinary Path="ThirdParty/Windows.dll" />
+  </Platform>
+
+  <Platform Type="Linux">
+    <NativeBinary Path="ThirdParty/Linux.so" />
+  </Platform>
+
+</ExternalProject>

@@ -13,6 +13,7 @@
     <Compile Include="ExampleCocos2DXNATest.cs" />
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
+    <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
@@ -80,6 +81,10 @@
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.DirectX.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.OpenGL.cs" />
+    <None Include="TestData\NativeBinaryPresent\Build\Module.xml" />
+    <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
+    <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />
+    <None Include="TestData\NativeBinaryPresent\Console\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />
