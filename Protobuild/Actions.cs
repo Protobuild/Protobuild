@@ -190,7 +190,7 @@ namespace Protobuild
 
             // Resolve submodules as needed.
             var submoduleManager = new Submodules.SubmoduleManager();
-            submoduleManager.ResolveAll(module, primaryPlatform, false);
+            submoduleManager.ResolveAll(module, primaryPlatform);
 
             // You can configure the default action for Protobuild in their project
             // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
@@ -240,7 +240,7 @@ namespace Protobuild
                 }
 
                 // Resolve submodules as needed.
-                submoduleManager.ResolveAll(module, platformIter, false);
+                submoduleManager.ResolveAll(module, platformIter);
 
                 switch (action.ToLower())
                 {
@@ -307,6 +307,17 @@ namespace Protobuild
                 GitRef = branch,
                 Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
             };
+
+            if (Directory.Exists(submodule.Folder))
+            {
+                throw new InvalidOperationException(submodule.Folder + " already exists");
+            }
+
+            if (module.Submodules.Any(x => x.Uri == submodule.Uri))
+            {
+                Console.WriteLine("WARNING: Submodule with URI " + submodule.Uri + " is already present; ignoring request to add submodule.");
+                return;
+            }
 
             Console.WriteLine("Adding " + url + " as " + submodule.Folder + "...");
             module.Submodules.Add(submodule);

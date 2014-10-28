@@ -47,6 +47,7 @@
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
     <Compile Include="SubmoduleRef.cs" />
+    <Compile Include="Submodules\SubmoduleCache.cs" />
     <Compile Include="Submodules\SubmoduleManager.cs" />
     <Compile Include="TAR\DataWriter.cs" />
     <Compile Include="TAR\IArchiveDataWriter.cs" />
