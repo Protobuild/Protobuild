@@ -16,7 +16,14 @@ namespace Protobuild.Submodules
 {
     public class SubmoduleManager
     {
-        public void ResolveAll(ModuleInfo module, string platform, bool source)
+        private readonly SubmoduleCache m_SubmoduleCache;
+
+        public SubmoduleManager()
+        {
+            this.m_SubmoduleCache = new SubmoduleCache();
+        }
+
+        public void ResolveAll(ModuleInfo module, string platform)
         {
             if (module.Submodules == null || module.Submodules.Count == 0)
             {
@@ -36,13 +43,13 @@ occur until this functionality is stabilized.
             foreach (var submodule in module.Submodules)
             {
                 Console.WriteLine("Resolving: " + submodule.Uri);
-                this.Resolve(submodule, platform, source);
+                this.Resolve(submodule, platform, null);
             }
 
             Console.WriteLine("Submodule resolution complete.");
         }
 
-        public void Resolve(SubmoduleRef reference, string platform, bool source)
+        public void Resolve(SubmoduleRef reference, string platform, bool? source)
         {
             var baseUri = reference.UriObject;
 
@@ -57,7 +64,7 @@ occur until this functionality is stabilized.
 
             var sourceUri = indexData[0];
 
-            if (string.IsNullOrWhiteSpace(sourceUri))
+            if (!string.IsNullOrWhiteSpace(sourceUri))
             {
                 try
                 {
@@ -76,7 +83,21 @@ occur until this functionality is stabilized.
 
             Directory.CreateDirectory(reference.Folder);
 
-            if (source && !string.IsNullOrWhiteSpace(sourceUri))
+            if (source == null)
+            {
+                if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
+                {
+                    Console.WriteLine("Git repository present at " + Path.Combine(reference.Folder, ".git") + "; leaving as source version.");
+                    source = true;
+                }
+                else
+                {
+                    Console.WriteLine("Package type not specified (and no file at " + Path.Combine(reference.Folder, ".git") + "), requesting binary version.");
+                    source = false;
+                }
+            }
+
+            if (source.Value && !string.IsNullOrWhiteSpace(sourceUri))
             {
                 this.ResolveSource(reference, sourceUri);
             }
@@ -88,8 +109,9 @@ occur until this functionality is stabilized.
 
         private void ResolveSource(SubmoduleRef reference, string source)
         {
-            if (File.Exists(Path.Combine(reference.Folder, ".git")))
+            if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
             {
+                Console.WriteLine("Git submodule / repository already present at " + reference.Folder);
                 return;
             }
 
@@ -125,6 +147,7 @@ occur until this functionality is stabilized.
         {
             if (File.Exists(Path.Combine(reference.Folder, platform, ".pkg")))
             {
+                Console.WriteLine("Protobuild binary package already present at " + Path.Combine(reference.Folder, platform));
                 return;
             }
 
@@ -137,10 +160,25 @@ occur until this functionality is stabilized.
             Console.WriteLine("Marking " + reference.Folder + " as ignored for Git");
             this.MarkIgnored(reference.Folder);
 
-            var availableRefs = indexData.ToList();
-            availableRefs.RemoveAt(0);
+            var indexDataList = indexData.ToList();
+            indexDataList.RemoveAt(0);
 
-            if (!availableRefs.Contains(reference.GitRef))
+            var availableRefs = new Dictionary<string, string>();
+            foreach (var id in indexDataList)
+            {
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    continue;
+                }
+
+                var kv = id.Split(new[] { ' ' }, 2);
+                if (!availableRefs.ContainsKey(kv[0]))
+                {
+                    availableRefs.Add(kv[0], kv[1]);
+                }
+            }
+
+            if (!availableRefs.ContainsKey(reference.GitRef))
             {
                 if (string.IsNullOrWhiteSpace(source))
                 {
@@ -156,9 +194,11 @@ occur until this functionality is stabilized.
                 }
             }
 
+            var resolvedGitHash = availableRefs[reference.GitRef];
+
             var baseUri = reference.UriObject;
 
-            var platformsUri = new Uri(baseUri + "/" + reference.GitRef + "/platforms");
+            var platformsUri = new Uri(baseUri + "/" + resolvedGitHash + "/platforms");
 
             Console.WriteLine("Checking for supported platforms at " + platformsUri);
             var platforms = this.GetStringList(platformsUri);
@@ -181,9 +221,20 @@ occur until this functionality is stabilized.
                 }
             }
 
-            var uri = baseUri + "/" + reference.GitRef + "/" + platformName + ".tar.gz";
-            Console.WriteLine("Retrieving binary package from " + uri);
-            var packageData = this.GetBinary(uri);
+            var uri = baseUri + "/" + resolvedGitHash + "/" + platformName + ".tar.gz";
+
+            byte[] packageData;
+            if (this.m_SubmoduleCache.HasPackage(uri, resolvedGitHash, platformName))
+            {
+                Console.WriteLine("Retrieving binary package from cache");
+                packageData = this.m_SubmoduleCache.GetPackage(uri, resolvedGitHash, platformName);
+            }
+            else
+            {
+                Console.WriteLine("Retrieving binary package from " + uri);
+                packageData = this.GetBinary(uri);
+                this.m_SubmoduleCache.SavePackage(uri, resolvedGitHash, platformName, packageData);
+            }
 
             using (var memory = new MemoryStream(packageData))
             {
@@ -407,8 +458,7 @@ occur until this functionality is stabilized.
                 {
                     var str = client.DownloadString(indexUri);
                     return str.Split(
-                        new char[] { '\r', '\n' },
-                        StringSplitOptions.RemoveEmptyEntries);
+                        new char[] { '\r', '\n' });
                 }
             }
             catch (WebException)
