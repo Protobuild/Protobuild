@@ -12,7 +12,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Protobuild" />
+    <Reference Include="Protobuild.Internal" />
   </References>
   <Files>
     <Compile Include="CreateProjectDialog.cs" />
