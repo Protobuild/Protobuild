@@ -143,20 +143,6 @@ namespace Protobuild
         }
 
         /// <summary>
-        /// Gets the list of available project templates for usage in the GUI-based module manager.
-        /// </summary>
-        /// <returns>The available project templates.</returns>
-        public BaseTemplate[] GetTemplates()
-        {
-            return (from assembly in this.ModuleAssemblies
-                    let loaded = Assembly.LoadFile(assembly)
-                    from type in loaded.GetTypes()
-                    where !type.IsAbstract
-                    where type.GetConstructor(Type.EmptyTypes) != null
-                    select Activator.CreateInstance(type) as BaseTemplate).ToArray();
-        }
-
-        /// <summary>
         /// Loads all of the project definitions present in the current module.
         /// </summary>
         /// <returns>The loaded project definitions.</returns>

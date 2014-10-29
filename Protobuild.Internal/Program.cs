@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Diagnostics;
-using System.Windows.Forms;
 
 namespace Protobuild
 {
@@ -14,7 +13,6 @@ namespace Protobuild
         public static void Main(string[] args)
         {
             var needToExit = false;
-            var runModuleManager = false;
             int exitCode = 0;
             var options = new Options();
             var enabledServices = new List<string>();
@@ -194,29 +192,12 @@ namespace Protobuild
 
                 Actions.AddSubmodule(ModuleInfo.Load(Path.Combine("Build", "Module.xml")), x[0]);
             };
-            options["manager-gui"] = x =>
-            {
-                if (actionHandler != null)
-                {
-                    throw new InvalidOperationException("More than one action option specified.");
-                }
-
-                actionHandler = () =>
-                { runModuleManager = true; };
-            };
             Action<string[]> helpAction = x =>
             {
-                Console.WriteLine("Protobuild.exe [-extract-xslt] [-extract-proj] [-sync] [-resync] [-generate]");
+                Console.WriteLine("Protobuild.exe [options]");
                 Console.WriteLine();
-                Console.WriteLine("By default Protobuild does resynchronises or generates projects for");
-                Console.WriteLine("the current platform.  To start a graphical interface for managing project");
-                Console.WriteLine("definitions, use the -manager-gui option.");
-                Console.WriteLine();
-                Console.WriteLine("  -manager-gui");
-                Console.WriteLine();
-                Console.WriteLine("  Starts the module manager GUI.  You will need to have a graphical");
-                Console.WriteLine("  system present in order to use this option; otherwise Protobuild will");
-                Console.WriteLine("  operate as a console application (safe for headless operation).");
+                Console.WriteLine("By default Protobuild resynchronises or generates projects for");
+                Console.WriteLine("the current platform, depending on the module configuration.");
                 Console.WriteLine();
                 Console.WriteLine("  -extract-xslt");
                 Console.WriteLine();
@@ -300,115 +281,17 @@ namespace Protobuild
 
             if (!File.Exists(Path.Combine("Build", "Module.xml")))
             {
-                try
-                {
-                    // We use Windows Forms here to prompt the user on what to do.
-                    Application.EnableVisualStyles();
-                    Application.SetCompatibleTextRenderingDefault(false);
-                    var form = new KickstartForm();
-                    var result = form.ShowDialog();
-                    switch (result)
-                    {
-                        case DialogResult.Yes:
-                            RunModuleManager();
-                            return;
-                        case DialogResult.No:
-                            Directory.CreateDirectory("Build");
-                            ResourceExtractor.ExtractAll(Path.Combine(Environment.CurrentDirectory, "Build"), "MyProject");
-                            MessageBox.Show("Build" + Path.DirectorySeparatorChar + "Module.xml has been created.");
-                            Environment.Exit(0);
-                            break;
-                        default:
-                            Environment.Exit(1);
-                            break;
-                    }
-                }
-                catch (Exception)
-                {
-                    // We might be on a platform that isn't running a graphical interface
-                    // or we can't otherwise show a dialog to the user.  Output to the
-                    // console to let them know what's going on.
-                    Console.WriteLine("The current directory does not appear to be a Protobuild module.  Please either create ");
-                    Console.WriteLine("the Module.xml file manually, or run 'Protobuild.exe --manager-gui' to be guided through ");
-                    Console.WriteLine("the process of creating a new module.");
-                    Environment.Exit(1);
-                }
+                Directory.CreateDirectory("Build");
+                ResourceExtractor.ExtractAll(Path.Combine(Environment.CurrentDirectory, "Build"), "MyProject");
+                Console.WriteLine("Build" + Path.DirectorySeparatorChar + "Module.xml has been created.");
+                Environment.Exit(0);
             }
 
-            if (runModuleManager) RunModuleManager();
-            else
-                Actions.DefaultAction(
-                    ModuleInfo.Load(Path.Combine("Build", "Module.xml")),
-                    enabledServices: enabledServices.ToArray(),
-                    disabledServices: disabledServices.ToArray(),
-                    serviceSpecPath: serviceSpecPath);
-        }
-
-        private static void RunModuleManager()
-        {
-            // Check to see if we would be able to load GTK# assemblies.
-            try
-            {
-                Assembly.Load("gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f");
-            }
-            catch (BadImageFormatException)
-            {
-                // This is fine, it means that GTK# is installed, but because we're
-                // not a 32-bit assembly, we can't actually load it.  Protobuild
-                // Manager is a 32-bit assembly, so it will work fine.
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("GTK# is not installed.  Install GTK# " +
-                                  "from http://www.go-mono.com/mono-downloads/download.html " +
-                                  "and try again.");
-                try
-                {
-                    MessageBox.Show("GTK# is not installed.  Install GTK# " +
-                                    "from http://www.go-mono.com/mono-downloads/download.html " +
-                                    "and try again.");
-                }
-                catch
-                {
-                    // Potentially no X server present.
-                }
-            }
-        
-            // Other we need to extract the ProtobuildManager to a temporary
-            // directory and run it since it has to run as 32-bit.
-            var random = new Random();
-            var temporary = Path.Combine(Path.GetTempPath(), "Protobuild_" + random.Next());
-            if (!Directory.Exists(temporary))
-                Directory.CreateDirectory(temporary);
-            var temporaryManager = Path.Combine(temporary, "ProtobuildManager.exe");
-            var temporaryConsole = Path.Combine(temporary, "Protobuild.exe");
-            File.Copy(Assembly.GetExecutingAssembly().Location, temporaryConsole);
-            using (var b = new BinaryWriter(File.Open(temporaryManager, FileMode.Create)))
-            {
-                using (var m = ResourceExtractor.GetTransparentDecompressionStream(Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream("Protobuild.BuildResources.ProtobuildManager.exe.gz")))
-                {
-                    m.CopyTo(b.BaseStream);
-                    b.Flush();
-                }
-            }
-            // Attempt to set the executable bit if possible.  On platforms
-            // where this doesn't work, it doesn't matter anyway.
-            try
-            {
-                var pc = Process.Start("chmod", "a+x " + temporaryManager.Replace("\\", "\\\\").Replace(" ", "\\ "));
-                pc.WaitForExit();
-            }
-            catch (Exception)
-            {
-            }
-            var p = Process.Start(temporaryManager);
-            p.WaitForExit();
-            File.Delete(temporaryManager);
-            File.Delete(temporaryConsole);
-            Directory.Delete(temporary);
-            Environment.Exit(p.ExitCode);
-            
+            Actions.DefaultAction(
+                ModuleInfo.Load(Path.Combine("Build", "Module.xml")),
+                enabledServices: enabledServices.ToArray(),
+                disabledServices: disabledServices.ToArray(),
+                serviceSpecPath: serviceSpecPath);
         }
     }
 }
