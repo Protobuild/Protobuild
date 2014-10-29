@@ -1,26 +1,23 @@
-﻿// ====================================================================== //
-// This source code is licensed in accordance with the licensing outlined //
-// on the main Tychaia website (www.tychaia.com).  Changes to the         //
-// license on the website apply retroactively.                            //
-// ====================================================================== //
-using System;
-using Protobuild.Tasks;
-using System.Net;
-using System.IO;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
-using System.IO.Compression;
 using System.Diagnostics;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Reflection;
+using Protobuild.Tasks;
+using fastJSON;
 
 namespace Protobuild.Submodules
 {
-    public class SubmoduleManager
+    public class PackageManager
     {
-        private readonly SubmoduleCache m_SubmoduleCache;
+        private readonly PackageCache m_PackageCache;
 
-        public SubmoduleManager()
+        public PackageManager()
         {
-            this.m_SubmoduleCache = new SubmoduleCache();
+            this.m_PackageCache = new PackageCache();
         }
 
         public void ResolveAll(ModuleInfo module, string platform)
@@ -30,14 +27,13 @@ namespace Protobuild.Submodules
                 return;
             }
 
-            Console.WriteLine("Starting resolution of submodules...");
+            Console.WriteLine("Starting resolution of packages...");
 
-            // TODO: Remove this notice when submodule and packaging is no
-            // longer experimental.
+            // TODO: Remove this notice when packaging is no longer experimental.
             Console.WriteLine(@"=========================== WARNING ===========================
-Resolvable submodules (aka. package management) is currently
-an experimental feature.  Expect breaking changes and bugs to 
-occur until this functionality is stabilized.
+Package management is currently an experimental feature.
+Expect breaking changes and bugs to occur until this
+functionality is stabilized.
 =========================== WARNING ===========================");
 
             foreach (var submodule in module.Submodules)
@@ -46,23 +42,22 @@ occur until this functionality is stabilized.
                 this.Resolve(submodule, platform, null);
             }
 
-            Console.WriteLine("Submodule resolution complete.");
+            Console.WriteLine("Package resolution complete.");
         }
 
         public void Resolve(SubmoduleRef reference, string platform, bool? source)
         {
             var baseUri = reference.UriObject;
 
-            var indexUri = new Uri(baseUri + "/index");
-            var indexData = this.GetStringList(indexUri);
+            var apiUri = new Uri(baseUri.ToString().TrimEnd('/') + "/api");
+            var apiData = this.GetJSON(apiUri);
 
-            if (indexData.Length == 0)
+            if (apiData.has_error)
             {
-                throw new InvalidOperationException(
-                    "The specified submodule reference is not valid.");
+                throw new InvalidOperationException((string)apiData.error);
             }
 
-            var sourceUri = indexData[0];
+            var sourceUri = (string)apiData.result.package.gitUrl;
 
             if (!string.IsNullOrWhiteSpace(sourceUri))
             {
@@ -73,7 +68,7 @@ occur until this functionality is stabilized.
                 catch
                 {
                     throw new InvalidOperationException(
-                        "Received invalid Git URL when loading package from " + indexUri);
+                        "Received invalid Git URL when loading package from " + apiUri);
                 }
             }
             else
@@ -103,7 +98,7 @@ occur until this functionality is stabilized.
             }
             else
             {
-                this.ResolveBinary(reference, platform, sourceUri, indexData);
+                this.ResolveBinary(reference, platform, sourceUri, apiData);
             }
         }
 
@@ -143,7 +138,7 @@ occur until this functionality is stabilized.
             }
         }
 
-        private void ResolveBinary(SubmoduleRef reference, string platform, string source, string[] indexData)
+        private void ResolveBinary(SubmoduleRef reference, string platform, string source, dynamic apiData)
         {
             if (File.Exists(Path.Combine(reference.Folder, platform, ".pkg")))
             {
@@ -160,80 +155,68 @@ occur until this functionality is stabilized.
             Console.WriteLine("Marking " + reference.Folder + " as ignored for Git");
             this.MarkIgnored(reference.Folder);
 
-            var indexDataList = indexData.ToList();
-            indexDataList.RemoveAt(0);
+            var downloadMap = new Dictionary<string, string>();
+            var resolvedHash = new Dictionary<string, string>();
 
-            var availableRefs = new Dictionary<string, string>();
-            foreach (var id in indexDataList)
+            foreach (var ver in apiData.result.versions)
             {
-                if (string.IsNullOrWhiteSpace(id))
+                if (ver.platformName != platform)
                 {
                     continue;
                 }
 
-                var kv = id.Split(new[] { ' ' }, 2);
-                if (!availableRefs.ContainsKey(kv[0]))
+                if (!downloadMap.ContainsKey(ver.versionName))
                 {
-                    availableRefs.Add(kv[0], kv[1]);
+                    downloadMap.Add(ver.versionName, ver.downloadUrl);
+                    resolvedHash.Add(ver.versionName, ver.versionName);
                 }
             }
 
-            if (!availableRefs.ContainsKey(reference.GitRef))
+            foreach (var branch in apiData.result.branches)
+            {
+                if (!downloadMap.ContainsKey(branch.versionName))
+                {
+                    continue;
+                }
+
+                if (!downloadMap.ContainsKey(branch.branchName))
+                {
+                    downloadMap.Add(branch.branchName, downloadMap[branch.versionName]);
+                    resolvedHash.Add(branch.branchName, branch.versionName);
+                }
+            }
+
+            if (!downloadMap.ContainsKey(reference.GitRef))
             {
                 if (string.IsNullOrWhiteSpace(source))
                 {
                     throw new InvalidOperationException(
                         "Unable to resolve binary package for version \"" + reference.GitRef + 
-                        "\" and this package does not have a source repository");
+                        "\" and platform \"" + platform + "\" and this package does not have a source repository");
                 }
                 else
                 {
-                    Console.WriteLine("Unable to resolve binary package for version \"" + reference.GitRef + "\", falling back to source version");
+                    Console.WriteLine("Unable to resolve binary package for version \"" + reference.GitRef + 
+                        "\" and platform \"" + platform + "\", falling back to source version");
                     this.ResolveSource(reference, source);
                     return;
                 }
             }
-
-            var resolvedGitHash = availableRefs[reference.GitRef];
-
-            var baseUri = reference.UriObject;
-
-            var platformsUri = new Uri(baseUri + "/" + resolvedGitHash + "/platforms");
-
-            Console.WriteLine("Checking for supported platforms at " + platformsUri);
-            var platforms = this.GetStringList(platformsUri);
-
-            var platformName = platform;
-
-            if (!platforms.Contains(platformName))
-            {
-                if (string.IsNullOrWhiteSpace(source))
-                {
-                    throw new InvalidOperationException(
-                        "Unable to resolve binary package for platform \"" + platformName + 
-                        "\" and this package does not have a source repository");
-                }
-                else
-                {
-                    Console.WriteLine("Unable to resolve binary package for platform \"" + platformName + "\", falling back to source version");
-                    this.ResolveSource(reference, source);
-                    return;
-                }
-            }
-
-            var uri = baseUri + "/" + resolvedGitHash + "/" + platformName + ".tar.gz";
+                
+            var uri = downloadMap[reference.GitRef];
+            var resolvedGitHash = resolvedHash[reference.GitRef];
 
             byte[] packageData;
-            if (this.m_SubmoduleCache.HasPackage(uri, resolvedGitHash, platformName))
+            if (this.m_PackageCache.HasPackage(uri, resolvedGitHash, platform))
             {
                 Console.WriteLine("Retrieving binary package from cache");
-                packageData = this.m_SubmoduleCache.GetPackage(uri, resolvedGitHash, platformName);
+                packageData = this.m_PackageCache.GetPackage(uri, resolvedGitHash, platform);
             }
             else
             {
                 Console.WriteLine("Retrieving binary package from " + uri);
                 packageData = this.GetBinary(uri);
-                this.m_SubmoduleCache.SavePackage(uri, resolvedGitHash, platformName, packageData);
+                this.m_PackageCache.SavePackage(uri, resolvedGitHash, platform, packageData);
             }
 
             using (var memory = new MemoryStream(packageData))
@@ -260,7 +243,7 @@ occur until this functionality is stabilized.
             if (Directory.Exists(Path.Combine(folder, "Build", "Projects")) && 
                 File.Exists(Path.Combine(folder, "Build", "Module.xml")))
             {
-                var sourceProtobuild = typeof(SubmoduleManager).Assembly.Location;
+                var sourceProtobuild = Assembly.GetEntryAssembly().Location;
                 File.Copy(sourceProtobuild, Path.Combine(folder, "Protobuild.exe"), true);
             }
 
@@ -450,15 +433,14 @@ occur until this functionality is stabilized.
             Directory.Delete(folder, true);
         }
 
-        private string[] GetStringList(Uri indexUri)
+        private dynamic GetJSON(Uri indexUri)
         {
             try
             {
                 using (var client = new WebClient())
                 {
                     var str = client.DownloadString(indexUri);
-                    return str.Split(
-                        new char[] { '\r', '\n' });
+                    return JSON.ToDynamic(str);
                 }
             }
             catch (WebException)

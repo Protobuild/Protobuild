@@ -1,16 +1,11 @@
-﻿// ====================================================================== //
-// This source code is licensed in accordance with the licensing outlined //
-// on the main Tychaia website (www.tychaia.com).  Changes to the         //
-// license on the website apply retroactively.                            //
-// ====================================================================== //
-using System;
+﻿using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Protobuild.Submodules
 {
-    public class SubmoduleCache
+    public class PackageCache
     {
         private string GetCacheDirectory()
         {
