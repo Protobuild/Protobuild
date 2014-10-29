@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Protobuild.Internal" Path="Protobuild.Internal" Type="Library">
+  <Properties />
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Windows.Forms" />
+  </References>
+  <Files>
+    <Compile Include="..\ThirdParty\FastJSON\Dynamic.cs">
+      <Link>FastJSON\Dynamic.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\FastJSON\JSON.cs">
+      <Link>FastJSON\JSON.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\FastJSON\JsonParser.cs">
+      <Link>FastJSON\JsonParser.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\CRC.cs">
+      <Link>LZMA\CRC.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\ICoder.cs">
+      <Link>LZMA\ICoder.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\IMatchFinder.cs">
+      <Link>LZMA\IMatchFinder.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\InBuffer.cs">
+      <Link>LZMA\InBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzBinTree.cs">
+      <Link>LZMA\LzBinTree.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzInWindow.cs">
+      <Link>LZMA\LzInWindow.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzmaBase.cs">
+      <Link>LZMA\LzmaBase.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzmaDecoder.cs">
+      <Link>LZMA\LzmaDecoder.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzmaEncoder.cs">
+      <Link>LZMA\LzmaEncoder.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzmaHelper.cs">
+      <Link>LZMA\LzmaHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\LzOutWindow.cs">
+      <Link>LZMA\LzOutWindow.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\OutBuffer.cs">
+      <Link>LZMA\OutBuffer.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\RangeCoder.cs">
+      <Link>LZMA\RangeCoder.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\RangeCoderBit.cs">
+      <Link>LZMA\RangeCoderBit.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\LZMA\RangeCoderBitTree.cs">
+      <Link>LZMA\RangeCoderBitTree.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\DataWriter.cs">
+      <Link>TAR\DataWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\IArchiveDataWriter.cs">
+      <Link>TAR\IArchiveDataWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\ITarHeader.cs">
+      <Link>TAR\ITarHeader.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\LegacyTarWriter.cs">
+      <Link>TAR\LegacyTarWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarException.cs">
+      <Link>TAR\TarException.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarHeader.cs">
+      <Link>TAR\TarHeader.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarReader.cs">
+      <Link>TAR\TarReader.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarWriter.cs">
+      <Link>TAR\TarWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\UsTarHeader.cs">
+      <Link>TAR\UsTarHeader.cs</Link>
+    </Compile>
+    <Compile Include="Actions.cs" />
+    <Compile Include="BuildResources\ResourceExtractor.cs" />
+    <Compile Include="BuildResources\XSLTLoader.cs" />
+    <Compile Include="DefinitionInfo.cs" />
+    <Compile Include="DefinitionTemplates\BaseTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ConsoleTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ContentTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ExternalTemplate.cs" />
+    <Compile Include="DefinitionTemplates\GTKTemplate.cs" />
+    <Compile Include="DefinitionTemplates\GUITemplate.cs" />
+    <Compile Include="DefinitionTemplates\LibraryTemplate.cs" />
+    <Compile Include="DefinitionTemplates\ModuleTemplate.cs" />
+    <Compile Include="DefinitionTemplates\TestsTemplate.cs" />
+    <Compile Include="DefinitionTemplates\WebsiteTemplate.cs" />
+    <Compile Include="DefinitionTemplates\XNATemplate.cs" />
+    <Compile Include="EmbeddedResourceResolver.cs" />
+    <Compile Include="JSILProvider.cs" />
+    <Compile Include="KickstartForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="KickstartForm.Designer.cs">
+      <DependentUpon>KickstartForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ModuleInfo.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="ProjectReader\CSharpProject.cs" />
+    <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
+    <Compile Include="ProjectReader\XmlElementUtility.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Service.cs" />
+    <Compile Include="Services\ServiceDesiredLevel.cs" />
+    <Compile Include="Services\ServiceManager.cs" />
+    <Compile Include="SubmoduleRef.cs" />
+    <Compile Include="Submodules\SubmoduleCache.cs" />
+    <Compile Include="Submodules\SubmoduleManager.cs" />
+    <Compile Include="Tasks\BaseTask.cs" />
+    <Compile Include="Tasks\CleanProjectsTask.cs" />
+    <Compile Include="Tasks\DocumentExtensions.cs" />
+    <Compile Include="Tasks\GenerateProjectsTask.cs" />
+    <Compile Include="Tasks\ProjectGenerator.cs" />
+    <Compile Include="Tasks\SyncProjectsTask.cs" />
+    <EmbeddedResource Include="BuildResources\GenerateProject.xslt.lzma">
+      <LogicalName>GenerateProject.xslt.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.lzma">
+      <LogicalName>GenerateSolution.xslt.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\JSILTemplate.htm.lzma">
+      <LogicalName>JSILTemplate.htm.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\ProtobuildManager.exe.lzma">
+      <LogicalName>ProtobuildManager.exe.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\SelectSolution.xslt.lzma">
+      <LogicalName>SelectSolution.xslt.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KickstartForm.resx">
+      <DependentUpon>KickstartForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectReader\LineariseProject.xslt">
+      <LogicalName>LineariseProject.xslt</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt">
+      <LogicalName>WashNamespaces.xslt</LogicalName>
+    </EmbeddedResource>
+    <None Include="BuildResources\GenerateProject.xslt" />
+    <None Include="BuildResources\GenerateSolution.xslt" />
+    <None Include="BuildResources\JSILTemplate.htm" />
+    <None Include="BuildResources\SelectSolution.xslt" />
+  </Files>
+</Project>

@@ -15,7 +15,7 @@
         protected void SetupTest(string name)
         {
             // This is used to ensure Protobuild.exe is referenced.
-            Console.WriteLine(typeof(ModuleInfo).FullName);
+            Console.WriteLine(typeof(Protobuild.Bootstrap.Program).FullName);
 
             this.m_TestName = name;
 
@@ -65,12 +65,20 @@
 
         protected void Generate(string platform = null, string args = null, bool expectFailure = false)
         {
-            this.PurgeSolutionsAndProjects(this.m_TestLocation);
+            this.OtherMode("generate", platform, args, expectFailure);
+        }
+
+        protected void OtherMode(string mode, string platform = null, string args = null, bool expectFailure = false, bool purge = true)
+        {
+            if (purge)
+            {
+                this.PurgeSolutionsAndProjects(this.m_TestLocation);
+            }
 
             var pi = new ProcessStartInfo
             {
                 FileName = Path.Combine(this.m_TestLocation, "Protobuild.exe"),
-                Arguments = "--generate " + (platform ?? "Windows") + " " + (args ?? string.Empty),
+                Arguments = "--" + mode + " " + (platform ?? "Windows") + " " + (args ?? string.Empty),
                 WorkingDirectory = this.m_TestLocation,
                 CreateNoWindow = true,
                 UseShellExecute = false,

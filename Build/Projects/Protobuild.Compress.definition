@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Name="Protobuild" Path="Protobuild" Type="Console">
+<Project Name="Protobuild.Compress" Path="Protobuild.Compress" Type="Console">
   <Properties />
   <References>
     <Reference Include="System" />
@@ -52,8 +52,5 @@
       <Link>LZMA\RangeCoderBitTree.cs</Link>
     </Compile>
     <Compile Include="Program.cs" />
-    <EmbeddedResource Include="Protobuild.Internal.dll.lzma">
-      <LogicalName>Protobuild.Internal.dll.lzma</LogicalName>
-    </EmbeddedResource>
   </Files>
 </Project>
