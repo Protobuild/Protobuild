@@ -189,7 +189,7 @@ namespace Protobuild
             }
 
             // Resolve submodules as needed.
-            var submoduleManager = new Submodules.SubmoduleManager();
+            var submoduleManager = new Submodules.PackageManager();
             submoduleManager.ResolveAll(module, primaryPlatform);
 
             // You can configure the default action for Protobuild in their project

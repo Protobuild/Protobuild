@@ -8,6 +8,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="Microsoft.CSharp" />
   </References>
   <Files>
     <Compile Include="..\ThirdParty\FastJSON\Dynamic.cs">
@@ -116,6 +117,8 @@
     </Compile>
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="Packages\PackageCache.cs" />
+    <Compile Include="Packages\PackageManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProjectReader\CSharpProject.cs" />
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
@@ -125,8 +128,6 @@
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
     <Compile Include="SubmoduleRef.cs" />
-    <Compile Include="Submodules\SubmoduleCache.cs" />
-    <Compile Include="Submodules\SubmoduleManager.cs" />
     <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />
