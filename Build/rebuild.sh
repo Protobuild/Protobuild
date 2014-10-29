@@ -22,7 +22,6 @@ mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.xsl
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/SelectSolution.xslt Protobuild.Internal/BuildResources/SelectSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/JSILTemplate.htm Protobuild.Internal/BuildResources/JSILTemplate.htm.lzma
-mono $PROTOBUILD_COMPRESS ProtobuildManager/bin/$PLATFORM/AnyCPU/Release/ProtobuildManager.exe Protobuild.Internal/BuildResources/ProtobuildManager.exe.lzma
 
 echo "Performing second-pass build..."
 xbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
