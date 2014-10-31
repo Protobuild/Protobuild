@@ -15,7 +15,7 @@ namespace Protobuild.Submodules
             return directory;
         }
 
-        private string GetPackageName(string url, string gitHash, string platform)
+        private string GetPackageName(string url, string gitHash, string platform, string format)
         {
             var sha1 = new SHA1Managed();
 
@@ -24,22 +24,53 @@ namespace Protobuild.Submodules
             var gitHashString = gitHash.ToLowerInvariant();
             var platformString = platform.ToLowerInvariant();
 
-            return urlHashString + "-" + gitHashString + "-" + platformString + ".tar.gz";
+            return urlHashString + "-" + gitHashString + "-" + platformString + "." + TranslateToExtension(format);
         }
 
-        public bool HasPackage(string url, string gitHash, string platform)
+        private string TranslateToExtension(string format)
         {
-            var file = Path.Combine(
+            switch (format)
+            {
+                case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                    return "tar.lzma";
+                case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                    return "tar.gz";
+                default:
+                    throw new InvalidOperationException("Archive format not supported in cache.");
+            }
+        }
+
+        public bool HasPackage(string url, string gitHash, string platform, out string format)
+        {
+            format = null;
+            var lzmaFile = Path.Combine(
                 this.GetCacheDirectory(),
-                this.GetPackageName(url, gitHash, platform));
-            return File.Exists(file);
+                this.GetPackageName(url, gitHash, platform, PackageManager.ARCHIVE_FORMAT_TAR_LZMA));
+            if (File.Exists(lzmaFile)) 
+            {
+                format = PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                return true;
+            }
+
+            var gzFile = Path.Combine(
+                this.GetCacheDirectory(),
+                this.GetPackageName(url, gitHash, platform, PackageManager.ARCHIVE_FORMAT_TAR_GZIP));
+            if (File.Exists(gzFile)) 
+            {
+                format = PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
+                return true;
+            }
+
+            return false;
         }
 
         public byte[] GetPackage(string url, string gitHash, string platform)
         {
+            string format;
+            this.HasPackage(url, gitHash, platform, out format);
             var file = Path.Combine(
                 this.GetCacheDirectory(),
-                this.GetPackageName(url, gitHash, platform));
+                this.GetPackageName(url, gitHash, platform, format));
             using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 var data = new byte[stream.Length];
@@ -48,11 +79,11 @@ namespace Protobuild.Submodules
             }
         }
 
-        public void SavePackage(string url, string gitHash, string platform, byte[] data)
+        public void SavePackage(string url, string gitHash, string platform, string format, byte[] data)
         {
             var tempFile = Path.Combine(
                 this.GetCacheDirectory(),
-                this.GetPackageName(url, gitHash, platform) + ".tmp");
+                this.GetPackageName(url, gitHash, platform, format) + ".tmp");
             using (var stream = new FileStream(tempFile, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 stream.Write(data, 0, data.Length);
@@ -60,7 +91,7 @@ namespace Protobuild.Submodules
 
             var file = Path.Combine(
                 this.GetCacheDirectory(),
-                this.GetPackageName(url, gitHash, platform));
+                this.GetPackageName(url, gitHash, platform, format));
             try
             {
                 File.Move(tempFile, file);
