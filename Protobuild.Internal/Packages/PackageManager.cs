@@ -15,6 +15,10 @@ namespace Protobuild.Submodules
     {
         private readonly PackageCache m_PackageCache;
 
+        public const string ARCHIVE_FORMAT_TAR_LZMA = "tar/lzma";
+
+        public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
+
         public PackageManager()
         {
             this.m_PackageCache = new PackageCache();
@@ -149,13 +153,30 @@ functionality is stabilized.
             var folder = Path.Combine(reference.Folder, platform);
 
             Console.WriteLine("Creating and emptying " + folder);
-            this.EmptyReferenceFolder(reference.Folder);
+
+            if (File.Exists(Path.Combine(reference.Folder, ".pkg")))
+            {
+                if (Directory.Exists(folder))
+                {
+                    // Only clear out the target's folder if the reference folder
+                    // already contains binary packages (for other platforms)
+                    this.EmptyReferenceFolder(folder);
+                }
+            }
+            else
+            {
+                // The reference folder is holding source code, so clear it
+                // out entirely.
+                this.EmptyReferenceFolder(reference.Folder);
+            }
+
             Directory.CreateDirectory(folder);
 
             Console.WriteLine("Marking " + reference.Folder + " as ignored for Git");
             this.MarkIgnored(reference.Folder);
 
             var downloadMap = new Dictionary<string, string>();
+            var archiveTypeMap = new Dictionary<string, string>();
             var resolvedHash = new Dictionary<string, string>();
 
             foreach (var ver in apiData.result.versions)
@@ -168,6 +189,7 @@ functionality is stabilized.
                 if (!downloadMap.ContainsKey(ver.versionName))
                 {
                     downloadMap.Add(ver.versionName, ver.downloadUrl);
+                    archiveTypeMap.Add(ver.versionName, ver.archiveType);
                     resolvedHash.Add(ver.versionName, ver.versionName);
                 }
             }
@@ -182,6 +204,7 @@ functionality is stabilized.
                 if (!downloadMap.ContainsKey(branch.branchName))
                 {
                     downloadMap.Add(branch.branchName, downloadMap[branch.versionName]);
+                    archiveTypeMap.Add(branch.branchName, archiveTypeMap[branch.versionName]);
                     resolvedHash.Add(branch.branchName, branch.versionName);
                 }
             }
@@ -204,10 +227,12 @@ functionality is stabilized.
             }
                 
             var uri = downloadMap[reference.GitRef];
+            var archiveType = archiveTypeMap[reference.GitRef];
             var resolvedGitHash = resolvedHash[reference.GitRef];
 
             byte[] packageData;
-            if (this.m_PackageCache.HasPackage(uri, resolvedGitHash, platform))
+            string format;
+            if (this.m_PackageCache.HasPackage(uri, resolvedGitHash, platform, out format))
             {
                 Console.WriteLine("Retrieving binary package from cache");
                 packageData = this.m_PackageCache.GetPackage(uri, resolvedGitHash, platform);
@@ -215,25 +240,53 @@ functionality is stabilized.
             else
             {
                 Console.WriteLine("Retrieving binary package from " + uri);
+                format = archiveType;
                 packageData = this.GetBinary(uri);
-                this.m_PackageCache.SavePackage(uri, resolvedGitHash, platform, packageData);
+                this.m_PackageCache.SavePackage(uri, resolvedGitHash, platform, format, packageData);
             }
 
-            using (var memory = new MemoryStream(packageData))
+            Console.WriteLine("Unpacking binary package from " + format + " archive");
+            switch (format)
             {
-                using (var decompress = new GZipStream(memory, CompressionMode.Decompress))
-                {
-                    using (var memory2 = new MemoryStream())
+                case ARCHIVE_FORMAT_TAR_GZIP:
                     {
-                        decompress.CopyTo(memory2);
-                        memory2.Seek(0, SeekOrigin.Begin);
+                        using (var memory = new MemoryStream(packageData))
+                        {
+                            using (var decompress = new GZipStream(memory, CompressionMode.Decompress))
+                            {
+                                using (var memory2 = new MemoryStream())
+                                {
+                                    decompress.CopyTo(memory2);
+                                    memory2.Seek(0, SeekOrigin.Begin);
 
-                        var reader = new tar_cs.TarReader(memory2);
+                                    var reader = new tar_cs.TarReader(memory2);
 
-                        Console.WriteLine("Unpacking binary package");
-                        reader.ReadToEnd(folder);
+                                    reader.ReadToEnd(folder);
+                                }
+                            }
+                        }
+                        break;
                     }
-                }
+                case ARCHIVE_FORMAT_TAR_LZMA:
+                    {
+                        using (var inMemory = new MemoryStream(packageData))
+                        {
+                            using (var outMemory = new MemoryStream())
+                            {
+                                LZMA.LzmaHelper.Decompress(inMemory, outMemory);
+                                outMemory.Seek(0, SeekOrigin.Begin);
+
+                                var reader = new tar_cs.TarReader(outMemory);
+
+                                reader.ReadToEnd(folder);
+                            }
+                        }
+                        break;
+                    }
+                default:
+                    throw new InvalidOperationException(
+                        "This version of Protobuild does not support the " + 
+                        format + " package format.");
             }
 
             // Only copy ourselves to the binary folder if both "Build/Module.xml" and
@@ -248,6 +301,9 @@ functionality is stabilized.
             }
 
             var file = File.Create(Path.Combine(folder, ".pkg"));
+            file.Close();
+
+            file = File.Create(Path.Combine(reference.Folder, ".pkg"));
             file.Close();
 
             Console.WriteLine("Binary resolution complete");
