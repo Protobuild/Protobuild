@@ -11,8 +11,16 @@ namespace Protobuild
             {
                 throw new InvalidOperationException("You must provide the package format to -format.");
             }
-
-            pendingExecution.PackageFormat = args[0];
+                
+            switch (args[0])
+            {
+                case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                    pendingExecution.PackageFormat = args[0];
+                    break;
+                default:
+                    throw new InvalidOperationException("Unknown package format " + args[0]);
+            }
         }
 
         public int Execute(Execution execution)

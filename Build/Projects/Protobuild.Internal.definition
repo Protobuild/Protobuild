@@ -110,6 +110,8 @@
     <Compile Include="CommandLine\SyncCommand.cs" />
     <Compile Include="DefinitionInfo.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
+    <Compile Include="FileFilter\FileFilter.cs" />
+    <Compile Include="FileFilter\FileFilterParser.cs" />
     <Compile Include="JSILProvider.cs" />
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="PackageRef.cs" />

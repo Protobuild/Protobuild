@@ -9,6 +9,33 @@
     <Reference Include="Protobuild" />
   </References>
   <Files>
+    <Compile Include="..\ThirdParty\TAR\DataWriter.cs">
+      <Link>TAR\DataWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\IArchiveDataWriter.cs">
+      <Link>TAR\IArchiveDataWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\ITarHeader.cs">
+      <Link>TAR\ITarHeader.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\LegacyTarWriter.cs">
+      <Link>TAR\LegacyTarWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarException.cs">
+      <Link>TAR\TarException.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarHeader.cs">
+      <Link>TAR\TarHeader.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarReader.cs">
+      <Link>TAR\TarReader.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\TarWriter.cs">
+      <Link>TAR\TarWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\ThirdParty\TAR\UsTarHeader.cs">
+      <Link>TAR\UsTarHeader.cs</Link>
+    </Compile>
     <Compile Include="BasicGenerationWorksTest.cs" />
     <Compile Include="BasicSynchronisationWorksTest.cs" />
     <Compile Include="DefaultStartupProjectTest.cs" />
@@ -16,6 +43,12 @@
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
+    <Compile Include="PackageEverythingCorrectGZipTest.cs" />
+    <Compile Include="PackageEverythingCorrectLZMATest.cs" />
+    <Compile Include="PackageEverythingFailWhenBuildModuleXmlNotPresent.cs" />
+    <Compile Include="PackageEverythingFailWhenBuildNotPresent.cs" />
+    <Compile Include="PackageEverythingFailWhenBuildProjectsNotPresent.cs" />
+    <Compile Include="PackageEverythingFailWhenProtobuildPresent.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
@@ -93,6 +126,21 @@
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />
     <None Include="TestData\NativeBinaryPresent\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Module.xml" />
+    <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageEverythingCorrectGZip\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingCorrectLZMA\Publish\Build\Module.xml" />
+    <None Include="TestData\PackageEverythingCorrectLZMA\Publish\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageEverythingCorrectLZMA\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenBuildModuleXmlNotPresent\Publish\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageEverythingFailWhenBuildModuleXmlNotPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenBuildNotPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenBuildProjectsNotPresent\Publish\Build\Module.xml" />
+    <None Include="TestData\PackageEverythingFailWhenBuildProjectsNotPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Build\Module.xml" />
+    <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Protobuild.exe" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />

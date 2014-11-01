@@ -12,8 +12,18 @@ else
   PLATFORM=Linux
 fi
 
+if [ "$1" == "--nogen" ]; then
+  NOGEN="true"
+else
+  NOGEN="false"
+fi
+
 echo "Generating project and performing first-pass build..."
-mono Protobuild.exe --resync $PLATFORM
+if [ "$NOGEN" == "true" ]; then
+  mono Protobuild.exe --sync $PLATFORM
+else
+  mono Protobuild.exe --resync $PLATFORM
+fi
 xbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
 
 echo "Compressing resources..."
