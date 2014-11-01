@@ -36,6 +36,11 @@ namespace Protobuild
         {
             throw new NotSupportedException();
         }
+
+        public string[] GetArgNames()
+        {
+            throw new NotSupportedException();
+        }
     }
 }
 

@@ -19,7 +19,6 @@ namespace Protobuild
 
             var commandMappings = new Dictionary<string, ICommand>
             {
-                { "default", new DefaultCommand() },
                 { "sync", new SyncCommand() },
                 { "resync", new ResyncCommand() },
                 { "generate", new GenerateCommand() },
@@ -29,21 +28,18 @@ namespace Protobuild
                 { "disable", new DisableServiceCommand() },
                 { "spec", new ServiceSpecificationCommand() },
                 { "add", new AddPackageCommand() },
+                { "pack", new PackPackageCommand() },
+                { "format", new FormatPackageCommand() },
             };
 
             var execution = new Execution();
-            execution.CommandToExecute = commandMappings["default"];
+            execution.CommandToExecute = new DefaultCommand();
 
             var options = new Options();
             foreach (var kv in commandMappings)
             {
                 var key = kv.Key;
                 var value = kv.Value;
-
-                if (key == "default") 
-                {
-                    continue;
-                }
 
                 if (value.GetArgCount() == 0)
                 {
@@ -104,23 +100,30 @@ namespace Protobuild
                 var wordBuffer = string.Empty;
                 var lineBuffer = string.Empty;
                 var count = 0;
-                for (var i = 0; i < description.Length; i++)
+                for (var i = 0; i < description.Length || wordBuffer.Length > 0; i++)
                 {
-                    if (description[i] == ' ')
+                    if (i < description.Length)
                     {
-                        if (wordBuffer.Length > 0)
+                        if (description[i] == ' ')
                         {
-                            lineBuffer += wordBuffer;
-                        }
+                            if (wordBuffer.Length > 0)
+                            {
+                                lineBuffer += wordBuffer + " ";
+                            }
 
-                        wordBuffer = string.Empty;
+                            wordBuffer = string.Empty;
+                        }
+                        else
+                        {
+                            wordBuffer += description[i];
+                            count++;
+                        }
                     }
                     else
                     {
-                        wordBuffer += description[i];
+                        lineBuffer += wordBuffer + " ";
+                        count++;
                     }
-
-                    count++;
 
                     if (count >= 74)
                     {
@@ -130,7 +133,26 @@ namespace Protobuild
                     }
                 }
 
-                Console.WriteLine("  -" + kv.Key);
+                if (count > 0)
+                {
+                    lines.Add(lineBuffer);
+                    lineBuffer = string.Empty;
+                }
+
+                var argDesc = string.Empty;
+                foreach (var arg in kv.Value.GetArgNames())
+                {
+                    if (arg.EndsWith("?"))
+                    {
+                        argDesc += " [" + arg.TrimEnd('?') + "]";
+                    }
+                    else
+                    {
+                        argDesc += " " + arg;
+                    }
+                }
+
+                Console.WriteLine("  -" + kv.Key + argDesc);
                 Console.WriteLine();
 
                 foreach (var line in lines)

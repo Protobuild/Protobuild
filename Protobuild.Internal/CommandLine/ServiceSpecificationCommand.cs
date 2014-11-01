@@ -35,6 +35,11 @@ Internally used to pass the service specification.
         {
             return 1;
         }
+
+        public string[] GetArgNames()
+        {
+            return new[] { "spec_path" };
+        }
     }
 }
 

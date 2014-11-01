@@ -30,6 +30,11 @@ Enables the specified service.
         {
             return 1;
         }
+
+        public string[] GetArgNames()
+        {
+            return new[] { "service_name" };
+        }
     }
 }
 

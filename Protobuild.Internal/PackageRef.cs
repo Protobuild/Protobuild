@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public struct SubmoduleRef
+    public struct PackageRef
     {
         public string Uri { get; set; }
 
