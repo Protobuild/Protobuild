@@ -80,6 +80,10 @@ namespace Protobuild
                             // on Linux and Mac OS.
                             if (args[i].StartsWith("-", StringComparison.InvariantCulture))
                             {
+                                // Untake this option so that when we move back to the outer
+                                // for loop we can see it as an argument again.
+                                i--;
+
                                 break;
                             }
 

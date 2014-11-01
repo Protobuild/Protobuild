@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Protobuild
 {
@@ -17,6 +19,7 @@ namespace Protobuild
 
             pendingExecution.PackageSourceFolder = new DirectoryInfo(args[0]).FullName;
             pendingExecution.PackageDestinationFile = new FileInfo(args[1]).FullName;
+            pendingExecution.PackageFilterFile = args.Length >= 3 ? args[2] : null;
         }
 
         public int Execute(Execution execution)
@@ -26,34 +29,49 @@ namespace Protobuild
                 throw new InvalidOperationException("The source folder " + execution.PackageSourceFolder + " does not exist.");
             }
 
-            if (!Directory.Exists(Path.Combine(execution.PackageSourceFolder, "Build")))
+            FileFilter filter;
+            if (execution.PackageFilterFile != null)
             {
-                Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
-                return 1;
+                filter = FileFilterParser.Parse(execution.PackageFilterFile, GetRecursiveFilesInPath(execution.PackageSourceFolder));
             }
-
-            if (!Directory.Exists(Path.Combine(execution.PackageSourceFolder, "Build", "Projects")))
+            else
             {
-                Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
-                return 1;
-            }
-
-            if (!File.Exists(Path.Combine(execution.PackageSourceFolder, "Build", "Module.xml")))
-            {
-                Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
-                return 1;
-            }
-
-            if (File.Exists(Path.Combine(execution.PackageSourceFolder, "Protobuild.exe")))
-            {
-                Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
-                return 1;
+                filter = new FileFilter(GetRecursiveFilesInPath(execution.PackageSourceFolder));
+                filter.ApplyInclude(".*");
             }
 
             if (File.Exists(execution.PackageDestinationFile))
             {
                 Console.WriteLine("The destination file " + execution.PackageDestinationFile + " already exists; it will be overwritten.");
                 File.Delete(execution.PackageDestinationFile);
+            }
+
+            filter.ImplyDirectories();
+
+            var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
+
+            if (!filterDictionary.ContainsKey("Build/"))
+            {
+                Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                return 1;
+            }
+
+            if (!filterDictionary.ContainsKey("Build/Projects/"))
+            {
+                Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                return 1;
+            }
+
+            if (!filterDictionary.ContainsKey("Build/Module.xml"))
+            {
+                Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                return 1;
+            }
+
+            if (filterDictionary.ContainsKey("Protobuild.exe"))
+            {
+                Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
+                return 1;
             }
 
             using (var target = new FileStream(execution.PackageDestinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
@@ -66,8 +84,30 @@ namespace Protobuild
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
                         {
-                            var writer = new tar_cs.TarWriter(archive);
-                            this.PackDirectoryToArchive(execution.PackageSourceFolder, writer);
+                            using (var writer = new tar_cs.TarWriter(archive))
+                            {
+                                // Note that the TAR entries must be in order, with the directories
+                                // before files that are within them.  Ordering alphabetically forces
+                                // directories to always appear before the files that are in them.
+                                foreach (var kv in filter.OrderBy(kv => kv.Value))
+                                {
+                                    if (kv.Key.EndsWith("/"))
+                                    {
+                                        // Directory
+                                        writer.WriteDirectoryEntry(kv.Value.TrimEnd('/'));
+                                    }
+                                    else
+                                    {
+                                        // File
+                                        var realFile = Path.Combine(execution.PackageSourceFolder, kv.Key);
+                                        using (var stream = new FileStream(realFile, FileMode.Open, FileAccess.Read, FileShare.None))
+                                        {
+                                            writer.Write(stream, stream.Length, kv.Value);
+                                        }
+                                    }
+                                }
+                            }
+
                             break;
                         }
                 }
@@ -78,6 +118,8 @@ namespace Protobuild
                 {
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                         {
+                            Console.WriteLine("Writing package in tar/gzip format...");
+
                             using (var compress = new GZipStream(target, CompressionMode.Compress))
                             {
                                 archive.CopyTo(compress);
@@ -88,6 +130,7 @@ namespace Protobuild
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
                         {
+                            Console.WriteLine("Writing package in tar/lzma format...");
                             LZMA.LzmaHelper.Compress(archive, target);
                             break;
                         }
@@ -103,38 +146,36 @@ namespace Protobuild
             return @"
 Compresses the specified folder into a Protobuild package.  Validates
 that the folder contains the correct project structure before packing.
-Change the archive format with the -format option.
+Change the archive format with the -format option.  If a filter file
+is not specified, includes all files within the folder.
 ";
         }
 
         public int GetArgCount()
         {
-            return 2;
+            return 3;
         }
 
         public string[] GetArgNames()
         {
-            return new[] { "folder", "package_file" };
+            return new[] { "folder", "package_file", "filter" };
         }
 
-        private void PackDirectoryToArchive(string packageSourceFolder, tar_cs.TarWriter writer, string relative = null)
+        private static IEnumerable<string> GetRecursiveFilesInPath(string path)
         {
-            var dirInfo = new DirectoryInfo(packageSourceFolder);
+            var current = new DirectoryInfo(path);
 
-            foreach (var dir in dirInfo.GetDirectories())
+            foreach (var di in current.GetDirectories())
             {
-                var inPackageName = relative == null ? dir.Name : Path.Combine(relative, dir.Name);
-                writer.WriteDirectoryEntry(inPackageName);
-                this.PackDirectoryToArchive(dir.FullName, writer, inPackageName);
+                foreach (string s in GetRecursiveFilesInPath(path + "/" + di.Name))
+                {
+                    yield return (di.Name + "/" + s).Trim('/');
+                }
             }
 
-            foreach (var file in dirInfo.GetFiles())
+            foreach (var fi in current.GetFiles())
             {
-                var inPackageName = relative == null ? file.Name : Path.Combine(relative, file.Name);
-                using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    writer.Write(stream, stream.Length, inPackageName);
-                }
+                yield return fi.Name;
             }
         }
     }

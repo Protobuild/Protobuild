@@ -27,6 +27,8 @@ namespace Protobuild
 
         public string PackageDestinationFile { get; set; }
 
+        public string PackageFilterFile { get; set; }
+
         public string PackageFormat { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)

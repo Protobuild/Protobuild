@@ -1,6 +1,9 @@
-﻿namespace Protobuild.Tests
+﻿using System.IO.Compression;
+
+namespace Protobuild.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
@@ -12,7 +15,7 @@
 
         private string m_TestLocation;
 
-        protected void SetupTest(string name)
+        protected void SetupTest(string name, bool isPackTest = false)
         {
             // This is used to ensure Protobuild.exe is referenced.
             Console.WriteLine(typeof(Protobuild.Bootstrap.Program).FullName);
@@ -27,7 +30,7 @@
 
             this.m_TestLocation = dataLocation;
 
-            this.DeployProtobuildToTestFolder(dataLocation, protobuildLocation);
+            this.DeployProtobuildToTestFolder(dataLocation, protobuildLocation, isPackTest);
         }
 
         private void PurgeSolutionsAndProjects(string dataLocation)
@@ -50,25 +53,28 @@
             }
         }
 
-        private void DeployProtobuildToTestFolder(string dataLocation, string protobuildLocation)
+        private void DeployProtobuildToTestFolder(string dataLocation, string protobuildLocation, bool isPackTest)
         {
             File.Copy(protobuildLocation, Path.Combine(dataLocation, "Protobuild.exe"), true);
 
-            foreach (var dir in new DirectoryInfo(dataLocation).GetDirectories())
+            if (!isPackTest)
             {
-                if (dir.GetDirectories().Any(x => x.Name == "Build"))
+                foreach (var dir in new DirectoryInfo(dataLocation).GetDirectories())
                 {
-                    this.DeployProtobuildToTestFolder(dir.FullName, protobuildLocation);
+                    if (dir.GetDirectories().Any(x => x.Name == "Build"))
+                    {
+                        this.DeployProtobuildToTestFolder(dir.FullName, protobuildLocation, isPackTest);
+                    }
                 }
             }
         }
 
         protected void Generate(string platform = null, string args = null, bool expectFailure = false)
         {
-            this.OtherMode("generate", platform, args, expectFailure);
+            this.OtherMode("generate", (platform ?? "Windows") + " " + args, expectFailure);
         }
 
-        protected void OtherMode(string mode, string platform = null, string args = null, bool expectFailure = false, bool purge = true)
+        protected void OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true)
         {
             if (purge)
             {
@@ -78,7 +84,7 @@
             var pi = new ProcessStartInfo
             {
                 FileName = Path.Combine(this.m_TestLocation, "Protobuild.exe"),
-                Arguments = "--" + mode + " " + (platform ?? "Windows") + " " + (args ?? string.Empty),
+                Arguments = "--" + mode + " " + (args ?? string.Empty),
                 WorkingDirectory = this.m_TestLocation,
                 CreateNoWindow = true,
                 UseShellExecute = false,
@@ -129,6 +135,84 @@
         {
             path = path.Replace('\\', Path.DirectorySeparatorChar);
             return Path.Combine(this.m_TestLocation, path);
+        }
+
+        protected Dictionary<string, byte[]> LoadPackage(string path)
+        {
+            var results = new Dictionary<string, byte[]>();
+
+            if (path.EndsWith(".tar.lzma"))
+            {
+                using (var lzma = new FileStream(Path.Combine(m_TestLocation, path), FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    using (var decompress = new MemoryStream())
+                    {
+                        LZMA.LzmaHelper.Decompress(lzma, decompress);
+                        decompress.Seek(0, SeekOrigin.Begin);
+
+                        var archive = new tar_cs.TarReader(decompress);
+
+                        while (archive.MoveNext(false))
+                        {
+                            string fileNameFromArchive = archive.FileInfo.FileName;
+
+                            if(tar_cs.UsTarHeader.IsPathSeparator(fileNameFromArchive[fileNameFromArchive.Length -1]) || 
+                                archive.FileInfo.EntryType == tar_cs.EntryType.Directory)
+                            {
+                                results.Add(fileNameFromArchive.TrimEnd('/') + "/", null);
+                                continue;
+                            }
+
+                            using (var temporary = new MemoryStream())
+                            {
+                                archive.Read(temporary);
+                                var pos = (int)temporary.Position;
+                                var bytes = new byte[pos];
+                                temporary.Seek(0, SeekOrigin.Begin);
+                                temporary.Read(bytes, 0, bytes.Length);
+                                results.Add(fileNameFromArchive, bytes);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (path.EndsWith(".tar.gz"))
+            {
+                using (var file = new FileStream(Path.Combine(m_TestLocation, path), FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    using (var gzip = new GZipStream(file, CompressionMode.Decompress))
+                    {
+                        var archive = new tar_cs.TarReader(gzip);
+
+                        while (archive.MoveNext(false))
+                        {
+                            string fileNameFromArchive = archive.FileInfo.FileName;
+                            if(tar_cs.UsTarHeader.IsPathSeparator(fileNameFromArchive[fileNameFromArchive.Length -1]) || 
+                                archive.FileInfo.EntryType == tar_cs.EntryType.Directory)
+                            {
+                                results.Add(fileNameFromArchive.TrimEnd('/') + "/", null);
+                                continue;
+                            }
+
+                            using (var temporary = new MemoryStream())
+                            {
+                                archive.Read(temporary);
+                                var pos = (int)temporary.Position;
+                                var bytes = new byte[pos];
+                                temporary.Seek(0, SeekOrigin.Begin);
+                                temporary.Read(bytes, 0, bytes.Length);
+                                results.Add(fileNameFromArchive, bytes);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            return results;
         }
     }
 }

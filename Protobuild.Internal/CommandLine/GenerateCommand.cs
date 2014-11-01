@@ -7,11 +7,7 @@ namespace Protobuild
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {
-            Console.WriteLine("Encountered generate command");
-
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
-
-            Console.WriteLine(args[0]);
 
             if (args.Length > 0)
             {
