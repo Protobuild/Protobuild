@@ -49,6 +49,7 @@
     <Compile Include="PackageEverythingFailWhenBuildNotPresent.cs" />
     <Compile Include="PackageEverythingFailWhenBuildProjectsNotPresent.cs" />
     <Compile Include="PackageEverythingFailWhenProtobuildPresent.cs" />
+    <Compile Include="PackageFilterCorrectTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
@@ -141,6 +142,13 @@
     <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Build\Projects\Console.definition" />
     <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Console\Program.cs" />
     <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Protobuild.exe" />
+    <None Include="TestData\PackageFilterCorrect\Build\Module.xml" />
+    <None Include="TestData\PackageFilterCorrect\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageFilterCorrect\Build\Publish\Console.Linux.definition" />
+    <None Include="TestData\PackageFilterCorrect\Build\Publish\Console.Windows.definition" />
+    <None Include="TestData\PackageFilterCorrect\Build\Publish\Filter.Linux.txt" />
+    <None Include="TestData\PackageFilterCorrect\Build\Publish\Filter.Windows.txt" />
+    <None Include="TestData\PackageFilterCorrect\Console\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />

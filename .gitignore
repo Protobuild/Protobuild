@@ -11,3 +11,7 @@ Protobuild.Tests/TestData/**/Protobuild.exe
 *.speccache
 packages/repositories.config
 StyleCop.Cache
+/Protobuild.Tests/TestData/PackageEverythingCorrectGZip/Test.tar.gz
+/Protobuild.Tests/TestData/PackageEverythingCorrectLZMA/Test.tar.lzma
+/Protobuild.Tests/TestData/PackageFilterCorrect/Linux.tar.lzma
+/Protobuild.Tests/TestData/PackageFilterCorrect/Windows.tar.lzma
