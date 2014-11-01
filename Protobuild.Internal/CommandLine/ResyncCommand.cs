@@ -47,6 +47,11 @@ platform is specified, resynchronises for the current platform.
         {
             return 1;
         }
+
+        public string[] GetArgNames()
+        {
+            return new[] { "platform?" };
+        }
     }
 }
 

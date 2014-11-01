@@ -3,7 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Protobuild.Submodules
+namespace Protobuild
 {
     public class PackageCache
     {

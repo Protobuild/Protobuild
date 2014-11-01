@@ -46,6 +46,11 @@ platform is specified, cleans for the current platform.
         {
             return 1;
         }
+
+        public string[] GetArgNames()
+        {
+            return new[] { "platform?" };
+        }
     }
 }
 

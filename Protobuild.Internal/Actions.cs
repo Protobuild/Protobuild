@@ -189,7 +189,7 @@ namespace Protobuild
             }
 
             // Resolve submodules as needed.
-            var submoduleManager = new Submodules.PackageManager();
+            var submoduleManager = new PackageManager();
             submoduleManager.ResolveAll(module, primaryPlatform);
 
             // You can configure the default action for Protobuild in their project
@@ -282,46 +282,6 @@ namespace Protobuild
         public static bool DefaultAction(ModuleInfo module, string platform = null, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
         {
             return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath);
-        }
-
-        public static void AddSubmodule(ModuleInfo module, string url)
-        {
-            if (module.Submodules == null)
-            {
-                module.Submodules = new List<SubmoduleRef>();
-            }
-
-            var branch = "master";
-            if (url.LastIndexOf('@') > url.LastIndexOf('/'))
-            {
-                // A branch / commit ref is specified.
-                branch = url.Substring(url.LastIndexOf('@') + 1);
-                url = url.Substring(0, url.LastIndexOf('@'));
-            }
-
-            var uri = new Uri(url);
-
-            var submodule = new SubmoduleRef
-            {
-                Uri = url,
-                GitRef = branch,
-                Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
-            };
-
-            if (Directory.Exists(submodule.Folder))
-            {
-                throw new InvalidOperationException(submodule.Folder + " already exists");
-            }
-
-            if (module.Submodules.Any(x => x.Uri == submodule.Uri))
-            {
-                Console.WriteLine("WARNING: Submodule with URI " + submodule.Uri + " is already present; ignoring request to add submodule.");
-                return;
-            }
-
-            Console.WriteLine("Adding " + url + " as " + submodule.Folder + "...");
-            module.Submodules.Add(submodule);
-            module.Save(Path.Combine("Build", "Module.xml"));
         }
 
         /// <summary>

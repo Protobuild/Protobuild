@@ -9,7 +9,7 @@ using System.Reflection;
 using Protobuild.Tasks;
 using fastJSON;
 
-namespace Protobuild.Submodules
+namespace Protobuild
 {
     public class PackageManager
     {
@@ -26,7 +26,7 @@ namespace Protobuild.Submodules
 
         public void ResolveAll(ModuleInfo module, string platform)
         {
-            if (module.Submodules == null || module.Submodules.Count == 0)
+            if (module.Packages == null || module.Packages.Count == 0)
             {
                 return;
             }
@@ -40,7 +40,7 @@ Expect breaking changes and bugs to occur until this
 functionality is stabilized.
 =========================== WARNING ===========================");
 
-            foreach (var submodule in module.Submodules)
+            foreach (var submodule in module.Packages)
             {
                 Console.WriteLine("Resolving: " + submodule.Uri);
                 this.Resolve(submodule, platform, null);
@@ -49,7 +49,7 @@ functionality is stabilized.
             Console.WriteLine("Package resolution complete.");
         }
 
-        public void Resolve(SubmoduleRef reference, string platform, bool? source)
+        public void Resolve(PackageRef reference, string platform, bool? source)
         {
             var baseUri = reference.UriObject;
 
@@ -106,7 +106,7 @@ functionality is stabilized.
             }
         }
 
-        private void ResolveSource(SubmoduleRef reference, string source)
+        private void ResolveSource(PackageRef reference, string source)
         {
             if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
             {
@@ -142,7 +142,7 @@ functionality is stabilized.
             }
         }
 
-        private void ResolveBinary(SubmoduleRef reference, string platform, string source, dynamic apiData)
+        private void ResolveBinary(PackageRef reference, string platform, string source, dynamic apiData)
         {
             if (File.Exists(Path.Combine(reference.Folder, platform, ".pkg")))
             {

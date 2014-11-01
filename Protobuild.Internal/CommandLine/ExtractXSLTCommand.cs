@@ -50,6 +50,11 @@ features.
         {
             return 0;
         }
+
+        public string[] GetArgNames()
+        {
+            return new string[0];
+        }
     }
 }
 

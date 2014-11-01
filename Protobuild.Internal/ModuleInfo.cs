@@ -122,10 +122,11 @@ namespace Protobuild
         /// <value>The name of the default startup project.</value>
         public string DefaultStartupProject { get; set; } 
 
-        /// Gets or sets a set of submodule references.
+        /// <summary>
+        /// Gets or sets a set of package references.
         /// </summary>
-        /// <value>The registered submodules.</value>
-        public List<SubmoduleRef> Submodules { get; set; }
+        /// <value>The registered packages.</value>
+        public List<PackageRef> Packages { get; set; }
 
         /// <summary>
         /// Loads the Protobuild module from the Module.xml file.

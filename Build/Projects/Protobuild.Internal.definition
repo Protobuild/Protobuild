@@ -100,9 +100,11 @@
     <Compile Include="CommandLine\EnableServiceCommand.cs" />
     <Compile Include="CommandLine\Execution.cs" />
     <Compile Include="CommandLine\ExtractXSLTCommand.cs" />
+    <Compile Include="CommandLine\FormatPackageCommand.cs" />
     <Compile Include="CommandLine\GenerateCommand.cs" />
     <Compile Include="CommandLine\ICommand.cs" />
     <Compile Include="CommandLine\Options.cs" />
+    <Compile Include="CommandLine\PackPackageCommand.cs" />
     <Compile Include="CommandLine\ResyncCommand.cs" />
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
     <Compile Include="CommandLine\SyncCommand.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="EmbeddedResourceResolver.cs" />
     <Compile Include="JSILProvider.cs" />
     <Compile Include="ModuleInfo.cs" />
+    <Compile Include="PackageRef.cs" />
     <Compile Include="Packages\PackageCache.cs" />
     <Compile Include="Packages\PackageManager.cs" />
     <Compile Include="Program.cs" />
@@ -120,7 +123,6 @@
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
-    <Compile Include="SubmoduleRef.cs" />
     <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />

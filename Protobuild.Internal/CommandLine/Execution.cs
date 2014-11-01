@@ -21,7 +21,13 @@ namespace Protobuild
 
         public string ServiceSpecificationPath { get; set; }
 
-        public string PackageName { get; set; }
+        public string PackageUrl { get; set; }
+
+        public string PackageSourceFolder { get; set; }
+
+        public string PackageDestinationFile { get; set; }
+
+        public string PackageFormat { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {

@@ -11,6 +11,8 @@ namespace Protobuild
         string GetDescription();
 
         int GetArgCount();
+
+        string[] GetArgNames();
     }
 }
 
