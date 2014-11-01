@@ -1,0 +1,7 @@
+﻿# This is the test filter file for packaging Windows.
+include ^Build/Publish/Console\.Windows\.definition$
+include ^Build/Module\.xml$
+include ^Console/(.*?)$
+
+# Rewrite definition files in place.
+rewrite ^Build/Publish/(.*?)$ Build/Projects/$1
