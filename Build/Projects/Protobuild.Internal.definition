@@ -105,6 +105,7 @@
     <Compile Include="CommandLine\ICommand.cs" />
     <Compile Include="CommandLine\Options.cs" />
     <Compile Include="CommandLine\PackPackageCommand.cs" />
+    <Compile Include="CommandLine\PushPackageCommand.cs" />
     <Compile Include="CommandLine\ResyncCommand.cs" />
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
     <Compile Include="CommandLine\SyncCommand.cs" />

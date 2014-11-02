@@ -31,6 +31,18 @@ namespace Protobuild
 
         public string PackageFormat { get; set; }
 
+        public string PackagePushApiKey { get; set; }
+
+        public string PackagePushFile { get; set; }
+
+        public string PackagePushUrl { get; set; }
+
+        public string PackagePushVersion { get; set; }
+
+        public string PackagePushPlatform { get; set; }
+
+        public string PackagePushBranchToUpdate { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)

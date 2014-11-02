@@ -30,6 +30,7 @@ namespace Protobuild
                 { "add", new AddPackageCommand() },
                 { "pack", new PackPackageCommand() },
                 { "format", new FormatPackageCommand() },
+                { "push", new PushPackageCommand() },
             };
 
             var execution = new Execution();
