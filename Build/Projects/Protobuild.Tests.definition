@@ -49,6 +49,7 @@
     <Compile Include="PackageEverythingFailWhenBuildNotPresent.cs" />
     <Compile Include="PackageEverythingFailWhenBuildProjectsNotPresent.cs" />
     <Compile Include="PackageEverythingFailWhenProtobuildPresent.cs" />
+    <Compile Include="PackageFilterCorrectModuleXmlTest.cs" />
     <Compile Include="PackageFilterCorrectTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
@@ -149,6 +150,9 @@
     <None Include="TestData\PackageFilterCorrect\Build\Publish\Filter.Linux.txt" />
     <None Include="TestData\PackageFilterCorrect\Build\Publish\Filter.Windows.txt" />
     <None Include="TestData\PackageFilterCorrect\Console\Program.cs" />
+    <None Include="TestData\PackageFilterCorrectModuleXml\Console.definition" />
+    <None Include="TestData\PackageFilterCorrectModuleXml\Filter.Windows.txt" />
+    <None Include="TestData\PackageFilterCorrectModuleXml\Module.xml" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />

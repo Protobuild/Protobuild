@@ -50,27 +50,43 @@ namespace Protobuild
 
             var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
 
-            if (!filterDictionary.ContainsKey("Build/"))
+            if (!filterDictionary.ContainsValue("Build/"))
             {
                 Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
                 return 1;
             }
 
-            if (!filterDictionary.ContainsKey("Build/Projects/"))
+            if (!filterDictionary.ContainsValue("Build/Projects/"))
             {
                 Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
                 return 1;
             }
 
-            if (!filterDictionary.ContainsKey("Build/Module.xml"))
+            if (!filterDictionary.ContainsValue("Build/Module.xml"))
             {
                 Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
                 return 1;
             }
 
-            if (filterDictionary.ContainsKey("Protobuild.exe"))
+            if (filterDictionary.ContainsValue("Protobuild.exe"))
             {
                 Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
                 return 1;
             }
 
@@ -91,7 +107,7 @@ namespace Protobuild
                                 // directories to always appear before the files that are in them.
                                 foreach (var kv in filter.OrderBy(kv => kv.Value))
                                 {
-                                    if (kv.Key.EndsWith("/"))
+                                    if (kv.Value.EndsWith("/"))
                                     {
                                         // Directory
                                         writer.WriteDirectoryEntry(kv.Value.TrimEnd('/'));
@@ -176,6 +192,15 @@ is not specified, includes all files within the folder.
             foreach (var fi in current.GetFiles())
             {
                 yield return fi.Name;
+            }
+        }
+
+        private void PrintFilterMappings(Dictionary<string, string> mappings)
+        {
+            Console.WriteLine("The filter mappings resulted in: ");
+            foreach (var kv in mappings)
+            {
+                Console.WriteLine("  " + kv.Key + " -> " + kv.Value);
             }
         }
     }

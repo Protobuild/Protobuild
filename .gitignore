@@ -15,3 +15,4 @@ StyleCop.Cache
 /Protobuild.Tests/TestData/PackageEverythingCorrectLZMA/Test.tar.lzma
 /Protobuild.Tests/TestData/PackageFilterCorrect/Linux.tar.lzma
 /Protobuild.Tests/TestData/PackageFilterCorrect/Windows.tar.lzma
+/Protobuild.Tests/TestData/PackageFilterCorrectModuleXml/Windows.tar.lzma

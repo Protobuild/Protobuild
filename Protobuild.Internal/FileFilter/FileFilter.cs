@@ -67,7 +67,7 @@ namespace Protobuild
 
             foreach (var dir in directoriesNeeded)
             {
-                this.m_FileMappings.Add(dir + "/", dir);
+                this.m_FileMappings.Add(dir, dir + "/");
             }
         }
 
