@@ -1,0 +1,5 @@
+﻿include ^Console\.definition$
+include ^Module\.xml$
+
+rewrite ^Console\.definition$ Build/Projects/Console.definition
+rewrite ^Module\.xml$ Build/Module.xml
