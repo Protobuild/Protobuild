@@ -298,15 +298,26 @@ functionality is stabilized.
                     }
                 }
 
+                string contents;
                 using (var reader = new StreamReader(file.FullName))
                 {
-                    var contents = reader.ReadToEnd();
+                    contents = reader.ReadToEnd();
+                }
+
+                if (contents.Contains("{PROJECT_NAME}") || contents.Contains("{PROJECT_XML_NAME}"))
+                {
                     contents = contents.Replace("{PROJECT_NAME}", name);
                     contents = contents.Replace("{PROJECT_XML_NAME}", System.Security.SecurityElement.Escape(name));
                     using (var writer = new StreamWriter(replacedPath))
                     {
                         writer.Write(contents);
                     }
+                }
+                else
+                {
+                    // If we don't see {PROJECT_NAME} or {PROJECT_XML_NAME}, use a straight
+                    // file copy so that we don't break binary files.
+                    File.Copy(file.FullName, replacedPath, true);
                 }
             }
 
