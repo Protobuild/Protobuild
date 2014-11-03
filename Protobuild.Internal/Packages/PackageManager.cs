@@ -19,6 +19,10 @@ namespace Protobuild
 
         public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
 
+        public const string PACKAGE_TYPE_LIBRARY = "library";
+
+        public const string PACKAGE_TYPE_TEMPLATE = "template";
+
         public PackageManager()
         {
             this.m_PackageCache = new PackageCache();
@@ -43,13 +47,13 @@ functionality is stabilized.
             foreach (var submodule in module.Packages)
             {
                 Console.WriteLine("Resolving: " + submodule.Uri);
-                this.Resolve(submodule, platform, null);
+                this.Resolve(submodule, platform, null, null);
             }
 
             Console.WriteLine("Package resolution complete.");
         }
 
-        public void Resolve(PackageRef reference, string platform, bool? source)
+        public void Resolve(PackageRef reference, string platform, string templateName, bool? source)
         {
             var baseUri = reference.UriObject;
 
@@ -62,6 +66,7 @@ functionality is stabilized.
             }
 
             var sourceUri = (string)apiData.result.package.gitUrl;
+            var type = (string)apiData.result.package.type;
 
             if (!string.IsNullOrWhiteSpace(sourceUri))
             {
@@ -80,33 +85,58 @@ functionality is stabilized.
                 Console.WriteLine("WARNING: This package does not have a source repository set.");
             }
 
-            Directory.CreateDirectory(reference.Folder);
-
-            if (source == null)
+            if (type == PackageManager.PACKAGE_TYPE_TEMPLATE && templateName == null)
             {
-                if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
+                throw new InvalidOperationException(
+                    "Template referenced as part of module packages.  Templates can only be used " +
+                    "with the --start option.");
+            }
+            else if (type == PackageManager.PACKAGE_TYPE_LIBRARY)
+            {
+                Directory.CreateDirectory(reference.Folder);
+
+                if (source == null)
                 {
-                    Console.WriteLine("Git repository present at " + Path.Combine(reference.Folder, ".git") + "; leaving as source version.");
-                    source = true;
-                }
-                else
-                {
-                    Console.WriteLine("Package type not specified (and no file at " + Path.Combine(reference.Folder, ".git") + "), requesting binary version.");
-                    source = false;
+                    if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
+                    {
+                        Console.WriteLine("Git repository present at " + Path.Combine(reference.Folder, ".git") + "; leaving as source version.");
+                        source = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Package type not specified (and no file at " + Path.Combine(reference.Folder, ".git") + "), requesting binary version.");
+                        source = false;
+                    }
                 }
             }
 
             if (source.Value && !string.IsNullOrWhiteSpace(sourceUri))
             {
-                this.ResolveSource(reference, sourceUri);
+                switch (type)
+                {
+                    case PackageManager.PACKAGE_TYPE_LIBRARY:
+                        this.ResolveLibrarySource(reference, sourceUri);
+                        break;
+                    case PackageManager.PACKAGE_TYPE_TEMPLATE:
+                        this.ResolveTemplateSource(reference, templateName, sourceUri);
+                        break;
+                }
             }
             else
             {
-                this.ResolveBinary(reference, platform, sourceUri, apiData);
+                switch (type)
+                {
+                    case PackageManager.PACKAGE_TYPE_LIBRARY:
+                        this.ResolveLibraryBinary(reference, platform, sourceUri, apiData);
+                        break;
+                    case PackageManager.PACKAGE_TYPE_TEMPLATE:
+                        this.ResolveTemplateBinary(reference, templateName, platform, sourceUri, apiData);
+                        break;
+                }
             }
         }
 
-        private void ResolveSource(PackageRef reference, string source)
+        private void ResolveLibrarySource(PackageRef reference, string source)
         {
             if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
             {
@@ -139,10 +169,28 @@ functionality is stabilized.
                 // git clone instead of git submodule.
                 this.RunGit(null, "clone " + source + " " + reference.Folder);
                 this.RunGit(reference.Folder, "checkout -f " + reference.GitRef);
+                this.RunGit(reference.Folder, "submodule update --init --recursive");
             }
         }
 
-        private void ResolveBinary(PackageRef reference, string platform, string source, dynamic apiData)
+        private void ResolveTemplateSource(PackageRef reference, string templateName, string source)
+        {
+            if (reference.Folder != string.Empty)
+            {
+                throw new InvalidOperationException("Reference folder must be empty for template type.");
+            }
+
+            if (Directory.Exists(".staging"))
+            {
+                Directory.Delete(".staging", true);
+            }
+
+            this.RunGit(null, "clone " + source + " .staging");
+
+            this.ApplyProjectTemplateFromStaging(templateName);
+        }
+
+        private void ResolveLibraryBinary(PackageRef reference, string platform, string source, dynamic apiData)
         {
             if (File.Exists(Path.Combine(reference.Folder, platform, ".pkg")))
             {
@@ -175,119 +223,15 @@ functionality is stabilized.
             Console.WriteLine("Marking " + reference.Folder + " as ignored for Git");
             this.MarkIgnored(reference.Folder);
 
-            var downloadMap = new Dictionary<string, string>();
-            var archiveTypeMap = new Dictionary<string, string>();
-            var resolvedHash = new Dictionary<string, string>();
-
-            foreach (var ver in apiData.result.versions)
-            {
-                if (ver.platformName != platform)
-                {
-                    continue;
-                }
-
-                if (!downloadMap.ContainsKey(ver.versionName))
-                {
-                    downloadMap.Add(ver.versionName, ver.downloadUrl);
-                    archiveTypeMap.Add(ver.versionName, ver.archiveType);
-                    resolvedHash.Add(ver.versionName, ver.versionName);
-                }
-            }
-
-            foreach (var branch in apiData.result.branches)
-            {
-                if (!downloadMap.ContainsKey(branch.versionName))
-                {
-                    continue;
-                }
-
-                if (!downloadMap.ContainsKey(branch.branchName))
-                {
-                    downloadMap.Add(branch.branchName, downloadMap[branch.versionName]);
-                    archiveTypeMap.Add(branch.branchName, archiveTypeMap[branch.versionName]);
-                    resolvedHash.Add(branch.branchName, branch.versionName);
-                }
-            }
-
-            if (!downloadMap.ContainsKey(reference.GitRef))
-            {
-                if (string.IsNullOrWhiteSpace(source))
-                {
-                    throw new InvalidOperationException(
-                        "Unable to resolve binary package for version \"" + reference.GitRef + 
-                        "\" and platform \"" + platform + "\" and this package does not have a source repository");
-                }
-                else
-                {
-                    Console.WriteLine("Unable to resolve binary package for version \"" + reference.GitRef + 
-                        "\" and platform \"" + platform + "\", falling back to source version");
-                    this.ResolveSource(reference, source);
-                    return;
-                }
-            }
-                
-            var uri = downloadMap[reference.GitRef];
-            var archiveType = archiveTypeMap[reference.GitRef];
-            var resolvedGitHash = resolvedHash[reference.GitRef];
-
-            byte[] packageData;
             string format;
-            if (this.m_PackageCache.HasPackage(uri, resolvedGitHash, platform, out format))
+            var packageData = DownloadBinaryPackage(reference, platform, source, apiData, out format);
+            if (packageData == null)
             {
-                Console.WriteLine("Retrieving binary package from cache");
-                packageData = this.m_PackageCache.GetPackage(uri, resolvedGitHash, platform);
-            }
-            else
-            {
-                Console.WriteLine("Retrieving binary package from " + uri);
-                format = archiveType;
-                packageData = this.GetBinary(uri);
-                this.m_PackageCache.SavePackage(uri, resolvedGitHash, platform, format, packageData);
+                this.ResolveLibrarySource(reference, source);
+                return;
             }
 
-            Console.WriteLine("Unpacking binary package from " + format + " archive");
-            switch (format)
-            {
-                case ARCHIVE_FORMAT_TAR_GZIP:
-                    {
-                        using (var memory = new MemoryStream(packageData))
-                        {
-                            using (var decompress = new GZipStream(memory, CompressionMode.Decompress))
-                            {
-                                using (var memory2 = new MemoryStream())
-                                {
-                                    decompress.CopyTo(memory2);
-                                    memory2.Seek(0, SeekOrigin.Begin);
-
-                                    var reader = new tar_cs.TarReader(memory2);
-
-                                    reader.ReadToEnd(folder);
-                                }
-                            }
-                        }
-                        break;
-                    }
-                case ARCHIVE_FORMAT_TAR_LZMA:
-                    {
-                        using (var inMemory = new MemoryStream(packageData))
-                        {
-                            using (var outMemory = new MemoryStream())
-                            {
-                                LZMA.LzmaHelper.Decompress(inMemory, outMemory);
-                                outMemory.Seek(0, SeekOrigin.Begin);
-
-                                var reader = new tar_cs.TarReader(outMemory);
-
-                                reader.ReadToEnd(folder);
-                            }
-                        }
-                        break;
-                    }
-                default:
-                    throw new InvalidOperationException(
-                        "This version of Protobuild does not support the " + 
-                        format + " package format.");
-            }
+            ExtractPackageToFolder(folder, format, packageData);
 
             // Only copy ourselves to the binary folder if both "Build/Module.xml" and
             // "Build/Projects" exist in the binary package's folder.  This prevents us
@@ -307,6 +251,97 @@ functionality is stabilized.
             file.Close();
 
             Console.WriteLine("Binary resolution complete");
+        }
+
+        private void ResolveTemplateBinary(PackageRef reference, string templateName, string platform, string sourceUri, dynamic apiData)
+        {
+            if (reference.Folder != string.Empty)
+            {
+                throw new InvalidOperationException("Reference folder must be empty for template type.");
+            }
+
+            if (Directory.Exists(".staging"))
+            {
+                Directory.Delete(".staging", true);
+            }
+
+            Directory.CreateDirectory(".staging");
+
+            string format;
+            var packageData = DownloadBinaryPackage(reference, platform, sourceUri, apiData, out format);
+            if (packageData == null)
+            {
+                this.ResolveTemplateSource(reference, templateName, sourceUri);
+                return;
+            }
+
+            ExtractPackageToFolder(".staging", format, packageData);
+
+            ApplyProjectTemplateFromStaging(templateName);
+        }
+
+        private void ApplyProjectTemplateFromStaging(string name)
+        {
+            foreach (var pathToFile in GetFilesFromStaging())
+            {
+                var path = pathToFile.Key;
+                var file = pathToFile.Value;
+
+                var replacedPath = path.Replace("{PROJECT_NAME}", name);
+                var dirSeperator = replacedPath.LastIndexOfAny(new[] { '/', '\\' });
+                if (dirSeperator != -1)
+                {
+                    var replacedDir = replacedPath.Substring(0, dirSeperator);
+                    if (!Directory.Exists(replacedDir))
+                    {
+                        Directory.CreateDirectory(replacedDir);
+                    }
+                }
+
+                using (var reader = new StreamReader(file.FullName))
+                {
+                    var contents = reader.ReadToEnd();
+                    contents = contents.Replace("{PROJECT_NAME}", name);
+                    contents = contents.Replace("{PROJECT_XML_NAME}", System.Security.SecurityElement.Escape(name));
+                    using (var writer = new StreamWriter(replacedPath))
+                    {
+                        writer.Write(contents);
+                    }
+                }
+            }
+
+            Directory.Delete(".staging", true);
+        }
+
+        private IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromStaging(string currentDirectory = null, string currentPrefix = null)
+        {
+            if (currentDirectory == null)
+            {
+                currentDirectory = ".staging";
+                currentPrefix = string.Empty;
+            }
+
+            var dirInfo = new DirectoryInfo(currentDirectory);
+            foreach (var subdir in dirInfo.GetDirectories("*"))
+            {
+                if (subdir.Name == ".git")
+                {
+                    continue;
+                }
+
+                var nextDirectory = Path.Combine(currentDirectory, subdir.Name);
+                var nextPrefix = currentPrefix == string.Empty ? subdir.Name : Path.Combine(currentPrefix, subdir.Name);
+
+                foreach (var kv in this.GetFilesFromStaging(nextDirectory, nextPrefix))
+                {
+                    yield return kv;
+                }
+            }
+
+            foreach (var file in dirInfo.GetFiles("*"))
+            {
+                yield return new KeyValuePair<string, FileInfo>(Path.Combine(currentPrefix, file.Name), file);
+            }
         }
 
         private byte[] GetBinary(string packageUri)
@@ -503,6 +538,113 @@ functionality is stabilized.
             {
                 Console.WriteLine("Web exception when retrieving: " + indexUri);
                 throw;
+            }
+        }
+
+        private byte[] DownloadBinaryPackage(PackageRef reference, string platform, string source, dynamic apiData, out string format)
+        {
+            format = null;
+
+            var downloadMap = new Dictionary<string, string>();
+            var archiveTypeMap = new Dictionary<string, string>();
+            var resolvedHash = new Dictionary<string, string>();
+            foreach (var ver in apiData.result.versions)
+            {
+                if (ver.platformName != platform)
+                {
+                    continue;
+                }
+                if (!downloadMap.ContainsKey(ver.versionName))
+                {
+                    downloadMap.Add(ver.versionName, ver.downloadUrl);
+                    archiveTypeMap.Add(ver.versionName, ver.archiveType);
+                    resolvedHash.Add(ver.versionName, ver.versionName);
+                }
+            }
+            foreach (var branch in apiData.result.branches)
+            {
+                if (!downloadMap.ContainsKey(branch.versionName))
+                {
+                    continue;
+                }
+                if (!downloadMap.ContainsKey(branch.branchName))
+                {
+                    downloadMap.Add(branch.branchName, downloadMap[branch.versionName]);
+                    archiveTypeMap.Add(branch.branchName, archiveTypeMap[branch.versionName]);
+                    resolvedHash.Add(branch.branchName, branch.versionName);
+                }
+            }
+            if (!downloadMap.ContainsKey(reference.GitRef))
+            {
+                if (string.IsNullOrWhiteSpace(source))
+                {
+                    throw new InvalidOperationException("Unable to resolve binary package for version \"" + reference.GitRef + "\" and platform \"" + platform + "\" and this package does not have a source repository");
+                }
+                else
+                {
+                    Console.WriteLine("Unable to resolve binary package for version \"" + reference.GitRef + "\" and platform \"" + platform + "\", falling back to source version");
+                    return null;
+                }
+            }
+            var uri = downloadMap[reference.GitRef];
+            var archiveType = archiveTypeMap[reference.GitRef];
+            var resolvedGitHash = resolvedHash[reference.GitRef];
+            byte[] packageData;
+            if (this.m_PackageCache.HasPackage(uri, resolvedGitHash, platform, out format))
+            {
+                Console.WriteLine("Retrieving binary package from cache");
+                packageData = this.m_PackageCache.GetPackage(uri, resolvedGitHash, platform);
+            }
+            else
+            {
+                Console.WriteLine("Retrieving binary package from " + uri);
+                format = archiveType;
+                packageData = this.GetBinary(uri);
+                this.m_PackageCache.SavePackage(uri, resolvedGitHash, platform, format, packageData);
+            }
+            return packageData;
+        }
+
+        static void ExtractPackageToFolder(string folder, string format, dynamic packageData)
+        {
+            Console.WriteLine("Unpacking binary package from " + format + " archive");
+            switch (format)
+            {
+                case ARCHIVE_FORMAT_TAR_GZIP:
+                {
+                    using (var memory = new MemoryStream(packageData))
+                    {
+                        using (var decompress = new GZipStream(memory, CompressionMode.Decompress))
+                        {
+                            using (var memory2 = new MemoryStream())
+                            {
+                                decompress.CopyTo(memory2);
+                                memory2.Seek(0, SeekOrigin.Begin);
+                                var reader = new tar_cs.TarReader(memory2);
+                                reader.ReadToEnd(folder);
+                            }
+                        }
+                    }
+                    break;
+                }
+                case ARCHIVE_FORMAT_TAR_LZMA:
+                {
+                    using (var inMemory = new MemoryStream(packageData))
+                    {
+                        using (var outMemory = new MemoryStream())
+                        {
+                            LZMA.LzmaHelper.Decompress(inMemory, outMemory);
+                            outMemory.Seek(0, SeekOrigin.Begin);
+                            var reader = new tar_cs.TarReader(outMemory);
+                            reader.ReadToEnd(folder);
+                        }
+                    }
+                    break;
+                }
+                default:
+                    throw new InvalidOperationException(
+                        "This version of Protobuild does not support the " + 
+                        format + " package format.");
             }
         }
     }
