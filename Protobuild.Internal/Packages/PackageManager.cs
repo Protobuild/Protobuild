@@ -37,13 +37,6 @@ namespace Protobuild
 
             Console.WriteLine("Starting resolution of packages...");
 
-            // TODO: Remove this notice when packaging is no longer experimental.
-            Console.WriteLine(@"=========================== WARNING ===========================
-Package management is currently an experimental feature.
-Expect breaking changes and bugs to occur until this
-functionality is stabilized.
-=========================== WARNING ===========================");
-
             foreach (var submodule in module.Packages)
             {
                 Console.WriteLine("Resolving: " + submodule.Uri);
