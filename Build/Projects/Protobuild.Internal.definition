@@ -108,6 +108,7 @@
     <Compile Include="CommandLine\PushPackageCommand.cs" />
     <Compile Include="CommandLine\ResyncCommand.cs" />
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
+    <Compile Include="CommandLine\StartCommand.cs" />
     <Compile Include="CommandLine\SyncCommand.cs" />
     <Compile Include="DefinitionInfo.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />

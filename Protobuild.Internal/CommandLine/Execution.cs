@@ -43,6 +43,10 @@ namespace Protobuild
 
         public string PackagePushBranchToUpdate { get; set; }
 
+        public string StartProjectTemplateURL { get; set; }
+
+        public string StartProjectName { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)
