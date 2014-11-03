@@ -67,19 +67,13 @@ namespace Protobuild.Tasks
                     var xDoc = newDoc.ToXDocument();
                     var projectsToUpdate = xDoc.Descendants().Where(x => x.Name == "Project");
                     var binariesToUpdate = xDoc.Descendants().Where(x => x.Name == "Binary");
-                    foreach (var projectToUpdate in projectsToUpdate
+                    var nativeBinariesToUpdate = xDoc.Descendants().Where(x => x.Name == "NativeBinary");
+                    foreach (var pathToUpdate in projectsToUpdate.Concat(binariesToUpdate).Concat(nativeBinariesToUpdate)
                         .Where(x => x.Attribute("Path") != null))
                     {
-                        projectToUpdate.Attribute("Path").Value =
+                        pathToUpdate.Attribute("Path").Value =
                             (additionalPath.Trim('\\') + '\\' +
-                            projectToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
-                    }
-                    foreach (var binaryToUpdate in binariesToUpdate
-                        .Where(x => x.Attribute("Path") != null))
-                    {
-                        binaryToUpdate.Attribute("Path").Value =
-                            (additionalPath.Trim('\\') + '\\' +
-                            binaryToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
+                            pathToUpdate.Attribute("Path").Value).Replace('/', '\\').Trim('\\');
                     }
                     newDoc = xDoc.ToXmlDocument();
                 }

@@ -223,7 +223,12 @@
 
     public string GetFilename(string name)
     {
-      return new System.IO.FileInfo(name).Name;
+      var components = name.Split(new[] { '\\', '/' });
+      if (components.Length == 0)
+      {
+        throw new Exception("No name specified for NativeBinary");
+      }
+      return components[components.Length - 1];
     }
 
     ]]>
