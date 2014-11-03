@@ -19,7 +19,7 @@ namespace Protobuild
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
-                        .GetManifestResourceStream("Protobuild.BuildResources.GenerateProject.xslt.lzma"))
+                        .GetManifestResourceStream("GenerateProject.xslt.lzma"))
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
@@ -27,7 +27,7 @@ namespace Protobuild
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
-                        .GetManifestResourceStream("Protobuild.BuildResources.GenerateSolution.xslt.lzma"))
+                        .GetManifestResourceStream("GenerateSolution.xslt.lzma"))
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
