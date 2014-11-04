@@ -31,6 +31,7 @@ namespace Protobuild
                 { "pack", new PackPackageCommand() },
                 { "format", new FormatPackageCommand() },
                 { "push", new PushPackageCommand() },
+                { "resolve", new ResolveCommand() },
                 { "start", new StartCommand() },
             };
 
