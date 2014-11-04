@@ -52,10 +52,21 @@ namespace Protobuild.Tasks
                 }
             }
 
+            var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
+
+            // Resolve packages in submodules first (so that services are available).
+            foreach (var submodule in module.GetSubmodules(this.Platform))
+            {
+                this.LogMessage(
+                    "Invoking package resolution in submodule for " + submodule.Name);
+                submodule.RunProtobuild("-resolve " + this.Platform);
+                this.LogMessage(
+                    "Finished submodule package resolution for " + submodule.Name);
+            }
+
             this.LogMessage(
                 "Starting generation of projects for " + this.Platform);
 
-            var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
             var definitions = module.GetDefinitionsRecursively(this.Platform).ToArray();
 
             var generator = new ProjectGenerator(
