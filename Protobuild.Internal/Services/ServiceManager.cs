@@ -14,7 +14,7 @@
     {
         private const int SERIALIZATION_VERSION = 3;
 
-        private readonly ProjectGenerator m_Generator;
+        private readonly string m_Platform;
 
         private readonly List<string> m_EnabledServices;
 
@@ -22,9 +22,9 @@
 
         private DefinitionInfo[] m_RootDefinitions;
 
-        public ServiceManager(ProjectGenerator generator)
+        public ServiceManager(string platform)
         {
-            this.m_Generator = generator;
+            this.m_Platform = platform;
             this.m_EnabledServices = new List<string>();
             this.m_DisabledServices = new List<string>();
             this.m_RootDefinitions = new DefinitionInfo[0];
@@ -45,13 +45,13 @@
             this.m_RootDefinitions = definitions;
         }
 
-        public List<Service> CalculateDependencyGraph()
+        public List<Service> CalculateDependencyGraph(List<XmlDocument> definitions)
         {
-            var services = this.LoadServices(this.m_Generator.Documents);
+            var services = this.LoadServices(definitions);
 
             this.CalculateServices(services);
 
-            this.EnableReferencedProjects(services);
+            this.EnableReferencedProjects(definitions, services);
 
             this.EnableRootProjects(services);
 
@@ -75,11 +75,11 @@
             }
         }
 
-        private void EnableReferencedProjects(List<Service> services)
+        private void EnableReferencedProjects(List<XmlDocument> definitions, List<Service> services)
         {
             var lookup = services.ToDictionary(k => k.FullName, v => v);
 
-            var references = from definition in this.m_Generator.Documents
+            var references = from definition in definitions
                              where definition.DocumentElement.Name == "Project"
                              select
                                  definition.DocumentElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "References")
@@ -344,7 +344,7 @@
                 return true;
             }
 
-            if (platform.InnerText.Split(',').Contains(this.m_Generator.Platform, StringComparer.InvariantCultureIgnoreCase))
+            if (platform.InnerText.Split(',').Contains(this.m_Platform, StringComparer.InvariantCultureIgnoreCase))
             {
                 return true;
             }

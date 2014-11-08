@@ -5,6 +5,13 @@ namespace Protobuild
 {
     public class CleanCommand : ICommand
     {
+        private readonly IActionDispatch m_ActionDispatch;
+
+        public CleanCommand(IActionDispatch actionDispatch)
+        {
+            this.m_ActionDispatch = actionDispatch;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -20,7 +27,7 @@ namespace Protobuild
             if (Directory.Exists("Build"))
             {
                 var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                return Actions.PerformAction(
+                return this.m_ActionDispatch.PerformAction(
                     module,
                     "clean",
                     execution.Platform,

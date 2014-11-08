@@ -15,11 +15,11 @@ namespace Protobuild
         {
             if (Directory.Exists("Build"))
             {
-                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.xslt")))
+                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.CSharp.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
-                        .GetManifestResourceStream("GenerateProject.xslt.lzma"))
+                        .GetManifestResourceStream("GenerateProject.CSharp.xslt.lzma"))
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }

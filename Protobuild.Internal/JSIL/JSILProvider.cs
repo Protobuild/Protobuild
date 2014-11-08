@@ -41,8 +41,15 @@ namespace Protobuild
     /// This is used by Protobuild to automatically download and build JSIL when the user
     /// first targets the Web platform.
     /// </remarks>
-    public class JSILProvider
+    public class JSILProvider : IJSILProvider
     {
+        private readonly IHostPlatformDetector m_HostPlatformDetector;
+
+        public JSILProvider(IHostPlatformDetector hostPlatformDetector)
+        {
+            this.m_HostPlatformDetector = hostPlatformDetector;
+        }
+
         /// <summary>
         /// Returns the required JSIL directories, downloading and building JSIL if necessary.
         /// </summary>
@@ -423,7 +430,7 @@ namespace Protobuild
         /// <param name="pathOrError">The path of the build tool if successful, or the error message on failure.</param>
         private bool DetectBuilder(out string pathOrError)
         {
-            if (Actions.DetectPlatform() == "Windows")
+            if (this.m_HostPlatformDetector.DetectPlatform() == "Windows")
             {
                 try
                 {
