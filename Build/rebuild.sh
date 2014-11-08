@@ -28,7 +28,7 @@ xbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
 
 echo "Compressing resources..."
 PROTOBUILD_COMPRESS=Protobuild.Compress/bin/$PLATFORM/AnyCPU/Release/Protobuild.Compress.exe
-mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.xslt Protobuild.Internal/BuildResources/GenerateProject.xslt.lzma
+mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/SelectSolution.xslt Protobuild.Internal/BuildResources/SelectSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/JSILTemplate.htm Protobuild.Internal/BuildResources/JSILTemplate.htm.lzma

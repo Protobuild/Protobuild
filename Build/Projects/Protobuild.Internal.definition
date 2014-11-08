@@ -90,9 +90,10 @@
     <Compile Include="..\ThirdParty\TAR\UsTarHeader.cs">
       <Link>TAR\UsTarHeader.cs</Link>
     </Compile>
-    <Compile Include="Actions.cs" />
+    <Compile Include="BuildResources\IResourceProvider.cs" />
     <Compile Include="BuildResources\ResourceExtractor.cs" />
-    <Compile Include="BuildResources\XSLTLoader.cs" />
+    <Compile Include="BuildResources\ResourceProvider.cs" />
+    <Compile Include="BuildResources\ResourceType.cs" />
     <Compile Include="CommandLine\AddPackageCommand.cs" />
     <Compile Include="CommandLine\CleanCommand.cs" />
     <Compile Include="CommandLine\DefaultCommand.cs" />
@@ -111,11 +112,46 @@
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
     <Compile Include="CommandLine\StartCommand.cs" />
     <Compile Include="CommandLine\SyncCommand.cs" />
+    <Compile Include="Core\ActionDispatch.cs" />
+    <Compile Include="Core\HostPlatformDetector.cs" />
+    <Compile Include="Core\IActionDispatch.cs" />
+    <Compile Include="Core\IHostPlatformDetector.cs" />
+    <Compile Include="Core\ILogger.cs" />
+    <Compile Include="Core\IWorkingDirectoryProvider.cs" />
+    <Compile Include="Core\Logger.cs" />
+    <Compile Include="Core\WorkingDirectoryProvider.cs" />
     <Compile Include="DefinitionInfo.cs" />
+    <Compile Include="DI\LightweightKernel.cs" />
+    <Compile Include="DI\LightweightKernelModule.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
     <Compile Include="FileFilter\FileFilter.cs" />
     <Compile Include="FileFilter\FileFilterParser.cs" />
-    <Compile Include="JSILProvider.cs" />
+    <Compile Include="Generation\ContentProjectGenerator.cs" />
+    <Compile Include="Generation\ExcludedServiceAwareProjectDetector.cs" />
+    <Compile Include="Generation\IContentProjectGenerator.cs" />
+    <Compile Include="Generation\IExcludedServiceAwareProjectDetector.cs" />
+    <Compile Include="Generation\INuGetConfigMover.cs" />
+    <Compile Include="Generation\INuGetReferenceDetector.cs" />
+    <Compile Include="Generation\INuGetRepositoriesConfigGenerator.cs" />
+    <Compile Include="Generation\IProjectGenerator.cs" />
+    <Compile Include="Generation\IProjectInputGenerator.cs" />
+    <Compile Include="Generation\IProjectLoader.cs" />
+    <Compile Include="Generation\IServiceInputGenerator.cs" />
+    <Compile Include="Generation\IServiceReferenceTranslator.cs" />
+    <Compile Include="Generation\ISolutionGenerator.cs" />
+    <Compile Include="Generation\ISolutionInputGenerator.cs" />
+    <Compile Include="Generation\NuGetConfigMover.cs" />
+    <Compile Include="Generation\NuGetReferenceDetector.cs" />
+    <Compile Include="Generation\NuGetRepositoriesConfigGenerator.cs" />
+    <Compile Include="Generation\ProjectGenerator.cs" />
+    <Compile Include="Generation\ProjectInputGenerator.cs" />
+    <Compile Include="Generation\ProjectLoader.cs" />
+    <Compile Include="Generation\ServiceInputGenerator.cs" />
+    <Compile Include="Generation\ServiceReferenceTranslator.cs" />
+    <Compile Include="Generation\SolutionGenerator.cs" />
+    <Compile Include="Generation\SolutionInputGenerator.cs" />
+    <Compile Include="JSIL\IJSILProvider.cs" />
+    <Compile Include="JSIL\JSILProvider.cs" />
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="PackageRef.cs" />
     <Compile Include="Packages\PackageCache.cs" />
@@ -128,14 +164,16 @@
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
+    <Compile Include="Targets\ILanguageStringProvider.cs" />
+    <Compile Include="Targets\Language.cs" />
+    <Compile Include="Targets\LanguageStringProvider.cs" />
     <Compile Include="Tasks\BaseTask.cs" />
     <Compile Include="Tasks\CleanProjectsTask.cs" />
     <Compile Include="Tasks\DocumentExtensions.cs" />
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
-    <Compile Include="Tasks\ProjectGenerator.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
-    <EmbeddedResource Include="BuildResources\GenerateProject.xslt.lzma">
-      <LogicalName>GenerateProject.xslt.lzma</LogicalName>
+    <EmbeddedResource Include="BuildResources\GenerateProject.CSharp.xslt.lzma">
+      <LogicalName>GenerateProject.CSharp.xslt.lzma</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.lzma">
       <LogicalName>GenerateSolution.xslt.lzma</LogicalName>
@@ -152,7 +190,7 @@
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt">
       <LogicalName>WashNamespaces.xslt</LogicalName>
     </EmbeddedResource>
-    <None Include="BuildResources\GenerateProject.xslt" />
+    <None Include="BuildResources\GenerateProject.CSharp.xslt" />
     <None Include="BuildResources\GenerateSolution.xslt" />
     <None Include="BuildResources\JSILTemplate.htm" />
     <None Include="BuildResources\SelectSolution.xslt" />

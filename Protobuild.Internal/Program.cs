@@ -17,26 +17,33 @@ namespace Protobuild
             // Ensure we always use the invariant culture in Protobuild.
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
+            var kernel = new LightweightKernel();
+            kernel.BindCore();
+            kernel.BindBuildResources();
+            kernel.BindGeneration();
+            kernel.BindJSIL();
+            kernel.BindTargets();
+
             var commandMappings = new Dictionary<string, ICommand>
             {
-                { "sync", new SyncCommand() },
-                { "resync", new ResyncCommand() },
-                { "generate", new GenerateCommand() },
-                { "clean", new CleanCommand() },
-                { "extract-xslt", new ExtractXSLTCommand() },
-                { "enable", new EnableServiceCommand() },
-                { "disable", new DisableServiceCommand() },
-                { "spec", new ServiceSpecificationCommand() },
-                { "add", new AddPackageCommand() },
-                { "pack", new PackPackageCommand() },
-                { "format", new FormatPackageCommand() },
-                { "push", new PushPackageCommand() },
-                { "resolve", new ResolveCommand() },
-                { "start", new StartCommand() },
+                { "sync", kernel.Get<SyncCommand>() },
+                { "resync", kernel.Get<ResyncCommand>() },
+                { "generate", kernel.Get<GenerateCommand>() },
+                { "clean", kernel.Get<CleanCommand>() },
+                { "extract-xslt", kernel.Get<ExtractXSLTCommand>() },
+                { "enable", kernel.Get<EnableServiceCommand>() },
+                { "disable", kernel.Get<DisableServiceCommand>() },
+                { "spec", kernel.Get<ServiceSpecificationCommand>() },
+                { "add", kernel.Get<AddPackageCommand>() },
+                { "pack", kernel.Get<PackPackageCommand>() },
+                { "format", kernel.Get<FormatPackageCommand>() },
+                { "push", kernel.Get<PushPackageCommand>() },
+                { "resolve", kernel.Get<ResolveCommand>() },
+                { "start", kernel.Get<StartCommand>() },
             };
 
             var execution = new Execution();
-            execution.CommandToExecute = new DefaultCommand();
+            execution.CommandToExecute = kernel.Get<DefaultCommand>();
 
             var options = new Options();
             foreach (var kv in commandMappings)

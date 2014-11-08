@@ -5,6 +5,13 @@ namespace Protobuild
 {
     public class DefaultCommand : ICommand
     {
+        private readonly IActionDispatch m_ActionDispatch;
+
+        public DefaultCommand(IActionDispatch actionDispatch)
+        {
+            this.m_ActionDispatch = actionDispatch;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             throw new NotSupportedException();
@@ -20,7 +27,7 @@ namespace Protobuild
                 Environment.Exit(0);
             }
 
-            return Actions.DefaultAction(
+            return this.m_ActionDispatch.DefaultAction(
                 ModuleInfo.Load(Path.Combine("Build", "Module.xml")),
                 enabledServices: execution.EnabledServices.ToArray(),
                 disabledServices: execution.DisabledServices.ToArray(),

@@ -5,6 +5,13 @@ namespace Protobuild
 {
     public class StartCommand : ICommand
     {
+        private readonly IActionDispatch m_ActionDispatch;
+
+        public StartCommand(IActionDispatch actionDispatch)
+        {
+            this.m_ActionDispatch = actionDispatch;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -47,7 +54,7 @@ namespace Protobuild
             Console.WriteLine("Module has been initialized.  Performing --generate to create projects.");
 
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-            return Actions.PerformAction(
+            return this.m_ActionDispatch.PerformAction(
                 module,
                 "generate",
                 execution.Platform,

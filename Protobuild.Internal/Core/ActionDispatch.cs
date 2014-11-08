@@ -1,93 +1,22 @@
-//-----------------------------------------------------------------------
-// <copyright file="Actions.cs" company="Protobuild Project">
-// The MIT License (MIT)
-// 
-// Copyright (c) Various Authors
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-//     The above copyright notice and this permission notice shall be included in
-//     all copies or substantial portions of the Software.
-// 
-//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-//     THE SOFTWARE.
-// </copyright>
-//-----------------------------------------------------------------------
+﻿using System;
+using System.Linq;
+using System.IO;
+using Protobuild.Tasks;
+
 namespace Protobuild
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using Protobuild.Tasks;
-
-    /// <summary>
-    /// Provides utility methods for performing general actions in Protobuild.
-    /// </summary>
-    public static class Actions
+    public class ActionDispatch : IActionDispatch
     {
-        /// <summary>
-        /// Opens the specified object in MonoDevelop (to edit the definition file).
-        /// </summary>
-        /// <param name="root">The module that contains the object.</param>
-        /// <param name="obj">The object to edit (either DefinitionInfo or ModuleInfo).</param>
-        /// <param name="update">The callback when the module has been updated.</param>
-        public static void Open(ModuleInfo root, object obj, Action update)
+        private readonly LightweightKernel m_LightweightKernel;
+
+        private readonly IHostPlatformDetector m_HostPlatformDetector;
+
+        public ActionDispatch(
+            LightweightKernel lightweightKernel,
+            IHostPlatformDetector hostPlatformDetector)
         {
-            var definitionInfo = obj as DefinitionInfo;
-            var moduleInfo = obj as ModuleInfo;
-            if (definitionInfo != null)
-            {
-                // Open XML in editor.
-                Process.Start("monodevelop", definitionInfo.DefinitionPath);
-            }
-
-            if (moduleInfo != null)
-            {
-                // Start the module's Protobuild unless it's also our
-                // module (for the root node).
-                if (moduleInfo.Path != root.Path)
-                {
-                    var info = new ProcessStartInfo
-                    {
-                        FileName = System.IO.Path.Combine(moduleInfo.Path, "Protobuild.exe"),
-                        WorkingDirectory = moduleInfo.Path
-                    };
-                    var p = Process.Start(info);
-                    p.EnableRaisingEvents = true;
-                    p.Exited += (object sender, EventArgs e) => update();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Detects the current executing (host) platform.
-        /// </summary>
-        /// <returns>The executing, host platform.</returns>
-        public static string DetectPlatform()
-        {
-            if (Path.DirectorySeparatorChar == '/')
-            {
-                if (Directory.Exists("/Library"))
-                {
-                    return "MacOS";
-                }
-
-                return "Linux";
-            }
-
-            return "Windows";
+            this.m_LightweightKernel = lightweightKernel;
+            this.m_HostPlatformDetector = hostPlatformDetector;
         }
 
         /// <summary>
@@ -100,13 +29,19 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
-        public static bool PerformAction(ModuleInfo module, string action, string platform = null, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
+        public bool PerformAction(
+            ModuleInfo module, 
+            string action, 
+            string platform = null, 
+            string[] enabledServices = null, 
+            string[] disabledServices = null, 
+            string serviceSpecPath = null)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
             if (string.IsNullOrWhiteSpace(platform))
             {
-                platform = DetectPlatform();
+                platform = this.m_HostPlatformDetector.DetectPlatform();
             }
 
             var originalPlatform = platform;
@@ -117,7 +52,7 @@ namespace Protobuild
                 // The current host platform isn't supported, so we shouldn't try to
                 // operate on it.
                 string firstPlatform = null;
-                switch (DetectPlatform())
+                switch (this.m_HostPlatformDetector.DetectPlatform())
                 {
                     case "Windows":
                         firstPlatform = module.DefaultWindowsPlatforms.Split(',').FirstOrDefault();
@@ -144,9 +79,9 @@ namespace Protobuild
                 Console.Error.WriteLine("The following platforms are supported by this module:");
                 foreach (
                     var supportedPlatform in
-                        module.SupportedPlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                            .Select(x => x.Trim())
-                            .Where(x => !string.IsNullOrWhiteSpace(x)))
+                    module.SupportedPlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x)))
                 {
                     Console.Error.WriteLine("  * " + supportedPlatform);
                 }
@@ -156,7 +91,7 @@ namespace Protobuild
             }
 
             var primaryPlatform = platform;
-            
+
             // You can generate multiple targets by default by setting the <DefaultWindowsPlatforms>
             // <DefaultMacOSPlatforms> and <DefaultLinuxPlatforms> tags in Module.xml.  Note that
             // synchronisation will only be done for the primary platform, as there is no correct
@@ -201,23 +136,23 @@ namespace Protobuild
             switch (action.ToLower())
             {
                 case "generate":
-                    if (!Actions.GenerateProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath))
+                    if (!this.GenerateProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath))
                     {
                         return false;
                     }
 
                     break;
                 case "resync":
-                    if (!Actions.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath))
+                    if (!this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath))
                     {
                         return false;
                     }
 
                     break;
                 case "sync":
-                    return Actions.SyncProjectsForPlatform(module, primaryPlatform);
+                    return this.SyncProjectsForPlatform(module, primaryPlatform);
                 case "clean":
-                    if (!Actions.CleanProjectsForPlatform(module, primaryPlatform))
+                    if (!this.CleanProjectsForPlatform(module, primaryPlatform))
                     {
                         return false;
                     }
@@ -225,7 +160,7 @@ namespace Protobuild
                     break;
                 default:
                     Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
-                    return Actions.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath);
+                    return this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath);
             }
 
             // Now iterate through the multiple platforms specified.
@@ -248,14 +183,14 @@ namespace Protobuild
                     case "resync":
                         // We do a generate under resync mode since we only want the primary platform
                         // to have synchronisation done (and it has had above).
-                        if (!Actions.GenerateProjectsForPlatform(module, platformIter, enabledServices, disabledServices, serviceSpecPath))
+                        if (!this.GenerateProjectsForPlatform(module, platformIter, enabledServices, disabledServices, serviceSpecPath))
                         {
                             return false;
                         }
 
                         break;
                     case "clean":
-                        if (!Actions.CleanProjectsForPlatform(module, platformIter))
+                        if (!this.CleanProjectsForPlatform(module, platformIter))
                         {
                             return false;
                         }
@@ -279,7 +214,12 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
-        public static bool DefaultAction(ModuleInfo module, string platform = null, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
+        public bool DefaultAction(
+            ModuleInfo module, 
+            string platform = null, 
+            string[] enabledServices = null, 
+            string[] disabledServices = null, 
+            string serviceSpecPath = null)
         {
             return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath);
         }
@@ -293,7 +233,12 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
-        private static bool ResyncProjectsForPlatform(ModuleInfo module, string platform, string[] enabledServices = null, string[] disabledServices = null, string serviceSpecPath = null)
+        private bool ResyncProjectsForPlatform(
+            ModuleInfo module, 
+            string platform, 
+            string[] enabledServices = null, 
+            string[] disabledServices = null, 
+            string serviceSpecPath = null)
         {
             if (module.DisableSynchronisation ?? false)
             {
@@ -316,7 +261,7 @@ namespace Protobuild
         /// <returns><c>true</c>, if the synchronisation succeeded, <c>false</c> otherwise.</returns>
         /// <param name="module">The module to synchronise.</param>
         /// <param name="platform">The platform to synchronise for.</param>
-        private static bool SyncProjectsForPlatform(ModuleInfo module, string platform)
+        private bool SyncProjectsForPlatform(ModuleInfo module, string platform)
         {
             if (module.DisableSynchronisation ?? false)
             {
@@ -326,16 +271,14 @@ namespace Protobuild
 
             if (string.IsNullOrWhiteSpace(platform))
             {
-                platform = DetectPlatform();
+                platform = this.m_HostPlatformDetector.DetectPlatform();
             }
 
-            var task = new SyncProjectsTask
-            {
-                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
-                RootPath = module.Path + Path.DirectorySeparatorChar,
-                Platform = platform,
-                ModuleName = module.Name
-            };
+            var task = this.m_LightweightKernel.Get<SyncProjectsTask>();
+            task.SourcePath = Path.Combine(module.Path, "Build", "Projects");
+            task.RootPath = module.Path + Path.DirectorySeparatorChar;
+            task.Platform = platform;
+            task.ModuleName = module.Name;
             return task.Execute();
         }
 
@@ -348,7 +291,7 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
-        private static bool GenerateProjectsForPlatform(
+        private bool GenerateProjectsForPlatform(
             ModuleInfo module,
             string platform,
             string[] enabledServices = null,
@@ -357,19 +300,17 @@ namespace Protobuild
         {
             if (string.IsNullOrWhiteSpace(platform)) 
             {
-                platform = DetectPlatform();
+                platform = this.m_HostPlatformDetector.DetectPlatform();
             }
 
-            var task = new GenerateProjectsTask
-            {
-                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
-                RootPath = module.Path + Path.DirectorySeparatorChar,
-                Platform = platform,
-                ModuleName = module.Name,
-                EnableServices = enabledServices,
-                DisableServices = disabledServices,
-                ServiceSpecPath = serviceSpecPath
-            };
+            var task = this.m_LightweightKernel.Get<GenerateProjectsTask>();
+            task.SourcePath = Path.Combine(module.Path, "Build", "Projects");
+            task.RootPath = module.Path + Path.DirectorySeparatorChar;
+            task.Platform = platform;
+            task.ModuleName = module.Name;
+            task.EnableServices = enabledServices;
+            task.DisableServices = disabledServices;
+            task.ServiceSpecPath = serviceSpecPath;
             return task.Execute();
         }
 
@@ -379,21 +320,20 @@ namespace Protobuild
         /// <returns><c>true</c>, if projects were cleaned successfully, <c>false</c> otherwise.</returns>
         /// <param name="module">The module to clean projects in.</param>
         /// <param name="platform">The platform to clean for.</param>
-        private static bool CleanProjectsForPlatform(ModuleInfo module, string platform)
+        private bool CleanProjectsForPlatform(ModuleInfo module, string platform)
         {
             if (string.IsNullOrWhiteSpace(platform))
             {
-                platform = DetectPlatform();
+                platform = this.m_HostPlatformDetector.DetectPlatform();
             }
 
-            var task = new CleanProjectsTask
-            {
-                SourcePath = Path.Combine(module.Path, "Build", "Projects"),
-                RootPath = module.Path + Path.DirectorySeparatorChar,
-                Platform = platform,
-                ModuleName = module.Name
-            };
+            var task = this.m_LightweightKernel.Get<CleanProjectsTask>();
+            task.SourcePath = Path.Combine(module.Path, "Build", "Projects");
+            task.RootPath = module.Path + Path.DirectorySeparatorChar;
+            task.Platform = platform;
+            task.ModuleName = module.Name;
             return task.Execute();
         }
     }
 }
+

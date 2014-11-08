@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 
 namespace Protobuild.Tasks
 {
@@ -9,6 +10,26 @@ namespace Protobuild.Tasks
 
     public class GenerateProjectsTask : BaseTask
     {
+        private readonly IProjectLoader m_ProjectLoader;
+
+        private readonly IProjectGenerator m_ProjectGenerator;
+
+        private readonly ISolutionGenerator m_SolutionGenerator;
+
+        private readonly IJSILProvider m_JSILProvider;
+
+        public GenerateProjectsTask(
+            IProjectLoader projectLoader,
+            IProjectGenerator projectGenerator,
+            ISolutionGenerator solutionGenerator,
+            IJSILProvider jsilProvider)
+        {
+            this.m_ProjectLoader = projectLoader;
+            this.m_ProjectGenerator = projectGenerator;
+            this.m_SolutionGenerator = solutionGenerator;
+            this.m_JSILProvider = jsilProvider;
+        }
+
         public string SourcePath
         {
             get;
@@ -45,8 +66,7 @@ namespace Protobuild.Tasks
             {
                 // Trigger JSIL provider download if needed.
                 string jsilDirectory, jsilCompilerFile;
-                var jsilProvider = new JSILProvider();
-                if (!jsilProvider.GetJSIL(out jsilDirectory, out jsilCompilerFile))
+                if (!this.m_JSILProvider.GetJSIL(out jsilDirectory, out jsilCompilerFile))
                 {
                     return false;
                 }
@@ -68,24 +88,24 @@ namespace Protobuild.Tasks
                 "Starting generation of projects for " + this.Platform);
 
             var definitions = module.GetDefinitionsRecursively(this.Platform).ToArray();
+            var loadedProjects = new List<XmlDocument>();
 
-            var generator = new ProjectGenerator(
-                this.RootPath,
-                this.Platform,
-                this.LogMessage);
             foreach (var definition in definitions)
             {
                 this.LogMessage("Loading: " + definition.Name);
-                generator.Load(Path.Combine(
-                    definition.ModulePath,
-                    "Build",
-                    "Projects",
-                    definition.Name + ".definition"),
-                    module.Path,
-                    definition.ModulePath);
+                loadedProjects.Add(
+                    this.m_ProjectLoader.Load(
+                        Path.Combine(
+                            definition.ModulePath,
+                            "Build",
+                            "Projects",
+                            definition.Name + ".definition"),
+                        this.Platform,
+                        module.Path,
+                        definition.ModulePath));
             }
 
-            var serviceManager = new ServiceManager(generator);
+            var serviceManager = new ServiceManager(this.Platform);
             List<Service> services;
             string serviceSpecPath;
 
@@ -115,7 +135,7 @@ namespace Protobuild.Tasks
 
                 try
                 {
-                    services = serviceManager.CalculateDependencyGraph();
+                    services = serviceManager.CalculateDependencyGraph(loadedProjects);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -156,8 +176,11 @@ namespace Protobuild.Tasks
             {
                 string repositoryPath;
                 var definitionCopy = definition;
-                generator.Generate(
+                this.m_ProjectGenerator.Generate(
+                    loadedProjects,
+                    this.RootPath,
                     definition.Name,
+                    this.Platform,
                     services,
                     out repositoryPath,
                     () => this.LogMessage("Generating: " + definitionCopy.Name));
@@ -173,7 +196,13 @@ namespace Protobuild.Tasks
                 this.RootPath,
                 this.ModuleName + "." + this.Platform + ".sln");
             this.LogMessage("Generating: (solution)");
-            generator.GenerateSolution(module, solution, services, repositoryPaths);
+            this.m_SolutionGenerator.Generate(
+                module, 
+                loadedProjects,
+                this.Platform,
+                solution, 
+                services, 
+                repositoryPaths);
 
             // Only save the specification cache if we allow synchronisation
             if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)
