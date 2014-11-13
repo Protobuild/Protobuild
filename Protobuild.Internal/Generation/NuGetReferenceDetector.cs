@@ -62,18 +62,22 @@ namespace Protobuild
                 // out of the available versions.
                 string[] clrNames = new[]
                 {
-                    targetFramework,
-                    "net40-client",
-                    "Net40-client",
-                    "net40",
-                    "Net40",
-                    "net35",
-                    "Net35",
-                    "net20",
-                    "Net20",
-                    "20",
-                    "11",
-                    ""
+                    // Exact matches
+                    "=" + targetFramework,
+                    "=net40-client",
+                    "=Net40-client",
+                    "=net40",
+                    "=Net40",
+                    "=net35",
+                    "=Net35",
+                    "=net20",
+                    "=Net20",
+                    "=20",
+                    "=11",
+                    "=",
+
+                    // Substring matches
+                    "?net4",
                 };
 
                 // Determine the base path for all references; that is, the lib/ folder.
@@ -96,17 +100,46 @@ namespace Protobuild
                 {
                     // Search through all of the target frameworks until we find one that
                     // has at least one file in it.
-                    foreach (var clrName in clrNames)
+                    foreach (var clrNameOriginal in clrNames)
                     {
+                        var clrName = clrNameOriginal;
                         var foundClr = false;
 
-                        // If this target framework doesn't exist for this library, skip it.
-                        if (!Directory.Exists(
-                            Path.Combine(
+                        if (clrName[0] == '=')
+                        {
+                            // Exact match (strip the equals).
+                            clrName = clrName.Substring(1);
+
+                            // If this target framework doesn't exist for this library, skip it.
+                            var dirPath = Path.Combine(
                                 rootPath,
                                 referenceBasePath,
-                                clrName)))
-                            continue;
+                                clrName);
+                            if (!Directory.Exists(dirPath))
+                            {
+                                continue;
+                            }
+                        }
+                        else if (clrName[0] == '?')
+                        {
+                            // Substring, search the reference base path for any folders
+                            // with a matching substring.
+                            clrName = clrName.Substring(1);
+
+                            var baseDirPath = Path.Combine(rootPath, referenceBasePath);
+                            foreach (var subdir in new DirectoryInfo(baseDirPath).GetDirectories())
+                            {
+                                if (subdir.Name.Contains(clrName))
+                                {
+                                    clrName = subdir.Name;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Unknown CLR name match type with '" + clrName + "'");
+                        }
 
                         // Otherwise enumerate through all of the libraries in this folder.
                         foreach (var dll in Directory.EnumerateFiles(

@@ -19,3 +19,4 @@ StyleCop.Cache
 /Protobuild.Tests/TestData/ExtractXSLTWorks/Build/GenerateProject.xslt
 /Protobuild.Tests/TestData/ExtractXSLTWorks/Build/GenerateSolution.xslt
 /Protobuild.Tests/TestData/ExtractXSLTWorks/Build/GenerateProject.CSharp.xslt
+/Protobuild.Tests/TestData/NuGetPortableLibraryDetected/packages/repositories.config
