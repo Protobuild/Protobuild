@@ -39,6 +39,8 @@ namespace Protobuild
                 { "format", kernel.Get<FormatPackageCommand>() },
                 { "push", kernel.Get<PushPackageCommand>() },
                 { "resolve", kernel.Get<ResolveCommand>() },
+                { "swap-to-source", kernel.Get<SwapToSourceCommand>() },
+                { "swap-to-binary", kernel.Get<SwapToBinaryCommand>() },
                 { "start", kernel.Get<StartCommand>() },
             };
 
