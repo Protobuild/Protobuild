@@ -36,7 +36,7 @@ namespace Protobuild
                 {
                     newDoc.DocumentElement.Attributes["Path"].Value =
                         (additionalPath.Trim('\\') + '\\' +
-                            newDoc.DocumentElement.Attributes["Path"].Value).Trim('\\');
+                            newDoc.DocumentElement.Attributes["Path"].Value).Replace('/', '\\').Trim('\\');
                 }
                 if (newDoc.DocumentElement.Name == "ExternalProject")
                 {

@@ -19,6 +19,8 @@
 
             Assert.Contains("portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid", consoleContents);
             Assert.Contains("Test.dll", consoleContents);
+            Assert.Contains("<HintPath>..\\packages", consoleContents);
+            Assert.DoesNotContain("<HintPath>packages", consoleContents);
         }
     }
 }
