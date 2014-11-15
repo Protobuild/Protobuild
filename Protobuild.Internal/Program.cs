@@ -10,7 +10,7 @@ namespace Protobuild
     using System.Collections.Generic;
     using System.IO.Compression;
 
-    class MainClass
+    public static class MainClass
     {
         public static void Main(string[] args)
         {
