@@ -45,6 +45,8 @@
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="NuGetPortableLibraryDetectedTest.cs" />
+    <Compile Include="NuGetPortableLibraryDetectedTestWithRootPathDot.cs" />
+    <Compile Include="NuGetPortableLibraryDetectedTestWithRootPathDotSlash.cs" />
     <Compile Include="PackageEverythingCorrectGZipTest.cs" />
     <Compile Include="PackageEverythingCorrectLZMATest.cs" />
     <Compile Include="PackageEverythingFailWhenBuildModuleXmlNotPresent.cs" />
@@ -138,6 +140,16 @@
     <None Include="TestData\NuGetPortableLibraryDetected\Console\packages.config" />
     <None Include="TestData\NuGetPortableLibraryDetected\Console\Program.cs" />
     <None Include="TestData\NuGetPortableLibraryDetected\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDot\Build\Module.xml" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDot\Build\Projects\Console.definition" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDot\packages.config" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDot\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDot\Program.cs" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\Build\Module.xml" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\Build\Projects\Console.definition" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\packages.config" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
+    <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\Program.cs" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Module.xml" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Projects\Console.definition" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Console\Program.cs" />
