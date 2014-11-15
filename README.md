@@ -8,7 +8,7 @@ Define your project content once and compile code for every platform, in any IDE
 Getting Started
 ------------------
 
-Whether you're looking to start using Protobuild in your own project, or using it to generate an existing project, documentation such as usage guides can be found on the [Read the Docs](https://protobuild.readthedocs.org/).
+Whether you're looking to start using Protobuild in your own project, or using it to generate an existing project, documentation such as usage guides can be found on [Read the Docs](https://protobuild.readthedocs.org/).
 
 Supported Platforms
 --------------------
