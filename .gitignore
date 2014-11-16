@@ -22,3 +22,4 @@ StyleCop.Cache
 /Protobuild.Tests/TestData/NuGetPortableLibraryDetected/packages/repositories.config
 /Protobuild.Tests/TestData/NuGetPortableLibraryDetectedWithRootPathDot/packages/repositories.config
 /Protobuild.Tests/TestData/NuGetPortableLibraryDetectedWithRootPathDotSlash/packages/repositories.config
+/Protobuild.Tests/TestData/NuGetPackagesDetectedFromParent/Submodule/packages/repositories.config
