@@ -29,9 +29,38 @@ namespace Protobuild
                 var version = package.Attributes["version"].Value;
                 var targetFramework = (package.Attributes["targetFramework"] != null ? package.Attributes["targetFramework"].Value : null) ?? "";
 
+                // Locate the "packages" directory where NuGet packages have
+                // been restored to.  Traverse up the root path's parents 
+                // until we find it.
+                var pathWithPackagesFolder = rootPath;
+                while (pathWithPackagesFolder != null)
+                {
+                    if (Directory.Exists(Path.Combine(pathWithPackagesFolder, "packages", id + "." + version)))
+                    {
+                        break;
+                    }
+
+                    var parentDir = new DirectoryInfo(pathWithPackagesFolder).Parent;
+                    if (parentDir != null)
+                    {
+                        pathWithPackagesFolder = parentDir.FullName;
+                    }
+                    else
+                    {
+                        pathWithPackagesFolder = null;
+                    }
+                }
+
+                if (pathWithPackagesFolder == null)
+                {
+                    // Unable to find this package.
+                    continue;
+                }
+
+                var packagesFolder = Path.Combine(pathWithPackagesFolder, "packages");
+
                 var packagePath = Path.Combine(
-                    rootPath,
-                    "packages",
+                    packagesFolder,
                     id + "." + version,
                     id + "." + version + ".nuspec");
 
@@ -82,7 +111,7 @@ namespace Protobuild
 
                 // Determine the base path for all references; that is, the lib/ folder.
                 var referenceBasePath = Path.Combine(
-                    "packages",
+                    packagesFolder,
                     id + "." + version,
                     "lib");
 

@@ -44,6 +44,7 @@
     <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
+    <Compile Include="NuGetPackagesDetectedFromParentTest.cs" />
     <Compile Include="NuGetPortableLibraryDetectedTest.cs" />
     <Compile Include="NuGetPortableLibraryDetectedTestWithRootPathDot.cs" />
     <Compile Include="NuGetPortableLibraryDetectedTestWithRootPathDotSlash.cs" />
@@ -135,6 +136,13 @@
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />
     <None Include="TestData\NativeBinaryPresent\Console\Program.cs" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\Build\Module.xml" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\Build\Projects\.gitkeep" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\Submodule\Build\Module.xml" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\Submodule\Build\Projects\Console.definition" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\Submodule\Console\packages.config" />
+    <None Include="TestData\NuGetPackagesDetectedFromParent\Submodule\Console\Program.cs" />
     <None Include="TestData\NuGetPortableLibraryDetected\Build\Module.xml" />
     <None Include="TestData\NuGetPortableLibraryDetected\Build\Projects\Console.definition" />
     <None Include="TestData\NuGetPortableLibraryDetected\Console\packages.config" />
