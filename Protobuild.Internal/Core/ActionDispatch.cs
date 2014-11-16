@@ -243,6 +243,9 @@ namespace Protobuild
             if (module.DisableSynchronisation ?? false)
             {
                 Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+                Console.WriteLine("To generate projects, use the --generate option instead.");
+
+                return false;
             }
             else
             {
@@ -250,9 +253,9 @@ namespace Protobuild
                 {
                     return false;
                 }
-            }
 
-            return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath);
+                return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath);
+            }
         }
 
         /// <summary>

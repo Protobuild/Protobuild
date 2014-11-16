@@ -58,6 +58,7 @@
     <Compile Include="PackageFilterCorrectTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
+    <Compile Include="ResyncPreventedWhenSyncIsDisabledTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
     <Compile Include="ServicesDefaultForRootTest.cs" />
     <Compile Include="ServicesDependenciesPlatformsTest.cs" />
@@ -187,6 +188,9 @@
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleB\Program.cs" />
+    <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Build\Module.xml" />
+    <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Build\Projects\Console.definition" />
+    <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Console\Program.cs" />
     <None Include="TestData\ServicesBaseTest\Build\Projects\Console.definition" />
     <None Include="TestData\ServicesBaseTest\Console\Program.cs" />
     <None Include="TestData\ServicesBaseTest\Submodule\Build\Projects\Library.definition" />
