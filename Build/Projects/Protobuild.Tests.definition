@@ -42,6 +42,7 @@
     <Compile Include="ExampleCocos2DXNATest.cs" />
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
+    <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentTest.cs" />
@@ -130,6 +131,14 @@
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.DirectX.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.OpenGL.cs" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Module.xml" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\Console.definition" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\ExternalA.definition" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\ExternalB.definition" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\ExternalC.definition" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\ExternalD.definition" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\ExternalE.definition" />
+    <None Include="TestData\ExternalProjectReferencesAreFlattened\Console\Program.cs" />
     <None Include="TestData\ExtractXSLTWorks\Build\Module.xml" />
     <None Include="TestData\ExtractXSLTWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ExtractXSLTWorks\Console\Program.cs" />

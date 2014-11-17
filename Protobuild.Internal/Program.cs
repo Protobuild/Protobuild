@@ -23,6 +23,7 @@ namespace Protobuild
             kernel.BindGeneration();
             kernel.BindJSIL();
             kernel.BindTargets();
+            kernel.BindFileFilter();
 
             var commandMappings = new Dictionary<string, ICommand>
             {

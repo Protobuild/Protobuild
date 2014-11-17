@@ -23,16 +23,20 @@ namespace Protobuild
 
         private readonly IExcludedServiceAwareProjectDetector m_ExcludedServiceAwareProjectDetector;
 
+        private readonly IExternalProjectReferenceResolver m_ExternalProjectReferenceResolver;
+
         public ProjectGenerator(
             IResourceProvider resourceProvider,
             INuGetConfigMover nuGetConfigMover,
             IProjectInputGenerator projectInputGenerator,
-            IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector)
+            IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
+            IExternalProjectReferenceResolver externalProjectReferenceResolver)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
             this.m_ProjectInputGenerator = projectInputGenerator;
             this.m_ExcludedServiceAwareProjectDetector = excludedServiceAwareProjectDetector;
+            this.m_ExternalProjectReferenceResolver = externalProjectReferenceResolver;
         }
 
         /// <summary>
@@ -112,6 +116,11 @@ namespace Protobuild
 
             // Inform the user we're generating this project.
             onActualGeneration();
+
+            // Imply external project references from other external projects.  We do
+            // this so that external projects can reference other external projects (which
+            // we can't reasonably handle at the XSLT level since it's recursive).
+            this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(documents, projectDoc);
 
             // Work out what path to save at.
             var path = Path.Combine(

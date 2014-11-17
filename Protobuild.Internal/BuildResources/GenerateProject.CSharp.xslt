@@ -371,6 +371,10 @@
         <xsl:when test="$type = 'Website'">
           <xsl:text></xsl:text>
         </xsl:when>
+        <!-- 
+            IMPORTANT: When modifying this, or adding new options, 
+            remember to update AutomaticProjectPackager as well.
+        -->
         <xsl:when test="user:IsTrue(/Input/Properties/ProjectSpecificOutputFolder)">
           <xsl:value-of select="$projectname" />
           <xsl:text>\</xsl:text>
@@ -1078,7 +1082,8 @@
 
               <xsl:for-each select="$extern/Reference">
                 <xsl:variable name="refd-name" select="@Include" />
-                <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
+                <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
+                              count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
                   <Reference>
                     <xsl:attribute name="Include">
                       <xsl:value-of select="@Include" />
@@ -1095,7 +1100,8 @@
                                       [@Type=/Input/Generation/Platform]">
                 <xsl:for-each select="./Reference">
                   <xsl:variable name="refd-name" select="@Include" />
-                  <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
+                  <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
+                                count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
                     <Reference>
                       <xsl:attribute name="Include">
                         <xsl:value-of select="@Include" />
@@ -1116,7 +1122,8 @@
                     /Input/Services/ActiveServicesNames)">
                     <xsl:for-each select="./Reference">
                       <xsl:variable name="refd-name" select="@Include" />
-                      <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
+                      <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
+                                    count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
                         <Reference>
                           <xsl:attribute name="Include">
                             <xsl:value-of select="@Include" />
@@ -1140,7 +1147,8 @@
                   /Input/Services/ActiveServicesNames)">
                   <xsl:for-each select="./Reference">
                     <xsl:variable name="refd-name" select="@Include" />
-                    <xsl:if test="count(/Input/Projects/Project[@Name=refd-name]) = 0">
+                    <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
+                                  count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
                       <Reference>
                         <xsl:attribute name="Include">
                           <xsl:value-of select="@Include" />

@@ -8,41 +8,91 @@ namespace Protobuild
 {
     public class FileFilter : IEnumerable<KeyValuePair<string, string>>
     {
+        private readonly IAutomaticProjectPackager m_AutomaticProjectPackager;
+        private readonly ModuleInfo m_RootModule;
+        private readonly string m_Platform;
+
         private List<string> m_SourceFiles = new List<string>();
         private Dictionary<string, string> m_FileMappings = new Dictionary<string, string>();
 
-        public FileFilter(IEnumerable<string> filenames)
+        public FileFilter(
+            IAutomaticProjectPackager automaticProjectPackager,
+            ModuleInfo rootModule,
+            string platform,
+            IEnumerable<string> filenames)
         {
+            this.m_AutomaticProjectPackager = automaticProjectPackager;
+            this.m_RootModule = rootModule;
+            this.m_Platform = platform;
+
             foreach (string s in filenames)
                 this.m_SourceFiles.Add(s);
         }
 
-        public void ApplyInclude(string regex)
+        public void AddManualMapping(string source, string destination)
         {
-            var re = new Regex(regex);
-            foreach (string s in this.m_SourceFiles)
-                if (re.IsMatch(s))
-                    this.m_FileMappings.Add(s, s);
+            this.m_FileMappings.Add(source, destination);
         }
 
-        public void ApplyExclude(string regex)
+        public bool ApplyInclude(string regex)
         {
+            var didMatch = false;
+            var re = new Regex(regex);
+            foreach (string s in this.m_SourceFiles)
+            {
+                if (re.IsMatch(s))
+                {
+                    this.m_FileMappings.Add(s, s);
+                    didMatch = true;
+                }
+            }
+            return didMatch;
+        }
+
+        public bool ApplyExclude(string regex)
+        {
+            var didMatch = false;
             var re = new Regex(regex);
             var toRemove = new List<string>();
             foreach (KeyValuePair<string, string> kv in this.m_FileMappings)
+            {
                 if (re.IsMatch(kv.Value))
+                {
                     toRemove.Add(kv.Key);
+                    didMatch = true;
+                }
+            }
             foreach (string s in toRemove)
+            {
                 this.m_FileMappings.Remove(s);
+            }
+            return didMatch;
         }
 
-        public void ApplyRewrite(string find, string replace)
+        public bool ApplyRewrite(string find, string replace)
         {
+            var didMatch = false;
             var re = new Regex(find);
             var copy = new Dictionary<string, string>(this.m_FileMappings);
             foreach (KeyValuePair<string, string> kv in copy)
+            {
                 if (re.IsMatch(kv.Value))
+                {
                     this.m_FileMappings[kv.Key] = re.Replace(kv.Value, replace);
+                    didMatch = true;
+                }
+            }
+            return didMatch;
+        }
+
+        public void ApplyAutoProject()
+        {
+            if (this.m_RootModule == null)
+            {
+                throw new InvalidOperationException("The 'autoproject' directive was used, but the source folder for packaging is not a Protobuild module.");
+            }
+
+            this.m_AutomaticProjectPackager.AutoProject(this, this.m_RootModule, this.m_Platform);
         }
 
         public void ImplyDirectories()

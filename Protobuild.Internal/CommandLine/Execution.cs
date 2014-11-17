@@ -31,6 +31,8 @@ namespace Protobuild
 
         public string PackageFormat { get; set; }
 
+        public string PackagePlatform { get; set; }
+
         public string PackagePushApiKey { get; set; }
 
         public string PackagePushFile { get; set; }

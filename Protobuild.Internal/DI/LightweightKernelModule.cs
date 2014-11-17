@@ -18,6 +18,7 @@
         public static void BindGeneration(this LightweightKernel kernel)
         {
             kernel.Bind<IExcludedServiceAwareProjectDetector, ExcludedServiceAwareProjectDetector>();
+            kernel.Bind<IExternalProjectReferenceResolver, ExternalProjectReferenceResolver>();
             kernel.Bind<IContentProjectGenerator, ContentProjectGenerator>();
             kernel.Bind<INuGetConfigMover, NuGetConfigMover>();
             kernel.Bind<INuGetReferenceDetector, NuGetReferenceDetector>();
@@ -39,6 +40,12 @@
         public static void BindTargets(this LightweightKernel kernel)
         {
             kernel.Bind<ILanguageStringProvider, LanguageStringProvider>();
+        }
+
+        public static void BindFileFilter(this LightweightKernel kernel)
+        {
+            kernel.Bind<IAutomaticProjectPackager, AutomaticProjectPackager>();
+            kernel.Bind<IFileFilterParser, FileFilterParser>();
         }
     }
 }

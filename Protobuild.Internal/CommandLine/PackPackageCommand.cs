@@ -8,6 +8,22 @@ namespace Protobuild
 {
     public class PackPackageCommand : ICommand
     {
+        private readonly IAutomaticProjectPackager m_AutomaticProjectPackager;
+
+        private readonly IFileFilterParser m_FileFilterParser;
+
+        private readonly IHostPlatformDetector m_HostPlatformDetector;
+
+        public PackPackageCommand(
+            IAutomaticProjectPackager automaticProjectPackager,
+            IFileFilterParser fileFilterParser,
+            IHostPlatformDetector hostPlatformDetector)
+        {
+            this.m_AutomaticProjectPackager = automaticProjectPackager;
+            this.m_HostPlatformDetector = hostPlatformDetector;
+            this.m_FileFilterParser = fileFilterParser;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -20,6 +36,7 @@ namespace Protobuild
             pendingExecution.PackageSourceFolder = new DirectoryInfo(args[0]).FullName;
             pendingExecution.PackageDestinationFile = new FileInfo(args[1]).FullName;
             pendingExecution.PackageFilterFile = args.Length >= 3 ? args[2] : null;
+            pendingExecution.PackagePlatform = args.Length >= 4 ? args[3] : this.m_HostPlatformDetector.DetectPlatform();
         }
 
         public int Execute(Execution execution)
@@ -32,11 +49,22 @@ namespace Protobuild
             FileFilter filter;
             if (execution.PackageFilterFile != null)
             {
-                filter = FileFilterParser.Parse(execution.PackageFilterFile, GetRecursiveFilesInPath(execution.PackageSourceFolder));
+                var moduleExpectedPath = Path.Combine(execution.PackageSourceFolder, "Build", "Module.xml");
+                var module = File.Exists(moduleExpectedPath) ? ModuleInfo.Load(moduleExpectedPath) : null;
+                filter = this.m_FileFilterParser.Parse(
+                    module,
+                    execution.PackagePlatform,
+                    execution.PackageFilterFile,
+                    GetRecursiveFilesInPath(execution.PackageSourceFolder));
             }
             else
             {
-                filter = new FileFilter(GetRecursiveFilesInPath(execution.PackageSourceFolder));
+                // We do not use the automatic packager here.
+                filter = new FileFilter(
+                    null, 
+                    null, 
+                    null,
+                    GetRecursiveFilesInPath(execution.PackageSourceFolder));
                 filter.ApplyInclude(".*");
             }
 
