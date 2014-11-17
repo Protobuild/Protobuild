@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="ExternalC">
+  <Reference Include="ExternalD" />
+
+  <Platform Name="Windows">
+    <!-- 
+      This should not work, external project
+      references are only supported at the top level
+    -->
+    <Reference Include="ExternalE" />
+  </Platform>
+</ExternalProject>

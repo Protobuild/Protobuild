@@ -78,6 +78,11 @@ namespace Protobuild
                 actual = original;
             }
 
+            if (actual.IsInterface)
+            {
+                throw new InvalidOperationException("Resolved type " + actual.FullName + " was an interface; make sure there is a binding present!");
+            }
+
             var constructor = actual.GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
 
             if (constructor == null)
