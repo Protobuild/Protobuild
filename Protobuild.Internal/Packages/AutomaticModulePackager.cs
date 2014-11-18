@@ -467,10 +467,37 @@ namespace Protobuild
                     }
                 case OutputPathMode.BinPlatformArchConfiguration:
                     {
-                        // In this configuration, we ship binaries for all
-                        // .NET architectures, but only for the current
-                        // platform.
-                        var pathPrefix = definition.Path.Replace(".", "\\.") + "/bin/" + platform + "/([^/]+)/([^/]+)/";
+                        // In this configuration, we ship binaries for AnyCPU, iPhone or all .NET architectures
+                        // depending on whether or not the platform produces multiple architectures.  On Mono,
+                        // we can't use $(Platform) within a reference's path, so we have to keep this path static
+                        // for Mono platforms.
+                        string pathArchMatch, pathArchReplace, pathArchRuntime;
+                        switch (platform.ToLowerInvariant())
+                        {
+                            case "ios":
+                                {
+                                    pathArchMatch = "iPhone";
+                                    pathArchReplace = "iPhone";
+                                    pathArchRuntime = "iPhone";
+                                    break;
+                                }
+                            case "windowsphone":
+                                {
+                                    pathArchMatch = "([^/]+)";
+                                    pathArchReplace = "$1";
+                                    pathArchRuntime = "$(Platform)";
+                                    break;
+                                }
+                            default:
+                                {
+                                    pathArchMatch = "AnyCPU";
+                                    pathArchReplace = "AnyCPU";
+                                    pathArchRuntime = "AnyCPU";
+                                    break;
+                                }
+                        }
+
+                        var pathPrefix = definition.Path.Replace(".", "\\.") + "/bin/" + platform + "/" + pathArchMatch + "/([^/]+)/";
 
                         if (definition.Type == "Library")
                         {
@@ -479,20 +506,20 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", definition.Name + "/$1/" + assemblyFile);
+                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", definition.Name + "/" + pathArchReplace + "/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {
                                     if (assemblyFile.EndsWith(".dll"))
                                     {
                                         var binaryEntry = externalProjectDocument.CreateElement("Binary");
                                         binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
-                                        binaryEntry.SetAttribute("Path", definition.Name + "\\$(Platform)\\" + assemblyFile);
+                                        binaryEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyFile);
                                         externalProject.AppendChild(binaryEntry);
                                     }
                                     else if (assemblyFile.EndsWith(".dll.config"))
                                     {
                                         var configEntry = externalProjectDocument.CreateElement("NativeBinary");
-                                        configEntry.SetAttribute("Path", definition.Name + "\\$(Platform)\\" + assemblyFile);
+                                        configEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyFile);
                                         externalProject.AppendChild(configEntry);
                                     }
                                 }

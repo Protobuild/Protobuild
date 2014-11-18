@@ -25,6 +25,12 @@ namespace Protobuild
 
         public void AddFile(DeduplicatorState state, FileInfo sourceFile, string destinationPath)
         {
+            if (state.DestinationToFileHash.ContainsKey(destinationPath))
+            {
+                // File has already been added.
+                return;
+            }
+
             // Read the source file.
             var memory = new MemoryStream();
             using (var stream = new BufferedStream(new FileStream(sourceFile.FullName, FileMode.Open, FileAccess.Read, FileShare.None), 1200000))
