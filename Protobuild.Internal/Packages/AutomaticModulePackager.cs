@@ -534,7 +534,15 @@ namespace Protobuild
                             // For executables, we ship everything in the output directory, because we
                             // want the executables to be able to run from the package directory.
                             fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
-                            fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/$1/$3");
+
+                            if (pathArchMatch == "([^/]+)")
+                            {
+                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/" + pathArchReplace + "/$3");
+                            }
+                            else
+                            {
+                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/" + pathArchReplace + "/$2");
+                            }
                         }
 
                         break;
