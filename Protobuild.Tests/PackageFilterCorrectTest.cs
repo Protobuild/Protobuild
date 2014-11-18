@@ -10,7 +10,7 @@
         {
             this.SetupTest("PackageFilterCorrect", isPackTest: true);
 
-            this.OtherMode("pack", args: ". Windows.tar.lzma Build/Publish/Filter.Windows.txt", purge: false);
+            this.OtherMode("pack", args: ". Windows.tar.lzma Windows Build/Publish/Filter.Windows.txt", purge: false);
 
             var packagedFiles = this.LoadPackage("Windows.tar.lzma");
 
@@ -30,7 +30,7 @@
                 }
             }
 
-            this.OtherMode("pack", args: ". Linux.tar.lzma Build/Publish/Filter.Linux.txt", purge: false);
+            this.OtherMode("pack", args: ". Linux.tar.lzma Linux Build/Publish/Filter.Linux.txt", purge: false);
 
             packagedFiles = this.LoadPackage("Linux.tar.lzma");
 

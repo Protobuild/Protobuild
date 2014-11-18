@@ -71,15 +71,12 @@ namespace tar_cs
         /// <seealso cref="MoveNext"/>
         public void Read(Stream dataDestanation)
         {
-            Debug.WriteLine("tar stream position Read in: " + inStream.Position);
             int readBytes;
             byte[] read;
             while ((readBytes = Read(out read)) != -1)
             {
-                Debug.WriteLine("tar stream position Read while(...) : " + inStream.Position);
                 dataDestanation.Write(read, 0, readBytes);
             }
-            Debug.WriteLine("tar stream position Read out: " + inStream.Position);
         }
 
         protected int Read(out byte[] buffer)
@@ -147,7 +144,6 @@ namespace tar_cs
         /// <seealso cref="Read(Stream)"/>
         public bool MoveNext(bool skipData)
         {
-            Debug.WriteLine("tar stream position MoveNext in: " + inStream.Position);
             if (remainingBytesInFile > 0)
             {
                 if (!skipData)
@@ -183,7 +179,6 @@ namespace tar_cs
                 headerRead = inStream.Read(bytes, 0, header.HeaderSize);
                 if(headerRead == 512 && IsEmpty(bytes))
                 {
-                    Debug.WriteLine("tar stream position MoveNext  out(false): " + inStream.Position);
                     return false;
                 }
                 throw new TarException("Broken archive");
@@ -196,7 +191,6 @@ namespace tar_cs
 
             remainingBytesInFile = header.SizeInBytes;
 
-            Debug.WriteLine("tar stream position MoveNext  out(true): " + inStream.Position);
             return true;
         }
     }

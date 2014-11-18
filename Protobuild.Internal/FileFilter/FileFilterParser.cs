@@ -8,20 +8,8 @@ namespace Protobuild
 {
     public class FileFilterParser : IFileFilterParser
     {
-        private readonly IAutomaticProjectPackager m_AutomaticProjectPackager;
-
-        public FileFilterParser(IAutomaticProjectPackager automaticProjectPackager)
+        public void ParseAndApply(FileFilter result, Stream inputFilterFile, Dictionary<string, Action<FileFilter>> customDirectives)
         {
-            this.m_AutomaticProjectPackager = automaticProjectPackager;
-        }
-
-        public FileFilter Parse(ModuleInfo rootModule, string platform, string path, IEnumerable<string> filenames)
-        {
-            var result = new FileFilter(
-                this.m_AutomaticProjectPackager,
-                rootModule,
-                platform,
-                filenames);
             var isSlashed = false;
             Action init = () =>
             {
@@ -41,14 +29,13 @@ namespace Protobuild
                 isSlashed = false;
                 return false;
             };
-            using (var reader = new StreamReader(path))
+            using (var reader = new StreamReader(inputFilterFile))
             {
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
                     if (line.TrimStart().StartsWith("#") || line.Trim() == "")
                         continue;
-                    line = line.Replace("%PLATFORM%", platform);
                     var mode = line.Split(splitter, 2).ToStringArray()[0];
                     switch (mode)
                     {
@@ -61,13 +48,16 @@ namespace Protobuild
                         case "rewrite":
                             result.ApplyRewrite(line.Init(init).Split(splitter, 3).ToStringArray()[1], line.Split(splitter, 3).ToStringArray()[2]);
                             break;
-                        case "autoproject":
-                            result.ApplyAutoProject();
+                        default:
+                            if (customDirectives.ContainsKey(mode))
+                            {
+                                customDirectives[mode](result);
+                            }
                             break;
                     }
                 }
             }
-            return result;
+            return;
         }
     }
 }

@@ -17,6 +17,7 @@ namespace tar_cs
     public interface ITarHeader
     {
         string FileName { get; set; }
+        string LinkName { get; set; }
         int Mode { get; set; }
         int UserId { get; set; }
         string UserName { get; set; }

@@ -45,7 +45,7 @@ namespace LZMA
 
         private static object m_DecoderLock = new object();
 
-        public static void Compress(Stream inStream, Stream outStream)
+        public static void Compress(Stream inStream, Stream outStream, ICodeProgress progress = null)
         {
             lock (m_EncoderLock)
             {
@@ -58,11 +58,11 @@ namespace LZMA
                 m_Encoder.WriteCoderProperties(outStream);
                 long fileSize = inStream.Length;
                 for (int i = 0; i < 8; i++) outStream.WriteByte((Byte)(fileSize >> (8 * i)));
-                m_Encoder.Code(inStream, outStream, -1, -1, null);
+                m_Encoder.Code(inStream, outStream, -1, -1, progress);
             }
         }
 
-        public static void Decompress(Stream newInStream, Stream newOutStream)
+        public static void Decompress(Stream newInStream, Stream newOutStream, ICodeProgress progress = null)
         {
             lock (m_DecoderLock)
             {
@@ -86,7 +86,7 @@ namespace LZMA
 
                 m_Decoder.SetDecoderProperties(m_DecoderProps);
                 long compressedSize = newInStream.Length - newInStream.Position;
-                m_Decoder.Code(newInStream, newOutStream, compressedSize, outSize, null);
+                m_Decoder.Code(newInStream, newOutStream, compressedSize, outSize, progress);
             }
         }
     }

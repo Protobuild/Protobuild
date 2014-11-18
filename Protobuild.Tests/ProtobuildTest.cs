@@ -151,28 +151,8 @@ namespace Protobuild.Tests
                         decompress.Seek(0, SeekOrigin.Begin);
 
                         var archive = new tar_cs.TarReader(decompress);
-
-                        while (archive.MoveNext(false))
-                        {
-                            string fileNameFromArchive = archive.FileInfo.FileName;
-
-                            if(tar_cs.UsTarHeader.IsPathSeparator(fileNameFromArchive[fileNameFromArchive.Length -1]) || 
-                                archive.FileInfo.EntryType == tar_cs.EntryType.Directory)
-                            {
-                                results.Add(fileNameFromArchive.TrimEnd('/') + "/", null);
-                                continue;
-                            }
-
-                            using (var temporary = new MemoryStream())
-                            {
-                                archive.Read(temporary);
-                                var pos = (int)temporary.Position;
-                                var bytes = new byte[pos];
-                                temporary.Seek(0, SeekOrigin.Begin);
-                                temporary.Read(bytes, 0, bytes.Length);
-                                results.Add(fileNameFromArchive, bytes);
-                            }
-                        }
+                        var deduplicator = new Reduplicator();
+                        return deduplicator.UnpackTarToMemory(archive);
                     }
                 }
             }
@@ -183,27 +163,8 @@ namespace Protobuild.Tests
                     using (var gzip = new GZipStream(file, CompressionMode.Decompress))
                     {
                         var archive = new tar_cs.TarReader(gzip);
-
-                        while (archive.MoveNext(false))
-                        {
-                            string fileNameFromArchive = archive.FileInfo.FileName;
-                            if(tar_cs.UsTarHeader.IsPathSeparator(fileNameFromArchive[fileNameFromArchive.Length -1]) || 
-                                archive.FileInfo.EntryType == tar_cs.EntryType.Directory)
-                            {
-                                results.Add(fileNameFromArchive.TrimEnd('/') + "/", null);
-                                continue;
-                            }
-
-                            using (var temporary = new MemoryStream())
-                            {
-                                archive.Read(temporary);
-                                var pos = (int)temporary.Position;
-                                var bytes = new byte[pos];
-                                temporary.Seek(0, SeekOrigin.Begin);
-                                temporary.Read(bytes, 0, bytes.Length);
-                                results.Add(fileNameFromArchive, bytes);
-                            }
-                        }
+                        var deduplicator = new Reduplicator();
+                        return deduplicator.UnpackTarToMemory(archive);
                     }
                 }
             }

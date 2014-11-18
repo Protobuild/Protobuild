@@ -44,8 +44,13 @@
 
         public static void BindFileFilter(this LightweightKernel kernel)
         {
-            kernel.Bind<IAutomaticProjectPackager, AutomaticProjectPackager>();
             kernel.Bind<IFileFilterParser, FileFilterParser>();
+        }
+
+        public static void BindPackages(this LightweightKernel kernel)
+        {
+            kernel.Bind<IAutomaticModulePackager, AutomaticModulePackager>();
+            kernel.Bind<IDeduplicator, Deduplicator>();
         }
     }
 }

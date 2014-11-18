@@ -625,7 +625,8 @@ namespace Protobuild
                                 decompress.CopyTo(memory2);
                                 memory2.Seek(0, SeekOrigin.Begin);
                                 var reader = new tar_cs.TarReader(memory2);
-                                reader.ReadToEnd(folder);
+                                var reduplicator = new Reduplicator();
+                                reduplicator.UnpackTarToFolder(reader, folder);
                             }
                         }
                     }
@@ -640,7 +641,8 @@ namespace Protobuild
                             LZMA.LzmaHelper.Decompress(inMemory, outMemory);
                             outMemory.Seek(0, SeekOrigin.Begin);
                             var reader = new tar_cs.TarReader(outMemory);
-                            reader.ReadToEnd(folder);
+                            var reduplicator = new Reduplicator();
+                            reduplicator.UnpackTarToFolder(reader, folder);
                         }
                     }
                     break;
