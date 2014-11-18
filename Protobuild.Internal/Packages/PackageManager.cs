@@ -357,6 +357,7 @@ namespace Protobuild
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;
+                    var downloadProgressRenderer = new DownloadProgressRenderer();
                     client.DownloadDataCompleted += (sender, e) => {
                         if (e.Error != null)
                         {
@@ -369,7 +370,7 @@ namespace Protobuild
                     client.DownloadProgressChanged += (sender, e) => {
                         if (!done)
                         {
-                            Console.Write("\rDownloading package; " + e.ProgressPercentage + "% complete (" + (e.BytesReceived / 1024) + "kb received)");
+                            downloadProgressRenderer.Update(e.ProgressPercentage, e.BytesReceived / 1024);
                         }
                     };
                     client.DownloadDataAsync(new Uri(packageUri));

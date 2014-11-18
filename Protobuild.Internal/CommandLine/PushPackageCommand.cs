@@ -56,7 +56,7 @@ namespace Protobuild
                 var uploadTarget = (string)json.result.uploadUrl;
                 var finalizeTarget = (string)json.result.finalizeUrl;
 
-                Console.WriteLine("Uploading package file to Google Cloud Storage...");
+                Console.Write("Uploading package...");
                 this.PushBinary(uploadTarget, execution.PackagePushFile);
 
                 Console.WriteLine("Finalizing package version...");
@@ -163,6 +163,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;
+                    var uploadProgressRenderer = new UploadProgressRenderer();
                     client.UploadDataCompleted += (sender, e) => {
                         if (e.Error != null)
                         {
@@ -175,7 +176,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     client.UploadProgressChanged += (sender, e) => {
                         if (!done)
                         {
-                            Console.Write("\rUploading package; " + e.ProgressPercentage + "% complete (" + (e.BytesSent / 1024) + "kb sent)");
+                            uploadProgressRenderer.Update(e.ProgressPercentage, e.BytesSent / 1024);
                         }
                     };
                     client.UploadDataAsync(new Uri(targetUri), "PUT", bytes);

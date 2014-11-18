@@ -200,7 +200,7 @@ namespace Protobuild
 
                             Console.Write("Deduplicating files in package...");
 
-                            var progressHelper = new DedupProgress(DateTime.Now, filter.Count());
+                            var progressHelper = new DedupProgressRenderer(filter.Count());
                             var current = 0;
 
                             foreach (var kv in filter.OrderBy(kv => kv.Value))
@@ -256,7 +256,7 @@ namespace Protobuild
                         {
                             Console.Write("Compressing package...");
 
-                            var progressHelper = new CompressProgress(DateTime.Now, archive.Length);
+                            var progressHelper = new CompressProgressRenderer(archive.Length);
 
                             LZMA.LzmaHelper.Compress(archive, target, progressHelper);
 
@@ -318,79 +318,6 @@ If a filter file is specified, performs the steps in the filter file instead.
             foreach (var kv in mappings)
             {
                 Console.WriteLine("  " + kv.Key + " -> " + kv.Value);
-            }
-        }
-
-        private class CompressProgress : LZMA.ICodeProgress
-        {
-            private readonly DateTime m_StartTime;
-            private readonly long m_InLength;
-            private long m_CycleCheck;
-            private bool m_IsShowingProgress;
-
-            public CompressProgress(DateTime startTime, long inLength)
-            {
-                this.m_StartTime = startTime;
-                this.m_InLength = inLength;
-            }
-
-            public bool IsShowingProgress { get { return this.m_IsShowingProgress; } }
-
-            public void SetProgress(long inSize, long outSize)
-            {
-                if (this.m_IsShowingProgress)
-                {
-                    var progress = (int)((inSize / (double)this.m_InLength) * 100);
-                    var ratio = (int)((outSize / (double)inSize) * 100);
-                    Console.Write("\rCompressing package; " + progress + "% complete (" + (inSize / 1024) + "kb compressed to " + (outSize / 1024) + "kb, " + ratio + "% of it's original size)");
-                    return;
-                }
-
-                this.m_CycleCheck++;
-                if (this.m_CycleCheck > 1000)
-                {
-                    this.m_CycleCheck = 0;
-
-                    if ((DateTime.Now - this.m_StartTime).TotalSeconds >= 5)
-                    {
-                        this.m_IsShowingProgress = true;
-                    }
-                }
-            }
-        }
-
-        private class DedupProgress
-        {
-            private readonly DateTime m_StartTime;
-            private readonly long m_Total;
-            private long m_CycleCheck;
-            private bool m_IsShowingProgress;
-
-            public DedupProgress(DateTime startTime, int total)
-            {
-                this.m_StartTime = startTime;
-                this.m_Total = total;
-            }
-
-            public void SetProgress(int current)
-            {
-                if (this.m_IsShowingProgress)
-                {
-                    var progress = (int)((current / (double)this.m_Total) * 100);
-                    Console.Write("\rDeduplicating files in package; " + progress + "% complete (" + current + " of " + this.m_Total + " files)");
-                    return;
-                }
-
-                this.m_CycleCheck++;
-                if (this.m_CycleCheck > 1000)
-                {
-                    this.m_CycleCheck = 0;
-
-                    if ((DateTime.Now - this.m_StartTime).TotalSeconds >= 5)
-                    {
-                        this.m_IsShowingProgress = true;
-                    }
-                }
             }
         }
     }
