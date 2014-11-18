@@ -170,6 +170,11 @@
     <Compile Include="Packages\PlatformAndServiceActiveDetection.cs" />
     <Compile Include="Packages\Reduplicator.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ProgressRenderer\BaseProgressRenderer.cs" />
+    <Compile Include="ProgressRenderer\CompressProgressRenderer.cs" />
+    <Compile Include="ProgressRenderer\DedupProgressRenderer.cs" />
+    <Compile Include="ProgressRenderer\DownloadProgressRenderer.cs" />
+    <Compile Include="ProgressRenderer\UploadProgressRenderer.cs" />
     <Compile Include="ProjectReader\CSharpProject.cs" />
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
