@@ -10,7 +10,7 @@
         {
             this.SetupTest("PackageFilterCorrectModuleXml", isPackTest: true);
 
-            this.OtherMode("pack", args: ". Windows.tar.lzma Filter.Windows.txt", purge: false);
+            this.OtherMode("pack", args: ". Windows.tar.lzma Windows Filter.Windows.txt", purge: false);
 
             var packagedFiles = this.LoadPackage("Windows.tar.lzma");
 

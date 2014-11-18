@@ -9,11 +9,11 @@ namespace tar_cs
     /// </summary>
     internal class UsTarHeader : TarHeader
     {
-        private const string magic = "ustar";
+        private const string magic = "ustar\0";
         private const string version = "  ";
         private string groupName;
 
-        private string namePrefix = string.Empty;
+        public string namePrefix = string.Empty;
         private string userName;
 
         public override string UserName
@@ -47,13 +47,13 @@ namespace tar_cs
             get { return namePrefix.Replace("\0", string.Empty) + base.FileName.Replace("\0", string.Empty); }
             set
             {
-                if (value.Length > 100)
+                if (value.Length >= 100)
                 {
                     if (value.Length > 255)
                     {
                         throw new TarException("UsTar fileName can not be longer thatn 255 chars");
                     }
-                    int position = value.Length - 100;
+                    int position = value.Length - 99;
 
                     // Find first path separator in the remaining 100 chars of the file name
                     while (!IsPathSeparator(value[position]))
@@ -65,7 +65,7 @@ namespace tar_cs
                         }
                     }
                     if (position == value.Length)
-                        position = value.Length - 100;
+                        position = value.Length - 99;
                     namePrefix = value.Substring(0, position);
                     base.FileName = value.Substring(position, value.Length - position);
                 }
@@ -79,9 +79,9 @@ namespace tar_cs
         public override bool UpdateHeaderFromBytes()
         {
             byte[] bytes = GetBytes();
-            UserName = Encoding.ASCII.GetString(bytes, 0x109, 32);
-            GroupName = Encoding.ASCII.GetString(bytes, 0x129, 32);
-            namePrefix = Encoding.ASCII.GetString(bytes, 347, 157);
+            UserName = Encoding.ASCII.GetString(bytes, 265, 32);
+            GroupName = Encoding.ASCII.GetString(bytes, 297, 32);
+            namePrefix = Encoding.ASCII.GetString(bytes, 345, 155);
             return base.UpdateHeaderFromBytes();
         }
 
@@ -94,11 +94,11 @@ namespace tar_cs
         {
             byte[] header = base.GetHeaderValue();
 
-            Encoding.ASCII.GetBytes(magic).CopyTo(header, 0x101); // Mark header as ustar
-            Encoding.ASCII.GetBytes(version).CopyTo(header, 0x106);
-            Encoding.ASCII.GetBytes(UserName).CopyTo(header, 0x109);
-            Encoding.ASCII.GetBytes(GroupName).CopyTo(header, 0x129);
-            Encoding.ASCII.GetBytes(namePrefix).CopyTo(header, 347);
+            Encoding.ASCII.GetBytes(magic).CopyTo(header, 257); // Mark header as ustar
+            Encoding.ASCII.GetBytes(version).CopyTo(header, 263);
+            Encoding.ASCII.GetBytes(UserName).CopyTo(header, 265);
+            Encoding.ASCII.GetBytes(GroupName).CopyTo(header, 297);
+            Encoding.ASCII.GetBytes(namePrefix).CopyTo(header, 345);
 
             if (SizeInBytes >= 0x1FFFFFFFF)
             {

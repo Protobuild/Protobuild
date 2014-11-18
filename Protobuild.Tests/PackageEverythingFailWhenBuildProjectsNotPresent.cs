@@ -10,7 +10,7 @@
         {
             this.SetupTest("PackageEverythingFailWhenBuildNotPresent", isPackTest: true);
 
-            this.OtherMode("pack", args: "Publish Test.tar.lzma --format tar/lzma", expectFailure: true, purge: false);
+            this.OtherMode("pack", args: "Publish Test.tar.lzma Windows Filter.txt --format tar/lzma", expectFailure: true, purge: false);
         }
     }
 }

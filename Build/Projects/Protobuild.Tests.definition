@@ -9,6 +9,9 @@
     <Reference Include="Protobuild" />
   </References>
   <Files>
+    <Compile Include="..\Protobuild.Internal\Packages\Reduplicator.cs">
+      <Link>Packages\Reduplicator.cs</Link>
+    </Compile>
     <Compile Include="..\ThirdParty\TAR\DataWriter.cs">
       <Link>TAR\DataWriter.cs</Link>
     </Compile>
@@ -168,17 +171,23 @@
     <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\packages.config" />
     <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
     <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\Program.cs" />
+    <None Include="TestData\PackageEverythingCorrectGZip\Filter.txt" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Module.xml" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Projects\Console.definition" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingCorrectLZMA\Filter.txt" />
     <None Include="TestData\PackageEverythingCorrectLZMA\Publish\Build\Module.xml" />
     <None Include="TestData\PackageEverythingCorrectLZMA\Publish\Build\Projects\Console.definition" />
     <None Include="TestData\PackageEverythingCorrectLZMA\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenBuildModuleXmlNotPresent\Filter.txt" />
     <None Include="TestData\PackageEverythingFailWhenBuildModuleXmlNotPresent\Publish\Build\Projects\Console.definition" />
     <None Include="TestData\PackageEverythingFailWhenBuildModuleXmlNotPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenBuildNotPresent\Filter.txt" />
     <None Include="TestData\PackageEverythingFailWhenBuildNotPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenBuildProjectsNotPresent\Filter.txt" />
     <None Include="TestData\PackageEverythingFailWhenBuildProjectsNotPresent\Publish\Build\Module.xml" />
     <None Include="TestData\PackageEverythingFailWhenBuildProjectsNotPresent\Publish\Console\Program.cs" />
+    <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Filter.txt" />
     <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Build\Module.xml" />
     <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Build\Projects\Console.definition" />
     <None Include="TestData\PackageEverythingFailWhenProtobuildPresent\Publish\Console\Program.cs" />

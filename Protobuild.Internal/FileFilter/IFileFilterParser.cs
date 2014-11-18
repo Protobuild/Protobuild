@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Protobuild
 {
     public interface IFileFilterParser
     {
-        FileFilter Parse(ModuleInfo rootModule, string platform, string path, IEnumerable<string> filenames);
+        void ParseAndApply(FileFilter result, Stream inputFilterFile, Dictionary<string, Action<FileFilter>> customDirectives);
     }
 }
 

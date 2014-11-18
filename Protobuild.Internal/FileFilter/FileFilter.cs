@@ -8,23 +8,11 @@ namespace Protobuild
 {
     public class FileFilter : IEnumerable<KeyValuePair<string, string>>
     {
-        private readonly IAutomaticProjectPackager m_AutomaticProjectPackager;
-        private readonly ModuleInfo m_RootModule;
-        private readonly string m_Platform;
-
         private List<string> m_SourceFiles = new List<string>();
         private Dictionary<string, string> m_FileMappings = new Dictionary<string, string>();
 
-        public FileFilter(
-            IAutomaticProjectPackager automaticProjectPackager,
-            ModuleInfo rootModule,
-            string platform,
-            IEnumerable<string> filenames)
+        public FileFilter(IEnumerable<string> filenames)
         {
-            this.m_AutomaticProjectPackager = automaticProjectPackager;
-            this.m_RootModule = rootModule;
-            this.m_Platform = platform;
-
             foreach (string s in filenames)
                 this.m_SourceFiles.Add(s);
         }
@@ -42,6 +30,11 @@ namespace Protobuild
             {
                 if (re.IsMatch(s))
                 {
+                    if (this.m_FileMappings.ContainsKey(s))
+                    {
+                        return true;
+                    }
+
                     this.m_FileMappings.Add(s, s);
                     didMatch = true;
                 }
@@ -83,16 +76,6 @@ namespace Protobuild
                 }
             }
             return didMatch;
-        }
-
-        public void ApplyAutoProject()
-        {
-            if (this.m_RootModule == null)
-            {
-                throw new InvalidOperationException("The 'autoproject' directive was used, but the source folder for packaging is not a Protobuild module.");
-            }
-
-            this.m_AutomaticProjectPackager.AutoProject(this, this.m_RootModule, this.m_Platform);
         }
 
         public void ImplyDirectories()

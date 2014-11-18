@@ -3,40 +3,45 @@ using System.IO;
 using System.IO.Compression;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Protobuild
 {
     public class PackPackageCommand : ICommand
     {
-        private readonly IAutomaticProjectPackager m_AutomaticProjectPackager;
+        private readonly IAutomaticModulePackager m_AutomaticProjectPackager;
 
         private readonly IFileFilterParser m_FileFilterParser;
 
         private readonly IHostPlatformDetector m_HostPlatformDetector;
 
+        private readonly IDeduplicator m_Deduplicator;
+
         public PackPackageCommand(
-            IAutomaticProjectPackager automaticProjectPackager,
+            IAutomaticModulePackager automaticProjectPackager,
             IFileFilterParser fileFilterParser,
-            IHostPlatformDetector hostPlatformDetector)
+            IHostPlatformDetector hostPlatformDetector,
+            IDeduplicator deduplicator)
         {
             this.m_AutomaticProjectPackager = automaticProjectPackager;
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_FileFilterParser = fileFilterParser;
+            this.m_Deduplicator = deduplicator;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
 
-            if (args.Length < 2 || args[0] == null || args[1] == null)
+            if (args.Length < 3 || args[0] == null || args[1] == null || args[2] == null)
             {
-                throw new InvalidOperationException("You must provide the source folder and destination file to -pack.");
+                throw new InvalidOperationException("You must provide the module folder, destination file and platform to -pack.");
             }
 
             pendingExecution.PackageSourceFolder = new DirectoryInfo(args[0]).FullName;
             pendingExecution.PackageDestinationFile = new FileInfo(args[1]).FullName;
-            pendingExecution.PackageFilterFile = args.Length >= 3 ? args[2] : null;
-            pendingExecution.PackagePlatform = args.Length >= 4 ? args[3] : this.m_HostPlatformDetector.DetectPlatform();
+            pendingExecution.PackagePlatform = args.Length >= 3 ? args[2] : this.m_HostPlatformDetector.DetectPlatform();
+            pendingExecution.PackageFilterFile = args.Length >= 4 ? args[3] : null;
         }
 
         public int Execute(Execution execution)
@@ -46,26 +51,74 @@ namespace Protobuild
                 throw new InvalidOperationException("The source folder " + execution.PackageSourceFolder + " does not exist.");
             }
 
-            FileFilter filter;
-            if (execution.PackageFilterFile != null)
+            var allowAutopackage = true;
+            var moduleExpectedPath = Path.Combine(execution.PackageSourceFolder, "Build", "Module.xml");
+            ModuleInfo rootModule = null;
+            if (!File.Exists(moduleExpectedPath))
             {
-                var moduleExpectedPath = Path.Combine(execution.PackageSourceFolder, "Build", "Module.xml");
-                var module = File.Exists(moduleExpectedPath) ? ModuleInfo.Load(moduleExpectedPath) : null;
-                filter = this.m_FileFilterParser.Parse(
-                    module,
-                    execution.PackagePlatform,
-                    execution.PackageFilterFile,
-                    GetRecursiveFilesInPath(execution.PackageSourceFolder));
+                if (execution.PackageFilterFile == null)
+                {
+                    Console.WriteLine(
+                        "There is no module in the path '" + execution.PackageSourceFolder + "' (expected to " +
+                        "find a Build\\Module.xml file within that directory).");
+                    return 1;
+                }
+                else
+                {
+                    // We allow this mode if the user has provided a filter file and are constructing
+                    // the package manually.
+                    allowAutopackage = false;
+                }
             }
             else
             {
-                // We do not use the automatic packager here.
-                filter = new FileFilter(
-                    null, 
-                    null, 
-                    null,
-                    GetRecursiveFilesInPath(execution.PackageSourceFolder));
-                filter.ApplyInclude(".*");
+                rootModule = ModuleInfo.Load(moduleExpectedPath);
+            }
+
+            var customDirectives = new Dictionary<string, Action<FileFilter>>()
+            {
+                { 
+                    "autopackage",
+                    f => 
+                    {
+                        if (allowAutopackage && rootModule != null)
+                        {
+                            this.m_AutomaticProjectPackager.Autopackage(
+                                f, 
+                                execution,
+                                rootModule,
+                                execution.PackageSourceFolder,
+                                execution.PackagePlatform);
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                "WARNING: There is no module in the path '" + execution.PackageSourceFolder + "' (expected to " +
+                                "find a Build\\Module.xml file within that directory).  Ignoring the 'autopackage' directive.");
+                        }
+                    }
+                }
+            };
+
+            Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
+
+            var filter = new FileFilter(GetRecursiveFilesInPath(execution.PackageSourceFolder));
+            if (execution.PackageFilterFile != null)
+            {
+                using (var reader = new StreamReader(execution.PackageFilterFile))
+                {
+                    var contents = reader.ReadToEnd();
+                    contents = contents.Replace("%PLATFORM%", execution.PackagePlatform);
+
+                    using (var inputStream = new MemoryStream(Encoding.ASCII.GetBytes(contents)))
+                    {
+                        this.m_FileFilterParser.ParseAndApply(filter, inputStream, customDirectives);
+                    }
+                }
+            }
+            else
+            {
+                customDirectives["autopackage"](filter);
             }
 
             if (File.Exists(execution.PackageDestinationFile))
@@ -125,31 +178,58 @@ namespace Protobuild
                 switch (execution.PackageFormat)
                 {
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                        {
+                            Console.WriteLine("Writing package in tar/gzip format...");
+                            break;
+                        }
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
                         {
+                            Console.WriteLine("Writing package in tar/lzma format...");
+                            break;
+                        }
+                }
+
+                switch (execution.PackageFormat)
+                {
+                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                    default:
+                        {
+                            var state = this.m_Deduplicator.CreateState();
+
+                            Console.Write("Deduplicating files in package...");
+
+                            var progressHelper = new DedupProgress(DateTime.Now, filter.Count());
+                            var current = 0;
+
+                            foreach (var kv in filter.OrderBy(kv => kv.Value))
+                            {
+                                if (kv.Value.EndsWith("/"))
+                                {
+                                    // Directory
+                                    this.m_Deduplicator.AddDirectory(state, kv.Value);
+                                }
+                                else
+                                {
+                                    // File
+                                    var realFile = Path.Combine(execution.PackageSourceFolder, kv.Key);
+                                    var realFileInfo = new FileInfo(realFile);
+
+                                    this.m_Deduplicator.AddFile(state, realFileInfo, kv.Value);
+                                }
+
+                                current++;
+
+                                progressHelper.SetProgress(current);
+                            }
+
+                            Console.WriteLine();
+                            Console.WriteLine("Adding files to package...");
+
                             using (var writer = new tar_cs.TarWriter(archive))
                             {
-                                // Note that the TAR entries must be in order, with the directories
-                                // before files that are within them.  Ordering alphabetically forces
-                                // directories to always appear before the files that are in them.
-                                foreach (var kv in filter.OrderBy(kv => kv.Value))
-                                {
-                                    if (kv.Value.EndsWith("/"))
-                                    {
-                                        // Directory
-                                        writer.WriteDirectoryEntry(kv.Value.TrimEnd('/'));
-                                    }
-                                    else
-                                    {
-                                        // File
-                                        var realFile = Path.Combine(execution.PackageSourceFolder, kv.Key);
-                                        using (var stream = new FileStream(realFile, FileMode.Open, FileAccess.Read, FileShare.None))
-                                        {
-                                            writer.Write(stream, stream.Length, kv.Value);
-                                        }
-                                    }
-                                }
+                                this.m_Deduplicator.PushToTar(state, writer);
                             }
 
                             break;
@@ -162,7 +242,7 @@ namespace Protobuild
                 {
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                         {
-                            Console.WriteLine("Writing package in tar/gzip format...");
+                            Console.WriteLine("Compressing package...");
 
                             using (var compress = new GZipStream(target, CompressionMode.Compress))
                             {
@@ -174,35 +254,44 @@ namespace Protobuild
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
                         {
-                            Console.WriteLine("Writing package in tar/lzma format...");
-                            LZMA.LzmaHelper.Compress(archive, target);
+                            Console.Write("Compressing package...");
+
+                            var progressHelper = new CompressProgress(DateTime.Now, archive.Length);
+
+                            LZMA.LzmaHelper.Compress(archive, target, progressHelper);
+
+                            Console.WriteLine();
+
                             break;
                         }
                 }
             }
 
-            Console.WriteLine("Package written to " + execution.PackageDestinationFile + " successfully.");
+            Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
             return 0;
         }
 
         public string GetDescription()
         {
             return @"
-Compresses the specified folder into a Protobuild package.  Validates
-that the folder contains the correct project structure before packing.
-Change the archive format with the -format option.  If a filter file
-is not specified, includes all files within the folder.
+Compresses the specified module into a Protobuild package, assuming
+the module has been generated and built as the specified platform.
+Change the archive format with the -format option.  -enable and
+-disable can be used to indicate what services were explicitly enabled
+or disabled when the code was built.  If a filter file is not specified,
+automatically packages the module according to the default settings.
+If a filter file is specified, performs the steps in the filter file instead.
 ";
         }
 
         public int GetArgCount()
         {
-            return 3;
+            return 4;
         }
 
         public string[] GetArgNames()
         {
-            return new[] { "folder", "package_file", "filter" };
+            return new[] { "module_path", "package_file", "platform", "filter?" };
         }
 
         private static IEnumerable<string> GetRecursiveFilesInPath(string path)
@@ -229,6 +318,79 @@ is not specified, includes all files within the folder.
             foreach (var kv in mappings)
             {
                 Console.WriteLine("  " + kv.Key + " -> " + kv.Value);
+            }
+        }
+
+        private class CompressProgress : LZMA.ICodeProgress
+        {
+            private readonly DateTime m_StartTime;
+            private readonly long m_InLength;
+            private long m_CycleCheck;
+            private bool m_IsShowingProgress;
+
+            public CompressProgress(DateTime startTime, long inLength)
+            {
+                this.m_StartTime = startTime;
+                this.m_InLength = inLength;
+            }
+
+            public bool IsShowingProgress { get { return this.m_IsShowingProgress; } }
+
+            public void SetProgress(long inSize, long outSize)
+            {
+                if (this.m_IsShowingProgress)
+                {
+                    var progress = (int)((inSize / (double)this.m_InLength) * 100);
+                    var ratio = (int)((outSize / (double)inSize) * 100);
+                    Console.Write("\rCompressing package; " + progress + "% complete (" + (inSize / 1024) + "kb compressed to " + (outSize / 1024) + "kb, " + ratio + "% of it's original size)");
+                    return;
+                }
+
+                this.m_CycleCheck++;
+                if (this.m_CycleCheck > 1000)
+                {
+                    this.m_CycleCheck = 0;
+
+                    if ((DateTime.Now - this.m_StartTime).TotalSeconds >= 5)
+                    {
+                        this.m_IsShowingProgress = true;
+                    }
+                }
+            }
+        }
+
+        private class DedupProgress
+        {
+            private readonly DateTime m_StartTime;
+            private readonly long m_Total;
+            private long m_CycleCheck;
+            private bool m_IsShowingProgress;
+
+            public DedupProgress(DateTime startTime, int total)
+            {
+                this.m_StartTime = startTime;
+                this.m_Total = total;
+            }
+
+            public void SetProgress(int current)
+            {
+                if (this.m_IsShowingProgress)
+                {
+                    var progress = (int)((current / (double)this.m_Total) * 100);
+                    Console.Write("\rDeduplicating files in package; " + progress + "% complete (" + current + " of " + this.m_Total + " files)");
+                    return;
+                }
+
+                this.m_CycleCheck++;
+                if (this.m_CycleCheck > 1000)
+                {
+                    this.m_CycleCheck = 0;
+
+                    if ((DateTime.Now - this.m_StartTime).TotalSeconds >= 5)
+                    {
+                        this.m_IsShowingProgress = true;
+                    }
+                }
             }
         }
     }

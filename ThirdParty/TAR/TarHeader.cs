@@ -20,6 +20,7 @@ namespace tar_cs
         }
 
         private string fileName;
+        private string linkName;
         protected readonly DateTime TheEpoch = new DateTime(1970, 1, 1, 0, 0, 0);
         public EntryType EntryType { get; set; }
         private static byte[] spaces = Encoding.ASCII.GetBytes("        ");
@@ -92,6 +93,22 @@ namespace tar_cs
             get { return Convert.ToString(headerChecksum, 8).PadLeft(6, '0'); }
         }
 
+        public string LinkName
+        {
+            get
+            {
+                return (linkName ?? string.Empty).Replace("\0",string.Empty);
+            } 
+            set
+            {
+                if(value.Length > 100)
+                {
+                    throw new TarException("A link name can not be more than 100 chars long");
+                }
+
+                linkName = value;
+            }
+        }
 
         public virtual int HeaderSize
         {
@@ -105,13 +122,15 @@ namespace tar_cs
 
         public virtual bool UpdateHeaderFromBytes()
         {
-            FileName = Encoding.ASCII.GetString(buffer, 0, 100);
+            fileName = Encoding.ASCII.GetString(buffer, 0, 100);
             // thanks to Shasha Alperocivh. Trimming nulls.
             Mode = Convert.ToInt32(Encoding.ASCII.GetString(buffer, 100, 7).Trim(), 8);
             UserId = Convert.ToInt32(Encoding.ASCII.GetString(buffer, 108, 7).Trim(), 8);
             GroupId = Convert.ToInt32(Encoding.ASCII.GetString(buffer, 116, 7).Trim(), 8);
 
             EntryType = (EntryType)buffer[156];
+
+            LinkName = Encoding.ASCII.GetString(buffer, 157, 100);
 
             if((buffer[124] & 0x80) == 0x80) // if size in binary
             {
@@ -158,11 +177,28 @@ namespace tar_cs
             // Clean old values
             Array.Clear(buffer,0, buffer.Length);
 
-            if (string.IsNullOrEmpty(FileName)) throw new TarException("FileName can not be empty.");
-            if (FileName.Length >= 100) throw new TarException("FileName is too long. It must be less than 100 bytes.");
+            if (string.IsNullOrEmpty(fileName)) throw new TarException("FileName can not be empty.");
+            if (fileName.Length >= 100)
+            {
+                var actualLength = fileName.Length;
+                var thisAsUsTar = this as UsTarHeader;
+                var namePrefix = string.Empty;
+                if (thisAsUsTar != null)
+                {
+                    namePrefix = thisAsUsTar.namePrefix;
+                }
+
+                throw new TarException(@"File name is too long.
+Full file name: " + FileName + @"
+100-byte file name: " + fileName + @"
+Name prefix: " + namePrefix + @"
+100-byte file name length: " + fileName.Length + @"
+Full file name length: " + FileName.Length);
+            }
+                
 
             // Fill header
-            Encoding.ASCII.GetBytes(FileName.PadRight(100, '\0')).CopyTo(buffer, 0);
+            Encoding.ASCII.GetBytes(fileName.PadRight(100, '\0')).CopyTo(buffer, 0);
             Encoding.ASCII.GetBytes(ModeString).CopyTo(buffer, 100);
             Encoding.ASCII.GetBytes(UserIdString).CopyTo(buffer, 108);
             Encoding.ASCII.GetBytes(GroupIdString).CopyTo(buffer, 116);
@@ -172,6 +208,10 @@ namespace tar_cs
 //            buffer[156] = 20;
             buffer[156] = ((byte) EntryType);
 
+            if (LinkName != null)
+            {
+                Encoding.ASCII.GetBytes(LinkName.PadRight(100, '\0')).CopyTo(buffer, 157);
+            }
 
             RecalculateChecksum(buffer);
 
