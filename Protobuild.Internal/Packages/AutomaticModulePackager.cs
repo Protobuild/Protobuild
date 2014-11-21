@@ -79,6 +79,12 @@ namespace Protobuild
 
             foreach (var definition in definitions)
             {
+                if (definition.SkipAutopackage)
+                {
+                    Console.WriteLine("Skipping: " + definition.Name);
+                    continue;
+                }
+
                 switch (definition.Type)
                 {
                     case "External":

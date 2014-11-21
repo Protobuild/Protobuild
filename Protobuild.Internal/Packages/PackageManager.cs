@@ -179,6 +179,7 @@ namespace Protobuild
             }
 
             this.RunGit(null, "clone " + source + " .staging");
+            this.RunGit(".staging", "checkout -f " + reference.GitRef);
 
             this.ApplyProjectTemplateFromStaging(templateName);
         }
