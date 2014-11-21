@@ -93,6 +93,12 @@ namespace Protobuild
             get;
             set;
         }
+
+        public bool SkipAutopackage
+        {
+            get;
+            set;
+        }
     
         /// <summary>
         /// Loads a project definition from the specified XML file.
@@ -133,6 +139,13 @@ namespace Protobuild
             else if (doc.Root.Name == "ContentProject")
             {
                 def.Type = "Content";
+            }
+
+            if (doc.Root.Attributes().Any(x => x.Name == "SkipAutopackage"))
+            {
+                var skipValue = 
+                    doc.Root.Attribute(XName.Get("SkipAutopackage")).Value.ToLowerInvariant();
+                def.SkipAutopackage = skipValue == "true";
             }
 
             return def;
