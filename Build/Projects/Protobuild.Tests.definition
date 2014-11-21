@@ -48,6 +48,8 @@
     <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
+    <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
+    <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentWithRootPathDotSlashTest.cs" />
@@ -156,6 +158,12 @@
     <None Include="TestData\ExtractXSLTWorks\Build\Module.xml" />
     <None Include="TestData\ExtractXSLTWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ExtractXSLTWorks\Console\Program.cs" />
+    <None Include="TestData\iOSLegacyAPIGenerationWorks\App\Program.cs" />
+    <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Module.xml" />
+    <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Projects\App.definition" />
+    <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
+    <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
+    <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Module.xml" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />

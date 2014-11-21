@@ -661,7 +661,14 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS'">
             <ProjectTypeGuids>
-              <xsl:text>{6BC8ED88-2882-458C-8E55-DFD12B67127B};</xsl:text>
+              <xsl:choose>
+                <xsl:when test="user:IsTrue(/Input/Properties/UseLegacyiOSAPI)">
+                  <xsl:text>{6BC8ED88-2882-458C-8E55-DFD12B67127B};</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>{FEACFBD2-3405-455C-9665-78FE426C6842};</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
@@ -1042,6 +1049,17 @@
             </xsl:when>
             <xsl:otherwise>
               <Reference Include="MonoMac" />
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
+
+        <xsl:if test="/Input/Generation/Platform = 'iOS'">
+          <xsl:choose>
+            <xsl:when test="user:IsTrue(/Input/Properties/UseLegacyiOSAPI)">
+              <Reference Include="monotouch" />
+            </xsl:when>
+            <xsl:otherwise>
+              <Reference Include="Xamarin.iOS" />
             </xsl:otherwise>
           </xsl:choose>
         </xsl:if>
@@ -1926,6 +1944,9 @@
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'PCL'">
           <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'iOS' and not(user:IsTrue(/Input/Properties/UseLegacyiOSAPI))">
+          <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
         </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
