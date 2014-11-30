@@ -236,6 +236,22 @@ namespace Protobuild
             {
                 var sourceProtobuild = Assembly.GetEntryAssembly().Location;
                 File.Copy(sourceProtobuild, Path.Combine(folder, "Protobuild.exe"), true);
+
+                try
+                {
+                    var chmodStartInfo = new ProcessStartInfo
+                    {
+                        FileName = "chmod",
+                        Arguments = "a+x Protobuild.exe",
+                        WorkingDirectory = folder,
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    };
+                    Process.Start(chmodStartInfo);
+                }
+                catch
+                {
+                }
             }
 
             var file = File.Create(Path.Combine(folder, ".pkg"));
