@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="Console.ThirdParty">
+  <Platform Type="Windows">
+    <Project
+      Name="ExternalRef"
+      Guid="73E1432F-7BB5-4E5A-B952-F9CBCEA7FG76"
+      Path="External\Project.csproj">
+      <ConfigurationMapping Old="Debug" New="Debug|SomeConf" />
+      <ConfigurationMapping Old="Release" New="Release|SomeConf" />
+    </Project>
+  </Platform>
+</ExternalProject>
