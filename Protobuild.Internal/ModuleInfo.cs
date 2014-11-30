@@ -255,6 +255,23 @@ namespace Protobuild
         public void RunProtobuild(string args)
         {
             var protobuildPath = System.IO.Path.Combine(this.Path, "Protobuild.exe");
+
+            try
+            {
+                var chmodStartInfo = new ProcessStartInfo
+                {
+                    FileName = "chmod",
+                    Arguments = "a+x Protobuild.exe",
+                    WorkingDirectory = this.Path,
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                Process.Start(chmodStartInfo);
+            }
+            catch
+            {
+            }
+
             if (File.Exists(protobuildPath))
             {
                 var pi = new ProcessStartInfo
