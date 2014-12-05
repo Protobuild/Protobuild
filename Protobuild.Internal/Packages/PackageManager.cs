@@ -331,7 +331,17 @@ namespace Protobuild
                 }
             }
 
-            Directory.Delete(".staging", true);
+            try
+            {
+                Directory.Delete(".staging", true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // On Windows, we might not be able to clean up the staging directory
+                // if there are any processes still active in it.  Ignore this error 
+                // for now (although in future we might want to give the clean up
+                // multiple attempts).
+            }
         }
 
         private IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromStaging(string currentDirectory = null, string currentPrefix = null)
