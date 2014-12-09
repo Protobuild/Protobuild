@@ -104,6 +104,7 @@
           <Path>
             <xsl:value-of select="current()/@Path" />
           </Path>
+          <xsl:copy-of select="current()/ConfigurationMapping" />
         </Project>
       </xsl:for-each>
       <xsl:for-each select="/Input/Projects/ExternalProject
@@ -123,6 +124,7 @@
           <Path>
             <xsl:value-of select="current()/@Path" />
           </Path>
+          <xsl:copy-of select="current()/ConfigurationMapping" />
         </Project>
       </xsl:for-each>
       <xsl:for-each select="/Input/Projects/ExternalProject
@@ -146,6 +148,7 @@
               <Path>
                 <xsl:value-of select="current()/@Path" />
               </Path>
+              <xsl:copy-of select="current()/ConfigurationMapping" />
             </Project>
           </xsl:for-each>
         </xsl:if>
@@ -170,6 +173,7 @@
               <Path>
                 <xsl:value-of select="current()/@Path" />
               </Path>
+              <xsl:copy-of select="current()/ConfigurationMapping" />
             </Project>
           </xsl:for-each>
         </xsl:if>
