@@ -281,12 +281,8 @@
             <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
-            <TargetPlatformIdentifier>WindowsPhoneApp</TargetPlatformIdentifier>
             <TargetPlatformVersion>8.1</TargetPlatformVersion>
-            <TargetFrameworkVersion>v8.1</TargetFrameworkVersion>
-            <TargetFrameworkIdentifier>WindowsPhone</TargetFrameworkIdentifier>
             <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
-            <VisualStudioVersion>12.0</VisualStudioVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'iOS' or /Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
@@ -1903,6 +1899,9 @@
         <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
           <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
             <VisualStudioVersion>12.0</VisualStudioVersion>
+          </PropertyGroup>
+          <PropertyGroup Condition=" '$(TargetPlatformIdentifier)' == '' ">
+            <TargetPlatformIdentifier>WindowsPhoneApp</TargetPlatformIdentifier>
           </PropertyGroup>
           <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
