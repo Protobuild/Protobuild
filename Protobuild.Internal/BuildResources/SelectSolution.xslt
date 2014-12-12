@@ -85,6 +85,7 @@
                 '.csproj')" />
             </Path>
             <xsl:copy-of select="current()/ConfigurationMapping" />
+            <xsl:copy-of select="current()/PostProject" />
           </Project>
         </xsl:if>
       </xsl:for-each>
@@ -105,6 +106,7 @@
             <xsl:value-of select="current()/@Path" />
           </Path>
           <xsl:copy-of select="current()/ConfigurationMapping" />
+          <xsl:copy-of select="current()/PostProject" />
         </Project>
       </xsl:for-each>
       <xsl:for-each select="/Input/Projects/ExternalProject
@@ -125,6 +127,7 @@
             <xsl:value-of select="current()/@Path" />
           </Path>
           <xsl:copy-of select="current()/ConfigurationMapping" />
+          <xsl:copy-of select="current()/PostProject" />
         </Project>
       </xsl:for-each>
       <xsl:for-each select="/Input/Projects/ExternalProject
@@ -149,6 +152,7 @@
                 <xsl:value-of select="current()/@Path" />
               </Path>
               <xsl:copy-of select="current()/ConfigurationMapping" />
+              <xsl:copy-of select="current()/PostProject" />
             </Project>
           </xsl:for-each>
         </xsl:if>
@@ -174,6 +178,7 @@
                 <xsl:value-of select="current()/@Path" />
               </Path>
               <xsl:copy-of select="current()/ConfigurationMapping" />
+              <xsl:copy-of select="current()/PostProject" />
             </Project>
           </xsl:for-each>
         </xsl:if>
