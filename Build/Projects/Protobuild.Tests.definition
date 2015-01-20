@@ -41,6 +41,7 @@
     </Compile>
     <Compile Include="BasicGenerationWorksTest.cs" />
     <Compile Include="BasicSynchronisationWorksTest.cs" />
+    <Compile Include="CheckForOverflowUnderflowPropertyWorksTest.cs" />
     <Compile Include="ConfigurationMappingWorksTest.cs" />
     <Compile Include="DefaultStartupProjectTest.cs" />
     <Compile Include="ExampleCocos2DXNATest.cs" />
@@ -108,13 +109,12 @@
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />
-    <None Include="TestData\ConfigurationMappingWorks\Build\Module.xml" />
-    <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.definition" />
-    <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.ThirdParty.definition" />
-    <None Include="TestData\ConfigurationMappingWorks\Console\Program.cs" />
     <None Include="TestData\BasicSynchronisationWorks\Build\Module.xml" />
     <None Include="TestData\BasicSynchronisationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicSynchronisationWorks\Console\Program.cs" />
+    <None Include="TestData\CheckForOverflowUnderflowPropertyWorks\Build\Module.xml" />
+    <None Include="TestData\CheckForOverflowUnderflowPropertyWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\CheckForOverflowUnderflowPropertyWorks\Console\Program.cs" />
     <None Include="TestData\ConfigurationMappingWorks\Build\Module.xml" />
     <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.ThirdParty.definition" />
