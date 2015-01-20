@@ -476,6 +476,9 @@
         </PlatformTarget>
       </xsl:when>
     </xsl:choose>
+    <xsl:if test="user:IsTrue(/Input/Properties/CheckForOverflowUnderflow)">
+      <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    </xsl:if>
     <!--<xsl:call-template name="profile_and_version" />-->
     <xsl:choose>
       <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
@@ -493,8 +496,6 @@
       </xsl:when>
       <xsl:when test="/Input/Generation/Platform = 'iOS'">
         <xsl:if test="$debug = 'true'">
-          <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-          <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
           <MtouchDebug>True</MtouchDebug>
         </xsl:if>
         <MtouchUseArmv7>
