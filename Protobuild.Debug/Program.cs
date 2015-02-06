@@ -20,6 +20,7 @@ namespace Protobuild.Bootstrap
             // This debugging version isn't deployed anywhere, and should only
             // be used for the explicit purpose of debugging Protobuild.
 
+            ModuleInfo.RunProtobuildInProcess = true;
             Protobuild.MainClass.Main(args);
         }
     }

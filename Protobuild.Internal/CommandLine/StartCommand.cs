@@ -6,10 +6,12 @@ namespace Protobuild
     public class StartCommand : ICommand
     {
         private readonly IActionDispatch m_ActionDispatch;
+        private readonly IPackageManager m_PackageManager;
 
-        public StartCommand(IActionDispatch actionDispatch)
+        public StartCommand(IActionDispatch actionDispatch, IPackageManager packageManager)
         {
             this.m_ActionDispatch = actionDispatch;
+            this.m_PackageManager = packageManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -48,8 +50,7 @@ namespace Protobuild
                 Folder = string.Empty
             };
 
-            var packageManager = new PackageManager();
-            packageManager.Resolve(packageRef, "Template", execution.StartProjectName, false);
+            this.m_PackageManager.Resolve(packageRef, "Template", execution.StartProjectName, false);
 
             Console.WriteLine("Module has been initialized.  Performing --generate to create projects.");
 

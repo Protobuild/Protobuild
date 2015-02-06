@@ -51,6 +51,11 @@
         {
             kernel.Bind<IAutomaticModulePackager, AutomaticModulePackager>();
             kernel.Bind<IDeduplicator, Deduplicator>();
+            kernel.Bind<IPackageCache, PackageCache>();
+            kernel.Bind<IPackageRetrieval, PackageRetrieval>();
+            kernel.Bind<IPackageManager, PackageManager>();
+            kernel.Bind<IPackageLookup, PackageLookup>();
+            kernel.Bind<IPackageCacheConfiguration, PackageCacheConfiguration>();
         }
     }
 }

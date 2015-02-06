@@ -11,12 +11,16 @@ namespace Protobuild
 
         private readonly IHostPlatformDetector m_HostPlatformDetector;
 
+        private readonly IPackageManager m_PackageManager;
+
         public ActionDispatch(
             LightweightKernel lightweightKernel,
-            IHostPlatformDetector hostPlatformDetector)
+            IHostPlatformDetector hostPlatformDetector,
+            IPackageManager packageManager)
         {
             this.m_LightweightKernel = lightweightKernel;
             this.m_HostPlatformDetector = hostPlatformDetector;
+            this.m_PackageManager = packageManager;
         }
 
         /// <summary>
@@ -124,8 +128,7 @@ namespace Protobuild
             }
 
             // Resolve submodules as needed.
-            var submoduleManager = new PackageManager();
-            submoduleManager.ResolveAll(module, primaryPlatform);
+            this.m_PackageManager.ResolveAll(module, primaryPlatform);
 
             // You can configure the default action for Protobuild in their project
             // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
@@ -175,7 +178,7 @@ namespace Protobuild
                 }
 
                 // Resolve submodules as needed.
-                submoduleManager.ResolveAll(module, platformIter);
+                this.m_PackageManager.ResolveAll(module, platformIter);
 
                 switch (action.ToLower())
                 {
