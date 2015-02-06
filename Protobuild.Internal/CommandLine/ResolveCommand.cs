@@ -6,10 +6,12 @@ namespace Protobuild
     public class ResolveCommand : ICommand
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
+        private readonly IPackageManager m_PackageManager;
 
-        public ResolveCommand(IHostPlatformDetector hostPlatformDetector)
+        public ResolveCommand(IHostPlatformDetector hostPlatformDetector, IPackageManager packageManager)
         {
             this.m_HostPlatformDetector = hostPlatformDetector;
+            this.m_PackageManager = packageManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -31,8 +33,7 @@ namespace Protobuild
 
             var platform = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-            var submoduleManager = new PackageManager();
-            submoduleManager.ResolveAll(module, platform);
+            this.m_PackageManager.ResolveAll(module, platform);
             return 0;
         }
 

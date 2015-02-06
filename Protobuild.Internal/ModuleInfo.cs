@@ -248,12 +248,20 @@ namespace Protobuild
             writer.Close();
         }
 
+        public static bool RunProtobuildInProcess = false;
+
         /// <summary>
         /// Runs the instance of Protobuild.exe present in the module.
         /// </summary>
         /// <param name="args">The arguments to pass to Protobuild.</param>
         public void RunProtobuild(string args)
         {
+            if (RunProtobuildInProcess)
+            {
+                MainClass.Main(args.Split(' '));
+                return;
+            }
+
             var protobuildPath = System.IO.Path.Combine(this.Path, "Protobuild.exe");
 
             try

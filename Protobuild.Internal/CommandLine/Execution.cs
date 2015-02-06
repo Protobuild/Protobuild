@@ -49,6 +49,8 @@ namespace Protobuild
 
         public string StartProjectName { get; set; }
 
+        public string PackageRoot { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)

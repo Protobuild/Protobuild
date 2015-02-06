@@ -6,10 +6,12 @@ namespace Protobuild
     public class SwapToSourceCommand : ICommand
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
+        private readonly IPackageManager m_PackageManager;
 
-        public SwapToSourceCommand(IHostPlatformDetector hostPlatformDetector)
+        public SwapToSourceCommand(IHostPlatformDetector hostPlatformDetector, IPackageManager packageManager)
         {
             this.m_HostPlatformDetector = hostPlatformDetector;
+            this.m_PackageManager = packageManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -33,7 +35,6 @@ namespace Protobuild
 
             var platform = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-            var submoduleManager = new PackageManager();
 
             var done = false;
             foreach (var submodule in module.Packages)
@@ -41,7 +42,7 @@ namespace Protobuild
                 if (submodule.Uri == execution.PackageUrl)
                 {
                     Console.WriteLine("Switching to source: " + submodule.Uri);
-                    submoduleManager.Resolve(submodule, platform, null, true);
+                    this.m_PackageManager.Resolve(submodule, platform, null, true);
                     done = true;
                     break;
                 }
