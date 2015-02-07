@@ -115,6 +115,7 @@
     <Compile Include="CommandLine\SwapToBinaryCommand.cs" />
     <Compile Include="CommandLine\SwapToSourceCommand.cs" />
     <Compile Include="CommandLine\SyncCommand.cs" />
+    <Compile Include="CommandLine\UpgradeAllPackagesCommand.cs" />
     <Compile Include="CommandLine\UpgradePackageCommand.cs" />
     <Compile Include="Core\ActionDispatch.cs" />
     <Compile Include="Core\HostPlatformDetector.cs" />

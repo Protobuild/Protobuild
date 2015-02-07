@@ -7,11 +7,13 @@ namespace Protobuild
 {
     public class UpgradePackageCommand : ICommand
     {
-        private IPackageManager _packageManager;
+        private readonly IPackageManager _packageManager;
+        private readonly IHostPlatformDetector _hostPlatformDetector;
 
-        public UpgradePackageCommand(IPackageManager packageManager)
+        public UpgradePackageCommand(IPackageManager packageManager, IHostPlatformDetector hostPlatformDetector)
         {
             _packageManager = packageManager;
+            _hostPlatformDetector = hostPlatformDetector;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -21,6 +23,11 @@ namespace Protobuild
             if (args.Length == 0 || args[0] == null)
             {
                 throw new InvalidOperationException("You must provide an argument to the -upgrade option");
+            }
+
+            if (args.Length > 1)
+            {
+                pendingExecution.Platform = args[1];
             }
 
             pendingExecution.PackageUrl = args[0];
@@ -53,7 +60,7 @@ namespace Protobuild
 
             _packageManager.Resolve(
                 packageRef,
-                "Linux",
+                execution.Platform ?? _hostPlatformDetector.DetectPlatform(),
                 null,
                 null,
                 true);
@@ -77,7 +84,7 @@ is in source format, and you have modified files.
 
         public string[] GetArgNames()
         {
-            return new[] { "package_url" };
+            return new[] { "package_url", "platform?" };
         }
     }
 }
