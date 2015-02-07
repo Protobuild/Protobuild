@@ -24,7 +24,7 @@ namespace Protobuild
                 Directory.CreateDirectory("Build");
                 ResourceExtractor.ExtractAll(Path.Combine(Environment.CurrentDirectory, "Build"), "MyProject");
                 Console.WriteLine("Build" + Path.DirectorySeparatorChar + "Module.xml has been created.");
-                Environment.Exit(0);
+                ExecEnvironment.Exit(0);
             }
 
             return this.m_ActionDispatch.DefaultAction(

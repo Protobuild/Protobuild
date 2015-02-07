@@ -70,7 +70,7 @@ namespace Protobuild
             Action<string[]> helpAction = x => 
             { 
                 PrintHelp(commandMappings);
-                Environment.Exit(0);
+                ExecEnvironment.Exit(0);
             };
             options["help"] = helpAction;
             options["?"] = helpAction;
@@ -83,18 +83,22 @@ namespace Protobuild
             {
                 Console.WriteLine(ex.Message);
                 PrintHelp(commandMappings);
-                Environment.Exit(1);
+                ExecEnvironment.Exit(1);
             }
 
             try
             {
                 var exitCode = execution.CommandToExecute.Execute(execution);
-                Environment.Exit(exitCode);
+                ExecEnvironment.Exit(exitCode);
+            }
+            catch (ExecEnvironment.SelfInvokeExitException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                Environment.Exit(1);
+                ExecEnvironment.Exit(1);
             }
         }
 

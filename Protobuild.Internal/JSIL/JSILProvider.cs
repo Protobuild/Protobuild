@@ -456,6 +456,10 @@ namespace Protobuild
                             return true;
                         }
                     }
+                    catch (ExecEnvironment.SelfInvokeExitException)
+                    {
+                        throw;
+                    }
                     catch
                     {
                     }
@@ -518,6 +522,10 @@ namespace Protobuild
                 {
                     return false;
                 }
+            }
+            catch (ExecEnvironment.SelfInvokeExitException)
+            {
+                throw;
             }
             catch
             {

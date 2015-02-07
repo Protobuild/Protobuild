@@ -218,6 +218,10 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
                     return PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
                 }
+                catch (ExecEnvironment.SelfInvokeExitException)
+                {
+                    throw;
+                }
                 catch
                 {
                     stream.Seek(0, SeekOrigin.Begin);
@@ -230,6 +234,10 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                         }
 
                         return PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                    }
+                    catch (ExecEnvironment.SelfInvokeExitException)
+                    {
+                        throw;
                     }
                     catch
                     {

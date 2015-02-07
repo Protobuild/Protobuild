@@ -45,6 +45,10 @@ namespace Protobuild
                             apiData = JSON.ToDynamic(reader.ReadToEnd());
                         }
                     }
+                    catch (ExecEnvironment.SelfInvokeExitException)
+                    {
+                        throw;
+                    }
                     catch
                     {
                         performOnlineLookup = true;
@@ -84,6 +88,10 @@ namespace Protobuild
                                 apiData = JSON.ToDynamic(reader.ReadToEnd());
                             }
                         }
+                        catch (ExecEnvironment.SelfInvokeExitException)
+                        {
+                            throw;
+                        }
                         catch
                         {
                             shouldThrow = true;
@@ -110,6 +118,10 @@ namespace Protobuild
                             {
                                 apiData = JSON.ToDynamic(reader.ReadToEnd());
                             }
+                        }
+                        catch (ExecEnvironment.SelfInvokeExitException)
+                        {
+                            throw;
                         }
                         catch
                         {
@@ -140,6 +152,10 @@ namespace Protobuild
                 try
                 {
                     new Uri(sourceUri);
+                }
+                catch (ExecEnvironment.SelfInvokeExitException)
+                {
+                    throw;
                 }
                 catch
                 {
