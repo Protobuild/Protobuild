@@ -108,6 +108,7 @@
     <Compile Include="CommandLine\PackageRootCommand.cs" />
     <Compile Include="CommandLine\PackPackageCommand.cs" />
     <Compile Include="CommandLine\PushPackageCommand.cs" />
+    <Compile Include="CommandLine\RedirectPackageCommand.cs" />
     <Compile Include="CommandLine\ResolveCommand.cs" />
     <Compile Include="CommandLine\ResyncCommand.cs" />
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
@@ -184,6 +185,8 @@
     <Compile Include="Packages\PackageRetrieval\IPackageRetrieval.cs" />
     <Compile Include="Packages\PackageRetrieval\PackageRetrieval.cs" />
     <Compile Include="Packages\PlatformAndServiceActiveDetection.cs" />
+    <Compile Include="Packages\Redirection\IPackageRedirector.cs" />
+    <Compile Include="Packages\Redirection\PackageRedirector.cs" />
     <Compile Include="Packages\Reduplicator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgressRenderer\BaseProgressRenderer.cs" />

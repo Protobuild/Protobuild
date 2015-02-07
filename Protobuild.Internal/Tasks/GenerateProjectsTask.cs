@@ -18,16 +18,20 @@ namespace Protobuild.Tasks
 
         private readonly IJSILProvider m_JSILProvider;
 
+        private readonly IPackageRedirector m_PackageRedirector;
+
         public GenerateProjectsTask(
             IProjectLoader projectLoader,
             IProjectGenerator projectGenerator,
             ISolutionGenerator solutionGenerator,
-            IJSILProvider jsilProvider)
+            IJSILProvider jsilProvider,
+            IPackageRedirector packageRedirector)
         {
             this.m_ProjectLoader = projectLoader;
             this.m_ProjectGenerator = projectGenerator;
             this.m_SolutionGenerator = solutionGenerator;
             this.m_JSILProvider = jsilProvider;
+            this.m_PackageRedirector = packageRedirector;
         }
 
         public string SourcePath
@@ -79,7 +83,7 @@ namespace Protobuild.Tasks
             {
                 this.LogMessage(
                     "Invoking package resolution in submodule for " + submodule.Name);
-                submodule.RunProtobuild("-resolve " + this.Platform);
+                submodule.RunProtobuild("-resolve " + this.Platform + " " + this.m_PackageRedirector.GetRedirectionArguments());
                 this.LogMessage(
                     "Finished submodule package resolution for " + submodule.Name);
             }
@@ -165,7 +169,7 @@ namespace Protobuild.Tasks
             {
                 this.LogMessage(
                     "Invoking submodule generation for " + submodule.Name);
-                submodule.RunProtobuild("-generate " + this.Platform + " -spec " + serviceSpecPath);
+                submodule.RunProtobuild("-generate " + this.Platform + " -spec " + serviceSpecPath + " " + this.m_PackageRedirector.GetRedirectionArguments());
                 this.LogMessage(
                     "Finished submodule generation for " + submodule.Name);
             }

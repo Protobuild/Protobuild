@@ -56,6 +56,7 @@
             kernel.Bind<IPackageManager, PackageManager>();
             kernel.Bind<IPackageLookup, PackageLookup>();
             kernel.Bind<IPackageCacheConfiguration, PackageCacheConfiguration>();
+            kernel.BindAndKeepInstance<IPackageRedirector, PackageRedirector>();
         }
     }
 }
