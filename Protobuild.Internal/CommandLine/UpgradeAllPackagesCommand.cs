@@ -16,6 +16,11 @@ namespace Protobuild
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
+
+            if (args.Length > 0)
+            {
+                pendingExecution.Platform = args[0];
+            }
         }
 
         public int Execute(Execution execution)

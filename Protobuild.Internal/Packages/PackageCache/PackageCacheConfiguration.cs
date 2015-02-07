@@ -12,6 +12,12 @@ namespace Protobuild
             Directory.CreateDirectory(directory);
             return directory;
         }
+
+        public string GetRedirectsFile()
+        {
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            return Path.Combine(appData, "protobuild-redirects.txt");
+        }
     }
 }
 

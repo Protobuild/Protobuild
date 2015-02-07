@@ -11,10 +11,14 @@ namespace Protobuild
     public class PackageLookup : IPackageLookup
     {
         private IPackageCacheConfiguration _packageCacheConfiguration;
+        private IPackageRedirector _packageRedirector;
 
-        public PackageLookup(IPackageCacheConfiguration packageCacheConfiguration)
+        public PackageLookup(
+            IPackageCacheConfiguration packageCacheConfiguration,
+            IPackageRedirector packageRedirector)
         {
             _packageCacheConfiguration = packageCacheConfiguration;
+            _packageRedirector = packageRedirector;
         }
 
         public void Lookup(
@@ -27,6 +31,8 @@ namespace Protobuild
             out Dictionary<string, string> archiveTypeMap,
             out Dictionary<string, string> resolvedHash)
         {
+            uri = _packageRedirector.RedirectPackageUrl(uri);
+
             var baseUri = new Uri(uri);
 
             var apiUri = new Uri(baseUri.ToString().TrimEnd('/') + "/api");
