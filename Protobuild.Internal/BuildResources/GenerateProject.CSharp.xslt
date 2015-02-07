@@ -607,9 +607,50 @@
       select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
 
     <xsl:variable name="ToolsVersion">
+      <xsl:variable name="__FrameworkVersion">
+        <xsl:choose>
+          <xsl:when test="/Input/Properties/FrameworkVersions
+                          /Platform[@Name=/Input/Generation/Platform]
+                          /Version">
+            <TargetFrameworkVersion>
+              <xsl:value-of select="/Input/Properties/FrameworkVersions
+                                                          /Platform[@Name=/Input/Generation/Platform]
+                                                          /Version" />
+            </TargetFrameworkVersion>
+          </xsl:when>
+          <xsl:when test="/Input/Properties/FrameworkVersions/Version">
+            <TargetFrameworkVersion>
+              <xsl:value-of select="/Input/Properties/FrameworkVersions/Version" />
+            </TargetFrameworkVersion>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Unset</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </xsl:variable>
+
       <xsl:choose>
-        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81' or /Input/Generation/Platform = 'PCL'">
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
           <xsl:text>12.0</xsl:text>
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'PCL'">
+          <xsl:text>12.0</xsl:text>
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'Windows' or 
+          /Input/Generation/Platform = 'MacOS' or 
+          /Input/Generation/Platform = 'Linux'">
+          <!--
+            We have to choose the ToolsVersion based on the framework, since .NET 4.5
+            and later use a ToolsVersion that aligns with Visual Studio's version.
+          -->
+          <xsl:choose>
+            <xsl:when test="$__FrameworkVersion = 'v4.5'">
+              <xsl:text>12.0</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>4.0</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
           <xsl:text>4.0</xsl:text>

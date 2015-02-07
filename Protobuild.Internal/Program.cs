@@ -37,6 +37,7 @@ namespace Protobuild
                 { "disable", kernel.Get<DisableServiceCommand>() },
                 { "spec", kernel.Get<ServiceSpecificationCommand>() },
                 { "add", kernel.Get<AddPackageCommand>() },
+                { "upgrade", kernel.Get<UpgradePackageCommand>() },
                 { "pack", kernel.Get<PackPackageCommand>() },
                 { "format", kernel.Get<FormatPackageCommand>() },
                 { "push", kernel.Get<PushPackageCommand>() },

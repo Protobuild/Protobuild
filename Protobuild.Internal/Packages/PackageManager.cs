@@ -49,7 +49,7 @@ namespace Protobuild
             Console.WriteLine("Package resolution complete.");
         }
 
-        public void Resolve(PackageRef reference, string platform, string templateName, bool? source)
+        public void Resolve(PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
         {
             string sourceUri, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
@@ -93,7 +93,7 @@ namespace Protobuild
                 switch (type)
                 {
                     case PackageManager.PACKAGE_TYPE_LIBRARY:
-                        this.ResolveLibrarySource(reference, sourceUri);
+                        this.ResolveLibrarySource(reference, sourceUri, forceUpgrade);
                         break;
                     case PackageManager.PACKAGE_TYPE_TEMPLATE:
                         this.ResolveTemplateSource(reference, templateName, sourceUri);
@@ -105,7 +105,7 @@ namespace Protobuild
                 switch (type)
                 {
                     case PackageManager.PACKAGE_TYPE_LIBRARY:
-                        this.ResolveLibraryBinary(reference, platform, sourceUri);
+                        this.ResolveLibraryBinary(reference, platform, sourceUri, forceUpgrade);
                         break;
                     case PackageManager.PACKAGE_TYPE_TEMPLATE:
                         this.ResolveTemplateBinary(reference, templateName, platform, sourceUri);
@@ -114,12 +114,15 @@ namespace Protobuild
             }
         }
 
-        private void ResolveLibrarySource(PackageRef reference, string source)
+        private void ResolveLibrarySource(PackageRef reference, string source, bool forceUpgrade)
         {
             if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
             {
-                Console.WriteLine("Git submodule / repository already present at " + reference.Folder);
-                return;
+                if (!forceUpgrade)
+                {
+                    Console.WriteLine("Git submodule / repository already present at " + reference.Folder);
+                    return;
+                }
             }
 
             this.EmptyReferenceFolder(reference.Folder);
@@ -146,12 +149,15 @@ namespace Protobuild
             this.ApplyProjectTemplateFromStaging(templateName);
         }
 
-        private void ResolveLibraryBinary(PackageRef reference, string platform, string source)
+        private void ResolveLibraryBinary(PackageRef reference, string platform, string source, bool forceUpgrade)
         {
             if (File.Exists(Path.Combine(reference.Folder, platform, ".pkg")))
             {
-                Console.WriteLine("Protobuild binary package already present at " + Path.Combine(reference.Folder, platform));
-                return;
+                if (!forceUpgrade)
+                {
+                    Console.WriteLine("Protobuild binary package already present at " + Path.Combine(reference.Folder, platform));
+                    return;
+                }
             }
 
             var folder = Path.Combine(reference.Folder, platform);
@@ -182,7 +188,7 @@ namespace Protobuild
             var package = m_PackageCache.GetBinaryPackage(reference.Uri, reference.GitRef, platform);
             if (package == null)
             {
-                this.ResolveLibrarySource(reference, source);
+                this.ResolveLibrarySource(reference, source, forceUpgrade);
                 return;
             }
 
