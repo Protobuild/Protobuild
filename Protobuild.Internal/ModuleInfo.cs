@@ -248,17 +248,24 @@ namespace Protobuild
             writer.Close();
         }
 
-        public static bool RunProtobuildInProcess = false;
-
         /// <summary>
         /// Runs the instance of Protobuild.exe present in the module.
         /// </summary>
         /// <param name="args">The arguments to pass to Protobuild.</param>
         public void RunProtobuild(string args)
         {
-            if (RunProtobuildInProcess)
+            if (ExecEnvironment.RunProtobuildInProcess)
             {
-                MainClass.Main(args.Split(' '));
+                var old = Environment.CurrentDirectory;
+                try
+                {
+                    Environment.CurrentDirectory = this.Path;
+                    ExecEnvironment.InvokeSelf(args.Split(' '));
+                }
+                finally
+                {
+                    Environment.CurrentDirectory = old;
+                }
                 return;
             }
 
@@ -275,6 +282,10 @@ namespace Protobuild
                     UseShellExecute = false
                 };
                 Process.Start(chmodStartInfo);
+            }
+            catch (ExecEnvironment.SelfInvokeExitException)
+            {
+                throw;
             }
             catch
             {

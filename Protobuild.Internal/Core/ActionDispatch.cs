@@ -90,7 +90,7 @@ namespace Protobuild
                     Console.Error.WriteLine("  * " + supportedPlatform);
                 }
 
-                Environment.Exit(1);
+                ExecEnvironment.Exit(1);
                 return false;
             }
 

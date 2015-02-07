@@ -216,6 +216,10 @@ namespace Protobuild
                     };
                     Process.Start(chmodStartInfo);
                 }
+                catch (ExecEnvironment.SelfInvokeExitException)
+                {
+                    throw;
+                }
                 catch
                 {
                 }

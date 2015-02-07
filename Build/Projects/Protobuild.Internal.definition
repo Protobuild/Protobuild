@@ -129,6 +129,7 @@
     <Compile Include="DI\LightweightKernel.cs" />
     <Compile Include="DI\LightweightKernelModule.cs" />
     <Compile Include="EmbeddedResourceResolver.cs" />
+    <Compile Include="ExecEnvironment.cs" />
     <Compile Include="FileFilter\EnumerableExtensions.cs" />
     <Compile Include="FileFilter\FileFilter.cs" />
     <Compile Include="FileFilter\FileFilterParser.cs" />

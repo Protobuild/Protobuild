@@ -14,6 +14,8 @@ namespace Protobuild
 
         private readonly IWorkingDirectoryProvider m_WorkingDirectoryProvider;
 
+        private static Dictionary<int, XslCompiledTransform> m_CachedTransforms = new Dictionary<int, XslCompiledTransform>(); 
+
         public ResourceProvider(
             ILanguageStringProvider languageStringProvider,
             IWorkingDirectoryProvider workingDirectoryProvider)
@@ -24,6 +26,12 @@ namespace Protobuild
 
         public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language)
         {
+            var hash = resourceType.GetHashCode() + language.GetHashCode();
+            if (m_CachedTransforms.ContainsKey(hash))
+            {
+                return m_CachedTransforms[hash];
+            }
+
             string name = null;
             string fileSuffix = string.Empty;
             bool applyAdditionalTransforms = false;
@@ -117,6 +125,8 @@ namespace Protobuild
                     resolver
                 );
             }
+
+            m_CachedTransforms[hash] = result;
             return result;
         }
 
