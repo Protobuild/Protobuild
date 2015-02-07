@@ -3,13 +3,13 @@
   <Properties>
     <FrameworkVersions>
       <Platform Name="Windows">
-        <Version>4.5</Version>
+        <Version>v4.5</Version>
       </Platform>
       <Platform Name="MacOS">
-        <Version>4.5</Version>
+        <Version>v4.5</Version>
       </Platform>
       <Platform Name="Linux">
-        <Version>4.5</Version>
+        <Version>v4.5</Version>
       </Platform>
     </FrameworkVersions>
   </Properties>
@@ -19,6 +19,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Protobuild" />
+    <Reference Include="xunit" />
   </References>
   <Files>
     <Compile Include="..\Protobuild.Internal\Packages\Reduplicator.cs">
@@ -117,11 +118,6 @@
     <Content Include="TestData\ServicesNotDefaultForRoot\Submodule\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
-    <None Include="..\packages\xunit.core.2.0.0-rc1-build2826\build\_Desktop\xunit.execution.desktop.dll">
-      <Link>xunit.execution.desktop.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="packages.config" />
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />

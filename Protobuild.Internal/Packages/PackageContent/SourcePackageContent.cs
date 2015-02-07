@@ -26,27 +26,15 @@ namespace Protobuild
             if (GitUtils.IsGitRepository())
             {
                 GitUtils.UnmarkIgnored(path);
-                GitUtils.RunGit(null, "submodule update --init --recursive");
-
-                if (!File.Exists(Path.Combine(path, ".git")))
-                {
-                    // The submodule has never been added.
-                    GitUtils.RunGit(null, "submodule add --reference " + this.SourcePath + " " + this.OriginalGitUri + " " + path);
-                    GitUtils.RunGit(path, "checkout -f " + this.GitRef);
-                    this.InitializeSubmodulesFromCache(null);
-                    GitUtils.RunGit(null, "add .gitmodules");
-                    GitUtils.RunGit(null, "add " + path);
-                }
-
-                GitUtils.MarkIgnored(path);
             }
-            else
+
+            GitUtils.RunGit(null, "clone " + this.SourcePath + " " + path);
+            GitUtils.RunGit(path, "checkout -f " + this.GitRef);
+            this.InitializeSubmodulesFromCache(path);
+
+            if (GitUtils.IsGitRepository())
             {
-                // The current folder isn't a Git repository, so use
-                // git clone instead of git submodule.
-                GitUtils.RunGit(null, "clone " + this.SourcePath + " " + path);
-                GitUtils.RunGit(path, "checkout -f " + this.GitRef);
-                this.InitializeSubmodulesFromCache(path);
+                GitUtils.MarkIgnored(path);
             }
         }
 

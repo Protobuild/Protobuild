@@ -102,7 +102,7 @@ namespace Protobuild
 
         public static void UnmarkIgnored(string folder)
         {
-            var excludePath = GitUtils.GetGitExcludePath(folder);
+            var excludePath = GitUtils.GetGitExcludePath(Path.Combine(folder, ".."));
 
             if (excludePath == null)
             {
@@ -116,7 +116,7 @@ namespace Protobuild
 
         public static void MarkIgnored(string folder)
         {
-            var excludePath = GitUtils.GetGitExcludePath(folder);
+            var excludePath = GitUtils.GetGitExcludePath(Path.Combine(folder, ".."));
 
             if (excludePath == null)
             {

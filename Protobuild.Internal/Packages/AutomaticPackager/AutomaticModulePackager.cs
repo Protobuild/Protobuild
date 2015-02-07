@@ -429,7 +429,7 @@ namespace Protobuild
                         // the default architecture (because that's all we know
                         // about).  We also have to assume the binary folder
                         // contains binaries for the desired platform.
-                        var pathPrefix = definition.Path.Replace(".", "\\.") + "/bin/([^/]+)/";
+                        var pathPrefix = definition.Path.Replace('\\', '/').Replace(".", "\\.") + "/bin/([^/]+)/";
 
                         if (definition.Type == "Library")
                         {
@@ -503,7 +503,7 @@ namespace Protobuild
                                 }
                         }
 
-                        var pathPrefix = definition.Path.Replace(".", "\\.") + "/bin/" + platform + "/" + pathArchMatch + "/([^/]+)/";
+                        var pathPrefix = definition.Path.Replace('\\', '/').Replace(".", "\\.") + "/bin/" + platform + "/" + pathArchMatch + "/([^/]+)/";
 
                         if (definition.Type == "Library")
                         {
