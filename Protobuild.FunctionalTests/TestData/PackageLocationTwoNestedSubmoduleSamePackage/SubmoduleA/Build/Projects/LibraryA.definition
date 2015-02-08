@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="LibraryA" Path="LibraryA" Type="Library">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Files>
+    <Compile Include="MyClass.cs" />
+  </Files>
+</Project>

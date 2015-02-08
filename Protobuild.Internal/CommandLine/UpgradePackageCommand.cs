@@ -59,6 +59,7 @@ namespace Protobuild
             var packageRef = module.Packages.First(x => x.Uri == url);
 
             _packageManager.Resolve(
+                module,
                 packageRef,
                 execution.Platform ?? _hostPlatformDetector.DetectPlatform(),
                 null,

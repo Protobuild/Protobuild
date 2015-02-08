@@ -37,6 +37,7 @@ namespace Protobuild
             foreach (var package in module.Packages)
             {
                 _packageManager.Resolve(
+                    module,
                     package,
                     platform,
                     null,

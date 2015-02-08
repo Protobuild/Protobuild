@@ -50,11 +50,11 @@ namespace Protobuild
                 Folder = string.Empty
             };
 
-            this.m_PackageManager.Resolve(packageRef, "Template", execution.StartProjectName, false);
+            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            this.m_PackageManager.Resolve(module, packageRef, "Template", execution.StartProjectName, false);
 
             Console.WriteLine("Module has been initialized.  Performing --generate to create projects.");
 
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
             return this.m_ActionDispatch.PerformAction(
                 module,
                 "generate",

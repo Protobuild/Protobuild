@@ -29,7 +29,10 @@ namespace Protobuild
                 newDoc = doc;
             if (rootPath != null && modulePath != null)
             {
-                var additionalPath = modulePath.Substring(rootPath.Length).Replace('/', '\\');
+                var additionalPath = PathUtils.GetRelativePath(
+                    rootPath.TrimEnd(System.IO.Path.DirectorySeparatorChar) + System.IO.Path.DirectorySeparatorChar,
+                    modulePath.TrimEnd(System.IO.Path.DirectorySeparatorChar) + System.IO.Path.DirectorySeparatorChar);
+
                 if (newDoc.DocumentElement != null &&
                     newDoc.DocumentElement.Attributes["Path"] != null &&
                     additionalPath != null)

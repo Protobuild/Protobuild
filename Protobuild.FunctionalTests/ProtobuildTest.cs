@@ -175,5 +175,71 @@ namespace Protobuild.Tests
 
             return results;
         }
+
+        protected string SetupSrcPackage()
+        {
+            var protobuildLocation =
+                AppDomain.CurrentDomain.GetAssemblies().First(x => x.GetName().Name == "Protobuild").Location;
+
+            var location = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
+            var dataLocation = Path.Combine(location, "..", "..", "..", "..", "TestData", "SrcPackage");
+
+            var tempLocation = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            CopyDirectory(dataLocation, tempLocation);
+
+            File.Copy(protobuildLocation, Path.Combine(tempLocation, "Protobuild.exe"), true);
+
+            RunGitAndCapture(tempLocation, "init");
+            RunGitAndCapture(tempLocation, "add -f .");
+            RunGitAndCapture(tempLocation, "commit -a -m 'temp'");
+
+            return tempLocation;
+        }
+
+        private static void CopyDirectory(string source, string dest)
+        {
+            var dir = new DirectoryInfo(source);
+
+            if (!Directory.Exists(dest))
+            {
+                Directory.CreateDirectory(dest);
+            }
+
+            foreach (var file in dir.GetFiles())
+            {
+                var temppath = Path.Combine(dest, file.Name);
+                file.CopyTo(temppath, true);
+            }
+
+            foreach (var subdir in dir.GetDirectories())
+            {
+                var temppath = Path.Combine(dest, subdir.Name);
+                CopyDirectory(subdir.FullName, temppath);
+            }
+        }
+
+        private static string RunGitAndCapture(string folder, string str)
+        {
+            var processStartInfo = new ProcessStartInfo
+            {
+                FileName = "git",
+                Arguments = str,
+                WorkingDirectory = folder,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            };
+
+            var process = Process.Start(processStartInfo);
+            var result = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            if (process.ExitCode != 0)
+            {
+                throw new InvalidOperationException("Got an unexpected exit code of " + process.ExitCode + " from Git");
+            }
+
+            return result;
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Name="Protobuild.Tests" Path="Protobuild.Tests" Type="Library">
+<Project Name="Protobuild.FunctionalTests" Path="Protobuild.FunctionalTests" Type="Library">
   <Properties>
     <FrameworkVersions>
       <Platform Name="Windows">
@@ -79,6 +79,11 @@
     <Compile Include="PackageEverythingFailWhenProtobuildPresent.cs" />
     <Compile Include="PackageFilterCorrectModuleXmlTest.cs" />
     <Compile Include="PackageFilterCorrectTest.cs" />
+    <Compile Include="PackageLocationParentAndSubmoduleSamePackageTest.cs" />
+    <Compile Include="PackageLocationParentAndTwoSubmoduleSamePackageTest.cs" />
+    <Compile Include="PackageLocationTwoNestedSubmoduleSamePackageTest.cs" />
+    <Compile Include="PackageLocationTwoSubmoduleSamePackageTest.cs" />
+    <Compile Include="PackageRedirectionToLocalPathTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ResyncPreventedWhenSyncIsDisabledTest.cs" />
@@ -247,6 +252,48 @@
     <None Include="TestData\PackageFilterCorrectModuleXml\Console.definition" />
     <None Include="TestData\PackageFilterCorrectModuleXml\Filter.Windows.txt" />
     <None Include="TestData\PackageFilterCorrectModuleXml\Module.xml" />
+    <None Include="TestData\PackageLocationParentAndSubmoduleSamePackage\Build\Module.xml" />
+    <None Include="TestData\PackageLocationParentAndSubmoduleSamePackage\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageLocationParentAndSubmoduleSamePackage\Console\Program.cs" />
+    <None Include="TestData\PackageLocationParentAndSubmoduleSamePackage\Submodule\Build\Module.xml" />
+    <None Include="TestData\PackageLocationParentAndSubmoduleSamePackage\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\PackageLocationParentAndSubmoduleSamePackage\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\Build\Module.xml" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\Console\Program.cs" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\SubmoduleA\Build\Module.xml" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\SubmoduleA\Build\Projects\LibraryA.definition" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\SubmoduleA\LibraryA\MyClass.cs" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\SubmoduleB\Build\Module.xml" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\SubmoduleB\Build\Projects\LibraryB.definition" />
+    <None Include="TestData\PackageLocationParentAndTwoSubmoduleSamePackage\SubmoduleB\LibraryB\MyClass.cs" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\Console\Program.cs" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleA\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleA\Build\Projects\LibraryA.definition" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleA\LibraryA\MyClass.cs" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleA\NestedSubmoduleA\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleA\NestedSubmoduleA\Build\Projects\NestedLibraryA.definition" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleA\NestedSubmoduleA\NestedLibraryA\MyClass.cs" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleB\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleB\Build\Projects\LibraryB.definition" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleB\LibraryB\MyClass.cs" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleB\NestedSubmoduleB\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleB\NestedSubmoduleB\Build\Projects\NestedLibraryB.definition" />
+    <None Include="TestData\PackageLocationTwoNestedSubmoduleSamePackage\SubmoduleB\NestedSubmoduleB\NestedLibraryB\MyClass.cs" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\Console\Program.cs" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleA\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleA\Build\Projects\LibraryA.definition" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleA\LibraryA\MyClass.cs" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\Build\Module.xml" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\Build\Projects\LibraryB.definition" />
+    <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\LibraryB\MyClass.cs" />
+    <None Include="TestData\PackageRedirectionToLocalPath\Build\Module.xml" />
+    <None Include="TestData\PackageRedirectionToLocalPath\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageRedirectionToLocalPath\Console\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />
@@ -294,5 +341,9 @@
     <None Include="TestData\ServicesRelativeRequire\Console\Program.cs" />
     <None Include="TestData\ServicesRelativeRequire\Submodule\Build\Projects\Library.definition" />
     <None Include="TestData\ServicesRelativeRequire\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\SrcPackage\Build\Module.xml" />
+    <None Include="TestData\SrcPackage\Build\Projects\PackageExternal.definition" />
+    <None Include="TestData\SrcPackage\Build\Projects\PackageLibrary.definition" />
+    <None Include="TestData\SrcPackage\PackageLibrary\PackageClass.cs" />
   </Files>
 </Project>

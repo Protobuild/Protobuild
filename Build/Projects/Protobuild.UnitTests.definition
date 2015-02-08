@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Protobuild.UnitTests" Path="Protobuild.UnitTests" Type="Library">
+  <Properties>
+    <FrameworkVersions>
+      <Platform Name="Windows">
+        <Version>v4.5</Version>
+      </Platform>
+      <Platform Name="MacOS">
+        <Version>v4.5</Version>
+      </Platform>
+      <Platform Name="Linux">
+        <Version>v4.5</Version>
+      </Platform>
+    </FrameworkVersions>
+  </Properties>
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Protobuild.Internal" />
+    <Reference Include="xunit" />
+  </References>
+  <Files>
+    <Compile Include="PathUtilsTests.cs" />
+  </Files>
+</Project>
