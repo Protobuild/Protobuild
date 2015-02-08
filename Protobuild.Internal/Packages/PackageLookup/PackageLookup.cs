@@ -33,6 +33,16 @@ namespace Protobuild
         {
             uri = _packageRedirector.RedirectPackageUrl(uri);
 
+            if (uri.StartsWith("local-git://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sourceUri = uri.Substring("local-git://".Length);
+                type = PackageManager.PACKAGE_TYPE_LIBRARY;
+                downloadMap = new Dictionary<string, string>();
+                archiveTypeMap = new Dictionary<string, string>();
+                resolvedHash = new Dictionary<string, string>();
+                return;
+            }
+
             var baseUri = new Uri(uri);
 
             var apiUri = new Uri(baseUri.ToString().TrimEnd('/') + "/api");
