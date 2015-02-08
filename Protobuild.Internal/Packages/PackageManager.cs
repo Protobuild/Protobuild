@@ -17,6 +17,8 @@ namespace Protobuild
 
         private readonly IPackageLookup _packageLookup;
 
+        private readonly IPackageLocator m_PackageLocator;
+
         public const string ARCHIVE_FORMAT_TAR_LZMA = "tar/lzma";
 
         public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
@@ -25,10 +27,14 @@ namespace Protobuild
 
         public const string PACKAGE_TYPE_TEMPLATE = "template";
 
-        public PackageManager(IPackageCache packageCache, IPackageLookup packageLookup)
+        public PackageManager(
+            IPackageCache packageCache,
+            IPackageLookup packageLookup,
+            IPackageLocator packageLocator)
         {
             this.m_PackageCache = packageCache;
             _packageLookup = packageLookup;
+            this.m_PackageLocator = packageLocator;
         }
 
         public void ResolveAll(ModuleInfo module, string platform)
@@ -43,14 +49,41 @@ namespace Protobuild
             foreach (var submodule in module.Packages)
             {
                 Console.WriteLine("Resolving: " + submodule.Uri);
-                this.Resolve(submodule, platform, null, null);
+                this.Resolve(module, submodule, platform, null, null);
             }
 
             Console.WriteLine("Package resolution complete.");
         }
 
-        public void Resolve(PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
+        public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
         {
+            var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference);
+            if (existingPath != null)
+            {
+                Console.WriteLine("Found an existing working copy of this package at " + existingPath);
+
+                Directory.CreateDirectory(reference.Folder);
+                using (var writer = new StreamWriter(Path.Combine(reference.Folder, ".redirect")))
+                {
+                    writer.WriteLine(existingPath);
+                }
+
+                return;
+            }
+            else
+            {
+                if (File.Exists(Path.Combine(reference.Folder, ".redirect")))
+                {
+                    try
+                    {
+                        File.Delete(Path.Combine(reference.Folder, ".redirect"));
+                    }
+                    catch
+                    {
+                    }
+                }
+            }
+
             string sourceUri, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
             _packageLookup.Lookup(

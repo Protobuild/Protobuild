@@ -57,7 +57,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 echo "Running tests..."
-.\xunit\src\xunit.console\bin\Windows\AnyCPU\Debug\xunit.console.exe Protobuild.Tests\bin\$PLATFORM\AnyCPU\Release\Protobuild.Tests.dll -noshadow
+.\xunit\src\xunit.console\bin\Windows\AnyCPU\Debug\xunit.console.exe Protobuild.UnitTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.UnitTests.dll Protobuild.FunctionalTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.FunctionalTests.dll -noshadow
 
 echo "Copying built Protobuild to root of repository..."
 copy-item -Force Protobuild\bin\$PLATFORM\AnyCPU\Release\Protobuild.exe .\Protobuild.exe

@@ -1,0 +1,12 @@
+{
+  "unit.engine": "XUnit2TestEngine",
+  "unit.csharp.xunit.binary": "xunit/src/xunit.console/bin/Linux/AnyCPU/Release/xunit.console.exe",
+  "unit.csharp.discovery": {
+    "(.*?)\\.cs": [
+      [ "Protobuild.UnitTests/Protobuild.UnitTests.Linux.csproj", "Protobuild.UnitTests/bin/Linux/AnyCPU/Debug/Protobuild.UnitTests.dll" ],
+      [ "Protobuild.UnitTests/Protobuild.UnitTests.Windows.csproj", "Protobuild.UnitTests/bin/Windows/AnyCPU/Debug/Protobuild.UnitTests.dll" ],
+      [ "Protobuild.FunctionalTests/Protobuild.FunctionalTests.Linux.csproj", "Protobuild.FunctionalTests/bin/Linux/AnyCPU/Debug/Protobuild.FunctionalTests.dll" ],
+      [ "Protobuild.FunctionalTests/Protobuild.FunctionalTests.Windows.csproj", "Protobuild.FunctionalTests/bin/Windows/AnyCPU/Debug/Protobuild.FunctionalTests.dll" ]
+    ]
+  }
+}

@@ -170,19 +170,37 @@ namespace Protobuild
         /// <param name="relative">The current directory being scanned.</param>
         public IEnumerable<DefinitionInfo> GetDefinitionsRecursively(string platform = null, string relative = "")
         {
+            var definitions = new List<DefinitionInfo>();
+
             foreach (var definition in this.GetDefinitions())
             {
                 definition.Path = (relative + '\\' + definition.Path).Trim('\\');
                 definition.ModulePath = this.Path;
-                yield return definition;
+                definitions.Add(definition);
             }
 
             foreach (var submodule in this.GetSubmodules(platform))
             {
                 foreach (var definition in submodule.GetDefinitionsRecursively(platform, (relative + '\\' + submodule.Name).Trim('\\')))
                 {
-                    yield return definition;
+                    definitions.Add(definition);
                 }
+            }
+
+            return definitions.Distinct(new DefinitionEqualityComparer());
+        }
+
+        private class DefinitionEqualityComparer : IEqualityComparer<DefinitionInfo>
+        {
+            public bool Equals(DefinitionInfo a, DefinitionInfo b)
+            {
+                return a.ModulePath == b.ModulePath &&
+                    a.Name == b.Name;
+            }
+
+            public int GetHashCode(DefinitionInfo obj)
+            {
+                return obj.ModulePath.GetHashCode() + obj.Name.GetHashCode() * 37;
             }
         }
 
@@ -193,8 +211,21 @@ namespace Protobuild
         public ModuleInfo[] GetSubmodules(string platform = null)
         {
             var modules = new List<ModuleInfo>();
-            foreach (var directory in new DirectoryInfo(this.Path).GetDirectories())
+            foreach (var directoryInit in new DirectoryInfo(this.Path).GetDirectories())
             {
+                var directory = directoryInit;
+
+                if (File.Exists(System.IO.Path.Combine(directory.FullName, ".redirect")))
+                {
+                    // This is a redirected submodule (due to package resolution).  Load the
+                    // module from it's actual path.
+                    using (var reader = new StreamReader(System.IO.Path.Combine(directory.FullName, ".redirect")))
+                    {
+                        var targetPath = reader.ReadToEnd().Trim();
+                        directory = new DirectoryInfo(targetPath);
+                    }
+                }
+
                 var build = directory.GetDirectories().FirstOrDefault(x => x.Name == "Build");
                 if (build == null)
                 {
