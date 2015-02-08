@@ -4,12 +4,17 @@ namespace Protobuild.Tests
 {
     public class PathUtilsTests
     {
+        // We use file:// explicitly in these tests so that they work
+        // on all platforms.  These tests also pass on Windows if the
+        // paths are of "C:\path\to\module\" form, and also pass on UNIX
+        // if they are of the "/path/to/module/" form.
+
         [Fact]
         public void DirectoriesNextToEachOther()
         {
             Assert.Equal(
                 "..\\target\\",
-                PathUtils.GetRelativePath("/path/to/module/", "/path/to/target/"));
+                PathUtils.GetRelativePath("file:///path/to/module/", "file:///path/to/target/"));
         }
 
         [Fact]
@@ -17,7 +22,7 @@ namespace Protobuild.Tests
         {
             Assert.Equal(
                 "target\\",
-                PathUtils.GetRelativePath("/path/to/module/", "/path/to/module/target/"));
+                PathUtils.GetRelativePath("file:///path/to/module/", "file:///path/to/module/target/"));
         }
 
         [Fact]
@@ -25,7 +30,7 @@ namespace Protobuild.Tests
         {
             Assert.Equal(
                 "",
-                PathUtils.GetRelativePath("/path/to/module/", "/path/to/module/"));
+                PathUtils.GetRelativePath("file:///path/to/module/", "file:///path/to/module/"));
         }
 
         [Fact]
@@ -33,7 +38,7 @@ namespace Protobuild.Tests
         {
             Assert.Equal(
                 "..\\",
-                PathUtils.GetRelativePath("/path/to/module/", "/path/to/"));
+                PathUtils.GetRelativePath("file:///path/to/module/", "file:///path/to/"));
         }
     }
 }
