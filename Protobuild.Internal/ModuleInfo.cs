@@ -151,6 +151,10 @@ namespace Protobuild
         {
             var result = new List<DefinitionInfo>();
             var path = System.IO.Path.Combine(this.Path, "Build", "Projects");
+            if (!Directory.Exists(path))
+            {
+                return new DefinitionInfo[0];
+            }
             foreach (var file in new DirectoryInfo(path).GetFiles("*.definition"))
             {
                 result.Add(DefinitionInfo.Load(file.FullName));
