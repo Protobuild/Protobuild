@@ -1097,7 +1097,13 @@
               <Reference Include="XamMac" />
             </xsl:when>
             <xsl:otherwise>
-              <Reference Include="MonoMac" />
+              <xsl:choose>
+                <xsl:when test="/Input/Properties/ExcludeMonoMacReference">
+                </xsl:when>
+                <xsl:otherwise>
+                  <Reference Include="MonoMac" />
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:if>
