@@ -797,7 +797,14 @@
               <xsl:text>WinExe</xsl:text>
             </xsl:when>
             <xsl:when test="$project/@Type = 'GTK'">
-              <xsl:text>WinExe</xsl:text>
+              <xsl:choose>
+                <xsl:when test="/Input/Generation/Platform = 'MacOS'">
+                  <xsl:text>Exe</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>WinExe</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:when>
             <xsl:when test="$project/@Type = 'App'">
               <xsl:choose>
