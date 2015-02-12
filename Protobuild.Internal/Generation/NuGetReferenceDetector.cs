@@ -107,6 +107,7 @@ namespace Protobuild
 
                     // Substring matches
                     "?net4",
+                    "?MonoAndroid",
                 };
 
                 // Determine the base path for all references; that is, the lib/ folder.
@@ -156,13 +157,20 @@ namespace Protobuild
                             clrName = clrName.Substring(1);
 
                             var baseDirPath = Path.Combine(rootPath, referenceBasePath);
+                            var found = false;
                             foreach (var subdir in new DirectoryInfo(baseDirPath).GetDirectories())
                             {
                                 if (subdir.Name.Contains(clrName))
                                 {
                                     clrName = subdir.Name;
+                                    found = true;
                                     break;
                                 }
+                            }
+
+                            if (!found)
+                            {
+                                continue;
                             }
                         }
                         else
