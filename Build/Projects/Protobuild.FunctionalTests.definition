@@ -65,6 +65,7 @@
     <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
+    <Compile Include="NuGetAndroidDoesNotCrashTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentWithRootPathDotSlashTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentWithRootPathDotTest.cs" />
@@ -185,6 +186,14 @@
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />
     <None Include="TestData\NativeBinaryPresent\Console\Program.cs" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\Build\Module.xml" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\Build\Projects\Console.definition" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\Console\packages.Android.config" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\Console\Program.cs" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\packages\Xamarin.Android.Support.v4.21.0.3.0\lib\MonoAndroid10\Xamarin.Android.Support.v4.dll" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\packages\Xamarin.Android.Support.v7.AppCompat.21.0.3.0\lib\MonoAndroid403\Xamarin.Android.Support.v7.AppCompat.dll" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\packages\Xamarin.Android.Support.v7.MediaRouter.21.0.3.0\lib\MonoAndroid403\Xamarin.Android.Support.v7.MediaRouter.dll" />
+    <None Include="TestData\NuGetAndroidDoesNotCrash\packages\Xamarin.GooglePlayServices.22.0.0.1\lib\MonoAndroid41\GooglePlayServicesLib.dll" />
     <None Include="TestData\NuGetPackagesDetectedFromParent\Build\Module.xml" />
     <None Include="TestData\NuGetPackagesDetectedFromParent\Build\Projects\.gitkeep" />
     <None Include="TestData\NuGetPackagesDetectedFromParent\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
