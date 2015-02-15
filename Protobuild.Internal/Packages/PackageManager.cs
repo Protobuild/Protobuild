@@ -57,29 +57,32 @@ namespace Protobuild
 
         public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
         {
-            var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference);
-            if (existingPath != null)
+            if (module != null)
             {
-                Console.WriteLine("Found an existing working copy of this package at " + existingPath);
-
-                Directory.CreateDirectory(reference.Folder);
-                using (var writer = new StreamWriter(Path.Combine(reference.Folder, ".redirect")))
+                var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference);
+                if (existingPath != null)
                 {
-                    writer.WriteLine(existingPath);
-                }
+                    Console.WriteLine("Found an existing working copy of this package at " + existingPath);
 
-                return;
-            }
-            else
-            {
-                if (File.Exists(Path.Combine(reference.Folder, ".redirect")))
-                {
-                    try
+                    Directory.CreateDirectory(reference.Folder);
+                    using (var writer = new StreamWriter(Path.Combine(reference.Folder, ".redirect")))
                     {
-                        File.Delete(Path.Combine(reference.Folder, ".redirect"));
+                        writer.WriteLine(existingPath);
                     }
-                    catch
+
+                    return;
+                }
+                else
+                {
+                    if (File.Exists(Path.Combine(reference.Folder, ".redirect")))
                     {
+                        try
+                        {
+                            File.Delete(Path.Combine(reference.Folder, ".redirect"));
+                        }
+                        catch
+                        {
+                        }
                     }
                 }
             }
