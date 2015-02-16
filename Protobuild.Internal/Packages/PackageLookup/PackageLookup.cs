@@ -43,6 +43,26 @@ namespace Protobuild
                 return;
             }
 
+            if (uri.StartsWith("http-git://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sourceUri = "http://" + uri.Substring("http-git://".Length);
+                type = PackageManager.PACKAGE_TYPE_LIBRARY;
+                downloadMap = new Dictionary<string, string>();
+                archiveTypeMap = new Dictionary<string, string>();
+                resolvedHash = new Dictionary<string, string>();
+                return;
+            }
+
+            if (uri.StartsWith("https-git://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sourceUri = "https://" + uri.Substring("https-git://".Length);
+                type = PackageManager.PACKAGE_TYPE_LIBRARY;
+                downloadMap = new Dictionary<string, string>();
+                archiveTypeMap = new Dictionary<string, string>();
+                resolvedHash = new Dictionary<string, string>();
+                return;
+            }
+
             var baseUri = new Uri(uri);
 
             var apiUri = new Uri(baseUri.ToString().TrimEnd('/') + "/api");
