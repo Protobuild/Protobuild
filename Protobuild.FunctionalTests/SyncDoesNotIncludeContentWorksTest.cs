@@ -19,13 +19,18 @@
 
             var targetContents = this.ReadFile(@"Build\Projects\Console.definition");
 
-            Assert.Contains("Program.cs", targetContents);
-            Assert.Contains("Added.cs", targetContents);
-            Assert.DoesNotContain("Content", targetContents);
-
-            // Reset the file back after the test passes so that Git doesn't
-            // report this file as changed.
-            File.Copy(original, target, true);
+            try
+            {
+                Assert.Contains("Program.cs", targetContents);
+                Assert.Contains("Added.cs", targetContents);
+                Assert.DoesNotContain("Content", targetContents);
+            }
+            finally
+            {
+                // Reset the file back after the test passes so that Git doesn't
+                // report this file as changed.
+                File.Copy(original, target, true);
+            }
         }
     }
 }
