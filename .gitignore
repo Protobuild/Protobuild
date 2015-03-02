@@ -31,3 +31,4 @@ repositories.config
 /Protobuild.FunctionalTests/TestData/PackageLocationTwoNestedSubmoduleSamePackage/SubmoduleA/NestedSubmoduleA/Package/
 /Protobuild.FunctionalTests/TestData/PackageLocationTwoNestedSubmoduleSamePackage/SubmoduleB/NestedSubmoduleB/Package/.redirect
 /Protobuild.FunctionalTests/TestData/NuGetAndroidDoesNotCrash/Console/packages.config
+TestSummary.htm

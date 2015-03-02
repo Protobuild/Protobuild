@@ -97,6 +97,7 @@
     <Compile Include="ServicesLibraryNotBuiltWhenNotUsedTest.cs" />
     <Compile Include="ServicesNotDefaultForRootTest.cs" />
     <Compile Include="ServicesRelativeRequireTest.cs" />
+    <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Content Include="TestData\ExampleCocos2DXNA\Build\Module.xml" />
     <Content Include="TestData\ExampleCocos2DXNA\MonoGame\Build\Module.xml" />
     <Content Include="TestData\ExampleCSTools\Build\Module.xml" />
@@ -124,6 +125,9 @@
     <Content Include="TestData\ServicesNotDefaultForRoot\Submodule\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Build\Module.xml" />
     <Content Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
+    <Content Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\assets\subdir\testB.txt" />
+    <Content Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\assets\testA.txt" />
+    <Content Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\compiled\testC.txt" />
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />
@@ -354,5 +358,9 @@
     <None Include="TestData\SrcPackage\Build\Projects\PackageExternal.definition" />
     <None Include="TestData\SrcPackage\Build\Projects\PackageLibrary.definition" />
     <None Include="TestData\SrcPackage\PackageLibrary\PackageClass.cs" />
+    <None Include="TestData\SyncDoesNotIncludeContentWorks\Build\Module.xml" />
+    <None Include="TestData\SyncDoesNotIncludeContentWorks\Build\Projects\Console.Content.definition" />
+    <None Include="TestData\SyncDoesNotIncludeContentWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\SyncDoesNotIncludeContentWorks\Console\Program.cs" />
   </Files>
 </Project>
