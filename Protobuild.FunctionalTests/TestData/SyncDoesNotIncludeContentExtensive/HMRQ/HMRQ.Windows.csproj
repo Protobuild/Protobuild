@@ -1,0 +1,770 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{51524D48-572E-6E69-646F-7773484D5251}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>HMRQ</RootNamespace>
+    <AssemblyName>HMRQ</AssemblyName>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>
+    </NoWarn>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
+    <OutputPath>bin\Windows\AnyCPU\Debug</OutputPath>
+    <IntermediateOutputPath>obj\Windows\AnyCPU\Debug</IntermediateOutputPath>
+    <DocumentationFile>bin\Windows\AnyCPU\Debug\HMRQ.xml</DocumentationFile>
+    <DefineConstants>DEBUG;PLATFORM_WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <OutputPath>bin\Windows\AnyCPU\Release</OutputPath>
+    <IntermediateOutputPath>obj\Windows\AnyCPU\Release</IntermediateOutputPath>
+    <DocumentationFile>bin\Windows\AnyCPU\Release\HMRQ.xml</DocumentationFile>
+    <DefineConstants>PLATFORM_WINDOWS</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="protobuf-net">
+      <HintPath>..\Protogame\ThirdParty\protobuf-net\Windows\protobuf-net\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Extensions.Factory">
+      <HintPath>..\Protogame\ThirdParty\Ninject.Extensions.Factory\Ninject.Extensions.Factory.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Extensions.Interception">
+      <HintPath>..\Protogame\ThirdParty\Ninject.Extensions.Interception\Ninject.Extensions.Interception.dll</HintPath>
+    </Reference>
+    <Reference Include="Ninject.Extensions.Interception.DynamicProxy">
+      <HintPath>..\Protogame\ThirdParty\Ninject.Extensions.Interception\Ninject.Extensions.Interception.DynamicProxy.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Core">
+      <HintPath>..\Protogame\ThirdParty\Castle.Core\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Protogame\ThirdParty\Newtonsoft.Json\Windows\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssetCommand.cs" />
+    <Compile Include="DefaultEntityFactory.cs" />
+    <Compile Include="Entities\Activatable.cs" />
+    <Compile Include="Entities\Furnace.cs" />
+    <Compile Include="Entities\Collectable.cs" />
+    <Compile Include="Entities\Dirt.cs" />
+    <Compile Include="Entities\Ladder.cs" />
+    <Compile Include="Entities\Player.cs" />
+    <Compile Include="Entities\RobotEntity.cs" />
+    <Compile Include="Entities\SemiSolidFloor.cs" />
+    <Compile Include="Entities\Solid.cs" />
+    <Compile Include="Entities\Spawn.cs" />
+    <Compile Include="EntityRenderingMatrix.cs" />
+    <Compile Include="Events\ActivateAction.cs" />
+    <Compile Include="Events\ClimbDownAction.cs" />
+    <Compile Include="Events\ClimbUpAction.cs" />
+    <Compile Include="Events\Debug1Action.cs" />
+    <Compile Include="Events\Debug2Action.cs" />
+    <Compile Include="Events\DesktopEventBinder.cs" />
+    <Compile Include="Events\JumpAction.cs" />
+    <Compile Include="Events\MoveLeftAction.cs" />
+    <Compile Include="Events\MoveRightAction.cs" />
+    <Compile Include="HMRQActivity.cs" />
+    <Compile Include="HMRQGame.cs" />
+    <Compile Include="HMRQIoCModule.cs" />
+    <Compile Include="HMRQWorld.cs" />
+    <Compile Include="HMRQWorldManager.cs" />
+    <Compile Include="IEntityFactory.cs" />
+    <Compile Include="IEntityRenderingMatrix.cs" />
+    <Compile Include="IPlayerAnimationController.cs" />
+    <Compile Include="IRenderModeEntity.cs" />
+    <Compile Include="ITeamAwareEntity.cs" />
+    <Compile Include="Levels\TeamRobotLevelManager.cs" />
+    <Compile Include="Levels\TiledLevelReader.cs" />
+    <Compile Include="PlayerAnimationController.cs" />
+    <Compile Include="PlayerState.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="RobotOrientation.cs" />
+    <Compile Include="RobotState.cs" />
+    <Compile Include="ViewMode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AndroidManifest.xml" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\ChargeL_data\e00\d00\e000041f.au">
+      <Link>Content\audio\Robot\Originals\ChargeL_data\e00\d00\e000041f.au</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\ChargeL_data\e00\d00\e0000ede.au">
+      <Link>Content\audio\Robot\Originals\ChargeL_data\e00\d00\e0000ede.au</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\Footsteps_data\e00\d00\e000083c.au">
+      <Link>Content\audio\Robot\Originals\Footsteps_data\e00\d00\e000083c.au</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\Footsteps_data\e00\d00\e0000ac9.au">
+      <Link>Content\audio\Robot\Originals\Footsteps_data\e00\d00\e0000ac9.au</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\Furnace_data\e00\d00\e000053b.au">
+      <Link>Content\audio\Robot\Originals\Furnace_data\e00\d00\e000053b.au</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\LoadedL_data\e00\d00\e0000ade.au">
+      <Link>Content\audio\Robot\Originals\LoadedL_data\e00\d00\e0000ade.au</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\ChargeL.aup">
+      <Link>Content\audio\Robot\Originals\ChargeL.aup</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\Footsteps.aup">
+      <Link>Content\audio\Robot\Originals\Footsteps.aup</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\Furnace.aup">
+      <Link>Content\audio\Robot\Originals\Furnace.aup</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Originals\LoadedL.aup">
+      <Link>Content\audio\Robot\Originals\LoadedL.aup</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\ChargeL.wav">
+      <Link>Content\audio\Robot\ChargeL.wav</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Footsteps.wav">
+      <Link>Content\audio\Robot\Footsteps.wav</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\Furnace.wav">
+      <Link>Content\audio\Robot\Furnace.wav</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Robot\LoadedL.wav">
+      <Link>Content\audio\Robot\LoadedL.wav</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\audio\Jump.wav">
+      <Link>Content\audio\Jump.wav</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\effect\BasicNoMipMap.fx">
+      <Link>Content\effect\BasicNoMipMap.fx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\effect\ColorNoMipMap.fx">
+      <Link>Content\effect\ColorNoMipMap.fx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\effect\SkinnedNoMipMap.fx">
+      <Link>Content\effect\SkinnedNoMipMap.fx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\font\Main.asset">
+      <Link>Content\font\Main.asset</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\level\Level0.oel">
+      <Link>Content\level\Level0.oel</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\level\Robot.oel">
+      <Link>Content\level\Robot.oel</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\level\Robot.tmx">
+      <Link>Content\level\Robot.tmx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\model\Building.fbx">
+      <Link>Content\model\Building.fbx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\model\Ladder.fbx">
+      <Link>Content\model\Ladder.fbx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\model\RobotInside.fbx">
+      <Link>Content\model\RobotInside.fbx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Cog\1.png">
+      <Link>Content\texture\Cog\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Cog\2.png">
+      <Link>Content\texture\Cog\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Cog\3.png">
+      <Link>Content\texture\Cog\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Cog\4.png">
+      <Link>Content\texture\Cog\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Cog\5.png">
+      <Link>Content\texture\Cog\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Cog\6.png">
+      <Link>Content\texture\Cog\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Left\1.png">
+      <Link>Content\texture\Guy1\Idle\Left\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Left\2.png">
+      <Link>Content\texture\Guy1\Idle\Left\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Left\3.png">
+      <Link>Content\texture\Guy1\Idle\Left\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Left\4.png">
+      <Link>Content\texture\Guy1\Idle\Left\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Left\5.png">
+      <Link>Content\texture\Guy1\Idle\Left\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Left\6.png">
+      <Link>Content\texture\Guy1\Idle\Left\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Right\1.png">
+      <Link>Content\texture\Guy1\Idle\Right\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Right\2.png">
+      <Link>Content\texture\Guy1\Idle\Right\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Right\3.png">
+      <Link>Content\texture\Guy1\Idle\Right\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Right\4.png">
+      <Link>Content\texture\Guy1\Idle\Right\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Right\5.png">
+      <Link>Content\texture\Guy1\Idle\Right\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Idle\Right\6.png">
+      <Link>Content\texture\Guy1\Idle\Right\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Left\1.png">
+      <Link>Content\texture\Guy1\Run\Left\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Left\2.png">
+      <Link>Content\texture\Guy1\Run\Left\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Left\3.png">
+      <Link>Content\texture\Guy1\Run\Left\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Left\4.png">
+      <Link>Content\texture\Guy1\Run\Left\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Left\5.png">
+      <Link>Content\texture\Guy1\Run\Left\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Left\6.png">
+      <Link>Content\texture\Guy1\Run\Left\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Right\1.png">
+      <Link>Content\texture\Guy1\Run\Right\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Right\2.png">
+      <Link>Content\texture\Guy1\Run\Right\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Right\3.png">
+      <Link>Content\texture\Guy1\Run\Right\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Right\4.png">
+      <Link>Content\texture\Guy1\Run\Right\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Right\5.png">
+      <Link>Content\texture\Guy1\Run\Right\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Run\Right\6.png">
+      <Link>Content\texture\Guy1\Run\Right\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Use\1.png">
+      <Link>Content\texture\Guy1\Use\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Use\2.png">
+      <Link>Content\texture\Guy1\Use\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Use\3.png">
+      <Link>Content\texture\Guy1\Use\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Use\4.png">
+      <Link>Content\texture\Guy1\Use\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Use\5.png">
+      <Link>Content\texture\Guy1\Use\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Use\6.png">
+      <Link>Content\texture\Guy1\Use\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Climb01.png">
+      <Link>Content\texture\Guy1\Climb01.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Climb02.png">
+      <Link>Content\texture\Guy1\Climb02.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Climb03.png">
+      <Link>Content\texture\Guy1\Climb03.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Climb04.png">
+      <Link>Content\texture\Guy1\Climb04.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Climb05.png">
+      <Link>Content\texture\Guy1\Climb05.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Climb06.png">
+      <Link>Content\texture\Guy1\Climb06.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Guy1\Jump.png">
+      <Link>Content\texture\Guy1\Jump.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Health\10000.png">
+      <Link>Content\texture\Health\10000.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Health\5000.png">
+      <Link>Content\texture\Health\5000.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Health\6000.png">
+      <Link>Content\texture\Health\6000.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Health\7000.png">
+      <Link>Content\texture\Health\7000.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Health\8000.png">
+      <Link>Content\texture\Health\8000.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Health\9000.png">
+      <Link>Content\texture\Health\9000.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Laser\1.png">
+      <Link>Content\texture\Laser\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Laser\2.png">
+      <Link>Content\texture\Laser\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Laser\3.png">
+      <Link>Content\texture\Laser\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Laser\4.png">
+      <Link>Content\texture\Laser\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\1.png">
+      <Link>Content\texture\Mech1\Punch1\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\10.png">
+      <Link>Content\texture\Mech1\Punch1\10.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\11.png">
+      <Link>Content\texture\Mech1\Punch1\11.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\2.png">
+      <Link>Content\texture\Mech1\Punch1\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\3.png">
+      <Link>Content\texture\Mech1\Punch1\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\4.png">
+      <Link>Content\texture\Mech1\Punch1\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\5.png">
+      <Link>Content\texture\Mech1\Punch1\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\6.png">
+      <Link>Content\texture\Mech1\Punch1\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\7.png">
+      <Link>Content\texture\Mech1\Punch1\7.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\8.png">
+      <Link>Content\texture\Mech1\Punch1\8.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch1\9.png">
+      <Link>Content\texture\Mech1\Punch1\9.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\1.png">
+      <Link>Content\texture\Mech1\Punch2\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\10.png">
+      <Link>Content\texture\Mech1\Punch2\10.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\11.png">
+      <Link>Content\texture\Mech1\Punch2\11.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\12.png">
+      <Link>Content\texture\Mech1\Punch2\12.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\2.png">
+      <Link>Content\texture\Mech1\Punch2\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\3.png">
+      <Link>Content\texture\Mech1\Punch2\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\4.png">
+      <Link>Content\texture\Mech1\Punch2\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\5.png">
+      <Link>Content\texture\Mech1\Punch2\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\6.png">
+      <Link>Content\texture\Mech1\Punch2\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\7.png">
+      <Link>Content\texture\Mech1\Punch2\7.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\8.png">
+      <Link>Content\texture\Mech1\Punch2\8.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\Punch2\9.png">
+      <Link>Content\texture\Mech1\Punch2\9.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\1.png">
+      <Link>Content\texture\Mech1\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\2.png">
+      <Link>Content\texture\Mech1\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\3.png">
+      <Link>Content\texture\Mech1\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\4.png">
+      <Link>Content\texture\Mech1\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\5.png">
+      <Link>Content\texture\Mech1\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\6.png">
+      <Link>Content\texture\Mech1\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\7.png">
+      <Link>Content\texture\Mech1\7.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\8.png">
+      <Link>Content\texture\Mech1\8.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Mech1\9.png">
+      <Link>Content\texture\Mech1\9.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\0.png">
+      <Link>Content\texture\Timer\0.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\1.png">
+      <Link>Content\texture\Timer\1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\10.png">
+      <Link>Content\texture\Timer\10.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\11.png">
+      <Link>Content\texture\Timer\11.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\12.png">
+      <Link>Content\texture\Timer\12.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\13.png">
+      <Link>Content\texture\Timer\13.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\14.png">
+      <Link>Content\texture\Timer\14.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\15.png">
+      <Link>Content\texture\Timer\15.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\16.png">
+      <Link>Content\texture\Timer\16.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\17.png">
+      <Link>Content\texture\Timer\17.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\18.png">
+      <Link>Content\texture\Timer\18.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\2.png">
+      <Link>Content\texture\Timer\2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\3.png">
+      <Link>Content\texture\Timer\3.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\4.png">
+      <Link>Content\texture\Timer\4.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\5.png">
+      <Link>Content\texture\Timer\5.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\6.png">
+      <Link>Content\texture\Timer\6.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\7.png">
+      <Link>Content\texture\Timer\7.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\8.png">
+      <Link>Content\texture\Timer\8.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\9.png">
+      <Link>Content\texture\Timer\9.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\Primed1.png">
+      <Link>Content\texture\Timer\Primed1.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Timer\Primed2.png">
+      <Link>Content\texture\Timer\Primed2.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\ButtonDisabled.png">
+      <Link>Content\texture\ButtonDisabled.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\ButtonDown.png">
+      <Link>Content\texture\ButtonDown.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\ButtonUp.png">
+      <Link>Content\texture\ButtonUp.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Coal.png">
+      <Link>Content\texture\Coal.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\DirtTileset.png">
+      <Link>Content\texture\DirtTileset.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\HealthBar.png">
+      <Link>Content\texture\HealthBar.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\HealthFrame.png">
+      <Link>Content\texture\HealthFrame.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Ladder.png">
+      <Link>Content\texture\Ladder.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\OneWayPlatform.png">
+      <Link>Content\texture\OneWayPlatform.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Pipes.png">
+      <Link>Content\texture\Pipes.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Player.png">
+      <Link>Content\texture\Player.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Robot.png">
+      <Link>Content\texture\Robot.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\Solid.png">
+      <Link>Content\texture\Solid.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\UseMe.png">
+      <Link>Content\texture\UseMe.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\texture\UseMeDisabled.png">
+      <Link>Content\texture\UseMeDisabled.png</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\tileset\Dirt.asset">
+      <Link>Content\tileset\Dirt.asset</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\.source">
+      <Link>Content\.source</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\Android\audio\Jump.bin">
+      <Link>Content\Android\audio\Jump.bin</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\Android\font\Main.bin">
+      <Link>Content\Android\font\Main.bin</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\Android\level\Level0.asset">
+      <Link>Content\Android\level\Level0.asset</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\Android\texture\DirtTileset.bin">
+      <Link>Content\Android\texture\DirtTileset.bin</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\Android\texture\Player.bin">
+      <Link>Content\Android\texture\Player.bin</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\Android\tileset\Dirt.asset">
+      <Link>Content\Android\tileset\Dirt.asset</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\compiled\CompiledReadme.txt">
+      <Link>Content\CompiledReadme.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\HMRQ.Content\assets\.source">
+      <Link>Content\.source</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Protogame\ThirdParty\Ninject\src\Ninject\Ninject.Full40.csproj">
+      <Project>{ADF369E2-6B9E-4D56-9B82-D273AE41EC2D}</Project>
+      <Name>Ninject</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protogame\ThirdParty\MonoGame\MonoGame.Framework\MonoGame.Framework.Windows.csproj">
+      <Project>{7DE47032-A904-4C29-BD22-2D235E8D91BA}</Project>
+      <Name>MonoGame.Framework.Windows</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Protogame\Protogame\Protogame.Windows.csproj">
+      <Project>{746F72C3-676F-6D61-652E-57696E646F77}</Project>
+      <Name>Protogame.Windows</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

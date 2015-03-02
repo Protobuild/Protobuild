@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="HMRQ" Path="HMRQ" Type="App">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="Ninject" />
+    <Reference Include="MonoGame.Framework" />
+    <Reference Include="Protogame" />
+    <Reference Include="Protogame.ThirdParty" />
+    <Reference Include="HMRQ.Content" />
+    <Reference Include="Newtonsoft.Json" />
+  </References>
+  <Files>
+    <Compile Include="AssetCommand.cs" />
+    <Compile Include="DefaultEntityFactory.cs" />
+    <Compile Include="Entities\Activatable.cs" />
+    <Compile Include="Entities\Collectable.cs" />
+    <Compile Include="Entities\Dirt.cs" />
+    <Compile Include="Entities\Ladder.cs" />
+    <Compile Include="Entities\Player.cs" />
+    <Compile Include="Entities\RobotEntity.cs" />
+    <Compile Include="Entities\SemiSolidFloor.cs" />
+    <Compile Include="Entities\Solid.cs" />
+    <Compile Include="Entities\Spawn.cs" />
+    <Compile Include="EntityRenderingMatrix.cs" />
+    <Compile Include="Events\ActivateAction.cs" />
+    <Compile Include="Events\ClimbDownAction.cs" />
+    <Compile Include="Events\ClimbUpAction.cs" />
+    <Compile Include="Events\Debug1Action.cs" />
+    <Compile Include="Events\Debug2Action.cs" />
+    <Compile Include="Events\DesktopEventBinder.cs" />
+    <Compile Include="Events\JumpAction.cs" />
+    <Compile Include="Events\MoveLeftAction.cs" />
+    <Compile Include="Events\MoveRightAction.cs" />
+    <Compile Include="HMRQActivity.cs" />
+    <Compile Include="HMRQGame.cs" />
+    <Compile Include="HMRQIoCModule.cs" />
+    <Compile Include="HMRQWorld.cs" />
+    <Compile Include="HMRQWorldManager.cs" />
+    <Compile Include="IEntityFactory.cs" />
+    <Compile Include="IEntityRenderingMatrix.cs" />
+    <Compile Include="IPlayerAnimationController.cs" />
+    <Compile Include="IRenderModeEntity.cs" />
+    <Compile Include="ITeamAwareEntity.cs" />
+    <Compile Include="Levels\TeamRobotLevelManager.cs" />
+    <Compile Include="Levels\TiledLevelReader.cs" />
+    <Compile Include="PlayerAnimationController.cs" />
+    <Compile Include="PlayerState.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="RobotOrientation.cs" />
+    <Compile Include="RobotState.cs" />
+    <Compile Include="ViewMode.cs" />
+    <None Include="Properties\AndroidManifest.xml" />
+  </Files>
+</Project>
