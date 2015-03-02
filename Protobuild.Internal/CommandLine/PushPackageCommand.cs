@@ -43,6 +43,7 @@ namespace Protobuild
                     { "platform", execution.PackagePushPlatform },
                 };
 
+                Console.WriteLine("HTTP POST " + execution.PackagePushUrl + "/version/new/api");
                 var json = fastJSON.JSON.ToDynamic(
                     System.Text.Encoding.ASCII.GetString(
                         client.UploadValues(execution.PackagePushUrl + "/version/new/api", uploadParameters)));
@@ -160,6 +161,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
             {
                 using (var client = new AccurateWebClient(bytes.Length))
                 {
+                    Console.WriteLine("HTTP PUT " + targetUri);
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;

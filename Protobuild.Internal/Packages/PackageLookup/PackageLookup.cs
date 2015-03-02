@@ -241,6 +241,7 @@ namespace Protobuild
             {
                 using (var client = new WebClient())
                 {
+                    Console.WriteLine("HTTP GET " + indexUri);
                     str = client.DownloadString(indexUri);
                     return JSON.ToDynamic(str);
                 }

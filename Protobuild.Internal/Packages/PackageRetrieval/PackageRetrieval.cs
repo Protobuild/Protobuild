@@ -94,6 +94,7 @@ namespace Protobuild
             {
                 using (var client = new WebClient())
                 {
+                    Console.WriteLine("HTTP GET " + packageUri);
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;
