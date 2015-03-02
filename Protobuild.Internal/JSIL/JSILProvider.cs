@@ -92,8 +92,8 @@ namespace Protobuild
             Console.Write("Removing existing JSIL runtime... ");
             try
             {
-                Directory.Delete(this.GetJSILSourceDirectory(), true);
-                Directory.Delete(this.GetJSILRuntimeDirectory(), true);
+                PathUtils.AggressiveDirectoryDelete(this.GetJSILSourceDirectory());
+                PathUtils.AggressiveDirectoryDelete(this.GetJSILRuntimeDirectory());
                 Console.WriteLine("done.");
             }
             catch (UnauthorizedAccessException)
@@ -221,7 +221,7 @@ namespace Protobuild
             Console.Write("Removing temporary build directory... ");
             try
             {
-                Directory.Delete(this.GetJSILSourceDirectory(), true);
+                PathUtils.AggressiveDirectoryDelete(this.GetJSILSourceDirectory());
             }
             catch (UnauthorizedAccessException)
             {

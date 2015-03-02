@@ -25,6 +25,9 @@
     <Compile Include="..\Protobuild.Internal\Packages\Reduplicator.cs">
       <Link>Packages\Reduplicator.cs</Link>
     </Compile>
+    <Compile Include="..\Protobuild.Internal\PathUtils.cs">
+      <Link>PathUtils.cs</Link>
+    </Compile>
     <Compile Include="..\ThirdParty\TAR\DataWriter.cs">
       <Link>TAR\DataWriter.cs</Link>
     </Compile>

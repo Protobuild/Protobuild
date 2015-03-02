@@ -15,7 +15,7 @@
             // Make sure the Package directory is removed so we have a clean test every time.
             if (Directory.Exists(this.GetPath("Package")))
             {
-                Directory.Delete(this.GetPath("Package"), true);
+                PathUtils.AggressiveDirectoryDelete(this.GetPath("Package"));
             }
 
             this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src);
