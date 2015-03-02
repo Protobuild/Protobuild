@@ -15,11 +15,11 @@
             // Make sure the Package directory is removed so we have a clean test every time.
             if (Directory.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package")))
             {
-                Directory.Delete(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package"), true);
+                PathUtils.AggressiveDirectoryDelete(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package"));
             }
             if (Directory.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package")))
             {
-                Directory.Delete(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package"), true);
+                PathUtils.AggressiveDirectoryDelete(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package"));
             }
 
             this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src);

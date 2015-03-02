@@ -176,7 +176,7 @@ namespace Protobuild
 
             if (Directory.Exists(".staging"))
             {
-                Directory.Delete(".staging", true);
+                PathUtils.AggressiveDirectoryDelete(".staging");
             }
 
             var package = m_PackageCache.GetSourcePackage(source, reference.GitRef);
@@ -279,7 +279,7 @@ namespace Protobuild
 
             if (Directory.Exists(".staging"))
             {
-                Directory.Delete(".staging", true);
+                PathUtils.AggressiveDirectoryDelete(".staging");
             }
 
             Directory.CreateDirectory(".staging");
@@ -337,17 +337,7 @@ namespace Protobuild
                 }
             }
 
-            try
-            {
-                Directory.Delete(".staging", true);
-            }
-            catch (UnauthorizedAccessException)
-            {
-                // On Windows, we might not be able to clean up the staging directory
-                // if there are any processes still active in it.  Ignore this error 
-                // for now (although in future we might want to give the clean up
-                // multiple attempts).
-            }
+            PathUtils.AggressiveDirectoryDelete(".staging");
         }
 
         private IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromStaging(string currentDirectory = null, string currentPrefix = null)
@@ -383,7 +373,7 @@ namespace Protobuild
 
         private void EmptyReferenceFolder(string folder)
         {
-            Directory.Delete(folder, true);
+            PathUtils.AggressiveDirectoryDelete(folder);
         }
     }
 }
