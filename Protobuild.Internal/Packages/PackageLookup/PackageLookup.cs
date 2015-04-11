@@ -106,9 +106,16 @@ namespace Protobuild
                     {
                         throw new InvalidOperationException((string)apiData.error);
                     }
-                    using (var writer = new StreamWriter(this.GetLookupCacheFilename(uri)))
+                    try
                     {
-                        writer.Write(jsonString);
+                        using (var writer = new StreamWriter(this.GetLookupCacheFilename(uri)))
+                        {
+                            writer.Write(jsonString);
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        Console.WriteLine("WARNING: Unable to save cached result of request.");
                     }
                 }
                 catch (WebException)
