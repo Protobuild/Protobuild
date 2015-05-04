@@ -3,7 +3,11 @@
 
 $ErrorActionPreference = 'Stop'
 
-cd $PSScriptRoot\..
+if ($PSScriptRoot -ne $null) {
+    cd $PSScriptRoot\..
+} else {
+    Write-Warning "Unable to change directory!"
+}
 
 $PLATFORM="Windows"
 $msbuild = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe"
