@@ -28,9 +28,32 @@ namespace Protobuild
                 return false;
             }
 
-            using (var stream = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+            var attempts = 10;
+            while (attempts > 0)
             {
-                stream.Write(packageData, 0, packageData.Length);
+                try
+                {
+                    using (var stream = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        stream.Write(packageData, 0, packageData.Length);
+                    }
+                    break;
+                }
+                catch (IOException ex)
+                {
+                    // On Windows, we can't write out the package file if another instance of Protobuild
+                    // is writing it out at the moment.  Just wait and retry in another second.
+                    Console.WriteLine("WARNING: Unable to write downloaded package file (attempt " + (11 - attempts) + " / 10)");
+                    System.Threading.Thread.Sleep(5000);
+                    attempts--;
+                }
+            }
+
+            if (attempts == 0)
+            {
+                Console.WriteLine(
+                    "WARNING: Unable to write out downloaded package!  Assuming " +
+                    "another instance of Protobuild will provide it.");
             }
 
             return true;
