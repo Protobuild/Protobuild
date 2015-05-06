@@ -69,16 +69,17 @@ namespace Protobuild
                     }
 
                     var takeArgs = this.GetParameterCountForArgument(realArg);
+                    var takeAll = takeArgs == -1;
                     var actionArgs = new List<string>();
-                    if (takeArgs > 0)
+                    if (takeArgs > 0 || takeAll)
                     {
-                        for (var v = 0; v < takeArgs && (i + 1) < args.Length; v++)
+                        for (var v = 0; (v < takeArgs || takeAll) && (i + 1) < args.Length; v++)
                         {
                             i++;
 
                             // We can't break on the / character, as this is used in paths
                             // on Linux and Mac OS.
-                            if (args[i].StartsWith("-", StringComparison.InvariantCulture))
+                            if (args[i].StartsWith("-", StringComparison.InvariantCulture) && !takeAll)
                             {
                                 // Untake this option so that when we move back to the outer
                                 // for loop we can see it as an argument again.

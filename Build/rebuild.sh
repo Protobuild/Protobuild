@@ -43,7 +43,7 @@ echo "Performing final-pass build..."
 xbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
 
 echo "Running tests..."
-mono --debug xunit/src/xunit.console/bin/$PLATFORM/AnyCPU/Release/xunit.console.exe Protobuild.UnitTests/bin/$PLATFORM/AnyCPU/Release/Protobuild.UnitTests.dll Protobuild.FunctionalTests/bin/$PLATFORM/AnyCPU/Release/Protobuild.FunctionalTests.dll -noshadow
+mono Protobuild.exe --execute xunit.console Protobuild.UnitTests/bin/$PLATFORM/AnyCPU/Release/Protobuild.UnitTests.dll Protobuild.FunctionalTests/bin/$PLATFORM/AnyCPU/Release/Protobuild.FunctionalTests.dll -noshadow
 
 echo "Copying built Protobuild to root of repository..."
 cp Protobuild/bin/$PLATFORM/AnyCPU/Release/Protobuild.exe ./
