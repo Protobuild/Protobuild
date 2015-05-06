@@ -45,10 +45,20 @@ namespace Protobuild
         }
 
         /// <summary>
-        /// Gets or sets the path of the project.
+        /// Gets or sets the relative path of the project.
         /// </summary>
-        /// <value>The project path.</value>
-        public string Path
+        /// <value>The relative project path.</value>
+        public string RelativePath
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the absolute path of the project.
+        /// </summary>
+        /// <value>The absolute project path.</value>
+        public string AbsolutePath
         {
             get;
             set;
@@ -119,7 +129,7 @@ namespace Protobuild
             {
                 if (doc.Root.Attributes().Any(x => x.Name == "Path"))
                 {
-                    def.Path = doc.Root.Attribute(XName.Get("Path")).Value;
+                    def.RelativePath = doc.Root.Attribute(XName.Get("Path")).Value;
                 }
 
                 if (doc.Root.Attributes().Any(x => x.Name == "Guid"))

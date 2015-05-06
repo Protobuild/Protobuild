@@ -174,7 +174,8 @@ namespace Protobuild
 
             foreach (var definition in this.GetDefinitions())
             {
-                definition.Path = (relative + '\\' + definition.Path).Trim('\\');
+                definition.AbsolutePath = (this.Path + '\\' + definition.RelativePath).Trim('\\');
+                definition.RelativePath = (relative + '\\' + definition.RelativePath).Trim('\\');
                 definition.ModulePath = this.Path;
                 definitions.Add(definition);
             }

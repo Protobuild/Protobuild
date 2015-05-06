@@ -593,8 +593,7 @@ namespace Protobuild
                     var link = linkElement != null ? linkElement.Value : include.Value;
 
                     var fileInfo = new FileInfo(Path.Combine(
-                        definition.ModulePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar), 
-                        definition.Path.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar), 
+                        definition.AbsolutePath.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar), 
                         include.Value.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar)));
 
                     if (definition.Type == "Library")
