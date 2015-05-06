@@ -47,6 +47,7 @@ namespace Protobuild
                 { "swap-to-source", kernel.Get<SwapToSourceCommand>() },
                 { "swap-to-binary", kernel.Get<SwapToBinaryCommand>() },
                 { "start", kernel.Get<StartCommand>() },
+                { "execute", kernel.Get<ExecuteCommand>() },
             };
 
             var execution = new Execution();

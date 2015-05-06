@@ -58,6 +58,7 @@
             kernel.Bind<IPackageCacheConfiguration, PackageCacheConfiguration>();
             kernel.BindAndKeepInstance<IPackageRedirector, PackageRedirector>();
             kernel.Bind<IPackageLocator, PackageLocator>();
+            kernel.Bind<IProjectOutputPathCalculator, ProjectOutputPathCalculator>();
         }
     }
 }

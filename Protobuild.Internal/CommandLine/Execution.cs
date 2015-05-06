@@ -49,6 +49,10 @@ namespace Protobuild
 
         public string StartProjectName { get; set; }
 
+        public string ExecuteProjectName { get; set; }
+
+        public string[] ExecuteProjectArguments { get; set; }
+
         public string PackageRoot { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)

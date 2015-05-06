@@ -16,12 +16,16 @@ namespace Protobuild
 
         private readonly IServiceInputGenerator m_ServiceInputGenerator;
 
+        private readonly IProjectOutputPathCalculator m_ProjectOutputPathCalculator;
+
         public AutomaticModulePackager(
             IProjectLoader projectLoader,
-            IServiceInputGenerator serviceInputGenerator)
+            IServiceInputGenerator serviceInputGenerator,
+            IProjectOutputPathCalculator projectOutputPathCalculator)
         {
             this.m_ProjectLoader = projectLoader;
             this.m_ServiceInputGenerator = serviceInputGenerator;
+            this.m_ProjectOutputPathCalculator = projectOutputPathCalculator;
         }
 
         public void Autopackage(
@@ -364,35 +368,16 @@ namespace Protobuild
             DefinitionInfo definition)
         {
             var document = XDocument.Load(definition.DefinitionPath);
-            var platformSpecificOutputFolderElement = document.XPathSelectElement("/Project/Properties/PlatformSpecificOutputFolder");
-            var projectSpecificOutputFolderElement = document.XPathSelectElement("/Project/Properties/ProjectSpecificOutputFolder");
-            var assemblyNameForPlatformElement = document.XPathSelectElement("/Project/Properties/AssemblyName/Platform[@Name=\"" + platform + "\"]");
-            var assemblyNameGlobalElement = document.XPathSelectElement("/Project/Properties/Property[@Name=\"AssemblyName\"]");
-            var platformSpecificOutputFolder = true;
-            var projectSpecificOutputFolder = false;
 
-            if (platformSpecificOutputFolderElement != null)
-            {
-                platformSpecificOutputFolder = platformSpecificOutputFolderElement.Value.ToLowerInvariant() != "false";
-            }
-            if (projectSpecificOutputFolderElement != null)
-            {
-                projectSpecificOutputFolder = projectSpecificOutputFolderElement.Value.ToLowerInvariant() == "true";
-            }
+            var externalProjectDocument = new XmlDocument();
+            externalProjectDocument.AppendChild(externalProjectDocument.CreateXmlDeclaration("1.0", "UTF-8", null));
+            var externalProject = externalProjectDocument.CreateElement("ExternalProject");
+            externalProjectDocument.AppendChild(externalProject);
+            externalProject.SetAttribute("Name", definition.Name);
 
-            string assemblyName = null;
-            if (assemblyNameForPlatformElement != null)
-            {
-                assemblyName = assemblyNameForPlatformElement.Value;
-            }
-            else if (assemblyNameGlobalElement != null)
-            {
-                assemblyName = assemblyNameGlobalElement.Value;
-            }
-            else
-            {
-                assemblyName = definition.Name;
-            }
+            var pathPrefix = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, definition, document, true);
+            var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, definition, document);
+            var outputMode = this.m_ProjectOutputPathCalculator.GetProjectOutputMode(document);
 
             var assemblyFilesToCopy = new[]
             {
@@ -404,22 +389,6 @@ namespace Protobuild
                 assemblyName + ".xml",
             };
 
-            var outputMode = OutputPathMode.BinConfiguration;
-            if (projectSpecificOutputFolder)
-            {
-                outputMode = OutputPathMode.BinProjectPlatformArchConfiguration;
-            }
-            if (platformSpecificOutputFolder)
-            {
-                outputMode = OutputPathMode.BinPlatformArchConfiguration;
-            }
-
-            var externalProjectDocument = new XmlDocument();
-            externalProjectDocument.AppendChild(externalProjectDocument.CreateXmlDeclaration("1.0", "UTF-8", null));
-            var externalProject = externalProjectDocument.CreateElement("ExternalProject");
-            externalProjectDocument.AppendChild(externalProject);
-            externalProject.SetAttribute("Name", definition.Name);
-
             // Copy the assembly itself out to the package.
             switch (outputMode)
             {
@@ -429,8 +398,6 @@ namespace Protobuild
                         // the default architecture (because that's all we know
                         // about).  We also have to assume the binary folder
                         // contains binaries for the desired platform.
-                        var pathPrefix = definition.Path.Replace('\\', '/').Replace(".", "\\.") + "/bin/([^/]+)/";
-
                         if (definition.Type == "Library")
                         {
                             // For libraries, we only copy the assembly (and immediately related files)
@@ -502,8 +469,6 @@ namespace Protobuild
                                     break;
                                 }
                         }
-
-                        var pathPrefix = definition.Path.Replace('\\', '/').Replace(".", "\\.") + "/bin/" + platform + "/" + pathArchMatch + "/([^/]+)/";
 
                         if (definition.Type == "Library")
                         {
@@ -689,13 +654,6 @@ namespace Protobuild
                 externalProjectDocument.WriteTo(writer);
             }
             fileFilter.AddManualMapping(temp, "Build/Projects/" + definition.Name + ".definition");
-        }
-
-        private enum OutputPathMode
-        {
-            BinConfiguration,
-            BinPlatformArchConfiguration,
-            BinProjectPlatformArchConfiguration,
         }
     }
 }
