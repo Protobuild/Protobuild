@@ -45,13 +45,13 @@ namespace Protobuild
             var definitions = module.GetDefinitions();
             foreach (var definition in definitions)
             {
-                if (definition.Type == "External" || definition.Type == "Content" || definition.Path == null)
+                if (definition.Type == "External" || definition.Type == "Content" || definition.RelativePath == null)
                 {
                     continue;
                 }
 
                 // Read the project file in.
-                var path = Path.Combine(module.Path, definition.Path, definition.Name + "." + this.Platform + ".csproj");
+                var path = Path.Combine(module.Path, definition.RelativePath, definition.Name + "." + this.Platform + ".csproj");
                 if (File.Exists(path))
                 {
                     this.LogMessage("Synchronising: " + definition.Name);

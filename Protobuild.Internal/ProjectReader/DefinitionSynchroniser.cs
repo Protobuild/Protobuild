@@ -279,7 +279,7 @@ namespace Protobuild
         /// <param name="platform"></param>
         private void HandleNuGetConfig(string platform)
         {
-            var rootPath = this.m_DefinitionInfo.Path;
+            var rootPath = this.m_DefinitionInfo.RelativePath;
 
             if (File.Exists(Path.Combine(rootPath, "packages." + platform + ".config")))
             {

@@ -21,11 +21,11 @@ namespace Protobuild
                     // contains binaries for the desired platform.
                     if (asRegex)
                     {
-                        return definition.Path.Replace('\\', '/').Replace(".", "\\.") + "/bin/([^/]+)/";
+                        return definition.RelativePath.Replace('\\', '/').Replace(".", "\\.") + "/bin/([^/]+)/";
                     }
                     else
                     {
-                        return definition.Path.Replace('\\', '/') + "/bin/";
+                        return definition.RelativePath.Replace('\\', '/') + "/bin/";
                     }
                 }
             case OutputPathMode.BinPlatformArchConfiguration:
@@ -56,11 +56,11 @@ namespace Protobuild
 
                     if (asRegex)
                     {
-                        return definition.Path.Replace('\\', '/').Replace(".", "\\.") + "/bin/" + platform + "/" + pathArchMatch + "/([^/]+)/";
+                        return definition.RelativePath.Replace('\\', '/').Replace(".", "\\.") + "/bin/" + platform + "/" + pathArchMatch + "/([^/]+)/";
                     }
                     else
                     {
-                        return definition.Path.Replace('\\', '/') + "/bin/" + platform + "/" + pathArchMatch + "/";
+                        return definition.RelativePath.Replace('\\', '/') + "/bin/" + platform + "/" + pathArchMatch + "/";
                     }
                 }
             case OutputPathMode.BinProjectPlatformArchConfiguration:
