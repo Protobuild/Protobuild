@@ -5,8 +5,10 @@
   </References>
   <Services>
     <Service Name="ServiceB">
-      <DefaultForRoot>True</DefaultForRoot>
       <AddDefine>LIBRARY_SERVICE_B</AddDefine>
+    </Service>
+    <Service Name="ServiceC">
+      <AddDefine>LIBRARY_SERVICE_C</AddDefine>
     </Service>
   </Services>
   <Files>

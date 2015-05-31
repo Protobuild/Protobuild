@@ -71,6 +71,11 @@ namespace Protobuild
                 serviceManager.DisableService(service);
             }
 
+            if (execution.DebugServiceResolution)
+            {
+                serviceManager.EnableDebugInformation();
+            }
+
             services = serviceManager.CalculateDependencyGraph(loadedProjects);
 
             foreach (var service in services)

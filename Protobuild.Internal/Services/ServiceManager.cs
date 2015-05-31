@@ -22,6 +22,8 @@
 
         private DefinitionInfo[] m_RootDefinitions;
 
+        private bool m_ShowDebugInformation;
+
         public ServiceManager(string platform)
         {
             this.m_Platform = platform;
@@ -45,6 +47,11 @@
             this.m_RootDefinitions = definitions;
         }
 
+        public void EnableDebugInformation()
+        {
+            this.m_ShowDebugInformation = true;
+        }
+
         public List<Service> CalculateDependencyGraph(List<XmlDocument> definitions)
         {
             var services = this.LoadServices(definitions);
@@ -62,6 +69,11 @@
 
         private void EnableRootProjects(List<Service> services)
         {
+            if (this.m_ShowDebugInformation)
+            {
+                Console.WriteLine("Enabling project root services:");
+            }
+
             foreach (var definition in this.m_RootDefinitions)
             {
                 var defaultService =
@@ -70,6 +82,11 @@
 
                 if (defaultService != null)
                 {
+                    if (this.m_ShowDebugInformation)
+                    {
+                        Console.WriteLine(defaultService.FullName + " set to Default, because it is a project root service");
+                    }
+
                     defaultService.DesiredLevel = ServiceDesiredLevel.Default;
                 }
             }
@@ -77,6 +94,11 @@
 
         private void EnableReferencedProjects(List<XmlDocument> definitions, List<Service> services)
         {
+            if (this.m_ShowDebugInformation)
+            {
+                Console.WriteLine("Enabling services in explicitly referenced projects:");
+            }
+
             var lookup = services.ToDictionary(k => k.FullName, v => v);
 
             var references = from definition in definitions
@@ -96,39 +118,82 @@
 
             foreach (var reference in references)
             {
+                if (this.m_ShowDebugInformation)
+                {
+                    Console.WriteLine(lookup[reference].FullName + " set to Required, because there is an explicit reference to the project");
+                }
+
                 lookup[reference].DesiredLevel = ServiceDesiredLevel.Required;
             }
         }
 
-        private void EnableDefaultAndExplicitServices(List<Service> services)
+        internal void EnableDefaultAndExplicitServices(List<Service> services)
         {
+            if (this.m_ShowDebugInformation)
+            {
+                Console.WriteLine("Enabling default services, and services enabled / disabled by the user:");
+            }
+
             foreach (var service in services)
             {
                 if (service.DefaultForRoot)
                 {
                     if (this.m_RootDefinitions.Any(x => x.Name == service.ProjectName))
                     {
+                        if (this.m_ShowDebugInformation)
+                        {
+                            Console.WriteLine(service.FullName + " set to Default, because it is marked DefaultForRoot");
+                        }
+
                         service.DesiredLevel = ServiceDesiredLevel.Default;
                     }
                 }
 
                 if (this.m_EnabledServices.Any(x => x == service.ServiceName || x == service.FullName))
                 {
+                    if (this.m_ShowDebugInformation)
+                    {
+                        Console.WriteLine(service.FullName + " set to Required, because it is explicitly enabled by the user");
+                    }
+
                     service.DesiredLevel = ServiceDesiredLevel.Required;
                 }
 
                 if (this.m_DisabledServices.Any(x => x == service.ServiceName || x == service.FullName))
                 {
+                    if (this.m_ShowDebugInformation)
+                    {
+                        Console.WriteLine(service.FullName + " set to Disabled, because it is explicitly disabled by the user");
+                    }
+
                     service.DesiredLevel = ServiceDesiredLevel.Disabled;
                 }
             }
         }
 
-        private List<Service> ResolveServices(List<Service> services)
+        internal List<Service> ResolveServices(List<Service> services)
         {
+            var pass = 1;
+            if (this.m_ShowDebugInformation)
+            {
+                Console.WriteLine("Performing service resolution pass " + pass + ":");
+            }
+
             while (this.PerformResolutionPass(services))
             {
                 // Returns true if it made any modifications.
+
+                ++pass;
+
+                if (this.m_ShowDebugInformation)
+                {
+                    Console.WriteLine("Performing service resolution pass " + pass + ":");
+                }
+            }
+
+            if (this.m_ShowDebugInformation)
+            {
+                Console.WriteLine("Service resolution passes complete.");
             }
 
             return services.Where(x => x.DesiredLevel != ServiceDesiredLevel.Disabled && x.DesiredLevel != ServiceDesiredLevel.Unused).ToList();
@@ -156,14 +221,64 @@
 
                     if (lookup[require].DesiredLevel == ServiceDesiredLevel.Disabled)
                     {
-                        throw new InvalidOperationException(
-                            service.FullName + " requires " + require + ", but you have explicitly requested it be disabled.");
-                    }
+                        if (service.DesiredLevel == ServiceDesiredLevel.Required || service.ServiceName == null)
+                        {
+                            throw new InvalidOperationException(
+                                service.FullName + " requires " + require + ", but you have explicitly requested it be disabled.");
+                        }
+                        else if (service.DesiredLevel == ServiceDesiredLevel.Recommended ||
+                            service.DesiredLevel == ServiceDesiredLevel.Default)
+                        {
+                            if (this.m_ShowDebugInformation)
+                            {
+                                Console.WriteLine(service.FullName + " set to Disabled, because it's dependency " + lookup[require].FullName + " is set to Disabled");
+                            }
 
-                    if (lookup[require].DesiredLevel != ServiceDesiredLevel.Required)
+                            service.DesiredLevel = ServiceDesiredLevel.Disabled;
+                            modified = true;
+                        }
+                    }
+                    else if (service.DesiredLevel == ServiceDesiredLevel.Required)
                     {
-                        lookup[require].DesiredLevel = ServiceDesiredLevel.Required;
-                        modified = true;
+                        if (lookup[require].DesiredLevel != ServiceDesiredLevel.Required)
+                        {
+                            if (this.m_ShowDebugInformation)
+                            {
+                                Console.WriteLine(lookup[require].FullName + " set to Required, because it's dependency " + service.FullName + " is set to Required");
+                            }
+
+                            lookup[require].DesiredLevel = ServiceDesiredLevel.Required;
+                            modified = true;
+                        }
+                    }
+                    else if (service.DesiredLevel == ServiceDesiredLevel.Recommended)
+                    {
+                        if (lookup[require].DesiredLevel != ServiceDesiredLevel.Required &&
+                            lookup[require].DesiredLevel != ServiceDesiredLevel.Recommended)
+                        {
+                            if (this.m_ShowDebugInformation)
+                            {
+                                Console.WriteLine(lookup[require].FullName + " set to Recommended, because it's dependency " + service.FullName + " is set to Recommended");
+                            }
+
+                            lookup[require].DesiredLevel = ServiceDesiredLevel.Recommended;
+                            modified = true;
+                        }
+                    }
+                    else if (service.DesiredLevel == ServiceDesiredLevel.Default)
+                    {
+                        if (lookup[require].DesiredLevel != ServiceDesiredLevel.Required &&
+                            lookup[require].DesiredLevel != ServiceDesiredLevel.Recommended &&
+                            lookup[require].DesiredLevel != ServiceDesiredLevel.Default)
+                        {
+                            if (this.m_ShowDebugInformation)
+                            {
+                                Console.WriteLine(lookup[require].FullName + " set to Default, because it's dependency " + service.FullName + " is set to Default");
+                            }
+
+                            lookup[require].DesiredLevel = ServiceDesiredLevel.Default;
+                            modified = true;
+                        }
                     }
                 }
 
@@ -179,6 +294,11 @@
                         lookup[recommend].DesiredLevel != ServiceDesiredLevel.Recommended &&
                         lookup[recommend].DesiredLevel != ServiceDesiredLevel.Required)
                     {
+                        if (this.m_ShowDebugInformation)
+                        {
+                            Console.WriteLine(lookup[recommend].FullName + " set to Recommended, because it's dependency " + service.FullName + " recommends it");
+                        }
+
                         lookup[recommend].DesiredLevel = ServiceDesiredLevel.Recommended;
                         modified = true;
                     }
@@ -194,7 +314,8 @@
                         continue;
                     }
 
-                    if (lookup[conflict].DesiredLevel == ServiceDesiredLevel.Required)
+                    if (lookup[conflict].DesiredLevel == ServiceDesiredLevel.Required &&
+                        service.DesiredLevel == ServiceDesiredLevel.Required)
                     {
                         throw new InvalidOperationException(
                             service.FullName + " conflicts with " + lookup[conflict].FullName + ", but both are enabled (and required).");
@@ -202,6 +323,11 @@
 
                     if (lookup[conflict].DesiredLevel == ServiceDesiredLevel.Recommended)
                     {
+                        if (this.m_ShowDebugInformation)
+                        {
+                            Console.WriteLine(lookup[conflict].FullName + " set to Disabled, because " + service.FullName + " conflicts with it");
+                        }
+
                         // The service this conflicts with is only recommended, so we can
                         // safely disable it.
                         lookup[conflict].DesiredLevel = ServiceDesiredLevel.Disabled;

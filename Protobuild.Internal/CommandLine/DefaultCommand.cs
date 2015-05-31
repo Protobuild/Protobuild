@@ -31,7 +31,8 @@ namespace Protobuild
                 ModuleInfo.Load(Path.Combine("Build", "Module.xml")),
                 enabledServices: execution.EnabledServices.ToArray(),
                 disabledServices: execution.DisabledServices.ToArray(),
-                serviceSpecPath: execution.ServiceSpecificationPath) ? 0 : 1;
+                serviceSpecPath: execution.ServiceSpecificationPath,
+                debugServiceResolution: execution.DebugServiceResolution) ? 0 : 1;
         }
 
         public string GetDescription()

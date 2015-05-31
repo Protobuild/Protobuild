@@ -63,7 +63,8 @@ namespace Protobuild
                 execution.Platform,
                 execution.EnabledServices.ToArray(),
                 execution.DisabledServices.ToArray(),
-                execution.ServiceSpecificationPath)
+                execution.ServiceSpecificationPath,
+                execution.DebugServiceResolution)
                 ? 0 : 1;
         }
 

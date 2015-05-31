@@ -23,5 +23,6 @@
   </References>
   <Files>
     <Compile Include="PathUtilsTests.cs" />
+    <Compile Include="ServiceResolutionTests.cs" />
   </Files>
 </Project>

@@ -33,13 +33,15 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
+        /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         public bool PerformAction(
             ModuleInfo module, 
             string action, 
             string platform = null, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
-            string serviceSpecPath = null)
+            string serviceSpecPath = null,
+            bool debugServiceResolution = false)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
@@ -139,14 +141,14 @@ namespace Protobuild
             switch (action.ToLower())
             {
                 case "generate":
-                    if (!this.GenerateProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath))
+                    if (!this.GenerateProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution))
                     {
                         return false;
                     }
 
                     break;
                 case "resync":
-                    if (!this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath))
+                    if (!this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution))
                     {
                         return false;
                     }
@@ -163,7 +165,7 @@ namespace Protobuild
                     break;
                 default:
                     Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
-                    return this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath);
+                    return this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution);
             }
 
             // Now iterate through the multiple platforms specified.
@@ -186,7 +188,7 @@ namespace Protobuild
                     case "resync":
                         // We do a generate under resync mode since we only want the primary platform
                         // to have synchronisation done (and it has had above).
-                        if (!this.GenerateProjectsForPlatform(module, platformIter, enabledServices, disabledServices, serviceSpecPath))
+                        if (!this.GenerateProjectsForPlatform(module, platformIter, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution))
                         {
                             return false;
                         }
@@ -217,14 +219,16 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
+        /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         public bool DefaultAction(
             ModuleInfo module, 
             string platform = null, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
-            string serviceSpecPath = null)
+            string serviceSpecPath = null,
+            bool debugServiceResolution = false)
         {
-            return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath);
+            return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution);
         }
 
         /// <summary>
@@ -236,12 +240,14 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
+        /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         private bool ResyncProjectsForPlatform(
             ModuleInfo module, 
             string platform, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
-            string serviceSpecPath = null)
+            string serviceSpecPath = null,
+            bool debugServiceResolution = false)
         {
             if (module.DisableSynchronisation ?? false)
             {
@@ -257,7 +263,7 @@ namespace Protobuild
                     return false;
                 }
 
-                return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath);
+                return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution);
             }
         }
 
@@ -297,12 +303,14 @@ namespace Protobuild
         /// <param name="enabledServices">A list of enabled services.</param>
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
+        /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         private bool GenerateProjectsForPlatform(
             ModuleInfo module,
             string platform,
             string[] enabledServices = null,
             string[] disabledServices = null,
-            string serviceSpecPath = null)
+            string serviceSpecPath = null,
+            bool debugServiceResolution = false)
         {
             if (string.IsNullOrWhiteSpace(platform)) 
             {
@@ -317,6 +325,7 @@ namespace Protobuild
             task.EnableServices = enabledServices;
             task.DisableServices = disabledServices;
             task.ServiceSpecPath = serviceSpecPath;
+            task.DebugServiceResolution = debugServiceResolution;
             return task.Execute();
         }
 

@@ -1,0 +1,36 @@
+﻿using System;
+
+namespace Protobuild
+{
+    public class DebugServiceResolutionCommand : ICommand
+    {
+        public void Encounter(Execution pendingExecution, string[] args)
+        {
+            pendingExecution.DebugServiceResolution = true;
+        }
+
+        public int Execute(Execution execution)
+        {
+            throw new NotSupportedException();
+        }
+
+        public string GetDescription()
+        {
+            return @"
+Turns on debugging during service resolution, showing each action
+taken during each pass of service resolution.
+";
+        }
+
+        public int GetArgCount()
+        {
+            return 0;
+        }
+
+        public string[] GetArgNames()
+        {
+            return new string[0];
+        }
+    }
+}
+

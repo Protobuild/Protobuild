@@ -3,10 +3,13 @@
   <References>
     <Reference Include="System" />
   </References>
+  <Dependencies>
+    <Uses Name="Library/ServiceC" />
+  </Dependencies>
   <Services>
     <Service Name="ServiceA">
       <AddDefine>CONSOLE_SERVICE_A</AddDefine>
-      <Requires>Library/ServiceB</Requires>
+      <Requires>Library/ServiceB,LibraryExcludable/ServiceD</Requires>
       <DefaultForRoot>True</DefaultForRoot>
     </Service>
   </Services>
