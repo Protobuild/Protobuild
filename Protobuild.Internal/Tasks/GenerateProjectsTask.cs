@@ -64,6 +64,8 @@ namespace Protobuild.Tasks
 
         public string ServiceSpecPath { get; set; }
 
+        public bool DebugServiceResolution { get; set; }
+
         public override bool Execute()
         {
             if (string.Compare(this.Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
@@ -135,6 +137,11 @@ namespace Protobuild.Tasks
                 foreach (var service in this.DisableServices)
                 {
                     serviceManager.DisableService(service);
+                }
+
+                if (this.DebugServiceResolution)
+                {
+                    serviceManager.EnableDebugInformation();
                 }
 
                 try

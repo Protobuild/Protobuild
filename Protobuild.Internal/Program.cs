@@ -35,6 +35,7 @@ namespace Protobuild
                 { "extract-xslt", kernel.Get<ExtractXSLTCommand>() },
                 { "enable", kernel.Get<EnableServiceCommand>() },
                 { "disable", kernel.Get<DisableServiceCommand>() },
+                { "debug-service-resolution", kernel.Get<DebugServiceResolutionCommand>() },
                 { "spec", kernel.Get<ServiceSpecificationCommand>() },
                 { "add", kernel.Get<AddPackageCommand>() },
                 { "upgrade", kernel.Get<UpgradePackageCommand>() },

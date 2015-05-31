@@ -10,14 +10,16 @@ namespace Protobuild
             string platform = null, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
-            string serviceSpecPath = null);
+            string serviceSpecPath = null,
+            bool debugServiceResolution = false);
 
         bool DefaultAction(
             ModuleInfo module, 
             string platform = null, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
-            string serviceSpecPath = null);
+            string serviceSpecPath = null,
+            bool debugServiceResolution = false);
     }
 }
 

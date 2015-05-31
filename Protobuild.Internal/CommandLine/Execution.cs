@@ -55,6 +55,8 @@ namespace Protobuild
 
         public string PackageRoot { get; set; }
 
+        public bool DebugServiceResolution { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)

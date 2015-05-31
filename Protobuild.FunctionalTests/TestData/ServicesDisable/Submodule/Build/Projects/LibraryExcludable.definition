@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="LibraryExcludable" Path="Library" Type="Library">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Services>
+    <Service Name="ServiceD">
+      <AddDefine>LIBRARY_SERVICE_D</AddDefine>
+    </Service>
+  </Services>
+  <Files>
+    <Compile Include="MyClass.cs" />
+  </Files>
+</Project>

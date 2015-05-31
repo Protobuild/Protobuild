@@ -96,6 +96,7 @@
     <Compile Include="BuildResources\ResourceType.cs" />
     <Compile Include="CommandLine\AddPackageCommand.cs" />
     <Compile Include="CommandLine\CleanCommand.cs" />
+    <Compile Include="CommandLine\DebugServiceResolutionCommand.cs" />
     <Compile Include="CommandLine\DefaultCommand.cs" />
     <Compile Include="CommandLine\DisableServiceCommand.cs" />
     <Compile Include="CommandLine\EnableServiceCommand.cs" />
