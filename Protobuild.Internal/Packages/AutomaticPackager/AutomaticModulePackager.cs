@@ -271,12 +271,13 @@ namespace Protobuild
                             Console.WriteLine(
                                 "WARNING: The 'Project' tag in external projects can not be " + 
                                 "automatically converted during packaging.  This reference " +
-                                "will be converted to refer to an external reference with " +
-                                "the name '" + child.GetAttribute("Name") + "' instead, and you'll " +
+                                "to '" + child.GetAttribute("Name") + "' will be converted to refer " + 
+                                "to an external reference with the name " +
+                                "'" + child.GetAttribute("Name") + ".External' instead, and you'll " +
                                 "need to write an ExternalProject definition (and include it via " +
                                 "a filter file) to have this reference packaged correctly.");
                             var referenceEntry = toNode.OwnerDocument.CreateElement("Reference");
-                            referenceEntry.SetAttribute("Include", child.GetAttribute("Name"));
+                            referenceEntry.SetAttribute("Include", child.GetAttribute("Name") + ".External");
                             toNode.AppendChild(referenceEntry);
                             break;
                         }
