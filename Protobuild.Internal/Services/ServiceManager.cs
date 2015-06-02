@@ -99,7 +99,10 @@
                 Console.WriteLine("Enabling services in explicitly referenced projects:");
             }
 
-            var lookup = services.ToDictionary(k => k.FullName, v => v);
+            var lookup = services.ToDictionarySafe(
+                k => k.FullName,
+                v => v,
+                d => Console.WriteLine("WARNING: There is more than one service with the full name " + d.FullName));
 
             var references = from definition in definitions
                              where definition.DocumentElement.Name == "Project"
@@ -201,7 +204,10 @@
 
         private bool PerformResolutionPass(List<Service> services)
         {
-            var lookup = services.ToDictionary(k => k.FullName, v => v);
+            var lookup = services.ToDictionarySafe(
+                k => k.FullName,
+                v => v,
+                d => { /* We have already warned about this previously */ });
             var modified = false;
 
             foreach (var service in services)
