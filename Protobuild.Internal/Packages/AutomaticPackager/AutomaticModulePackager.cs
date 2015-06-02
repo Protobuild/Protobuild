@@ -111,7 +111,10 @@ namespace Protobuild
             }
 
             // If there is no Module.xml in the source mappings already, then copy the current module.
-            var filterDictionary = fileFilter.ToDictionary(k => k.Key, v => v.Value);
+            var filterDictionary = fileFilter.ToDictionarySafe(
+                k => k.Key, 
+                v => v.Value,
+                d => Console.WriteLine ("WARNING: More than one file maps to " + d.Key));
             if (!filterDictionary.ContainsValue("Build/Module.xml"))
             {
                 fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "Build/Module.xml");
@@ -531,7 +534,10 @@ namespace Protobuild
             }
 
             // Convert all of the known references into references within the external project.
-            var definitionsByName = definitions.ToDictionary(k => k.Name, v => v);
+            var definitionsByName = definitions.ToDictionarySafe(
+                k => k.Name,
+                v => v,
+                d => Console.WriteLine("WARNING: There is more than one definition with the name " + d.Name));
             foreach (var reference in document.XPathSelectElements("/Project/References/Reference"))
             {
                 var includeAttribute = reference.Attribute(XName.Get("Include"));

@@ -206,6 +206,7 @@
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeToDictionaryExtension.cs" />
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
