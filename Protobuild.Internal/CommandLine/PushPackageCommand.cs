@@ -18,7 +18,18 @@ namespace Protobuild
                 throw new InvalidOperationException("You must provide all arguments to -push except for the branch name.");
             }
 
-            pendingExecution.PackagePushApiKey = args[0];
+            if (File.Exists(args[0]))
+            {
+                using (var reader = new StreamReader(args[0]))
+                {
+                    pendingExecution.PackagePushApiKey = reader.ReadToEnd().Trim();
+                }
+            }
+            else
+            {
+                pendingExecution.PackagePushApiKey = args[0];
+            }
+
             pendingExecution.PackagePushFile = new FileInfo(args[1]).FullName;
             pendingExecution.PackagePushUrl = args[2].TrimEnd('/');
             pendingExecution.PackagePushVersion = args[3];
@@ -111,7 +122,9 @@ namespace Protobuild
         {
             return @"
 Pushes the specified file to the package repository URL, using
-the given API key.  ""version"" should be the SHA1 Git hash that the
+the given API key.  If the API key is the name of a file on disk, that
+file will be read with the expectation it contains the API key.  Otherwise
+the API key will be used as-is.  ""version"" should be the SHA1 Git hash that the
 package was built from, and ""platform"" should be the platform that
 the package was built for.  If ""branch_to_update"" is specified, then
 the given branch will be created or updated to point to the new
@@ -127,7 +140,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
         public string[] GetArgNames()
         {
-            return new[] { "api_key", "file", "url", "version", "platform", "branch_to_update?" };
+            return new[] { "api_key_or_key_file", "file", "url", "version", "platform", "branch_to_update?" };
         }
 
         private class AccurateWebClient : WebClient
