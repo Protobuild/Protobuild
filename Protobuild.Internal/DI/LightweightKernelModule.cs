@@ -59,6 +59,7 @@
             kernel.BindAndKeepInstance<IPackageRedirector, PackageRedirector>();
             kernel.Bind<IPackageLocator, PackageLocator>();
             kernel.Bind<IProjectOutputPathCalculator, ProjectOutputPathCalculator>();
+            kernel.Bind<IPackageGlobalTool, PackageGlobalTool>();
         }
     }
 }

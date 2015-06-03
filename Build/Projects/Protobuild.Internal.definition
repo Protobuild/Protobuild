@@ -106,6 +106,7 @@
     <Compile Include="CommandLine\FormatPackageCommand.cs" />
     <Compile Include="CommandLine\GenerateCommand.cs" />
     <Compile Include="CommandLine\ICommand.cs" />
+    <Compile Include="CommandLine\InstallPackageCommand.cs" />
     <Compile Include="CommandLine\Options.cs" />
     <Compile Include="CommandLine\PackageRootCommand.cs" />
     <Compile Include="CommandLine\PackPackageCommand.cs" />
@@ -184,6 +185,8 @@
     <Compile Include="Packages\PackageContent\BinaryPackageContent.cs" />
     <Compile Include="Packages\PackageContent\IPackageContent.cs" />
     <Compile Include="Packages\PackageContent\SourcePackageContent.cs" />
+    <Compile Include="Packages\PackageGlobalTool\IPackageGlobalTool.cs" />
+    <Compile Include="Packages\PackageGlobalTool\PackageGlobalTool.cs" />
     <Compile Include="Packages\PackageLocator\IPackageLocator.cs" />
     <Compile Include="Packages\PackageLocator\PackageLocator.cs" />
     <Compile Include="Packages\PackageLookup\IPackageLookup.cs" />

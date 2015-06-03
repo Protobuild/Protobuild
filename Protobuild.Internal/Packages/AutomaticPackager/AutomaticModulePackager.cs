@@ -443,6 +443,18 @@ namespace Protobuild
                             // want the executables to be able to run from the package directory.
                             fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
                             fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/AnyCPU/$2");
+
+                            // Mark the executable files in the directory as tools that can be executed.
+                            foreach (var assemblyFile in assemblyFilesToCopy)
+                            {
+                                if (assemblyFile.EndsWith(".exe"))
+                                {
+                                    var binaryEntry = externalProjectDocument.CreateElement("Tool");
+                                    binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
+                                    binaryEntry.SetAttribute("Path", definition.Name + "\\AnyCPU\\" + assemblyFile);
+                                    externalProject.AppendChild(binaryEntry);
+                                }
+                            }
                         }
 
                         break;
@@ -522,6 +534,20 @@ namespace Protobuild
                             else
                             {
                                 fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/" + pathArchReplace + "/$2");
+                            }
+
+                            // Mark the executable files in the directory as tools that can be executed.
+                            foreach (var assemblyFile in assemblyFilesToCopy)
+                            {
+                                if (assemblyFile.EndsWith(".exe"))
+                                {
+                                    Console.WriteLine("INCLUDING TOOL " + assemblyFile);
+
+                                    var binaryEntry = externalProjectDocument.CreateElement("Tool");
+                                    binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
+                                    binaryEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyFile);
+                                    externalProject.AppendChild(binaryEntry);
+                                }
                             }
                         }
 
