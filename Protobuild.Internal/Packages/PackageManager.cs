@@ -113,7 +113,7 @@ namespace Protobuild
             // Resolve Git reference to Git commit hash.
             var refUri = reference.Uri;
             var refFolder = reference.Folder;
-            var gitCommit = resolvedHash[reference.GitRef];
+            var gitCommit = resolvedHash.ContainsKey(reference.GitRef) ? resolvedHash[reference.GitRef] : reference.GitRef;
             reference = new PackageRef
             {
                 Uri = refUri,
