@@ -38,6 +38,7 @@ namespace Protobuild
                 { "debug-service-resolution", kernel.Get<DebugServiceResolutionCommand>() },
                 { "spec", kernel.Get<ServiceSpecificationCommand>() },
                 { "add", kernel.Get<AddPackageCommand>() },
+                { "install", kernel.Get<InstallPackageCommand>() },
                 { "upgrade", kernel.Get<UpgradePackageCommand>() },
                 { "upgrade-all", kernel.Get<UpgradeAllPackagesCommand>() },
                 { "pack", kernel.Get<PackPackageCommand>() },

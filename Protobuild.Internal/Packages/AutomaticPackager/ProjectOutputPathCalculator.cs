@@ -84,7 +84,7 @@ namespace Protobuild
             }
             else if (assemblyNameGlobalElement != null)
             {
-                assemblyName = assemblyNameGlobalElement.Value;
+                assemblyName = assemblyNameGlobalElement.Attribute(XName.Get("Value")).Value;
             }
             else
             {

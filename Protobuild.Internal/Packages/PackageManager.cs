@@ -19,6 +19,8 @@ namespace Protobuild
 
         private readonly IPackageLocator m_PackageLocator;
 
+        private readonly IPackageGlobalTool m_PackageGlobalTool;
+
         public const string ARCHIVE_FORMAT_TAR_LZMA = "tar/lzma";
 
         public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
@@ -27,14 +29,18 @@ namespace Protobuild
 
         public const string PACKAGE_TYPE_TEMPLATE = "template";
 
+        public const string PACKAGE_TYPE_GLOBAL_TOOL = "global-tool";
+
         public PackageManager(
             IPackageCache packageCache,
             IPackageLookup packageLookup,
-            IPackageLocator packageLocator)
+            IPackageLocator packageLocator,
+            IPackageGlobalTool packageGlobalTool)
         {
             this.m_PackageCache = packageCache;
             _packageLookup = packageLookup;
             this.m_PackageLocator = packageLocator;
+            this.m_PackageGlobalTool = packageGlobalTool;
         }
 
         public void ResolveAll(ModuleInfo module, string platform)
@@ -57,7 +63,7 @@ namespace Protobuild
 
         public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
         {
-            if (module != null)
+            if (module != null && reference.Folder != null)
             {
                 var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference);
                 if (existingPath != null)
@@ -87,18 +93,35 @@ namespace Protobuild
                 }
             }
 
+            if (reference.Folder == null) 
+            {
+                Console.WriteLine("Resolving package with null reference folder; this package must be a global tool.");
+            }
+
             string sourceUri, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
             _packageLookup.Lookup(
                 reference.Uri,
                 platform,
-                true,
+                !forceUpgrade,
                 out sourceUri, 
                 out type,
                 out downloadMap,
                 out archiveTypeMap,
                 out resolvedHash);
 
+            // Resolve Git reference to Git commit hash.
+            var refUri = reference.Uri;
+            var refFolder = reference.Folder;
+            var gitCommit = resolvedHash[reference.GitRef];
+            reference = new PackageRef
+            {
+                Uri = refUri,
+                Folder = refFolder,
+                GitRef = gitCommit
+            };
+
+            string toolFolder = null;
             if (type == PackageManager.PACKAGE_TYPE_TEMPLATE && templateName == null)
             {
                 throw new InvalidOperationException(
@@ -123,6 +146,11 @@ namespace Protobuild
                     }
                 }
             }
+            else if (type == PackageManager.PACKAGE_TYPE_GLOBAL_TOOL)
+            {
+                toolFolder = this.m_PackageGlobalTool.GetGlobalToolInstallationPath(reference);
+                source = false;
+            }
 
             if (source.Value && !string.IsNullOrWhiteSpace(sourceUri))
             {
@@ -145,6 +173,9 @@ namespace Protobuild
                         break;
                     case PackageManager.PACKAGE_TYPE_TEMPLATE:
                         this.ResolveTemplateBinary(reference, templateName, platform, sourceUri);
+                        break;
+                    case PackageManager.PACKAGE_TYPE_GLOBAL_TOOL:
+                        this.ResolveGlobalToolBinary(reference, toolFolder, platform, forceUpgrade);
                         break;
                 }
             }
@@ -294,6 +325,39 @@ namespace Protobuild
             package.ExtractTo(".staging");
 
             ApplyProjectTemplateFromStaging(templateName);
+        }
+
+        private void ResolveGlobalToolBinary(PackageRef reference, string toolFolder, string platform, bool forceUpgrade)
+        {
+            if (File.Exists(Path.Combine(toolFolder, ".pkg")))
+            {
+                if (!forceUpgrade)
+                {
+                    Console.WriteLine("Protobuild binary package already present at " + toolFolder);
+                    return;
+                }
+            }
+
+            Console.WriteLine("Creating and emptying " + toolFolder);
+            this.EmptyReferenceFolder(toolFolder);
+            Directory.CreateDirectory(toolFolder);
+
+            Console.WriteLine("Installing " + reference.Uri + " at " + reference.GitRef);
+            var package = m_PackageCache.GetBinaryPackage(reference.Uri, reference.GitRef, platform);
+            if (package == null)
+            {
+                Console.WriteLine("The specified global tool package is not available for this platform.");
+                return;
+            }
+
+            package.ExtractTo(toolFolder);
+
+            var file = File.Create(Path.Combine(toolFolder, ".pkg"));
+            file.Close();
+
+            this.m_PackageGlobalTool.ScanPackageForToolsAndInstall(toolFolder);
+
+            Console.WriteLine("Binary resolution complete");
         }
 
         private void ApplyProjectTemplateFromStaging(string name)
