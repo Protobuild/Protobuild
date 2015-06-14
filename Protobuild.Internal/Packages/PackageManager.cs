@@ -100,6 +100,7 @@ namespace Protobuild
 
             string sourceUri, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            IPackageTransformer transformer;
             _packageLookup.Lookup(
                 reference.Uri,
                 platform,
@@ -108,7 +109,8 @@ namespace Protobuild
                 out type,
                 out downloadMap,
                 out archiveTypeMap,
-                out resolvedHash);
+                out resolvedHash,
+                out transformer);
 
             // Resolve Git reference to Git commit hash.
             var refUri = reference.Uri;

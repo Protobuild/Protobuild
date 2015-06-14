@@ -60,6 +60,9 @@
             kernel.Bind<IPackageLocator, PackageLocator>();
             kernel.Bind<IProjectOutputPathCalculator, ProjectOutputPathCalculator>();
             kernel.Bind<IPackageGlobalTool, PackageGlobalTool>();
+            kernel.Bind<IProgressiveWebOperation, ProgressiveWebOperation>();
+            kernel.Bind<IPackageCreator, PackageCreator>();
+            kernel.Bind<IGetRecursiveUtilitiesInPath, GetRecursiveUtilitiesInPath>();
         }
     }
 }

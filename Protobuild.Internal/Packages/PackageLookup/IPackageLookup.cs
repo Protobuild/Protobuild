@@ -13,7 +13,8 @@ namespace Protobuild
             out string type,
             out Dictionary<string, string> downloadMap,
             out Dictionary<string, string> archiveTypeMap,
-            out Dictionary<string, string> resolvedHash);
+            out Dictionary<string, string> resolvedHash,
+            out IPackageTransformer transformer);
     }
 }
 

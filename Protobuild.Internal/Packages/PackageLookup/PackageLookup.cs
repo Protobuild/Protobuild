@@ -12,13 +12,16 @@ namespace Protobuild
     {
         private IPackageCacheConfiguration _packageCacheConfiguration;
         private IPackageRedirector _packageRedirector;
+        private NuGetPackageTransformer _nugetPackageTransformer;
 
         public PackageLookup(
             IPackageCacheConfiguration packageCacheConfiguration,
-            IPackageRedirector packageRedirector)
+            IPackageRedirector packageRedirector,
+            NuGetPackageTransformer nugetPackageTransformer)
         {
             _packageCacheConfiguration = packageCacheConfiguration;
             _packageRedirector = packageRedirector;
+            _nugetPackageTransformer = nugetPackageTransformer;
         }
 
         public void Lookup(
@@ -29,9 +32,11 @@ namespace Protobuild
             out string type,
             out Dictionary<string, string> downloadMap,
             out Dictionary<string, string> archiveTypeMap,
-            out Dictionary<string, string> resolvedHash)
+            out Dictionary<string, string> resolvedHash,
+            out IPackageTransformer transformer)
         {
             uri = _packageRedirector.RedirectPackageUrl(uri);
+            transformer = null;
 
             if (uri.StartsWith("local-git://", StringComparison.InvariantCultureIgnoreCase))
             {
@@ -60,6 +65,28 @@ namespace Protobuild
                 downloadMap = new Dictionary<string, string>();
                 archiveTypeMap = new Dictionary<string, string>();
                 resolvedHash = new Dictionary<string, string>();
+                return;
+            }
+
+            if (uri.StartsWith("http-nuget://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sourceUri = "http://" + uri.Substring("http-nuget://".Length);
+                type = PackageManager.PACKAGE_TYPE_LIBRARY;
+                downloadMap = new Dictionary<string, string>();
+                archiveTypeMap = new Dictionary<string, string>();
+                resolvedHash = new Dictionary<string, string>();
+                transformer = _nugetPackageTransformer;
+                return;
+            }
+
+            if (uri.StartsWith("https-nuget://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sourceUri = "https://" + uri.Substring("https-nuget://".Length);
+                type = PackageManager.PACKAGE_TYPE_LIBRARY;
+                downloadMap = new Dictionary<string, string>();
+                archiveTypeMap = new Dictionary<string, string>();
+                resolvedHash = new Dictionary<string, string>();
+                transformer = _nugetPackageTransformer;
                 return;
             }
 

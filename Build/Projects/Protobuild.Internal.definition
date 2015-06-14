@@ -185,6 +185,10 @@
     <Compile Include="Packages\PackageContent\BinaryPackageContent.cs" />
     <Compile Include="Packages\PackageContent\IPackageContent.cs" />
     <Compile Include="Packages\PackageContent\SourcePackageContent.cs" />
+    <Compile Include="Packages\PackageCreator\GetRecursiveUtilitiesInPath.cs" />
+    <Compile Include="Packages\PackageCreator\IGetRecursiveUtilitiesInPath.cs" />
+    <Compile Include="Packages\PackageCreator\IPackageCreator.cs" />
+    <Compile Include="Packages\PackageCreator\PackageCreator.cs" />
     <Compile Include="Packages\PackageGlobalTool\IPackageGlobalTool.cs" />
     <Compile Include="Packages\PackageGlobalTool\PackageGlobalTool.cs" />
     <Compile Include="Packages\PackageLocator\IPackageLocator.cs" />
@@ -195,7 +199,11 @@
     <Compile Include="Packages\PackageRedirector\IPackageRedirector.cs" />
     <Compile Include="Packages\PackageRedirector\PackageRedirector.cs" />
     <Compile Include="Packages\PackageRetrieval\IPackageRetrieval.cs" />
+    <Compile Include="Packages\PackageRetrieval\IProgressiveWebOperation.cs" />
     <Compile Include="Packages\PackageRetrieval\PackageRetrieval.cs" />
+    <Compile Include="Packages\PackageRetrieval\ProgressiveWebOperation.cs" />
+    <Compile Include="Packages\PackageTransformers\IPackageTransformer.cs" />
+    <Compile Include="Packages\PackageTransformers\NuGetPackageTransformer.cs" />
     <Compile Include="Packages\PlatformAndServiceActiveDetection.cs" />
     <Compile Include="Packages\Reduplicator.cs" />
     <Compile Include="PathUtils.cs" />
