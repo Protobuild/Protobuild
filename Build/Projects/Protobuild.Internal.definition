@@ -232,6 +232,7 @@
     <Compile Include="Tasks\DocumentExtensions.cs" />
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
+    <Compile Include="ZIP\ZipStorer.cs" />
     <EmbeddedResource Include="BuildResources\GenerateProject.CSharp.xslt.lzma">
       <LogicalName>GenerateProject.CSharp.xslt.lzma</LogicalName>
     </EmbeddedResource>
