@@ -21,14 +21,8 @@ namespace Protobuild
             {
                 Uri = url,
                 GitRef = branch,
-                Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
+                Folder = uri.AbsolutePath.Replace("%7C", "/").Replace('|', '/').Trim('/').Split('/').Last()
             };
-
-            // Strip an encoded | character if it is present.
-            if (package.Folder.StartsWith(@"%7C", StringComparison.InvariantCulture))
-            {
-                package.Folder = package.Folder.Substring("%7C".Length);
-            }
 
             return package;
         }

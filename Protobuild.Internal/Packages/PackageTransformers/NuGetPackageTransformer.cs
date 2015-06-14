@@ -6,6 +6,7 @@ using System.Xml.XPath;
 using System.Linq;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Xml;
 using System.Text.RegularExpressions;
 
@@ -65,33 +66,15 @@ namespace Protobuild
 
             Console.WriteLine("Extracting package to " + tempFolder + "...");
 
-            // We aren't running .NET 4.5, we can't refer to external DLLs and there's no
-            // freely licensed, embeddable C# ZIP extraction code that we can include (like
-            // the LZMA / TAR code).  So instead, we need to jump out to an external process
-            // to actually extract the package, and hope that the user has the appropriate
-            // utilities installed on their system.
-            if (Path.DirectorySeparatorChar == '/')
-            {
-                // On UNIX, use the "unzip" utility to extract the package into a temporary
-                // folder.
-                var startInfo = new ProcessStartInfo
-                {
-                    FileName = "unzip",
-                    Arguments = "\"" + tempFile + "\" -d \"" + tempFolder + "\"",
-                };
-                var p = Process.Start(startInfo);
-                p.WaitForExit();
+            var zip = ZipStorer.Open(tempFile, FileAccess.Read);
+            var files = zip.ReadCentralDir();
 
-                if (p.ExitCode != 0)
-                {
-                    throw new InvalidOperationException(
-                        "Unable to extract NuGet package using 'unzip' " + 
-                        "utility.  Is it installed on your system?");
-                }
-            }
-            else
+            foreach (var file in files)
             {
-                throw new NotSupportedException("TODO: Figure out ZIP extraction on Windows");
+                var targetPath = Path.Combine(tempFolder, file.FilenameInZip);
+                var directory = new FileInfo(targetPath).DirectoryName;
+                if (directory != null) Directory.CreateDirectory(directory);
+                zip.ExtractFile(file, targetPath);
             }
 
             Console.WriteLine("Extraction complete.");
@@ -307,7 +290,7 @@ namespace Protobuild
 
             foreach (var kv in libraryReferences)
             {
-                filter.ApplyInclude(Regex.Escape(kv.Value.Substring(tempFolder.Length).TrimStart(new[] { '/', '\\' })));
+                filter.ApplyInclude(Regex.Escape(kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/')));
             }
 
             filter.ApplyInclude("_ProtobuildExternalProject\\.xml");
