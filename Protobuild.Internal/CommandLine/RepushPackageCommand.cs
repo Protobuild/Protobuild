@@ -1,14 +1,28 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Protobuild
 {
-    public class PushPackageCommand : ICommand
+    public class RepushPackageCommand : ICommand
     {
+        private readonly IPackageCache _packageCache;
+
+        private readonly IPackageUrlParser _packageUrlParser;
+
+        public RepushPackageCommand(
+            IPackageCache packageCache,
+            IPackageUrlParser packageUrlParser)
+        {
+            _packageCache = packageCache;
+            _packageUrlParser = packageUrlParser;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -30,7 +44,7 @@ namespace Protobuild
                 pendingExecution.PackagePushApiKey = args[0];
             }
 
-            pendingExecution.PackagePushFile = new FileInfo(args[1]).FullName;
+            pendingExecution.PackageUrl = args[1].TrimEnd('/');
             pendingExecution.PackagePushUrl = args[2].TrimEnd('/');
             pendingExecution.PackagePushVersion = args[3];
             pendingExecution.PackagePushPlatform = args[4];
@@ -41,11 +55,17 @@ namespace Protobuild
         {
             using (var client = new WebClient())
             {
-                var archiveType = this.DetectPackageType(execution.PackagePushFile);
+                var sourcePackage = _packageUrlParser.Parse(execution.PackageUrl);
+
+                Console.WriteLine("Retrieving source package...");
+                var packageInfo = (BinaryPackageContent)_packageCache.GetBinaryPackage(
+                    sourcePackage.Uri,
+                    sourcePackage.GitRef,
+                    execution.PackagePushPlatform);
+                var archiveType = packageInfo.Format;
+                var archiveData = packageInfo.PackageData;
 
                 Console.WriteLine("Detected package type as " + archiveType + ".");
-
-                Console.WriteLine("Creating new package version...");
 
                 if (execution.PackagePushVersion.StartsWith("hash:", StringComparison.InvariantCulture))
                 {
@@ -53,6 +73,8 @@ namespace Protobuild
                     var hashed = sha1.ComputeHash(Encoding.ASCII.GetBytes(execution.PackagePushVersion.Substring("hash:".Length)));
                     execution.PackagePushVersion = BitConverter.ToString(hashed).ToLowerInvariant().Replace("-", "");
                 }
+
+                Console.WriteLine("Creating new package version...");
 
                 var uploadParameters = new System.Collections.Specialized.NameValueCollection
                 {
@@ -76,7 +98,7 @@ namespace Protobuild
                 var finalizeTarget = (string)json.result.finalizeUrl;
 
                 Console.WriteLine("Uploading package...");
-                this.PushBinary(uploadTarget, execution.PackagePushFile);
+                this.PushBinary(uploadTarget, archiveData);
 
                 Console.WriteLine("Finalizing package version...");
 
@@ -120,7 +142,7 @@ namespace Protobuild
                     }
                 }
 
-                Console.WriteLine("Package version pushed successfully.");
+                Console.WriteLine("Package version repushed successfully.");
             }
             return 0;
         }
@@ -128,15 +150,9 @@ namespace Protobuild
         public string GetDescription()
         {
             return @"
-Pushes the specified file to the package repository URL, using
-the given API key.  If the API key is the name of a file on disk, that
-file will be read with the expectation it contains the API key.  Otherwise
-the API key will be used as-is.  ""version"" should be the SHA1 Git hash that the
-package was built from, and ""platform"" should be the platform that
-the package was built for.  If ""branch_to_update"" is specified, then
-the given branch will be created or updated to point to the new
-version being uploaded.  When pushing to the official repository, the
-package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
+Downloads a package from a specified URL and pushes it back to
+another repository URL.  This can be used to mirror repositories and
+import NuGet packages.
 ";
         }
 
@@ -147,7 +163,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
         public string[] GetArgNames()
         {
-            return new[] { "api_key_or_key_file", "file", "url", "version", "platform", "branch_to_update?" };
+            return new[] { "api_key_or_key_file", "src_url", "dest_url", "version", "platform", "branch_to_update?" };
         }
 
         private class AccurateWebClient : WebClient
@@ -168,15 +184,8 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
             }
         }
 
-        private void PushBinary(string targetUri, string file)
+        private void PushBinary(string targetUri, byte[] bytes)
         {
-            byte[] bytes;
-            using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                bytes = new byte[(int)stream.Length];
-                stream.Read(bytes, 0, bytes.Length);
-            }
-
             try 
             {
                 using (var client = new AccurateWebClient(bytes.Length))
@@ -221,51 +230,6 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
             {
                 Console.WriteLine("Web exception when sending to: " + targetUri);
                 throw;
-            }
-        }
-
-        private string DetectPackageType(string file)
-        {
-            using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None))
-            {
-                try
-                {
-                    using (var gzip = new GZipStream(stream, CompressionMode.Decompress, true))
-                    {
-                        using (var reader = new StreamReader(gzip))
-                        {
-                            reader.ReadToEnd();
-                        }
-                    }
-
-                    return PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
-                }
-                catch (ExecEnvironment.SelfInvokeExitException)
-                {
-                    throw;
-                }
-                catch
-                {
-                    stream.Seek(0, SeekOrigin.Begin);
-
-                    try
-                    {
-                        using (var memory = new MemoryStream())
-                        {
-                            LZMA.LzmaHelper.Decompress(stream, memory);
-                        }
-
-                        return PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
-                    }
-                    catch (ExecEnvironment.SelfInvokeExitException)
-                    {
-                        throw;
-                    }
-                    catch
-                    {
-                        throw new InvalidOperationException("Package format not recognised for " + file);
-                    }
-                }
             }
         }
     }
