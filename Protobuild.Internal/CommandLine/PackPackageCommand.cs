@@ -17,16 +17,24 @@ namespace Protobuild
 
         private readonly IDeduplicator m_Deduplicator;
 
+        private readonly IPackageCreator _packageCreator;
+
+        private readonly IGetRecursiveUtilitiesInPath _getRecursiveUtilitiesInPath;
+
         public PackPackageCommand(
             IAutomaticModulePackager automaticProjectPackager,
             IFileFilterParser fileFilterParser,
             IHostPlatformDetector hostPlatformDetector,
-            IDeduplicator deduplicator)
+            IDeduplicator deduplicator,
+            IPackageCreator packageCreator,
+            IGetRecursiveUtilitiesInPath getRecursiveUtilitiesInPath)
         {
             this.m_AutomaticProjectPackager = automaticProjectPackager;
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_FileFilterParser = fileFilterParser;
             this.m_Deduplicator = deduplicator;
+            _packageCreator = packageCreator;
+            _getRecursiveUtilitiesInPath = getRecursiveUtilitiesInPath;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -102,7 +110,7 @@ namespace Protobuild
 
             Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
 
-            var filter = new FileFilter(GetRecursiveFilesInPath(execution.PackageSourceFolder));
+            var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(execution.PackageSourceFolder));
             if (execution.PackageFilterFile != null)
             {
                 using (var reader = new StreamReader(execution.PackageFilterFile))
@@ -173,98 +181,11 @@ namespace Protobuild
 
             using (var target = new FileStream(execution.PackageDestinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
-                var archive = new MemoryStream();
-
-                switch (execution.PackageFormat)
-                {
-                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                        {
-                            Console.WriteLine("Writing package in tar/gzip format...");
-                            break;
-                        }
-                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
-                    default:
-                        {
-                            Console.WriteLine("Writing package in tar/lzma format...");
-                            break;
-                        }
-                }
-
-                switch (execution.PackageFormat)
-                {
-                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
-                    default:
-                        {
-                            var state = this.m_Deduplicator.CreateState();
-
-                            Console.Write("Deduplicating files in package...");
-
-                            var progressHelper = new DedupProgressRenderer(filter.Count());
-                            var current = 0;
-
-                            foreach (var kv in filter.OrderBy(kv => kv.Value))
-                            {
-                                if (kv.Value.EndsWith("/"))
-                                {
-                                    // Directory
-                                    this.m_Deduplicator.AddDirectory(state, kv.Value);
-                                }
-                                else
-                                {
-                                    // File
-                                    var realFile = Path.Combine(execution.PackageSourceFolder, kv.Key);
-                                    var realFileInfo = new FileInfo(realFile);
-
-                                    this.m_Deduplicator.AddFile(state, realFileInfo, kv.Value);
-                                }
-
-                                current++;
-
-                                progressHelper.SetProgress(current);
-                            }
-
-                            Console.WriteLine();
-                            Console.WriteLine("Adding files to package...");
-
-                            using (var writer = new tar_cs.TarWriter(archive))
-                            {
-                                this.m_Deduplicator.PushToTar(state, writer);
-                            }
-
-                            break;
-                        }
-                }
-
-                archive.Seek(0, SeekOrigin.Begin);
-
-                switch (execution.PackageFormat)
-                {
-                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                        {
-                            Console.WriteLine("Compressing package...");
-
-                            using (var compress = new GZipStream(target, CompressionMode.Compress))
-                            {
-                                archive.CopyTo(compress);
-                            }
-
-                            break;
-                        }
-                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
-                    default:
-                        {
-                            Console.Write("Compressing package...");
-
-                            var progressHelper = new CompressProgressRenderer(archive.Length);
-
-                            LZMA.LzmaHelper.Compress(archive, target, progressHelper);
-
-                            Console.WriteLine();
-
-                            break;
-                        }
-                }
+                _packageCreator.Create(
+                    target,
+                    filter,
+                    execution.PackageSourceFolder,
+                    execution.PackageFormat);
             }
 
             Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
@@ -292,24 +213,6 @@ If a filter file is specified, performs the steps in the filter file instead.
         public string[] GetArgNames()
         {
             return new[] { "module_path", "package_file", "platform", "filter?" };
-        }
-
-        private static IEnumerable<string> GetRecursiveFilesInPath(string path)
-        {
-            var current = new DirectoryInfo(path);
-
-            foreach (var di in current.GetDirectories())
-            {
-                foreach (string s in GetRecursiveFilesInPath(path + "/" + di.Name))
-                {
-                    yield return (di.Name + "/" + s).Trim('/');
-                }
-            }
-
-            foreach (var fi in current.GetFiles())
-            {
-                yield return fi.Name;
-            }
         }
 
         private void PrintFilterMappings(Dictionary<string, string> mappings)

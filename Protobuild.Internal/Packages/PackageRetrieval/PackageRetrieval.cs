@@ -7,11 +7,16 @@ namespace Protobuild
 {
     public class PackageRetrieval : IPackageRetrieval
     {
-        private IPackageLookup _packageLookup;
+        private readonly IPackageLookup _packageLookup;
 
-        public PackageRetrieval(IPackageLookup packageLookup)
+        private readonly IProgressiveWebOperation _progressiveWebOperation;
+
+        public PackageRetrieval(
+            IPackageLookup packageLookup,
+            IProgressiveWebOperation progressiveWebOperation)
         {
             _packageLookup = packageLookup;
+            _progressiveWebOperation = progressiveWebOperation;
         }
 
         public bool DownloadBinaryPackage(string uri, string gitHash, string platform, out string format, string targetPath)
@@ -81,6 +86,7 @@ namespace Protobuild
 
             string sourceUri, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            IPackageTransformer transformer;
             _packageLookup.Lookup(
                 uri,
                 platform,
@@ -89,7 +95,13 @@ namespace Protobuild
                 out type,
                 out downloadMap,
                 out archiveTypeMap,
-                out resolvedHash);
+                out resolvedHash,
+                out transformer);
+
+            if (transformer != null)
+            {
+                return transformer.Transform(sourceUri, gitHash, platform, out format);
+            }
 
             if (!downloadMap.ContainsKey(gitHash))
             {
@@ -108,56 +120,7 @@ namespace Protobuild
             var resolvedGitHash = resolvedHash[gitHash];
 
             format = archiveType;
-            return this.GetBinary(fileUri);
-        }
-
-        private byte[] GetBinary(string packageUri)
-        {
-            try 
-            {
-                using (var client = new WebClient())
-                {
-                    Console.WriteLine("HTTP GET " + packageUri);
-                    var done = false;
-                    byte[] result = null;
-                    Exception ex = null;
-                    var downloadProgressRenderer = new DownloadProgressRenderer();
-                    client.DownloadDataCompleted += (sender, e) => {
-                        if (e.Error != null)
-                        {
-                            ex = e.Error;
-                        }
-
-                        result = e.Result;
-                        done = true;
-                    };
-                    client.DownloadProgressChanged += (sender, e) => {
-                        if (!done)
-                        {
-                            downloadProgressRenderer.Update(e.ProgressPercentage, e.BytesReceived / 1024);
-                        }
-                    };
-                    client.DownloadDataAsync(new Uri(packageUri));
-                    while (!done)
-                    {
-                        System.Threading.Thread.Sleep(0);
-                    }
-
-                    Console.WriteLine();
-
-                    if (ex != null)
-                    {
-                        throw new InvalidOperationException("Download error", ex);
-                    }
-
-                    return result;
-                }
-            }
-            catch (WebException)
-            {
-                Console.WriteLine("Web exception when retrieving: " + packageUri);
-                throw;
-            }
+            return _progressiveWebOperation.Get(fileUri);
         }
     }
 }

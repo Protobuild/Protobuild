@@ -46,6 +46,12 @@ namespace Protobuild
                 Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
             };
 
+            // Strip an encoded | character if it is present.
+            if (package.Folder.StartsWith(@"%7C", StringComparison.InvariantCulture))
+            {
+                package.Folder = package.Folder.Substring("%7C".Length);
+            }
+
             if (Directory.Exists(package.Folder))
             {
                 throw new InvalidOperationException(package.Folder + " already exists");
