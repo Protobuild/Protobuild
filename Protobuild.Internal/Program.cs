@@ -44,6 +44,7 @@ namespace Protobuild
                 { "pack", kernel.Get<PackPackageCommand>() },
                 { "format", kernel.Get<FormatPackageCommand>() },
                 { "push", kernel.Get<PushPackageCommand>() },
+                { "repush", kernel.Get<RepushPackageCommand>() },
                 { "resolve", kernel.Get<ResolveCommand>() },
                 { "redirect", kernel.Get<RedirectPackageCommand>() },
                 { "swap-to-source", kernel.Get<SwapToSourceCommand>() },

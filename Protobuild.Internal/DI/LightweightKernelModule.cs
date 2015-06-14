@@ -63,6 +63,7 @@
             kernel.Bind<IProgressiveWebOperation, ProgressiveWebOperation>();
             kernel.Bind<IPackageCreator, PackageCreator>();
             kernel.Bind<IGetRecursiveUtilitiesInPath, GetRecursiveUtilitiesInPath>();
+            kernel.Bind<IPackageUrlParser, PackageUrlParser>();
         }
     }
 }

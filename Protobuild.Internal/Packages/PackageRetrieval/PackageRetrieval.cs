@@ -80,7 +80,7 @@ namespace Protobuild
             GitUtils.RunGit(targetPath, "git clone --bare " + gitUrl + " .");
         }
 
-        private byte[] DownloadBinaryPackage(string uri, string gitHash, string platform, out string format)
+        public byte[] DownloadBinaryPackage(string uri, string gitHash, string platform, out string format)
         {
             format = null;
 

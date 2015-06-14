@@ -7,6 +7,13 @@ namespace Protobuild
 {
     public class AddPackageCommand : ICommand
     {
+        private readonly IPackageUrlParser _packageUrlParser;
+
+        public AddPackageCommand(IPackageUrlParser packageUrlParser)
+        {
+            _packageUrlParser = packageUrlParser;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -29,28 +36,7 @@ namespace Protobuild
                 module.Packages = new List<PackageRef>();
             }
 
-            var branch = "master";
-            if (url.LastIndexOf('@') > url.LastIndexOf('/'))
-            {
-                // A branch / commit ref is specified.
-                branch = url.Substring(url.LastIndexOf('@') + 1);
-                url = url.Substring(0, url.LastIndexOf('@'));
-            }
-
-            var uri = new Uri(url);
-
-            var package = new PackageRef
-            {
-                Uri = url,
-                GitRef = branch,
-                Folder = uri.AbsolutePath.Trim('/').Split('/').Last()
-            };
-
-            // Strip an encoded | character if it is present.
-            if (package.Folder.StartsWith(@"%7C", StringComparison.InvariantCulture))
-            {
-                package.Folder = package.Folder.Substring("%7C".Length);
-            }
+            var package = _packageUrlParser.Parse(url);
 
             if (Directory.Exists(package.Folder))
             {
