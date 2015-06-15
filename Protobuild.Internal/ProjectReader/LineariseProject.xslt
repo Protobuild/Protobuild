@@ -124,6 +124,24 @@
       <xsl:copy-of select="." />
     </Included>
   </xsl:template>
+
+  <xsl:template match="p:ClInclude">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+
+  <xsl:template match="p:ClCompile">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
+
+  <xsl:template match="p:ResourceCompile">
+    <Included>
+      <xsl:copy-of select="." />
+    </Included>
+  </xsl:template>
   
   <xsl:template match="*"></xsl:template>
   <xsl:template match="text()"></xsl:template>

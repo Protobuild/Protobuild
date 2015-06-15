@@ -24,9 +24,16 @@ namespace Protobuild
             this.m_WorkingDirectoryProvider = workingDirectoryProvider;
         }
 
-        public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language)
+        public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform)
         {
-            var hash = resourceType.GetHashCode() + language.GetHashCode();
+            int hash;
+            unchecked
+            {
+                hash = 17 *
+                    resourceType.GetHashCode() * 31 +
+                    language.GetHashCode() * 31 +
+                    platform.GetHashCode() * 31;
+            }
             if (m_CachedTransforms.ContainsKey(hash))
             {
                 return m_CachedTransforms[hash];
@@ -39,7 +46,7 @@ namespace Protobuild
             {
                 case ResourceType.GenerateProject:
                     name = "GenerateProject";
-                    fileSuffix = "." + this.m_LanguageStringProvider.GetFileSuffix(language);
+                    fileSuffix = "." + this.m_LanguageStringProvider.GetFileSuffix(language, platform);
                     applyAdditionalTransforms = true;
                     break;
                 case ResourceType.GenerateSolution:
@@ -53,6 +60,8 @@ namespace Protobuild
             }
 
             var onDiskNames = new List<string>();
+
+            onDiskNames.Add(name + fileSuffix + "." + platform + ".xslt");
             onDiskNames.Add(name + fileSuffix + ".xslt");
 
             if (resourceType == ResourceType.GenerateProject && language == Language.CSharp)
@@ -75,7 +84,12 @@ namespace Protobuild
 
             if (source == null)
             {
-                var embeddedName = name + fileSuffix + ".xslt.lzma";
+                var platformSuffix = string.Empty;
+                if (language == Language.CPlusPlus)
+                {
+                    platformSuffix = platform == "Windows" ? ".VisualStudio" : ".MonoDevelop";
+                }
+                var embeddedName = name + fileSuffix + platformSuffix + ".xslt.lzma";
                 var embeddedStream = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceStream(embeddedName);

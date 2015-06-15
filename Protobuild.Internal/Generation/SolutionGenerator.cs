@@ -33,8 +33,8 @@ namespace Protobuild
             List<Service> services,
             IEnumerable<string> repositoryPaths)
         {
-            var generateSolutionTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.GenerateSolution, Language.CSharp);
-            var selectSolutionTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.SelectSolution, Language.CSharp);
+            var generateSolutionTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.GenerateSolution, Language.CSharp, platformName);
+            var selectSolutionTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.SelectSolution, Language.CSharp, platformName);
 
             var input = this.m_SolutionInputGenerator.GenerateForSelectSolution(definitions, platformName, services);
             using (var memory = new MemoryStream())

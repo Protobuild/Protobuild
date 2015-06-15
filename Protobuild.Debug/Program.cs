@@ -21,6 +21,7 @@ namespace Protobuild.Bootstrap
             // be used for the explicit purpose of debugging Protobuild.
 
             ExecEnvironment.RunProtobuildInProcess = true;
+            ExecEnvironment.DoNotWrapExecutionInTry = true;
             Protobuild.MainClass.Main(args);
         }
     }

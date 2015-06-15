@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace Protobuild
+﻿namespace Protobuild
 {
     public enum Language
     {
         CSharp,
+        CPlusPlus
     }
 }
-

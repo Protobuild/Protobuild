@@ -97,6 +97,12 @@ namespace Protobuild
                 }
             }
 
+            // If the Language property doesn't exist, set it to the default of "C#"
+            if (doc.DocumentElement.Attributes["Language"] == null)
+            {
+                doc.DocumentElement.SetAttribute("Language", "C#");
+            }
+
             return newDoc;
         }
     }

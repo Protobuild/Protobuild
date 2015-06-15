@@ -91,6 +91,7 @@
     <Compile Include="PackageRedirectionToLocalPathTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
+    <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="ResyncPreventedWhenSyncIsDisabledTest.cs" />
@@ -305,6 +306,9 @@
     <None Include="TestData\PlatformSpecificOutputFalse\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputFalse\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputFalse\Test\Program.cs" />
+    <None Include="TestData\PlatformSpecificXSLTGenerationWorks\Build\Module.xml" />
+    <None Include="TestData\PlatformSpecificXSLTGenerationWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\PlatformSpecificXSLTGenerationWorks\Console\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Module.xml" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />

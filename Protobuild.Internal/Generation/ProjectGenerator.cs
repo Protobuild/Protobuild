@@ -25,18 +25,22 @@ namespace Protobuild
 
         private readonly IExternalProjectReferenceResolver m_ExternalProjectReferenceResolver;
 
+        private readonly ILanguageStringProvider m_LanguageStringProvider;
+
         public ProjectGenerator(
             IResourceProvider resourceProvider,
             INuGetConfigMover nuGetConfigMover,
             IProjectInputGenerator projectInputGenerator,
             IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
-            IExternalProjectReferenceResolver externalProjectReferenceResolver)
+            IExternalProjectReferenceResolver externalProjectReferenceResolver,
+            ILanguageStringProvider mLanguageStringProvider)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
             this.m_ProjectInputGenerator = projectInputGenerator;
             this.m_ExcludedServiceAwareProjectDetector = excludedServiceAwareProjectDetector;
             this.m_ExternalProjectReferenceResolver = externalProjectReferenceResolver;
+            this.m_LanguageStringProvider = mLanguageStringProvider;
         }
 
         /// <summary>
@@ -60,8 +64,6 @@ namespace Protobuild
         {
             packagesFilePath = string.Empty;
 
-            var projectTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.GenerateProject, Language.CSharp);
-
             // Work out what document this is.
             var projectDoc = documents.First(
                 x => x.DocumentElement.Attributes["Name"].Value == projectName);
@@ -72,6 +74,12 @@ namespace Protobuild
             if (projectDoc == null ||
                 projectDoc.DocumentElement.Name != "Project")
                 return;
+
+            // Load the appropriate project transformation XSLT.
+            var languageAttribute = projectDoc.DocumentElement.Attributes["Language"];
+            var languageText = languageAttribute != null ? languageAttribute.Value : "C#";
+            var language = this.m_LanguageStringProvider.GetLanguageFromConfigurationName(languageText);
+            var projectTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.GenerateProject, language, platformName);
 
             // Work out what platforms this project should be generated for.
             var platformAttribute = projectDoc.DocumentElement.Attributes["Platforms"];
@@ -129,7 +137,7 @@ namespace Protobuild
                     .Replace('\\', Path.DirectorySeparatorChar)
                     .Replace('/', Path.DirectorySeparatorChar),
                 projectDoc.DocumentElement.Attributes["Name"].Value + "." +
-                platformName + ".csproj");
+                platformName + "." + this.m_LanguageStringProvider.GetProjectExtension(language, platformName));
 
             // Make sure that the directory exists where the file will be stored.
             var targetFile = new FileInfo(path);
