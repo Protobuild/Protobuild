@@ -6,6 +6,8 @@ namespace Protobuild
     {
         public static bool RunProtobuildInProcess = false;
 
+        public static bool DoNotWrapExecutionInTry = false;
+
         public static int SelfInvokeCounter = 0;
 
         public static void InvokeSelf(string[] args)

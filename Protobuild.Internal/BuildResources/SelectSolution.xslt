@@ -50,6 +50,20 @@
       return false;
     }
 
+    // This implementation should be the same as the implementation
+    // offered by ILanguageStringProvider.
+    public string GetProjectExtension(string language, string platform) {
+      if (language == "C++") {
+        if (platform == "Windows") {
+          return ".vcxproj";
+        } else {
+          return ".ccproj";
+        }
+      } else {
+        return ".csproj";
+      }
+    }
+
     ]]>
   </msxsl:script>
 
@@ -82,8 +96,18 @@
                 current()/@Name,
                 '.',
                 /Input/Generation/Platform,
-                '.csproj')" />
+                user:GetProjectExtension(current()/@Language, /Input/Generation/Platform))" />
             </Path>
+            <Language>
+              <xsl:choose>
+                <xsl:when test="current()/@Language">
+                  <xsl:value-of select="current()/@Language" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>C#</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </Language>
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>

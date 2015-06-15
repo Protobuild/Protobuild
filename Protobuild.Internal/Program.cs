@@ -80,30 +80,45 @@ namespace Protobuild
             options["help"] = helpAction;
             options["?"] = helpAction;
 
-            try
+            if (ExecEnvironment.DoNotWrapExecutionInTry)
             {
                 options.Parse(args);
             }
-            catch (InvalidOperationException ex)
+            else
             {
-                Console.WriteLine(ex.Message);
-                PrintHelp(commandMappings);
-                ExecEnvironment.Exit(1);
+                try
+                {
+                    options.Parse(args);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    PrintHelp(commandMappings);
+                    ExecEnvironment.Exit(1);
+                }
             }
 
-            try
+            if (ExecEnvironment.DoNotWrapExecutionInTry)
             {
                 var exitCode = execution.CommandToExecute.Execute(execution);
                 ExecEnvironment.Exit(exitCode);
             }
-            catch (ExecEnvironment.SelfInvokeExitException)
+            else
             {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                ExecEnvironment.Exit(1);
+                try
+                {
+                    var exitCode = execution.CommandToExecute.Execute(execution);
+                    ExecEnvironment.Exit(exitCode);
+                }
+                catch (ExecEnvironment.SelfInvokeExitException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    ExecEnvironment.Exit(1);
+                }
             }
         }
 

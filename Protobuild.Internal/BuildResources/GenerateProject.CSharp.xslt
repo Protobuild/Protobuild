@@ -248,6 +248,43 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
+  
+  <xsl:template name="platform_path">
+    <xsl:param name="type" />
+    <xsl:param name="projectname" />
+    <xsl:param name="platform" />
+    <xsl:param name="config" />
+    <xsl:param name="project_specific_output_folder" />
+    <xsl:param name="platform_specific_output_folder" />
+    <xsl:choose>
+      <xsl:when test="$type = 'Website'">
+        <xsl:text></xsl:text>
+      </xsl:when>
+      <!-- 
+          IMPORTANT: When modifying this, or adding new options, 
+          remember to update AutomaticProjectPackager as well.
+      -->
+      <xsl:when test="user:IsTrue($project_specific_output_folder)">
+        <xsl:value-of select="$projectname" />
+        <xsl:text>\</xsl:text>
+        <xsl:value-of select="/Input/Generation/Platform" />
+        <xsl:text>\</xsl:text>
+        <xsl:value-of select="$platform" />
+        <xsl:text>\</xsl:text>
+        <xsl:value-of select="$config" />
+      </xsl:when>
+      <xsl:when test="user:IsTrueDefault($platform_specific_output_folder)">
+        <xsl:value-of select="/Input/Generation/Platform" />
+      	<xsl:text>\</xsl:text>
+      	<xsl:value-of select="$platform" />
+      	<xsl:text>\</xsl:text>
+      	<xsl:value-of select="$config" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="$config" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <xsl:template name="profile_and_version"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -363,34 +400,14 @@
       </xsl:otherwise>
     </xsl:choose>
     <xsl:variable name="platform_path">
-      <xsl:choose>
-        <xsl:when test="$type = 'Website'">
-          <xsl:text></xsl:text>
-        </xsl:when>
-        <!-- 
-            IMPORTANT: When modifying this, or adding new options, 
-            remember to update AutomaticProjectPackager as well.
-        -->
-        <xsl:when test="user:IsTrue(/Input/Properties/ProjectSpecificOutputFolder)">
-          <xsl:value-of select="$projectname" />
-          <xsl:text>\</xsl:text>
-          <xsl:value-of select="/Input/Generation/Platform" />
-          <xsl:text>\</xsl:text>
-          <xsl:value-of select="$platform" />
-          <xsl:text>\</xsl:text>
-          <xsl:value-of select="$config" />
-        </xsl:when>
-        <xsl:when test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
-          <xsl:value-of select="/Input/Generation/Platform" />
-      	  <xsl:text>\</xsl:text>
-      	  <xsl:value-of select="$platform" />
-      	  <xsl:text>\</xsl:text>
-      	  <xsl:value-of select="$config" />
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:value-of select="$config" />
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:call-template name="platform_path">
+        <xsl:with-param name="type" select="$type" />
+        <xsl:with-param name="projectname" select="$projectname" />
+        <xsl:with-param name="platform" select="$platform" />
+        <xsl:with-param name="config" select="$config" />
+        <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
+        <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+      </xsl:call-template>
     </xsl:variable>
     <OutputPath><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /></OutputPath>
     <IntermediateOutputPath><xsl:text>obj\</xsl:text><xsl:copy-of select="$platform_path" /></IntermediateOutputPath>
@@ -597,6 +614,7 @@
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <xsl:param name="project_path" />
     <xsl:param name="project_name" />
+    <xsl:param name="project_language" />
     <xsl:param name="path" />
     <None>
       <xsl:attribute name="Include">
@@ -608,7 +626,7 @@
               $project_name,
               '.',
               /Input/Generation/Platform,
-              '.csproj'),
+              '.srcproj'),
             $path)" />
       </xsl:attribute>
       <Link><xsl:value-of select="user:GetFilename($path)" /></Link>
@@ -1293,7 +1311,7 @@
                           $project/@Name,
                           '.',
                           /Input/Generation/Platform,
-                          '.csproj'),
+                          '.srcproj'),
                         @Path)" />
                   </HintPath>
                 </Reference>
@@ -1319,7 +1337,7 @@
                             $project/@Name,
                             '.',
                             /Input/Generation/Platform,
-                            '.csproj'),
+                            '.srcproj'),
                           @Path)" />
                     </HintPath>
                   </Reference>
@@ -1349,7 +1367,7 @@
                                 $project/@Name,
                                 '.',
                                 /Input/Generation/Platform,
-                                '.csproj'),
+                                '.srcproj'),
                               @Path)" />
                         </HintPath>
                       </Reference>
@@ -1382,7 +1400,7 @@
                               $project/@Name,
                               '.',
                               /Input/Generation/Platform,
-                              '.csproj'),
+                              '.srcproj'),
                             @Path)" />
                       </HintPath>
                     </Reference>
@@ -1407,7 +1425,7 @@
                     $project/@Name,
                     '.',
                     /Input/Generation/Platform,
-                    '.csproj'),
+                    '.srcproj'),
                   .)" />
             </HintPath>
           </Reference>
@@ -1473,6 +1491,7 @@
                 <xsl:call-template name="NativeBinary">
                   <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
                   <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                  <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                   <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                 </xsl:call-template>
               </xsl:for-each>
@@ -1482,6 +1501,7 @@
                   <xsl:call-template name="NativeBinary">
                     <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
                     <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                    <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                     <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                   </xsl:call-template>
                 </xsl:for-each>
@@ -1495,6 +1515,7 @@
                       <xsl:call-template name="NativeBinary">
                         <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
                         <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                        <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                         <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                       </xsl:call-template>
                     </xsl:for-each>
@@ -1511,6 +1532,7 @@
                     <xsl:call-template name="NativeBinary">
                       <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
                       <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                      <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                       <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                     </xsl:call-template>
                   </xsl:for-each>
@@ -1888,7 +1910,7 @@
                         $project/@Name,
                         '.',
                         /Input/Generation/Platform,
-                        '.csproj'),
+                        '.srcproj'),
                       current()/FullPath)" />
                     </xsl:attribute>
                     <Link>
@@ -1910,7 +1932,7 @@
                         $project/@Name,
                         '.',
                         /Input/Generation/Platform,
-                        '.csproj'),
+                        '.srcproj'),
                       current()/FullPath)" />
                     </xsl:attribute>
                     <Link>
@@ -1931,7 +1953,7 @@
                         $project/@Name,
                         '.',
                         /Input/Generation/Platform,
-                        '.csproj'),
+                        '.srcproj'),
                       current()/FullPath)" />
                     </xsl:attribute>
                     <Link>
@@ -1953,7 +1975,7 @@
                         $project/@Name,
                         '.',
                         /Input/Generation/Platform,
-                        '.csproj'),
+                        '.srcproj'),
                       current()/FullPath)" />
                     </xsl:attribute>
                     <Link>
@@ -2117,7 +2139,7 @@
                           $project/@Name,
                           '.',
                           /Input/Generation/Platform,
-                          '.csproj'),
+                          '.srcproj'),
                         ./@Path)" />
                   </xsl:attribute>
                   <Project>{<xsl:value-of select="./@Guid" />}</Project>
@@ -2143,7 +2165,7 @@
                             $project/@Name,
                             '.',
                             /Input/Generation/Platform,
-                            '.csproj'),
+                            '.srcproj'),
                           ./@Path)" />
                     </xsl:attribute>
                     <Project>{<xsl:value-of select="./@Guid" />}</Project>
@@ -2172,7 +2194,7 @@
                                 $project/@Name,
                                 '.',
                                 /Input/Generation/Platform,
-                                '.csproj'),
+                                '.srcproj'),
                               ./@Path)" />
                         </xsl:attribute>
                         <Project>{<xsl:value-of select="./@Guid" />}</Project>
@@ -2204,7 +2226,7 @@
                               $project/@Name,
                               '.',
                               /Input/Generation/Platform,
-                              '.csproj'),
+                              '.srcproj'),
                             ./@Path)" />
                       </xsl:attribute>
                       <Project>{<xsl:value-of select="./@Guid" />}</Project>
@@ -2231,33 +2253,79 @@
                     '',
                     /Input/Generation/Platform)">
 
-                    <ProjectReference>
-                      <xsl:attribute name="Include">
-                        <xsl:value-of
-                          select="user:GetRelativePath(
-                            concat(
-                              $project/@Path,
-                              '\',
-                              $project/@Name,
-                              '.',
-                              /Input/Generation/Platform,
-                              '.csproj'),
-                            concat(
-                              $refd/@Path,
-                              '\',
-                              $refd/@Name,
-                              '.',
-                              /Input/Generation/Platform,
-                              '.csproj'))" />
-                      </xsl:attribute>
-                      <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
-                      <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                      <xsl:for-each select="$refd/Alias">
-                        <xsl:if test="@Platform = /Input/Generation/Platform">
-                          <Aliases><xsl:value-of select="." /></Aliases>
-                        </xsl:if>
-                      </xsl:for-each>
-                    </ProjectReference>
+                    <xsl:choose>
+                      <xsl:when test="$refd/@Language = 'C#'">
+                        <ProjectReference>
+                          <xsl:attribute name="Include">
+                            <xsl:value-of
+                              select="user:GetRelativePath(
+                                concat(
+                                  $project/@Path,
+                                  '\',
+                                  $project/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.srcproj'),
+                                concat(
+                                  $refd/@Path,
+                                  '\',
+                                  $refd/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.csproj'))" />
+                          </xsl:attribute>
+                          <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
+                          <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                          <xsl:for-each select="$refd/Alias">
+                            <xsl:if test="@Platform = /Input/Generation/Platform">
+                              <Aliases><xsl:value-of select="." /></Aliases>
+                            </xsl:if>
+                          </xsl:for-each>
+                        </ProjectReference>
+                      </xsl:when>
+                      <xsl:when test="$refd/@Language = 'C++'">
+                        <xsl:variable name="target_binary_path">
+                          <xsl:text>bin\</xsl:text>
+                          <xsl:call-template name="platform_path">
+                            <xsl:with-param name="type" select="$refd/@Type" />
+                            <xsl:with-param name="projectname" select="$refd/@Name" />
+                            <xsl:with-param name="platform" select="/Input/Generation/Platform" />
+                            <xsl:with-param name="config" select="'x64'" />
+                            <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
+                            <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+                          </xsl:call-template>
+                          <xsl:text>\</xsl:text>
+                          <!-- TODO Handle AssemblyName property. -->
+                          <xsl:value-of select="$refd/@Name" />
+                          <xsl:text>.dll</xsl:text>
+                        </xsl:variable>
+                        <None>
+                          <xsl:attribute name="Include">
+                            <xsl:value-of
+                              select="user:GetRelativePath(
+                                concat(
+                                  $project/@Path,
+                                  '\',
+                                  $project/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.srcproj'),
+                                $target_binary_path)" />
+                          </xsl:attribute>
+                          <Link><xsl:value-of select="user:GetFilename($target_binary_path)" /></Link>
+                          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                        </None>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:message terminate="yes">
+                          <xsl:text>The project </xsl:text>
+                          <xsl:value-of select="$refd/@Name" />
+                          <xsl:text>does not have a known language (it was '</xsl:text>
+                          <xsl:value-of select="$refd/@Language" />
+                          <xsl:text>').</xsl:text>
+                        </xsl:message>
+                      </xsl:otherwise>
+                    </xsl:choose>
                   </xsl:if>
 
                 </xsl:if>
@@ -2278,33 +2346,87 @@
                       '',
                       /Input/Generation/Platform)">
 
-                      <ProjectReference>
-                        <xsl:attribute name="Include">
-                          <xsl:value-of
-                            select="user:GetRelativePath(
-                              concat(
-                                $project/@Path,
-                                '\',
-                                $project/@Name,
-                                '.',
-                                /Input/Generation/Platform,
-                                '.csproj'),
-                              concat(
-                                $refd/@Path,
-                                '\',
-                                $refd/@Name,
-                                '.',
-                                /Input/Generation/Platform,
-                                '.csproj'))" />
-                        </xsl:attribute>
-                        <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
-                        <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                        <xsl:for-each select="$refd/Alias">
-                          <xsl:if test="@Platform = /Input/Generation/Platform">
-                            <Aliases><xsl:value-of select="." /></Aliases>
-                          </xsl:if>
-                        </xsl:for-each>
-                      </ProjectReference>
+                      <xsl:choose>
+                        <xsl:when test="$refd/@Language = 'C#'">
+                          <ProjectReference>
+                            <xsl:attribute name="Include">
+                              <xsl:value-of
+                                select="user:GetRelativePath(
+                                concat(
+                                  $project/@Path,
+                                  '\',
+                                  $project/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.srcproj'),
+                                concat(
+                                  $refd/@Path,
+                                  '\',
+                                  $refd/@Name,
+                                  '.',
+                                  /Input/Generation/Platform,
+                                  '.csproj'))" />
+                            </xsl:attribute>
+                            <Project>
+                              {<xsl:value-of select="$refd/@Guid" />}
+                            </Project>
+                            <Name>
+                              <xsl:value-of select="$refd/@Name" />
+                              <xsl:text>.</xsl:text>
+                              <xsl:value-of select="/Input/Generation/Platform" />
+                            </Name>
+                            <xsl:for-each select="$refd/Alias">
+                              <xsl:if test="@Platform = /Input/Generation/Platform">
+                                <Aliases>
+                                  <xsl:value-of select="." />
+                                </Aliases>
+                              </xsl:if>
+                            </xsl:for-each>
+                          </ProjectReference>
+                        </xsl:when>
+                        <xsl:when test="$refd/@Language = 'C++'">
+                          <xsl:variable name="target_binary_path">
+                            <xsl:text>bin\</xsl:text>
+                            <xsl:call-template name="platform_path">
+                              <xsl:with-param name="type" select="$refd/@Type" />
+                              <xsl:with-param name="projectname" select="$refd/@Name" />
+                              <xsl:with-param name="platform" select="/Input/Generation/Platform" />
+                              <xsl:with-param name="config" select="'x64'" />
+                              <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
+                              <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+                            </xsl:call-template>
+                            <xsl:text>\</xsl:text>
+                            <!-- TODO Handle AssemblyName property. -->
+                            <xsl:value-of select="$refd/@Name" />
+                            <xsl:text>.dll</xsl:text>
+                          </xsl:variable>
+                          <None>
+                            <xsl:attribute name="Include">
+                              <xsl:value-of
+                                select="user:GetRelativePath(
+                                  concat(
+                                    $project/@Path,
+                                    '\',
+                                    $project/@Name,
+                                    '.',
+                                    /Input/Generation/Platform,
+                                    '.srcproj'),
+                                  $target_binary_path)" />
+                            </xsl:attribute>
+                            <Link><xsl:value-of select="user:GetFilename($target_binary_path)" /></Link>
+                            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                          </None>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:message terminate="yes">
+                            <xsl:text>The project </xsl:text>
+                            <xsl:value-of select="$refd/@Name" />
+                            <xsl:text>does not have a known language (it was '</xsl:text>
+                            <xsl:value-of select="$refd/@Language" />
+                            <xsl:text>').</xsl:text>
+                          </xsl:message>
+                        </xsl:otherwise>
+                      </xsl:choose>
                     </xsl:if>
 
                   </xsl:if>
@@ -2327,33 +2449,79 @@
                           '',
                           /Input/Generation/Platform)">
 
-                          <ProjectReference>
-                            <xsl:attribute name="Include">
-                              <xsl:value-of
-                                select="user:GetRelativePath(
-                                  concat(
-                                    $project/@Path,
-                                    '\',
-                                    $project/@Name,
-                                    '.',
-                                    /Input/Generation/Platform,
-                                    '.csproj'),
-                                  concat(
-                                    $refd/@Path,
-                                    '\',
-                                    $refd/@Name,
-                                    '.',
-                                    /Input/Generation/Platform,
-                                    '.csproj'))" />
-                            </xsl:attribute>
-                            <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
-                            <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                            <xsl:for-each select="$refd/Alias">
-                              <xsl:if test="@Platform = /Input/Generation/Platform">
-                                <Aliases><xsl:value-of select="." /></Aliases>
-                              </xsl:if>
-                            </xsl:for-each>
-                          </ProjectReference>
+                          <xsl:choose>
+                            <xsl:when test="$refd/@Language = 'C#'">
+                              <ProjectReference>
+                                <xsl:attribute name="Include">
+                                  <xsl:value-of
+                                    select="user:GetRelativePath(
+                                      concat(
+                                        $project/@Path,
+                                        '\',
+                                        $project/@Name,
+                                        '.',
+                                        /Input/Generation/Platform,
+                                        '.srcproj'),
+                                      concat(
+                                        $refd/@Path,
+                                        '\',
+                                        $refd/@Name,
+                                        '.',
+                                        /Input/Generation/Platform,
+                                        '.csproj'))" />
+                                </xsl:attribute>
+                                <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
+                                <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                                <xsl:for-each select="$refd/Alias">
+                                  <xsl:if test="@Platform = /Input/Generation/Platform">
+                                    <Aliases><xsl:value-of select="." /></Aliases>
+                                  </xsl:if>
+                                </xsl:for-each>
+                              </ProjectReference>
+                            </xsl:when>
+                            <xsl:when test="$refd/@Language = 'C++'">
+                              <xsl:variable name="target_binary_path">
+                                <xsl:text>bin\</xsl:text>
+                                <xsl:call-template name="platform_path">
+                                  <xsl:with-param name="type" select="$refd/@Type" />
+                                  <xsl:with-param name="projectname" select="$refd/@Name" />
+                                  <xsl:with-param name="platform" select="/Input/Generation/Platform" />
+                                  <xsl:with-param name="config" select="'x64'" />
+                                  <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
+                                  <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+                                </xsl:call-template>
+                                <xsl:text>\</xsl:text>
+                                <!-- TODO Handle AssemblyName property. -->
+                                <xsl:value-of select="$refd/@Name" />
+                                <xsl:text>.dll</xsl:text>
+                              </xsl:variable>
+                              <None>
+                                <xsl:attribute name="Include">
+                                  <xsl:value-of
+                                    select="user:GetRelativePath(
+                                      concat(
+                                        $project/@Path,
+                                        '\',
+                                        $project/@Name,
+                                        '.',
+                                        /Input/Generation/Platform,
+                                        '.srcproj'),
+                                      $target_binary_path)" />
+                                </xsl:attribute>
+                                <Link><xsl:value-of select="user:GetFilename($target_binary_path)" /></Link>
+                                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                              </None>
+                            </xsl:when>
+                            <xsl:otherwise>
+                              <xsl:message terminate="yes">
+                                <xsl:text>The project </xsl:text>
+                                <xsl:value-of select="$refd/@Name" />
+                                <xsl:text>does not have a known language (it was '</xsl:text>
+                                <xsl:value-of select="$refd/@Language" />
+                                <xsl:text>').</xsl:text>
+                              </xsl:message>
+                            </xsl:otherwise>
+                          </xsl:choose>
                         </xsl:if>
 
                       </xsl:if>
@@ -2379,33 +2547,79 @@
                         '',
                         /Input/Generation/Platform)">
 
-                        <ProjectReference>
-                          <xsl:attribute name="Include">
-                            <xsl:value-of
-                              select="user:GetRelativePath(
-                                concat(
-                                  $project/@Path,
-                                  '\',
-                                  $project/@Name,
-                                  '.',
-                                  /Input/Generation/Platform,
-                                  '.csproj'),
-                                concat(
-                                  $refd/@Path,
-                                  '\',
-                                  $refd/@Name,
-                                  '.',
-                                  /Input/Generation/Platform,
-                                  '.csproj'))" />
-                          </xsl:attribute>
-                          <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
-                          <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                          <xsl:for-each select="$refd/Alias">
-                            <xsl:if test="@Platform = /Input/Generation/Platform">
-                              <Aliases><xsl:value-of select="." /></Aliases>
-                            </xsl:if>
-                          </xsl:for-each>
-                        </ProjectReference>
+                        <xsl:choose>
+                          <xsl:when test="$refd/@Language = 'C#'">
+                            <ProjectReference>
+                              <xsl:attribute name="Include">
+                                <xsl:value-of
+                                  select="user:GetRelativePath(
+                                    concat(
+                                      $project/@Path,
+                                      '\',
+                                      $project/@Name,
+                                      '.',
+                                      /Input/Generation/Platform,
+                                      '.srcproj'),
+                                    concat(
+                                      $refd/@Path,
+                                      '\',
+                                      $refd/@Name,
+                                      '.',
+                                      /Input/Generation/Platform,
+                                      '.csproj'))" />
+                              </xsl:attribute>
+                              <Project>{<xsl:value-of select="$refd/@Guid" />}</Project>
+                              <Name><xsl:value-of select="$refd/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                              <xsl:for-each select="$refd/Alias">
+                                <xsl:if test="@Platform = /Input/Generation/Platform">
+                                  <Aliases><xsl:value-of select="." /></Aliases>
+                                </xsl:if>
+                              </xsl:for-each>
+                            </ProjectReference>
+                          </xsl:when>
+                          <xsl:when test="$refd/@Language = 'C++'">
+                            <xsl:variable name="target_binary_path">
+                              <xsl:text>bin\</xsl:text>
+                              <xsl:call-template name="platform_path">
+                                <xsl:with-param name="type" select="$refd/@Type" />
+                                <xsl:with-param name="projectname" select="$refd/@Name" />
+                                <xsl:with-param name="platform" select="/Input/Generation/Platform" />
+                                <xsl:with-param name="config" select="'x64'" />
+                                <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
+                                <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+                              </xsl:call-template>
+                              <xsl:text>\</xsl:text>
+                              <!-- TODO Handle AssemblyName property. -->
+                              <xsl:value-of select="$refd/@Name" />
+                              <xsl:text>.dll</xsl:text>
+                            </xsl:variable>
+                            <None>
+                              <xsl:attribute name="Include">
+                                <xsl:value-of
+                                  select="user:GetRelativePath(
+                                    concat(
+                                      $project/@Path,
+                                      '\',
+                                      $project/@Name,
+                                      '.',
+                                      /Input/Generation/Platform,
+                                      '.srcproj'),
+                                    $target_binary_path)" />
+                              </xsl:attribute>
+                              <Link><xsl:value-of select="user:GetFilename($target_binary_path)" /></Link>
+                              <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                            </None>
+                          </xsl:when>
+                          <xsl:otherwise>
+                            <xsl:message terminate="yes">
+                              <xsl:text>The project </xsl:text>
+                              <xsl:value-of select="$refd/@Name" />
+                              <xsl:text>does not have a known language (it was '</xsl:text>
+                              <xsl:value-of select="$refd/@Language" />
+                              <xsl:text>').</xsl:text>
+                            </xsl:message>
+                          </xsl:otherwise>
+                        </xsl:choose>
                       </xsl:if>
 
                     </xsl:if>
@@ -2430,33 +2644,48 @@
                 '',
                 /Input/Generation/Platform)">
 
-                <ProjectReference>
-                  <xsl:attribute name="Include">
-                    <xsl:value-of
-                      select="user:GetRelativePath(
-                        concat(
-                          $project/@Path,
-                          '\',
-                          $project/@Name,
-                          '.',
-                          /Input/Generation/Platform,
-                          '.csproj'),
-                        concat(
-                          /Input/Projects/Project[@Name=$include-path]/@Path,
-                          '\',
-                          @Include,
-                          '.',
-                          /Input/Generation/Platform,
-                          '.csproj'))" />
-                  </xsl:attribute>
-                  <Project>{<xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
-                  <Name><xsl:value-of select="@Include" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
-                  <xsl:for-each select="./Alias">
-                    <xsl:if test="@Platform = /Input/Generation/Platform">
-                      <Aliases><xsl:value-of select="." /></Aliases>
-                    </xsl:if>
-                  </xsl:for-each>
-                </ProjectReference>
+                <xsl:choose>
+                  <xsl:when test="/Input/Projects/Project[@Name=$include-path]/@Language = 'C#'">
+                    <ProjectReference>
+                      <xsl:attribute name="Include">
+                        <xsl:value-of
+                          select="user:GetRelativePath(
+                            concat(
+                              $project/@Path,
+                              '\',
+                              $project/@Name,
+                              '.',
+                              /Input/Generation/Platform,
+                              '.srcproj'),
+                            concat(
+                              /Input/Projects/Project[@Name=$include-path]/@Path,
+                              '\',
+                              @Include,
+                              '.',
+                              /Input/Generation/Platform,
+                              '.csproj'))" />
+                      </xsl:attribute>
+                      <Project>{<xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Guid" />}</Project>
+                      <Name><xsl:value-of select="@Include" /><xsl:text>.</xsl:text><xsl:value-of select="/Input/Generation/Platform" /></Name>
+                      <xsl:for-each select="./Alias">
+                        <xsl:if test="@Platform = /Input/Generation/Platform">
+                          <Aliases><xsl:value-of select="." /></Aliases>
+                        </xsl:if>
+                      </xsl:for-each>
+                    </ProjectReference>
+                  </xsl:when>
+                  <xsl:when test="/Input/Projects/Project[@Name=$include-path]/@Language = 'C++'">
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:message terminate="yes">
+                      <xsl:text>The project </xsl:text>
+                      <xsl:value-of select="$include-path" />
+                      <xsl:text>does not have a known language (it was '</xsl:text>
+                      <xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Language" />
+                      <xsl:text>').</xsl:text>
+                    </xsl:message>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:if>
             </xsl:if>
           </xsl:if>

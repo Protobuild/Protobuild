@@ -33,6 +33,7 @@
         <xsl:with-param name="name" select="current()/Name" />
         <xsl:with-param name="guid" select="current()/Guid" />
         <xsl:with-param name="path" select="current()/Path" />
+        <xsl:with-param name="language" select="current()/Language" />
         <xsl:with-param name="deps" select="current()/PostProject" />
       </xsl:call-template>
     </xsl:for-each>
@@ -84,6 +85,7 @@
       <xsl:call-template name="project-configuration">
         <xsl:with-param name="guid" select="current()/Guid" />
         <xsl:with-param name="root" select="current()" />
+        <xsl:with-param name="language" select="current()/Language" />
       </xsl:call-template>
     </xsl:for-each>
     <xsl:text>	EndGlobalSection
@@ -96,11 +98,15 @@ EndGlobal
     <xsl:param name="type" />
     <xsl:param name="path" />
     <xsl:param name="guid" />
+    <xsl:param name="language" />
     <xsl:param name="deps" />
     <xsl:text>Project("{</xsl:text>
     <xsl:choose>
       <xsl:when test="$type = 'Content'">
         <xsl:text>9344BDBB-3E7F-41FC-A0DD-8665D75EE146</xsl:text>
+      </xsl:when>
+      <xsl:when test="$language = 'C++'">
+        <xsl:text>8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942</xsl:text>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>FAE04EC0-301F-11D3-BF4B-00C04F79EFBC</xsl:text>
@@ -128,6 +134,7 @@ EndGlobal
   <xsl:template name="project-configuration">
     <xsl:param name="guid" />
     <xsl:param name="root" />
+    <xsl:param name="language" />
     <xsl:variable name="adhoc-mapping">
       <xsl:value-of select="$root/ConfigurationMapping[@Old='Ad-Hoc']/@New" />
     </xsl:variable>
@@ -401,6 +408,60 @@ EndGlobal
           </xsl:when>
           <xsl:otherwise>
             <xsl:text>Release|ARM</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+      </xsl:when>
+      <xsl:when test="$language = 'C++'">
+        <xsl:text>		{</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|Any CPU.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|x64</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>		{</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Debug|Any CPU.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$debug-mapping != ''">
+            <xsl:value-of select="$debug-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|x64</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>		{</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|Any CPU.ActiveCfg = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$release-mapping != ''">
+            <xsl:value-of select="$release-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|x64</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+        <xsl:text>
+</xsl:text>
+        <xsl:text>		{</xsl:text>
+        <xsl:value-of select="$guid" />
+        <xsl:text>}.Release|Any CPU.Build.0 = </xsl:text>
+        <xsl:choose>
+          <xsl:when test="$release-mapping != ''">
+            <xsl:value-of select="$release-mapping" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Release|x64</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
