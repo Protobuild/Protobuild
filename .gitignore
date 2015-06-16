@@ -38,3 +38,7 @@ TestSummary.htm
 /Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerateProject.CPlusPlus.VisualStudio.xslt
 /Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerateProject.CPlusPlus.MonoDevelop.xslt
 *.sdf
+/Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/util.cs
+/Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/utilPINVOKE.cs
+/Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/util_wrap.c
+/Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/Library.Windows.md.pc

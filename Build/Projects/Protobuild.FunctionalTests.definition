@@ -60,6 +60,7 @@
     <Compile Include="CheckForOverflowUnderflowPropertyWorksTest.cs" />
     <Compile Include="ConfigurationMappingWorksTest.cs" />
     <Compile Include="CPlusPlusConsoleWorksTest.cs" />
+    <Compile Include="CPlusPlusSWIGBindingGeneratorWorksTest.cs" />
     <Compile Include="DefaultStartupProjectTest.cs" />
     <Compile Include="DuplicateExternalProjectsTest.cs" />
     <Compile Include="ExampleCocos2DXNATest.cs" />
@@ -124,6 +125,17 @@
     <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.ThirdParty.definition" />
     <None Include="TestData\ConfigurationMappingWorks\Console\Program.cs" />
+    <None Include="TestData\CPlusPlusConsoleWorks\Build\Module.xml" />
+    <None Include="TestData\CPlusPlusConsoleWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\CPlusPlusConsoleWorks\Console\main.c" />
+    <None Include="TestData\CPlusPlusConsoleWorks\Console\main.h" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Build\Module.xml" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Build\Projects\Library.definition" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Console\Program.cs" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Library\util.c" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Library\util.h" />
+    <None Include="TestData\CPlusPlusSWIGBindingGeneratorWorks\Library\util.i" />
     <None Include="TestData\DefaultProjectExplicitlySet\Build\Module.xml" />
     <None Include="TestData\DefaultProjectExplicitlySet\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\DefaultProjectExplicitlySet\Build\Projects\ConsoleB.definition" />

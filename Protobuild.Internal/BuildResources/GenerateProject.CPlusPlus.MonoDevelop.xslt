@@ -231,6 +231,17 @@
       return components[components.Length - 1];
     }
 
+    public bool PathEndsWith(string path, string ext)
+    {
+      return path.EndsWith(ext);
+    }
+
+    public string StripExtension(string path)
+    {
+      var extl = path.LastIndexOf('.');
+      return path.Substring(0, extl);
+    }
+
     ]]>
   </msxsl:script>
 
@@ -270,24 +281,152 @@
       -->
       <xsl:when test="user:IsTrue($project_specific_output_folder)">
         <xsl:value-of select="$projectname" />
-        <xsl:text>\</xsl:text>
+        <xsl:text>/</xsl:text>
         <xsl:value-of select="/Input/Generation/Platform" />
-        <xsl:text>\</xsl:text>
+        <xsl:text>/</xsl:text>
         <xsl:value-of select="$platform" />
-        <xsl:text>\</xsl:text>
+        <xsl:text>/</xsl:text>
         <xsl:value-of select="$config" />
       </xsl:when>
       <xsl:when test="user:IsTrueDefault($platform_specific_output_folder)">
         <xsl:value-of select="/Input/Generation/Platform" />
-        <xsl:text>\</xsl:text>
+        <xsl:text>/</xsl:text>
         <xsl:value-of select="$platform" />
-        <xsl:text>\</xsl:text>
+        <xsl:text>/</xsl:text>
         <xsl:value-of select="$config" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$config" />
       </xsl:otherwise>
     </xsl:choose>
+  </xsl:template>
+  
+  <xsl:template name="swig_binding_generator"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild">
+          <xsl:attribute name="workingdir">
+            <xsl:text>${ProjectDir}</xsl:text>
+          </xsl:attribute>
+          <xsl:attribute name="command">
+            <xsl:text>swig -csharp -dllimport lib</xsl:text>
+            <xsl:value-of select="$assembly_name" />
+            <xsl:text> </xsl:text>
+            <xsl:if test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+              <xsl:text>-c++ </xsl:text>
+            </xsl:if>
+            <xsl:for-each select="$project/Files/None">
+              <xsl:if test="user:ProjectAndServiceIsActive(
+                  ./Platforms,
+                  ./IncludePlatforms,
+                  ./ExcludePlatforms,
+                  ./Services,
+                  ./IncludeServices,
+                  ./ExcludeServices,
+                  /Input/Generation/Platform,
+                  /Input/Services/ActiveServicesNames)">
+                <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+                  <xsl:value-of select="@Include" />
+                  <xsl:text> </xsl:text>
+                </xsl:if>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:attribute>
+        </Command>
+        <Command type="AfterBuild">
+          <xsl:attribute name="workingdir">
+            <xsl:text>${ProjectDir}</xsl:text>
+          </xsl:attribute>
+          <xsl:attribute name="command">
+            <xsl:text>mcs -target:library -out:</xsl:text>
+            <xsl:text>bin/</xsl:text>
+            <xsl:value-of select="$project/@Name" />
+            <xsl:text>Binding.dll </xsl:text>
+            <xsl:for-each select="$project/Files/None">
+              <xsl:if test="user:ProjectAndServiceIsActive(
+                  ./Platforms,
+                  ./IncludePlatforms,
+                  ./ExcludePlatforms,
+                  ./Services,
+                  ./IncludeServices,
+                  ./ExcludeServices,
+                  /Input/Generation/Platform,
+                  /Input/Services/ActiveServicesNames)">
+                <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+                  <xsl:value-of select="user:StripExtension(@Include)" />
+                  <xsl:text>.cs </xsl:text>
+                  <xsl:value-of select="user:StripExtension(@Include)" />
+                  <xsl:text>PINVOKE.cs </xsl:text>
+                </xsl:if>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:attribute>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </xsl:template>
+  
+  <xsl:template name="swig_binding_generator_includes"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:for-each select="$project/Files/None">
+      <xsl:if test="user:ProjectAndServiceIsActive(
+          ./Platforms,
+          ./IncludePlatforms,
+          ./ExcludePlatforms,
+          ./Services,
+          ./IncludeServices,
+          ./ExcludeServices,
+          /Input/Generation/Platform,
+          /Input/Services/ActiveServicesNames)">
+        <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+          <Compile>
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>_wrap.</xsl:text>
+              <xsl:choose>
+                <xsl:when test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+                  <xsl:text>cxx</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>c</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:attribute>
+          </Compile>
+        </xsl:if>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+  
+  <xsl:template name="swig_binding_generator_extras"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:for-each select="$project/Files/None">
+      <xsl:if test="user:ProjectAndServiceIsActive(
+          ./Platforms,
+          ./IncludePlatforms,
+          ./ExcludePlatforms,
+          ./Services,
+          ./IncludeServices,
+          ./ExcludeServices,
+          /Input/Generation/Platform,
+          /Input/Services/ActiveServicesNames)">
+        <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+          <None>
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>.cs</xsl:text>
+            </xsl:attribute>
+          </None>
+          <None>
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>PINVOKE.cs</xsl:text>
+            </xsl:attribute>
+          </None>
+        </xsl:if>
+      </xsl:if>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template name="configuration"
@@ -318,7 +457,7 @@
             <xsl:text>Bin</xsl:text>
           </xsl:when>
           <xsl:otherwise>
-            <xsl:text>SharedLib</xsl:text>
+            <xsl:text>SharedLibrary</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
       </CompileTarget>
@@ -414,6 +553,11 @@
         </xsl:variable>
         <xsl:value-of select="user:CalculateDefines($addDefines, $removeDefines)" />
       </DefineSymbols>
+      
+      <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+        <xsl:call-template name="swig_binding_generator">
+        </xsl:call-template>
+      </xsl:if>
     </PropertyGroup>
   </xsl:template>
   
@@ -472,6 +616,11 @@
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
+
+        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+          <xsl:call-template name="swig_binding_generator_includes">
+          </xsl:call-template>
+        </xsl:if>
       </ItemGroup>
       
       <ItemGroup>
@@ -495,8 +644,13 @@
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
+
+        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+          <xsl:call-template name="swig_binding_generator_extras">
+          </xsl:call-template>
+        </xsl:if>
       </ItemGroup>
-      
+
     </Project>
 
   </xsl:template>
