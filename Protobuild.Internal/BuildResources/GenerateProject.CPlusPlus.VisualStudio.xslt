@@ -253,6 +253,20 @@
       }
       return "10";
     }
+
+    public string DetectCXXPlatformToolsetVersion() 
+    {
+      // We can't just select a common low version here; we need to pick a
+      // toolset version that's installed with Visual Studio.
+      var x86programfiles = ProgramFilesx86();
+      for (var i = 20; i >= 10; i--) {
+        var path = System.IO.Path.Combine(x86programfiles, @"MSBuild\Microsoft.Cpp\v4.0\V" + i + @"0\Platforms\x64\PlatformToolsets\v" + i + @"0\Toolset.targets");
+        if (System.IO.File.Exists(path)) {
+          return i.ToString();
+        }
+      }
+      return "10";
+    }
     
     public string DetectBuildToolsVersion() 
     {
@@ -305,14 +319,23 @@
 <xsl:value-of select="$platform" />
         <xsl:text>' </xsl:text>
       </xsl:attribute>
-      <ConfigurationType>DynamicLibrary</ConfigurationType>
+      <ConfigurationType>
+        <xsl:choose>
+          <xsl:when test="$project/@Type = 'Console' or $project/@Type = 'GUI' or $project/@Type = 'App'">
+            <xsl:text>Application</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>DynamicLibrary</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
+      </ConfigurationType>
       <xsl:if test="$debug = 'true'">
         <UseDebugLibraries>true</UseDebugLibraries>
       </xsl:if>
       <CharacterSet>Unicode</CharacterSet>
       <PlatformToolset>
         <xsl:text>v</xsl:text>
-        <xsl:value-of select="user:DetectPlatformToolsetVersion()"/>
+        <xsl:value-of select="user:DetectCXXPlatformToolsetVersion()"/>
         <xsl:text>0</xsl:text>
       </PlatformToolset>
     </PropertyGroup>
@@ -469,7 +492,19 @@
         <PrecompiledHeaderOutputFile></PrecompiledHeaderOutputFile>
       </ClCompile>
       <Link>
-        <SubSystem>Windows</SubSystem>
+        <SubSystem>
+          <xsl:choose>
+            <xsl:when test="$project/@Type = 'Console'">
+              <xsl:text>Console</xsl:text>
+            </xsl:when>
+            <xsl:when test="$project/@Type = 'GUI' or $project/@Type = 'App'">
+              <xsl:text>Windows</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>Windows</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </SubSystem>
         <AdditionalDependencies>
           <xsl:for-each select="$project/References/Reference">
             <xsl:variable name="include-name" select="./@Include" />
@@ -684,7 +719,7 @@
       </ItemGroup>
       
       <ItemGroup>
-        <xsl:for-each select="$project/Files/ClCompile">
+        <xsl:for-each select="$project/Files/Compile">
           <xsl:if test="user:ProjectAndServiceIsActive(
               ./Platforms,
               ./IncludePlatforms,
@@ -695,7 +730,7 @@
               /Input/Generation/Platform,
               /Input/Services/ActiveServicesNames)">
             <xsl:element
-              name="{name()}"
+              name="ClCompile"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
               <xsl:attribute name="Include">
                 <xsl:value-of select="@Include" />
