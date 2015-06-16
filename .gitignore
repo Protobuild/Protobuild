@@ -37,3 +37,4 @@ TestSummary.htm
 *.vcxproj
 /Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerateProject.CPlusPlus.VisualStudio.xslt
 /Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerateProject.CPlusPlus.MonoDevelop.xslt
+*.sdf

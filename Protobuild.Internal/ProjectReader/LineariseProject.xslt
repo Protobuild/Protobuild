@@ -133,7 +133,14 @@
 
   <xsl:template match="p:ClCompile">
     <Included>
-      <xsl:copy-of select="." />
+      <xsl:element
+        name="Compile"
+        namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+        <xsl:attribute name="Include">
+          <xsl:value-of select="@Include" />
+        </xsl:attribute>
+        <xsl:copy-of select="./*" />
+      </xsl:element>
     </Included>
   </xsl:template>
 
