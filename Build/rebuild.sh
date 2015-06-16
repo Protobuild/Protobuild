@@ -30,6 +30,7 @@ echo "Compressing resources..."
 PROTOBUILD_COMPRESS=Protobuild.Compress/bin/$PLATFORM/AnyCPU/Release/Protobuild.Compress.exe
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
+mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/SelectSolution.xslt Protobuild.Internal/BuildResources/SelectSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/JSILTemplate.htm Protobuild.Internal/BuildResources/JSILTemplate.htm.lzma

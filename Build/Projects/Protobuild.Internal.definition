@@ -233,6 +233,12 @@
     <Compile Include="Tasks\GenerateProjectsTask.cs" />
     <Compile Include="Tasks\SyncProjectsTask.cs" />
     <Compile Include="ZIP\ZipStorer.cs" />
+    <EmbeddedResource Include="BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma">
+      <LogicalName>GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma">
+      <LogicalName>GenerateProject.CPlusPlus.VisualStudio.xslt.lzma</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\GenerateProject.CSharp.xslt.lzma">
       <LogicalName>GenerateProject.CSharp.xslt.lzma</LogicalName>
     </EmbeddedResource>
@@ -251,6 +257,8 @@
     <EmbeddedResource Include="ProjectReader\WashNamespaces.xslt">
       <LogicalName>WashNamespaces.xslt</LogicalName>
     </EmbeddedResource>
+    <None Include="BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt" />
+    <None Include="BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt" />
     <None Include="BuildResources\GenerateProject.CSharp.xslt">
       <SubType>Designer</SubType>
     </None>
