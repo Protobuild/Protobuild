@@ -28,6 +28,7 @@
       </xsl:otherwise>
     </xsl:choose>
     <xsl:for-each select="/Input/Projects/Project">
+      <xsl:sort select="current()/Priority" />
       <xsl:call-template name="project-definition">
         <xsl:with-param name="type" select="current()/Type" />
         <xsl:with-param name="name" select="current()/Name" />
@@ -82,6 +83,7 @@
       </xsl:otherwise>
     </xsl:choose>
     <xsl:for-each select="/Input/Projects/Project">
+      <xsl:sort select="current()/Priority" />
       <xsl:call-template name="project-configuration">
         <xsl:with-param name="guid" select="current()/Guid" />
         <xsl:with-param name="root" select="current()" />

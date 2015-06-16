@@ -57,7 +57,7 @@
         if (platform == "Windows") {
           return ".vcxproj";
         } else {
-          return ".ccproj";
+          return ".cproj";
         }
       } else {
         return ".csproj";
@@ -96,7 +96,7 @@
                 current()/@Name,
                 '.',
                 /Input/Generation/Platform,
-                user:GetProjectExtension(current()/@Language, /Input/Generation/Platform))" />
+                user:GetProjectExtension(current()/@Language, /Input/Generation/HostPlatform))" />
             </Path>
             <Language>
               <xsl:choose>
@@ -108,6 +108,17 @@
                 </xsl:otherwise>
               </xsl:choose>
             </Language>
+            <Priority>
+              <xsl:choose>
+                <xsl:when test="current()/@Language = 'C++'">
+                  <!-- C++ projects must come first because they need to build first under MonoDevelop -->
+                  <xsl:text>100</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>200</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </Priority>
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>
@@ -129,6 +140,7 @@
           <Path>
             <xsl:value-of select="current()/@Path" />
           </Path>
+          <Priority>9999</Priority>
           <xsl:copy-of select="current()/ConfigurationMapping" />
           <xsl:copy-of select="current()/PostProject" />
         </Project>
@@ -150,6 +162,7 @@
           <Path>
             <xsl:value-of select="current()/@Path" />
           </Path>
+          <Priority>9999</Priority>
           <xsl:copy-of select="current()/ConfigurationMapping" />
           <xsl:copy-of select="current()/PostProject" />
         </Project>
@@ -175,6 +188,7 @@
               <Path>
                 <xsl:value-of select="current()/@Path" />
               </Path>
+              <Priority>9999</Priority>
               <xsl:copy-of select="current()/ConfigurationMapping" />
               <xsl:copy-of select="current()/PostProject" />
             </Project>
@@ -201,6 +215,7 @@
               <Path>
                 <xsl:value-of select="current()/@Path" />
               </Path>
+              <Priority>9999</Priority>
               <xsl:copy-of select="current()/ConfigurationMapping" />
               <xsl:copy-of select="current()/PostProject" />
             </Project>

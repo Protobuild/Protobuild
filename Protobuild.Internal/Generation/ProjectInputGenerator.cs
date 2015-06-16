@@ -161,10 +161,32 @@ namespace Protobuild
             input.AppendChild(projects);
             foreach (var projectDoc in definitions)
             {
-                projects.AppendChild(
-                    this.m_ServiceReferenceTranslator.TranslateProjectWithServiceReferences(
-                        doc.ImportNode(projectDoc.DocumentElement, true), 
-                        services));
+                var importedProject = this.m_ServiceReferenceTranslator.TranslateProjectWithServiceReferences(
+                    doc.ImportNode(projectDoc.DocumentElement, true), 
+                    services);
+
+                // Convert <Property> tags in projects other than the one we're currently
+                // generating, so that we can lookup properties in other projects in the XSLT.
+                var importedProjectProperties = importedProject.ChildNodes
+                    .OfType<XmlElement>()
+                    .FirstOrDefault(x => x.Name.ToLower() == "properties");
+                if (importedProjectProperties != null)
+                {
+                    var existingProperties = importedProjectProperties.ChildNodes
+                        .OfType<XmlElement>().ToList();
+                    foreach (var property in existingProperties)
+                    {
+                        if (property.Name.ToLower() == "property")
+                        {
+                            var nodeName = doc.CreateElement(property.GetAttribute("Name"));
+                            nodeName.AppendChild(doc.CreateTextNode(
+                                property.GetAttribute("Value")));
+                            importedProjectProperties.AppendChild(nodeName);
+                        }
+                    }
+                }
+
+                projects.AppendChild(importedProject);
             }
 
             // Also check if there are NuGet packages.config file for
