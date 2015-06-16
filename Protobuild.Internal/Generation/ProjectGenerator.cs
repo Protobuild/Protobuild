@@ -137,7 +137,7 @@ namespace Protobuild
                     .Replace('\\', Path.DirectorySeparatorChar)
                     .Replace('/', Path.DirectorySeparatorChar),
                 projectDoc.DocumentElement.Attributes["Name"].Value + "." +
-                platformName + "." + this.m_LanguageStringProvider.GetProjectExtension(language, platformName));
+                platformName + "." + this.m_LanguageStringProvider.GetProjectExtension(language));
 
             // Make sure that the directory exists where the file will be stored.
             var targetFile = new FileInfo(path);

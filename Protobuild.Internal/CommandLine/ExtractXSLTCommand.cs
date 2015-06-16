@@ -23,6 +23,22 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
+                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.CPlusPlus.VisualStudio.xslt")))
+                {
+                    ResourceExtractor.GetTransparentDecompressionStream(
+                        Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("GenerateProject.CPlusPlus.VisualStudio.xslt.lzma"))
+                        .CopyTo(writer.BaseStream);
+                    writer.Flush();
+                }
+                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.CPlusPlus.MonoDevelop.xslt")))
+                {
+                    ResourceExtractor.GetTransparentDecompressionStream(
+                        Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma"))
+                        .CopyTo(writer.BaseStream);
+                    writer.Flush();
+                }
                 using (var writer = new StreamWriter(Path.Combine("Build", "GenerateSolution.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(

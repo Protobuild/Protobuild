@@ -46,7 +46,7 @@ namespace Protobuild
             {
                 case ResourceType.GenerateProject:
                     name = "GenerateProject";
-                    fileSuffix = "." + this.m_LanguageStringProvider.GetFileSuffix(language, platform);
+                    fileSuffix = "." + this.m_LanguageStringProvider.GetFileSuffix(language);
                     applyAdditionalTransforms = true;
                     break;
                 case ResourceType.GenerateSolution:
@@ -84,15 +84,14 @@ namespace Protobuild
 
             if (source == null)
             {
-                var platformSuffix = string.Empty;
-                if (language == Language.CPlusPlus)
-                {
-                    platformSuffix = platform == "Windows" ? ".VisualStudio" : ".MonoDevelop";
-                }
-                var embeddedName = name + fileSuffix + platformSuffix + ".xslt.lzma";
+                var embeddedName = name + fileSuffix + ".xslt.lzma";
                 var embeddedStream = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceStream(embeddedName);
+                if (embeddedStream == null)
+                {
+                    throw new InvalidOperationException("No embedded stream with name '" + embeddedName + "'");
+                }
                 source = this.GetTransparentDecompressionStream(embeddedStream);
             }
 

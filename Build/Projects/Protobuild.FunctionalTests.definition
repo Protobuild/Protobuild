@@ -59,6 +59,7 @@
     <Compile Include="BasicSynchronisationWorksTest.cs" />
     <Compile Include="CheckForOverflowUnderflowPropertyWorksTest.cs" />
     <Compile Include="ConfigurationMappingWorksTest.cs" />
+    <Compile Include="CPlusPlusConsoleWorksTest.cs" />
     <Compile Include="DefaultStartupProjectTest.cs" />
     <Compile Include="DuplicateExternalProjectsTest.cs" />
     <Compile Include="ExampleCocos2DXNATest.cs" />

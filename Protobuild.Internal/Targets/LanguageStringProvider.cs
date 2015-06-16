@@ -4,19 +4,27 @@ namespace Protobuild
 {
     public class LanguageStringProvider : ILanguageStringProvider
     {
-        public string GetFileSuffix(Language language, string platform)
+        private readonly IHostPlatformDetector _hostPlatformDetector;
+
+        public LanguageStringProvider(IHostPlatformDetector hostPlatformDetector)
+        {
+            _hostPlatformDetector = hostPlatformDetector;
+        }
+
+        public string GetFileSuffix(Language language)
         {
             switch (language)
             {
                 case Language.CSharp:
                     return "CSharp";
                 case Language.CPlusPlus:
-                    switch (platform)
+                    if (_hostPlatformDetector.DetectPlatform() == "Windows")
                     {
-                        case "Windows":
-                            return "CPlusPlus.VisualStudio";
-                        default:
-                            return "CPlusPlus.MonoDevelop";
+                        return "CPlusPlus.VisualStudio";
+                    } 
+                    else
+                    {
+                        return "CPlusPlus.MonoDevelop";
                     }
                 default:
                     throw new NotSupportedException();
@@ -49,21 +57,20 @@ namespace Protobuild
             }
         }
 
-        public string GetProjectExtension(Language language, string platform)
+        public string GetProjectExtension(Language language)
         {
             switch (language)
             {
                 case Language.CSharp:
                     return "csproj";
                 case Language.CPlusPlus:
-                    if (platform == "Windows")
+                if (_hostPlatformDetector.DetectPlatform() == "Windows")
                     {
                         return "vcxproj";
                     }
                     else
                     {
-                        // TODO: Work out what the project extension is for MonoDevelop
-                        return "ccproj";
+                        return "cproj";
                     }
                 default:
                     throw new NotSupportedException();

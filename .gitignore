@@ -33,3 +33,7 @@ repositories.config
 /Protobuild.FunctionalTests/TestData/NuGetAndroidDoesNotCrash/Console/packages.config
 TestSummary.htm
 *.csproj.input
+*.cproj
+*.vcxproj
+/Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerateProject.CPlusPlus.VisualStudio.xslt
+/Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerateProject.CPlusPlus.MonoDevelop.xslt

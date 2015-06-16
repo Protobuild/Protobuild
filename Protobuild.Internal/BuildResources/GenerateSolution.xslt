@@ -106,7 +106,14 @@ EndGlobal
         <xsl:text>9344BDBB-3E7F-41FC-A0DD-8665D75EE146</xsl:text>
       </xsl:when>
       <xsl:when test="$language = 'C++'">
-        <xsl:text>8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942</xsl:text>
+        <xsl:choose>
+          <xsl:when test="/Input/Generation/HostPlatform = 'Windows'">
+            <xsl:text>8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>2857B73E-F847-4B02-9238-064979017E93</xsl:text>
+          </xsl:otherwise>
+        </xsl:choose>
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>FAE04EC0-301F-11D3-BF4B-00C04F79EFBC</xsl:text>
@@ -413,7 +420,7 @@ EndGlobal
         <xsl:text>
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$language = 'C++'">
+      <xsl:when test="$language = 'C++' and /Input/Generation/HostPlatform = 'Windows'">
         <xsl:text>		{</xsl:text>
         <xsl:value-of select="$guid" />
         <xsl:text>}.Debug|Any CPU.ActiveCfg = </xsl:text>
