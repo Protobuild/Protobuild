@@ -15,6 +15,21 @@ namespace Protobuild
 
         private Dictionary<Type, object> m_Instances = new Dictionary<Type, object>();
 
+        /// <remarks>
+        /// This is kind of ugly, but makes the code inside GenerationFunctions.cs much cleaner
+        /// (since it doesn't have direct access to the LightweightKernelModule class).
+        /// </remarks>
+        public void BindAll()
+        {
+            this.BindCore();
+            this.BindBuildResources();
+            this.BindGeneration();
+            this.BindJSIL();
+            this.BindTargets();
+            this.BindFileFilter();
+            this.BindPackages();
+        }
+
         public void Bind<TInterface, TImplementation>() where TImplementation : TInterface
         {
             this.m_Bindings.Add(typeof(TInterface), typeof(TImplementation));

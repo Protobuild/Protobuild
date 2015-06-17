@@ -176,7 +176,7 @@ namespace Protobuild
                         using (var reader = new StreamReader(stream))
                         {
                             var text = reader.ReadToEnd();
-                            text = text.Replace(replacement.Key, replacementData);
+                            text = text.Replace("{" + replacement.Key + "}", replacementData);
                             writer.Write(text);
                             writer.Flush();
                         }
@@ -209,6 +209,10 @@ namespace Protobuild
             }
 
             var source = this.LoadOverriddableResource(resourceType, language, platform);
+
+            var reader2 = new StreamReader(source);
+            var readerInspect = reader2.ReadToEnd();
+            source.Seek(0, SeekOrigin.Begin);
 
             var resolver = new EmbeddedResourceResolver();
             var result = new XslCompiledTransform();

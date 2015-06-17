@@ -2,16 +2,20 @@
 // assembly System.Web
 // assembly Microsoft.CSharp
 // using System
+// using System.Collections.Generic
+// using System.IO
 // using System.Linq
-// using System.Web
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 public class GenerationFunctions
 {
-    using System;
-    using System.Linq;
-    using System.Web;
-
     // **begin**
+
+    private Func<string, string> _getKnownToolCached;
 
     public string NormalizeXAPName(string origName)
     {
@@ -23,8 +27,8 @@ public class GenerationFunctions
         try
         {
             var current = Environment.CurrentDirectory;
-            from = System.IO.Path.Combine(current, from.Replace('\\', '/'));
-            to = System.IO.Path.Combine(current, to.Replace('\\', '/'));
+            from = Path.Combine(current, from.Replace('\\', '/'));
+            to = Path.Combine(current, to.Replace('\\', '/'));
             return (new Uri(from).MakeRelativeUri(new Uri(to)))
                 .ToString().Replace('/', '\\');
         }
@@ -118,7 +122,7 @@ public class GenerationFunctions
             var excludeServices = excludeServiceString.Split(',');
             foreach (var i in excludeServices)
             {
-                if (System.Linq.Enumerable.Contains(activeServices, i))
+                if (activeServices.Contains(i))
                 {
                     // This service is excluded.
                     return false;
@@ -137,7 +141,7 @@ public class GenerationFunctions
         var services = serviceString.Split(',');
         foreach (var i in services)
         {
-            if (System.Linq.Enumerable.Contains(activeServices, i))
+            if (activeServices.Contains(i))
             {
                 return true;
             }
@@ -158,10 +162,10 @@ public class GenerationFunctions
 
     public string ReadFile(string path)
     {
-        path = path.Replace('/', System.IO.Path.DirectorySeparatorChar);
-        path = path.Replace('\\', System.IO.Path.DirectorySeparatorChar);
+        path = path.Replace('/', Path.DirectorySeparatorChar);
+        path = path.Replace('\\', Path.DirectorySeparatorChar);
 
-        using (var reader = new System.IO.StreamReader(path))
+        using (var reader = new StreamReader(path))
         {
             return reader.ReadToEnd();
         }
@@ -169,29 +173,29 @@ public class GenerationFunctions
 
     public bool HasXamarinMac()
     {
-        return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
+        return File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
     }
 
     public bool CodesignKeyExists()
     {
-        var home = System.Environment.GetEnvironmentVariable("HOME");
+        var home = Environment.GetEnvironmentVariable("HOME");
         if (string.IsNullOrEmpty(home))
         {
-            home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+            home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         }
-        var path = System.IO.Path.Combine(home, ".codesignkey");
-        return System.IO.File.Exists(path);
+        var path = Path.Combine(home, ".codesignkey");
+        return File.Exists(path);
     }
 
     public string GetCodesignKey()
     {
-        var home = System.Environment.GetEnvironmentVariable("HOME");
+        var home = Environment.GetEnvironmentVariable("HOME");
         if (string.IsNullOrEmpty(home))
         {
-            home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
+            home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         }
-        var path = System.IO.Path.Combine(home, ".codesignkey");
-        using (var reader = new System.IO.StreamReader(path))
+        var path = Path.Combine(home, ".codesignkey");
+        using (var reader = new StreamReader(path))
         {
             return reader.ReadToEnd().Trim();
         }
@@ -202,7 +206,7 @@ public class GenerationFunctions
         var addArray = addDefines.Trim(';').Split(';');
         var removeArray = removeDefines.Trim(';').Split(';');
 
-        var list = new System.Collections.Generic.List<string>();
+        var list = new List<string>();
         foreach (var a in addArray)
         {
             if (!list.Contains(a))
@@ -223,7 +227,7 @@ public class GenerationFunctions
 
     public string GetFilename(string name)
     {
-        var components = name.Split(new[] {'\\', '/'});
+        var components = name.Split('\\', '/');
         if (components.Length == 0)
         {
             throw new Exception("No name specified for NativeBinary");
@@ -234,11 +238,11 @@ public class GenerationFunctions
     public string ProgramFilesx86()
     {
         if (IntPtr.Size == 8 ||
-            !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITW6432")))
+            !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("PROCESSOR_ARCHITW6432")))
         {
-            return System.Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+            return Environment.GetEnvironmentVariable("ProgramFiles(x86)");
         }
-        return System.Environment.GetEnvironmentVariable("ProgramFiles");
+        return Environment.GetEnvironmentVariable("ProgramFiles");
     }
 
     public string DetectPlatformToolsetVersion()
@@ -248,8 +252,8 @@ public class GenerationFunctions
         var x86programfiles = ProgramFilesx86();
         for (var i = 20; i >= 10; i--)
         {
-            var path = System.IO.Path.Combine(x86programfiles, @"Microsoft Visual Studio " + i + @".0\VC");
-            if (System.IO.Directory.Exists(path))
+            var path = Path.Combine(x86programfiles, @"Microsoft Visual Studio " + i + @".0\VC");
+            if (Directory.Exists(path))
             {
                 return i.ToString();
             }
@@ -269,8 +273,6 @@ public class GenerationFunctions
         }
     }
 
-    private Func<string, string> _getKnownToolCached;
-
     public string GetKnownTool(string toolName)
     {
         if (_getKnownToolCached != null)
@@ -278,17 +280,11 @@ public class GenerationFunctions
             return _getKnownToolCached(toolName);
         }
         var assembly =
-            System.AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName.Contains("Protobuild.Internal"));
+            AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName.Contains("Protobuild.Internal"));
         var type = assembly.GetType("Protobuild.LightweightKernel");
 
         dynamic kernel = Activator.CreateInstance(type);
-        kernel.BindCore();
-        kernel.BindBuildResources();
-        kernel.BindGeneration();
-        kernel.BindJSIL();
-        kernel.BindTargets();
-        kernel.BindFileFilter();
-        kernel.BindPackages();
+        kernel.BindAll();
 
         dynamic knownToolProvider = kernel.Get(assembly.GetType("Protobuild.IKnownToolProvider"));
         _getKnownToolCached = s => knownToolProvider.GetToolExecutablePath(s);
@@ -297,28 +293,66 @@ public class GenerationFunctions
 
     public bool PathEndsWith(string path, string ext)
     {
-      return path.EndsWith(ext);
+        return path.EndsWith(ext);
     }
 
     public string StripExtension(string path)
     {
-      var extl = path.LastIndexOf('.');
-      return path.Substring(0, extl);
+        var extl = path.LastIndexOf('.');
+        return path.Substring(0, extl);
     }
 
     // This implementation should be the same as the implementation
     // offered by ILanguageStringProvider.
-    public string GetProjectExtension(string language, string platform) {
-      if (language == "C++") {
-        if (platform == "Windows") {
-          return ".vcxproj";
-        } else {
-          return ".cproj";
+    public string GetProjectExtension(string language, string platform)
+    {
+        if (language == "C++")
+        {
+            if (platform == "Windows")
+            {
+                return ".vcxproj";
+            }
+            return ".cproj";
         }
-      } else {
         return ".csproj";
-      }
     }
 
+    public bool ProjectIsActive(string platformString, string activePlatform)
+    {
+        if (string.IsNullOrEmpty(platformString))
+        {
+            return true;
+        }
+        var platforms = platformString.Split(',');
+        foreach (var i in platforms)
+        {
+            if (i == activePlatform)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool ServiceIsActive(
+        string serviceString,
+        string activeServicesString)
+    {
+        if (string.IsNullOrEmpty(serviceString))
+        {
+            return true;
+        }
+        var activeServices = activeServicesString.Split(',');
+        var services = serviceString.Split(',');
+        foreach (var i in services)
+        {
+            if (activeServices.Contains(i))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     // **end**
 }

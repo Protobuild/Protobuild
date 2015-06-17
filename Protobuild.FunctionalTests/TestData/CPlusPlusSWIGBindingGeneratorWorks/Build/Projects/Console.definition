@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Name="Console" Path="Console" Type="Console">
   <References>
     <Reference Include="System" />
@@ -6,5 +6,9 @@
   </References>
   <Files>
     <Compile Include="Program.cs" />
+    <None Include="..\Library\bin\Windows\$(Platform)\$(Configuration)\libLibrary.so">
+      <Link>libLibrary.so</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </Files>
 </Project>
