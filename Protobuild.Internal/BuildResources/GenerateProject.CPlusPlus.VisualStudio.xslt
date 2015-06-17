@@ -7,285 +7,30 @@
   version="1.0">
 
   <xsl:output method="xml" indent="no" />
+  
+  {GENERATION_FUNCTIONS}
 
-  <msxsl:script language="C#" implements-prefix="user">
-    <msxsl:assembly name="System.Core" />
-    <msxsl:assembly name="System.Web" />
-    <msxsl:using namespace="System" />
-    <msxsl:using namespace="System.Web" />
-    <![CDATA[
-    public string NormalizeXAPName(string origName)
-    {
-      return origName.Replace('.','_');
-    }
-    public string GetRelativePath(string from, string to)
-    {
-      try
-      {
-        var current = Environment.CurrentDirectory;
-        from = System.IO.Path.Combine(current, from.Replace('\\', '/'));
-        to = System.IO.Path.Combine(current, to.Replace('\\', '/'));
-        return (new Uri(from).MakeRelativeUri(new Uri(to)))
-          .ToString().Replace('/', '\\');
-      }
-      catch (Exception ex)
-      {
-        return ex.Message;
-      }
-    }
-
-    public bool ProjectAndServiceIsActive(
-      string platformString,
-      string includePlatformString,
-      string excludePlatformString,
-      string serviceString,
-      string includeServiceString,
-      string excludeServiceString,
-      string activePlatform,
-      string activeServicesString)
-    {
-      if (!ProjectIsActive(platformString, includePlatformString, excludePlatformString, activePlatform))
-      {
-        return false;
-      }
-
-      return ServiceIsActive(serviceString, includeServiceString, excludeServiceString, activeServicesString);
-    }
-
-    public bool ProjectIsActive(
-      string platformString,
-      string includePlatformString,
-      string excludePlatformString,
-      string activePlatform)
-    {
-      // Choose either <Platforms> or <IncludePlatforms>
-      if (string.IsNullOrEmpty(platformString))
-      {
-        platformString = includePlatformString;
-      }
-
-      // If the exclude string is set, then we must check this first.
-      if (!string.IsNullOrEmpty(excludePlatformString))
-      {
-        var excludePlatforms = excludePlatformString.Split(',');
-        foreach (var i in excludePlatforms)
-        {
-          if (i == activePlatform)
-          {
-            // This platform is excluded.
-            return false;
-          }
-        }
-      }
-
-      // If the platform string is empty at this point, then we allow
-      // all platforms since there's no whitelist of platforms configured.
-      if (string.IsNullOrEmpty(platformString))
-      {
-        return true;
-      }
-
-      // Otherwise ensure the platform is in the include list.
-      var platforms = platformString.Split(',');
-      foreach (var i in platforms)
-      {
-        if (i == activePlatform)
-        {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    public bool ServiceIsActive(
-      string serviceString,
-      string includeServiceString,
-      string excludeServiceString,
-      string activeServicesString)
-    {
-      var activeServices = activeServicesString.Split(',');
-
-      // Choose either <Services> or <IncludeServices>
-      if (string.IsNullOrEmpty(serviceString))
-      {
-        serviceString = includeServiceString;
-      }
-
-      // If the exclude string is set, then we must check this first.
-      if (!string.IsNullOrEmpty(excludeServiceString))
-      {
-        var excludeServices = excludeServiceString.Split(',');
-        foreach (var i in excludeServices)
-        {
-          if (System.Linq.Enumerable.Contains(activeServices, i))
-          {
-            // This service is excluded.
-            return false;
-          }
-        }
-      }
-
-      // If the service string is empty at this point, then we allow
-      // all services since there's no whitelist of services configured.
-      if (string.IsNullOrEmpty(serviceString))
-      {
-        return true;
-      }
-
-      // Otherwise ensure the service is in the include list.
-      var services = serviceString.Split(',');
-      foreach (var i in services)
-      {
-        if (System.Linq.Enumerable.Contains(activeServices, i))
-        {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    public bool IsTrue(string text)
-    {
-      return text.ToLower() == "true";
-    }
-
-    public bool IsTrueDefault(string text)
-    {
-      return text.ToLower() != "false";
-    }
-
-    public string ReadFile(string path)
-    {
-      path = path.Replace('/', System.IO.Path.DirectorySeparatorChar);
-      path = path.Replace('\\', System.IO.Path.DirectorySeparatorChar);
-
-      using (var reader = new System.IO.StreamReader(path))
-      {
-        return reader.ReadToEnd();
-      }
-    }
-
-    public bool HasXamarinMac()
-    {
-      return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
-    }
-
-    public bool CodesignKeyExists()
-    {
-      var home = System.Environment.GetEnvironmentVariable("HOME");
-      if (string.IsNullOrEmpty(home))
-      {
-        home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
-      }
-      var path = System.IO.Path.Combine(home, ".codesignkey");
-      return System.IO.File.Exists(path);
-    }
-
-    public string GetCodesignKey()
-    {
-      var home = System.Environment.GetEnvironmentVariable("HOME");
-      if (string.IsNullOrEmpty(home))
-      {
-        home = System.Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile);
-      }
-      var path = System.IO.Path.Combine(home, ".codesignkey");
-      using (var reader = new System.IO.StreamReader(path))
-      {
-        return reader.ReadToEnd().Trim();
-      }
-    }
-
-    public string CalculateDefines(string addDefines, string removeDefines)
-    {
-      var addArray = addDefines.Trim(';').Split(';');
-      var removeArray = removeDefines.Trim(';').Split(';');
-
-      var list = new System.Collections.Generic.List<string>();
-      foreach (var a in addArray)
-      {
-        if (!list.Contains(a))
-        {
-          list.Add(a);
-        }
-      }
-      foreach (var r in removeArray)
-      {
-        if (list.Contains(r))
-        {
-          list.Remove(r);
-        }
-      }
-
-      return string.Join(";", list.ToArray());
-    }
-
-    public string GetFilename(string name)
-    {
-      var components = name.Split(new[] { '\\', '/' });
-      if (components.Length == 0)
-      {
-        throw new Exception("No name specified for NativeBinary");
-      }
-      return components[components.Length - 1];
-    }
-
-    public string ProgramFilesx86()
-    {
-      if (IntPtr.Size == 8 ||
-        !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("PROCESSOR_ARCHITW6432"))) {
-        return System.Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-      }
-      return System.Environment.GetEnvironmentVariable("ProgramFiles");
-    }
-
-    public string DetectPlatformToolsetVersion() 
-    {
-      // We can't just select a common low version here; we need to pick a
-      // toolset version that's installed with Visual Studio.
-      var x86programfiles = ProgramFilesx86();
-      for (var i = 20; i >= 10; i--) {
-        var path = System.IO.Path.Combine(x86programfiles, @"Microsoft Visual Studio " + i + @".0\VC");
-        if (System.IO.Directory.Exists(path)) {
-          return i.ToString();
-        }
-      }
-      return "10";
-    }
-
-    public string DetectCXXPlatformToolsetVersion() 
-    {
-      // We can't just select a common low version here; we need to pick a
-      // toolset version that's installed with Visual Studio.
-      var x86programfiles = ProgramFilesx86();
-      for (var i = 20; i >= 10; i--) {
-        var path = System.IO.Path.Combine(x86programfiles, @"MSBuild\Microsoft.Cpp\v4.0\V" + i + @"0\Platforms\x64\PlatformToolsets\v" + i + @"0\Toolset.targets");
-        if (System.IO.File.Exists(path)) {
-          return i.ToString();
-        }
-      }
-      return "10";
-    }
-    
-    public string DetectBuildToolsVersion() 
-    {
-      var platformTools = DetectPlatformToolsetVersion();
-      switch (platformTools) {
-        case "10":
-          return "4";
-        default:
-          return platformTools;
-      }
-    }
-
-    ]]>
-  </msxsl:script>
+  {ADDITIONAL_GENERATION_FUNCTIONS}
 
   <xsl:variable
     name="project"
     select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
 
+  <xsl:variable name="assembly_name">
+    <xsl:choose>
+      <xsl:when test="/Input/Properties/AssemblyName
+	        /Platform[@Name=/Input/Generation/Platform]">
+        <xsl:value-of select="/Input/Properties/AssemblyName/Platform[@Name=/Input/Generation/Platform]" />
+      </xsl:when>
+      <xsl:when test="/Input/Properties/AssemblyName">
+        <xsl:value-of select="/Input/Properties/AssemblyName" />
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:value-of select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]/@Name" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:variable>
+          
   <xsl:template name="configuration-declaration"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <xsl:param name="type" />
@@ -302,6 +47,145 @@
       <Configuration><xsl:value-of select="$config" /></Configuration>
       <Platform><xsl:value-of select="$platform" /></Platform>
     </ProjectConfiguration>
+  </xsl:template>
+  
+  <xsl:template name="swig_binding_generator"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PreBuildEvent>
+      <Command>
+        <xsl:text>"</xsl:text>
+        <xsl:value-of select="user:GetKnownTool(&quot;SWIG&quot;)"/>
+        <xsl:text>" -csharp -dllimport lib</xsl:text>
+        <xsl:value-of select="$assembly_name" />
+        <xsl:text> </xsl:text>
+        <xsl:if test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+          <xsl:text>-c++ </xsl:text>
+        </xsl:if>
+        <xsl:for-each select="$project/Files/None">
+          <xsl:if test="user:ProjectAndServiceIsActive(
+              ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
+            <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+              <xsl:value-of select="@Include" />
+              <xsl:text> </xsl:text>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+      </Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>
+        <xsl:text>csc -target:library -out:</xsl:text>
+        <xsl:text>bin/</xsl:text>
+        <xsl:value-of select="$project/@Name" />
+        <xsl:text>Binding.dll </xsl:text>
+        <xsl:for-each select="$project/Files/None">
+          <xsl:if test="user:ProjectAndServiceIsActive(
+              ./Platforms,
+              ./IncludePlatforms,
+              ./ExcludePlatforms,
+              ./Services,
+              ./IncludeServices,
+              ./ExcludeServices,
+              /Input/Generation/Platform,
+              /Input/Services/ActiveServicesNames)">
+            <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>.cs </xsl:text>
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>PINVOKE.cs </xsl:text>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+      </Command>
+    </PostBuildEvent>
+      
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="BeforeBuild">
+          <xsl:attribute name="workingdir">
+            <xsl:text>${ProjectDir}</xsl:text>
+          </xsl:attribute>
+          <xsl:attribute name="command">
+          </xsl:attribute>
+        </Command>
+        <Command type="AfterBuild">
+          <xsl:attribute name="workingdir">
+            <xsl:text>${ProjectDir}</xsl:text>
+          </xsl:attribute>
+          <xsl:attribute name="command">
+          </xsl:attribute>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </xsl:template>
+  
+  <xsl:template name="swig_binding_generator_includes"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:for-each select="$project/Files/None">
+      <xsl:if test="user:ProjectAndServiceIsActive(
+          ./Platforms,
+          ./IncludePlatforms,
+          ./ExcludePlatforms,
+          ./Services,
+          ./IncludeServices,
+          ./ExcludeServices,
+          /Input/Generation/Platform,
+          /Input/Services/ActiveServicesNames)">
+        <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+          <ClCompile>
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>_wrap.</xsl:text>
+              <xsl:choose>
+                <xsl:when test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+                  <xsl:text>cxx</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>c</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:attribute>
+          </ClCompile>
+        </xsl:if>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+  
+  <xsl:template name="swig_binding_generator_extras"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:for-each select="$project/Files/None">
+      <xsl:if test="user:ProjectAndServiceIsActive(
+          ./Platforms,
+          ./IncludePlatforms,
+          ./ExcludePlatforms,
+          ./Services,
+          ./IncludeServices,
+          ./ExcludeServices,
+          /Input/Generation/Platform,
+          /Input/Services/ActiveServicesNames)">
+        <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+          <None>
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>.cs</xsl:text>
+            </xsl:attribute>
+          </None>
+          <None>
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>PINVOKE.cs</xsl:text>
+            </xsl:attribute>
+          </None>
+        </xsl:if>
+      </xsl:if>
+    </xsl:for-each>
   </xsl:template>
 
   <xsl:template name="configuration-basic-definition"
@@ -333,11 +217,13 @@
         <UseDebugLibraries>true</UseDebugLibraries>
       </xsl:if>
       <CharacterSet>Unicode</CharacterSet>
-      <PlatformToolset>
-        <xsl:text>v</xsl:text>
-        <xsl:value-of select="user:DetectCXXPlatformToolsetVersion()"/>
-        <xsl:text>0</xsl:text>
-      </PlatformToolset>
+      <OriginalPath>$(VCTargetsPath)</OriginalPath>
+      <OriginalPathTrimmed>$(OriginalPath.Trim('\\'))</OriginalPathTrimmed>
+      <OriginalPathTrimmedLength>$(OriginalPathTrimmed.Length)</OriginalPathTrimmedLength>
+      <OriginalPathSubstringStart>$([MSBuild]::Subtract($(OriginalPathTrimmedLength), 4))</OriginalPathSubstringStart>
+      <OriginalSubstring>$(OriginalPathTrimmed.Substring($(OriginalPathSubstringStart)))</OriginalSubstring>
+      <OriginalSubstringLowered>$(OriginalSubstring.ToLowerInvariant())</OriginalSubstringLowered>
+      <PlatformToolset>$(OriginalSubstringLowered)</PlatformToolset>
     </PropertyGroup>
   </xsl:template>
 
@@ -567,6 +453,10 @@
           </xsl:otherwise>
         </xsl:choose>
       </Link>
+      <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+        <xsl:call-template name="swig_binding_generator">
+        </xsl:call-template>
+      </xsl:if>
     </ItemDefinitionGroup>
   </xsl:template>
 
@@ -594,6 +484,20 @@
           <xsl:with-param name="debug">false</xsl:with-param>
           <xsl:with-param name="config">Release</xsl:with-param>
           <xsl:with-param name="platform">x64</xsl:with-param>
+          <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="configuration-declaration">
+          <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+          <xsl:with-param name="debug">true</xsl:with-param>
+          <xsl:with-param name="config">Debug</xsl:with-param>
+          <xsl:with-param name="platform">Win32</xsl:with-param>
+          <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+        </xsl:call-template>
+        <xsl:call-template name="configuration-declaration">
+          <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+          <xsl:with-param name="debug">false</xsl:with-param>
+          <xsl:with-param name="config">Release</xsl:with-param>
+          <xsl:with-param name="platform">Win32</xsl:with-param>
           <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
         </xsl:call-template>
       </ItemGroup>
@@ -626,6 +530,20 @@
         <xsl:with-param name="platform">x64</xsl:with-param>
         <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
       </xsl:call-template>
+      <xsl:call-template name="configuration-basic-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">true</xsl:with-param>
+        <xsl:with-param name="config">Debug</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="configuration-basic-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">false</xsl:with-param>
+        <xsl:with-param name="config">Release</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
       <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
       <ImportGroup Label="ExtensionSettings"></ImportGroup>
       <xsl:call-template name="configuration-import-definition">
@@ -640,6 +558,20 @@
         <xsl:with-param name="debug">false</xsl:with-param>
         <xsl:with-param name="config">Release</xsl:with-param>
         <xsl:with-param name="platform">x64</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="configuration-import-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">false</xsl:with-param>
+        <xsl:with-param name="config">Release</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="configuration-import-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">false</xsl:with-param>
+        <xsl:with-param name="config">Release</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
         <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
       </xsl:call-template>
       <PropertyGroup Label="UserMacros" />
@@ -657,6 +589,20 @@
         <xsl:with-param name="platform">x64</xsl:with-param>
         <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
       </xsl:call-template>
+      <xsl:call-template name="configuration-path-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">true</xsl:with-param>
+        <xsl:with-param name="config">Debug</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="configuration-path-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">false</xsl:with-param>
+        <xsl:with-param name="config">Release</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
       <xsl:call-template name="configuration-build-definition">
         <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
         <xsl:with-param name="debug">true</xsl:with-param>
@@ -669,6 +615,20 @@
         <xsl:with-param name="debug">false</xsl:with-param>
         <xsl:with-param name="config">Release</xsl:with-param>
         <xsl:with-param name="platform">x64</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="configuration-build-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">true</xsl:with-param>
+        <xsl:with-param name="config">Debug</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
+        <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+      </xsl:call-template>
+      <xsl:call-template name="configuration-build-definition">
+        <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+        <xsl:with-param name="debug">false</xsl:with-param>
+        <xsl:with-param name="config">Release</xsl:with-param>
+        <xsl:with-param name="platform">Win32</xsl:with-param>
         <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
       </xsl:call-template>
       
@@ -693,6 +653,11 @@
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
+
+        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+          <xsl:call-template name="swig_binding_generator_extras">
+          </xsl:call-template>
+        </xsl:if>
       </ItemGroup>
       
       <ItemGroup>
@@ -739,6 +704,11 @@
             </xsl:element>
           </xsl:if>
         </xsl:for-each>
+
+        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+          <xsl:call-template name="swig_binding_generator_includes">
+          </xsl:call-template>
+        </xsl:if>
       </ItemGroup>
       
       <ItemGroup>

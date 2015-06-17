@@ -8,7 +8,11 @@
   version="1.0">
   
   <xsl:output method="text" indent="no" />
- 
+
+  {GENERATION_FUNCTIONS}
+
+  {ADDITIONAL_GENERATION_FUNCTIONS}
+
   <xsl:template match="/">
     <xsl:choose>
       <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">

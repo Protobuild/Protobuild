@@ -5,67 +5,10 @@
   xmlns:user="urn:my-scripts"
   exclude-result-prefixes="xsl msxsl user"
   version="1.0">
- 
-  <msxsl:script language="C#" implements-prefix="user">
-    <msxsl:assembly name="System.Core" />
-    <msxsl:assembly name="System.Web" />
-    <msxsl:using namespace="System" />
-    <msxsl:using namespace="System.Web" />
-    <![CDATA[
-    public bool ProjectIsActive(string platformString, string activePlatform)
-    {
-      if (string.IsNullOrEmpty(platformString))
-      {
-        return true;
-      }
-      var platforms = platformString.Split(',');
-      foreach (var i in platforms)
-      {
-        if (i == activePlatform)
-        {
-          return true;
-        }
-      }
-      return false;
-    }
 
-    public bool ServiceIsActive(
-      string serviceString,
-      string activeServicesString)
-    {
-      if (string.IsNullOrEmpty(serviceString))
-      {
-        return true;
-      }
-      var activeServices = activeServicesString.Split(',');
-      var services = serviceString.Split(',');
-      foreach (var i in services)
-      {
-        if (System.Linq.Enumerable.Contains(activeServices, i))
-        {
-          return true;
-        }
-      }
+  {GENERATION_FUNCTIONS}
 
-      return false;
-    }
-
-    // This implementation should be the same as the implementation
-    // offered by ILanguageStringProvider.
-    public string GetProjectExtension(string language, string platform) {
-      if (language == "C++") {
-        if (platform == "Windows") {
-          return ".vcxproj";
-        } else {
-          return ".cproj";
-        }
-      } else {
-        return ".csproj";
-      }
-    }
-
-    ]]>
-  </msxsl:script>
+  {ADDITIONAL_GENERATION_FUNCTIONS}
 
   <xsl:template match="/">
     <Projects>

@@ -11,12 +11,16 @@ namespace Protobuild
 
         private readonly IExcludedServiceAwareProjectDetector m_ExcludedServiceAwareProjectDetector;
 
+        private readonly IHostPlatformDetector _hostPlatformDetector;
+
         public SolutionInputGenerator(
             IServiceInputGenerator serviceInputGenerator,
-            IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector)
+            IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
+            IHostPlatformDetector hostPlatformDetector)
         {
             this.m_ServiceInputGenerator = serviceInputGenerator;
             this.m_ExcludedServiceAwareProjectDetector = excludedServiceAwareProjectDetector;
+            _hostPlatformDetector = hostPlatformDetector;
         }
 
         public XmlDocument GenerateForSelectSolution(List<XmlDocument> definitions, string platform, List<Service> services)
@@ -31,7 +35,10 @@ namespace Protobuild
             var generation = doc.CreateElement("Generation");
             var platformName = doc.CreateElement("Platform");
             platformName.AppendChild(doc.CreateTextNode(platform));
+            var hostPlatformName = doc.CreateElement("HostPlatform");
+            hostPlatformName.AppendChild(doc.CreateTextNode(_hostPlatformDetector.DetectPlatform()));
             generation.AppendChild(platformName);
+            generation.AppendChild(hostPlatformName);
             input.AppendChild(generation);
 
             var projects = doc.CreateElement("Projects");
@@ -63,7 +70,10 @@ namespace Protobuild
             var generation = doc.CreateElement("Generation");
             var platformName = doc.CreateElement("Platform");
             platformName.AppendChild(doc.CreateTextNode(platform));
+            var hostPlatformName = doc.CreateElement("HostPlatform");
+            hostPlatformName.AppendChild(doc.CreateTextNode(_hostPlatformDetector.DetectPlatform()));
             generation.AppendChild(platformName);
+            generation.AppendChild(hostPlatformName);
             input.AppendChild(generation);
 
             var projects = doc.CreateElement("Projects");

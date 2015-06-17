@@ -90,6 +90,8 @@
     <Compile Include="..\ThirdParty\TAR\UsTarHeader.cs">
       <Link>TAR\UsTarHeader.cs</Link>
     </Compile>
+    <Compile Include="BuildResources\GenerationFunctionsProvider.cs" />
+    <Compile Include="BuildResources\IGenerationFunctionsProvider.cs" />
     <Compile Include="BuildResources\IResourceProvider.cs" />
     <Compile Include="BuildResources\ResourceExtractor.cs" />
     <Compile Include="BuildResources\ResourceProvider.cs" />
@@ -191,7 +193,9 @@
     <Compile Include="Packages\PackageCreator\IGetRecursiveUtilitiesInPath.cs" />
     <Compile Include="Packages\PackageCreator\IPackageCreator.cs" />
     <Compile Include="Packages\PackageCreator\PackageCreator.cs" />
+    <Compile Include="Packages\PackageGlobalTool\IKnownToolProvider.cs" />
     <Compile Include="Packages\PackageGlobalTool\IPackageGlobalTool.cs" />
+    <Compile Include="Packages\PackageGlobalTool\KnownToolProvider.cs" />
     <Compile Include="Packages\PackageGlobalTool\PackageGlobalTool.cs" />
     <Compile Include="Packages\PackageLocator\IPackageLocator.cs" />
     <Compile Include="Packages\PackageLocator\PackageLocator.cs" />
@@ -245,6 +249,9 @@
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.lzma">
       <LogicalName>GenerateSolution.xslt.lzma</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\GenerationFunctions.cs.lzma">
+      <LogicalName>GenerationFunctions.cs.lzma</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\JSILTemplate.htm.lzma">
       <LogicalName>JSILTemplate.htm.lzma</LogicalName>
     </EmbeddedResource>
@@ -263,6 +270,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="BuildResources\GenerateSolution.xslt" />
+    <None Include="BuildResources\GenerationFunctions.cs" />
     <None Include="BuildResources\JSILTemplate.htm" />
     <None Include="BuildResources\SelectSolution.xslt" />
   </Files>

@@ -14,40 +14,60 @@ namespace Protobuild
 
         private readonly IWorkingDirectoryProvider m_WorkingDirectoryProvider;
 
+        private readonly IGenerationFunctionsProvider _generationFunctionsProvider;
+
         private static Dictionary<int, XslCompiledTransform> m_CachedTransforms = new Dictionary<int, XslCompiledTransform>(); 
 
         public ResourceProvider(
             ILanguageStringProvider languageStringProvider,
-            IWorkingDirectoryProvider workingDirectoryProvider)
+            IWorkingDirectoryProvider workingDirectoryProvider,
+            IGenerationFunctionsProvider generationFunctionsProvider)
         {
             this.m_LanguageStringProvider = languageStringProvider;
             this.m_WorkingDirectoryProvider = workingDirectoryProvider;
+            _generationFunctionsProvider = generationFunctionsProvider;
         }
 
-        public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform)
+        private class ReplacementInfo
         {
-            int hash;
-            unchecked
+            public ResourceType ResourceName { get; set; }
+
+            public Func<string, string> ReplacementProcessor { get; set; }
+        }
+
+        private string GetResourceExtension(ResourceType resourceType)
+        {
+            switch (resourceType)
             {
-                hash = 17 *
-                    resourceType.GetHashCode() * 31 +
-                    language.GetHashCode() * 31 +
-                    platform.GetHashCode() * 31;
-            }
-            if (m_CachedTransforms.ContainsKey(hash))
-            {
-                return m_CachedTransforms[hash];
+                case ResourceType.GenerateProject:
+                case ResourceType.GenerateSolution:
+                case ResourceType.SelectSolution:
+                case ResourceType.AdditionalProjectTransforms:
+                    return "xslt";
+                case ResourceType.GenerationFunctions:
+                case ResourceType.AdditionalGenerationFunctions:
+                    return "cs";
             }
 
+            throw new InvalidOperationException();
+        }
+
+        private Stream LoadOverriddableResource(ResourceType resourceType, Language language, string platform)
+        {
             string name = null;
-            string fileSuffix = string.Empty;
-            bool applyAdditionalTransforms = false;
+            var extension = GetResourceExtension(resourceType);
+            var fileSuffix = string.Empty;
+            var replacements = new Dictionary<string, ReplacementInfo>();
+            bool okayToFail = false;
             switch (resourceType)
             {
                 case ResourceType.GenerateProject:
                     name = "GenerateProject";
                     fileSuffix = "." + this.m_LanguageStringProvider.GetFileSuffix(language);
-                    applyAdditionalTransforms = true;
+                    replacements.Add("ADDITIONAL_TRANSFORMS", new ReplacementInfo
+                    {
+                        ResourceName = ResourceType.AdditionalProjectTransforms
+                    });
                     break;
                 case ResourceType.GenerateSolution:
                     name = "GenerateSolution";
@@ -55,18 +75,47 @@ namespace Protobuild
                 case ResourceType.SelectSolution:
                     name = "SelectSolution";
                     break;
+                case ResourceType.GenerationFunctions:
+                    name = "GenerationFunctions";
+                    break;
+                case ResourceType.AdditionalGenerationFunctions:
+                    name = "AdditionalGenerationFunctions";
+                    okayToFail = true;
+                    break;
+                case ResourceType.AdditionalProjectTransforms:
+                    name = "AdditionalProjectTransforms";
+                    okayToFail = true;
+                    break;
                 default:
                     throw new NotSupportedException();
             }
 
+            switch (resourceType)
+            {
+                case ResourceType.GenerateProject:
+                case ResourceType.GenerateSolution:
+                case ResourceType.SelectSolution:
+                    replacements.Add("GENERATION_FUNCTIONS", new ReplacementInfo
+                    {
+                        ResourceName = ResourceType.GenerationFunctions,
+                        ReplacementProcessor = x => _generationFunctionsProvider.ConvertGenerationFunctionsToXSLT("user", x)
+                    });
+                    replacements.Add("ADDITIONAL_GENERATION_FUNCTIONS", new ReplacementInfo
+                    {
+                        ResourceName = ResourceType.AdditionalGenerationFunctions,
+                        ReplacementProcessor = x => _generationFunctionsProvider.ConvertGenerationFunctionsToXSLT("extra", x)
+                    });
+                    break;
+            }
+
             var onDiskNames = new List<string>();
 
-            onDiskNames.Add(name + fileSuffix + "." + platform + ".xslt");
-            onDiskNames.Add(name + fileSuffix + ".xslt");
+            onDiskNames.Add(name + fileSuffix + "." + platform + "." + extension);
+            onDiskNames.Add(name + fileSuffix + "." + extension);
 
             if (resourceType == ResourceType.GenerateProject && language == Language.CSharp)
             {
-                onDiskNames.Add(name + ".xslt");
+                onDiskNames.Add(name + "." + extension);
             }
 
             Stream source = null;
@@ -84,37 +133,50 @@ namespace Protobuild
 
             if (source == null)
             {
-                var embeddedName = name + fileSuffix + ".xslt.lzma";
+                var embeddedName = name + fileSuffix + "." + extension + ".lzma";
                 var embeddedStream = Assembly
                     .GetExecutingAssembly()
                     .GetManifestResourceStream(embeddedName);
                 if (embeddedStream == null)
                 {
-                    throw new InvalidOperationException("No embedded stream with name '" + embeddedName + "'");
+                    if (okayToFail)
+                    {
+                        return new MemoryStream();
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("No embedded stream with name '" + embeddedName + "'");
+                    }
                 }
                 source = this.GetTransparentDecompressionStream(embeddedStream);
             }
 
-            if (applyAdditionalTransforms)
+            foreach (var replacement in replacements)
             {
                 var memory = new MemoryStream();
                 using (var stream = source)
                 {
                     using (var writer = new StringWriter())
                     {
-                        var additional = "";
-                        var additionalPath = Path.Combine(this.m_WorkingDirectoryProvider.GetPath(), "Build", "AdditionalProjectTransforms.xslt");
-                        if (File.Exists(additionalPath))
+                        var replacementDataStream = this.LoadOverriddableResource(
+                            replacement.Value.ResourceName,
+                            language,
+                            platform);
+                        string replacementData;
+                        using (var reader = new StreamReader(replacementDataStream))
                         {
-                            using (var reader = new StreamReader(additionalPath))
-                            {
-                                additional = reader.ReadToEnd();
-                            }
+                            replacementData = reader.ReadToEnd();
                         }
+
+                        if (replacement.Value.ReplacementProcessor != null)
+                        {
+                            replacementData = replacement.Value.ReplacementProcessor(replacementData);
+                        }
+
                         using (var reader = new StreamReader(stream))
                         {
                             var text = reader.ReadToEnd();
-                            text = text.Replace("{ADDITIONAL_TRANSFORMS}", additional);
+                            text = text.Replace(replacement.Key, replacementData);
                             writer.Write(text);
                             writer.Flush();
                         }
@@ -127,6 +189,26 @@ namespace Protobuild
 
                 source = memory;
             }
+
+            return source;
+        }
+
+        public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform)
+        {
+            int hash;
+            unchecked
+            {
+                hash = 17 *
+                       resourceType.GetHashCode() * 31 +
+                       language.GetHashCode() * 31 +
+                       platform.GetHashCode() * 31;
+            }
+            if (m_CachedTransforms.ContainsKey(hash))
+            {
+                return m_CachedTransforms[hash];
+            }
+
+            var source = this.LoadOverriddableResource(resourceType, language, platform);
 
             var resolver = new EmbeddedResourceResolver();
             var result = new XslCompiledTransform();

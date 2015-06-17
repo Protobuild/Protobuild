@@ -13,6 +13,7 @@
         public static void BindBuildResources(this LightweightKernel kernel)
         {
             kernel.Bind<IResourceProvider, ResourceProvider>();
+            kernel.Bind<IGenerationFunctionsProvider, GenerationFunctionsProvider>();
         }
 
         public static void BindGeneration(this LightweightKernel kernel)
@@ -64,6 +65,7 @@
             kernel.Bind<IPackageCreator, PackageCreator>();
             kernel.Bind<IGetRecursiveUtilitiesInPath, GetRecursiveUtilitiesInPath>();
             kernel.Bind<IPackageUrlParser, PackageUrlParser>();
+            kernel.Bind<IKnownToolProvider, KnownToolProvider>();
         }
     }
 }
