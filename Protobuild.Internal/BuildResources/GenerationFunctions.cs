@@ -353,6 +353,11 @@ public class GenerationFunctions
         }
         return false;
     }
+
+    public string ToBase64StringUTF16LE(string input)
+    {
+        return Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(input));
+    }
     
     // **end**
 }

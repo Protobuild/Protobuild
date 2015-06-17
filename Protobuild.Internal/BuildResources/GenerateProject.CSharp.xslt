@@ -394,6 +394,8 @@
     <xsl:param name="project_name" />
     <xsl:param name="project_language" />
     <xsl:param name="path" />
+    <xsl:param name="path_as" />
+    <xsl:param name="is_conditional" />
     <None>
       <xsl:attribute name="Include">
         <xsl:value-of
@@ -407,8 +409,32 @@
               '.srcproj'),
             $path)" />
       </xsl:attribute>
-      <Link><xsl:value-of select="user:GetFilename($path)" /></Link>
+      <xsl:if test="$is_conditional">
+        <xsl:attribute name="Condition">
+          <xsl:text>exists('</xsl:text>
+          <xsl:value-of
+            select="user:GetRelativePath(
+              concat(
+                $project_path,
+                '\',
+                $project_name,
+                '.',
+                /Input/Generation/Platform,
+                '.srcproj'),
+              $path)" />
+          <xsl:text>')</xsl:text>
+        </xsl:attribute>
+      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="$path_as">
+          <Link><xsl:value-of select="$path_as" /></Link>
+        </xsl:when>
+        <xsl:otherwise>
+          <Link><xsl:value-of select="user:GetFilename($path)" /></Link>
+        </xsl:otherwise>
+      </xsl:choose>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <NativeBinary>True</NativeBinary>
     </None>
   </xsl:template>
 
@@ -1246,6 +1272,8 @@
                   <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
                   <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                   <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                  <xsl:with-param name="path_as"></xsl:with-param>
+                  <xsl:with-param name="is_conditional"></xsl:with-param>
                 </xsl:call-template>
               </xsl:for-each>
               <xsl:for-each select="$extern/Platform
@@ -1256,6 +1284,8 @@
                     <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
                     <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                     <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                    <xsl:with-param name="path_as"></xsl:with-param>
+                    <xsl:with-param name="is_conditional"></xsl:with-param>
                   </xsl:call-template>
                 </xsl:for-each>
                 <xsl:for-each select="./Service">
@@ -1270,6 +1300,8 @@
                         <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
                         <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                         <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                        <xsl:with-param name="path_as"></xsl:with-param>
+                        <xsl:with-param name="is_conditional"></xsl:with-param>
                       </xsl:call-template>
                     </xsl:for-each>
                   </xsl:if>
@@ -1287,6 +1319,8 @@
                       <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
                       <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                       <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
+                      <xsl:with-param name="path_as"></xsl:with-param>
+                      <xsl:with-param name="is_conditional"></xsl:with-param>
                     </xsl:call-template>
                   </xsl:for-each>
                 </xsl:if>
@@ -1322,6 +1356,26 @@
                         <xsl:with-param name="project_specific_output_folder" select="/Input/Projects/Project[@Name=$include-path]/Properties/ProjectSpecificOutputFolder" />
                       </xsl:call-template>
                     </xsl:variable>
+                    <xsl:variable name="cpp_platform_path_64">
+                      <xsl:call-template name="platform_path">
+                        <xsl:with-param name="type" select="/Input/Projects/Project[@Name=$include-path]/@Type" />
+                        <xsl:with-param name="projectname" select="@Name" />
+                        <xsl:with-param name="platform">x64</xsl:with-param>
+                        <xsl:with-param name="config">$(Configuration)</xsl:with-param>
+                        <xsl:with-param name="platform_specific_output_folder" select="/Input/Projects/Project[@Name=$include-path]/Properties/PlatformSpecificOutputFolder" />
+                        <xsl:with-param name="project_specific_output_folder" select="/Input/Projects/Project[@Name=$include-path]/Properties/ProjectSpecificOutputFolder" />
+                      </xsl:call-template>
+                    </xsl:variable>
+                    <xsl:variable name="cpp_platform_path_32">
+                      <xsl:call-template name="platform_path">
+                        <xsl:with-param name="type" select="/Input/Projects/Project[@Name=$include-path]/@Type" />
+                        <xsl:with-param name="projectname" select="@Name" />
+                        <xsl:with-param name="platform">Win32</xsl:with-param>
+                        <xsl:with-param name="config">$(Configuration)</xsl:with-param>
+                        <xsl:with-param name="platform_specific_output_folder" select="/Input/Projects/Project[@Name=$include-path]/Properties/PlatformSpecificOutputFolder" />
+                        <xsl:with-param name="project_specific_output_folder" select="/Input/Projects/Project[@Name=$include-path]/Properties/ProjectSpecificOutputFolder" />
+                      </xsl:call-template>
+                    </xsl:variable>
                     <xsl:variable name="cpp_assembly_name">
                       <xsl:choose>
                         <xsl:when test="/Input/Projects/Project[@Name=$include-path]/Properties/AssemblyName
@@ -1336,19 +1390,63 @@
                         </xsl:otherwise>
                       </xsl:choose>
                     </xsl:variable>
-                    <xsl:call-template name="NativeBinary">
-                      <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
-                      <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
-                      <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
-                      <xsl:with-param name="path">
-                        <xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Path" />
-                        <xsl:text>\bin\</xsl:text>
-                        <xsl:value-of select="$cpp_platform_path" />
-                        <xsl:text>\lib</xsl:text>
-                        <xsl:value-of select="$cpp_assembly_name" />
-                        <xsl:text>.so</xsl:text>
-                      </xsl:with-param>
-                    </xsl:call-template>
+                    <xsl:choose>
+                      <xsl:when test="/Input/Generation/HostPlatform = 'Windows'">
+                        <xsl:call-template name="NativeBinary">
+                          <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                          <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                          <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
+                          <xsl:with-param name="path_as">
+                            <xsl:value-of select="$cpp_assembly_name" />
+                            <xsl:text>32.dll</xsl:text>
+                          </xsl:with-param>
+                          <xsl:with-param name="path">
+                            <xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Path" />
+                            <xsl:text>\bin\</xsl:text>
+                            <xsl:value-of select="$cpp_platform_path_32" />
+                            <xsl:text>\</xsl:text>
+                            <xsl:value-of select="$cpp_assembly_name" />
+                            <xsl:text>.dll</xsl:text>
+                          </xsl:with-param>
+                          <xsl:with-param name="is_conditional">true</xsl:with-param>
+                        </xsl:call-template>
+                        <xsl:call-template name="NativeBinary">
+                          <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                          <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                          <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
+                          <xsl:with-param name="path_as">
+                            <xsl:value-of select="$cpp_assembly_name" />
+                            <xsl:text>64.dll</xsl:text>
+                          </xsl:with-param>
+                          <xsl:with-param name="path">
+                            <xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Path" />
+                            <xsl:text>\bin\</xsl:text>
+                            <xsl:value-of select="$cpp_platform_path_64" />
+                            <xsl:text>\</xsl:text>
+                            <xsl:value-of select="$cpp_assembly_name" />
+                            <xsl:text>.dll</xsl:text>
+                          </xsl:with-param>
+                          <xsl:with-param name="is_conditional">true</xsl:with-param>
+                        </xsl:call-template>
+                      </xsl:when>
+                      <xsl:otherwise>
+                        <xsl:call-template name="NativeBinary">
+                          <xsl:with-param name="project_path"><xsl:value-of select="$project/@Path" /></xsl:with-param>
+                          <xsl:with-param name="project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                          <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
+                          <xsl:with-param name="path_as"></xsl:with-param>
+                          <xsl:with-param name="path">
+                            <xsl:value-of select="/Input/Projects/Project[@Name=$include-path]/@Path" />
+                            <xsl:text>\bin\</xsl:text>
+                            <xsl:value-of select="$cpp_platform_path" />
+                            <xsl:text>\lib</xsl:text>
+                            <xsl:value-of select="$cpp_assembly_name" />
+                            <xsl:text>.so</xsl:text>
+                          </xsl:with-param>
+                          <xsl:with-param name="is_conditional"></xsl:with-param>
+                        </xsl:call-template>
+                      </xsl:otherwise>
+                    </xsl:choose>
                   </xsl:when>
                   <xsl:otherwise>
                     <xsl:message terminate="yes">

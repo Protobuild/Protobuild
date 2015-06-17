@@ -55,7 +55,7 @@
       <Command>
         <xsl:text>"</xsl:text>
         <xsl:value-of select="user:GetKnownTool(&quot;SWIG&quot;)"/>
-        <xsl:text>" -csharp -dllimport lib</xsl:text>
+        <xsl:text>" -csharp -dllimport </xsl:text>
         <xsl:value-of select="$assembly_name" />
         <xsl:text> </xsl:text>
         <xsl:if test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
@@ -75,6 +75,63 @@
               <xsl:value-of select="@Include" />
               <xsl:text> </xsl:text>
             </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$project/Files/None">
+          <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+            <xsl:variable name="extra_protobuild_swig_code">
+              <xsl:text>
+    protected class ProtobuildSWIGCopyHelper
+    {
+        static ProtobuildSWIGCopyHelper()
+        {
+            if (System.Environment.Is64BitProcess)
+            {
+              </xsl:text>
+              <xsl:text>System.IO.File.Copy("</xsl:text>
+              <xsl:value-of select="$assembly_name"/>
+              <xsl:text>64.dll", "</xsl:text>
+              <xsl:value-of select="$assembly_name"/>
+              <xsl:text>.dll", true);</xsl:text>
+              <xsl:text>
+            }
+            else
+            {
+              </xsl:text>
+              <xsl:text>System.IO.File.Copy("</xsl:text>
+              <xsl:value-of select="$assembly_name"/>
+              <xsl:text>32.dll", "</xsl:text>
+              <xsl:value-of select="$assembly_name"/>
+              <xsl:text>.dll", true);</xsl:text>
+              <xsl:text>
+            }
+        }
+    }
+
+    protected static ProtobuildSWIGCopyHelper protobuildSWIGCopyHelper = new ProtobuildSWIGCopyHelper();
+
+              </xsl:text>
+            </xsl:variable>
+            <xsl:variable name="powershell_command">
+              <xsl:text>$filename = "</xsl:text>
+              <xsl:value-of select="user:StripExtension(@Include)" />
+              <xsl:text>PINVOKE.cs</xsl:text>
+              <xsl:text>"; $new_code = "</xsl:text>
+              <xsl:value-of select="user:ToBase64StringUTF16LE($extra_protobuild_swig_code)"/>
+              <xsl:text>";</xsl:text>
+              <xsl:text>
+<![CDATA[
+$new_code = [System.Convert]::FromBase64String($new_code)
+$new_code = [System.Text.Encoding]::Unicode.GetString($new_code)
+$code = Get-Content -Raw $filename;
+$startIndex = $code.IndexOf("protected class SWIGExceptionHelper");
+$code = $code.Substring(0, $startIndex) + $new_code + $code.Substring($startIndex);
+Set-Content -Path $filename -Value $code;
+]]>
+              </xsl:text>
+            </xsl:variable>
+            <xsl:text>&#xa;&#xd;powershell -EncodedCommand </xsl:text>
+            <xsl:value-of select="user:ToBase64StringUTF16LE($powershell_command)"/>
           </xsl:if>
         </xsl:for-each>
       </Command>
@@ -105,25 +162,6 @@
         </xsl:for-each>
       </Command>
     </PostBuildEvent>
-      
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="BeforeBuild">
-          <xsl:attribute name="workingdir">
-            <xsl:text>${ProjectDir}</xsl:text>
-          </xsl:attribute>
-          <xsl:attribute name="command">
-          </xsl:attribute>
-        </Command>
-        <Command type="AfterBuild">
-          <xsl:attribute name="workingdir">
-            <xsl:text>${ProjectDir}</xsl:text>
-          </xsl:attribute>
-          <xsl:attribute name="command">
-          </xsl:attribute>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
   </xsl:template>
   
   <xsl:template name="swig_binding_generator_includes"
@@ -299,6 +337,7 @@
       <ExecutablePath>$(ExecutablePath)</ExecutablePath>
       <ExcludePath>$(ExcludePath)</ExcludePath>
       <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+      <TargetName><xsl:value-of select="$assembly_name"/></TargetName>
     </PropertyGroup>
   </xsl:template>
 

@@ -209,6 +209,15 @@ namespace Protobuild
                             continue;
                     }
                 }
+                
+                // Ignore native binaries.
+                if (element.Name == "None")
+                {
+                    if (element.ChildNodes.OfType<XmlNode>().Any(x => x.Name == "NativeBinary"))
+                    {
+                        continue;
+                    }
+                }
 
                 var normalizedPath = this.NormalizePath(element.GetAttribute("Include"));
 
