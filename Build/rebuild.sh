@@ -32,6 +32,7 @@ mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CSh
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
+mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/GenerationFunctions.cs Protobuild.Internal/BuildResources/GenerationFunctions.cs-msbuild-hack.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/SelectSolution.xslt Protobuild.Internal/BuildResources/SelectSolution.xslt.lzma
 mono $PROTOBUILD_COMPRESS Protobuild.Internal/BuildResources/JSILTemplate.htm Protobuild.Internal/BuildResources/JSILTemplate.htm.lzma
 

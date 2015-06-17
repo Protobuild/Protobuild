@@ -90,6 +90,7 @@
     <Compile Include="..\ThirdParty\TAR\UsTarHeader.cs">
       <Link>TAR\UsTarHeader.cs</Link>
     </Compile>
+    <Compile Include="BuildResources\GenerationFunctions.cs" />
     <Compile Include="BuildResources\GenerationFunctionsProvider.cs" />
     <Compile Include="BuildResources\IGenerationFunctionsProvider.cs" />
     <Compile Include="BuildResources\IResourceProvider.cs" />
@@ -249,7 +250,7 @@
     <EmbeddedResource Include="BuildResources\GenerateSolution.xslt.lzma">
       <LogicalName>GenerateSolution.xslt.lzma</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="BuildResources\GenerationFunctions.cs.lzma">
+    <EmbeddedResource Include="BuildResources\GenerationFunctions.cs-msbuild-hack.lzma">
       <LogicalName>GenerationFunctions.cs.lzma</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\JSILTemplate.htm.lzma">
@@ -265,12 +266,13 @@
       <LogicalName>WashNamespaces.xslt</LogicalName>
     </EmbeddedResource>
     <None Include="BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt" />
-    <None Include="BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt" />
+    <None Include="BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="BuildResources\GenerateProject.CSharp.xslt">
       <SubType>Designer</SubType>
     </None>
     <None Include="BuildResources\GenerateSolution.xslt" />
-    <None Include="BuildResources\GenerationFunctions.cs" />
     <None Include="BuildResources\JSILTemplate.htm" />
     <None Include="BuildResources\SelectSolution.xslt" />
   </Files>

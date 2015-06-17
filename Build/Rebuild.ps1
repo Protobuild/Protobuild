@@ -45,7 +45,7 @@ if ($LASTEXITCODE -ne 0) {
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs.lzma
+& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs-msbuild-hack.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
