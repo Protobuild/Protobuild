@@ -42,3 +42,6 @@ TestSummary.htm
 /Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/utilPINVOKE.cs
 /Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/util_wrap.c
 /Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/Library.Windows.md.pc
+*.opensdf
+UpgradeLog.htm
+Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerationFunctions.cs

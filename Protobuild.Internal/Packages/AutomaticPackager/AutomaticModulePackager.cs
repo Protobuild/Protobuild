@@ -309,6 +309,14 @@ namespace Protobuild
 
                             break;
                         }
+                    case "Tool":
+                        {
+                            // These are included as-is; they are only explicitly set when an external tool
+                            // (that does not use Protobuild) is being packaged up.
+                            var referenceEntry = toNode.OwnerDocument.ImportNode(child, true);
+                            toNode.AppendChild(referenceEntry);
+                            break;
+                        }
                     default:
                         {
                             // We can't do anything with these tags, because we don't know what services were enabled

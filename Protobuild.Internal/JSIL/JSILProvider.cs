@@ -13,20 +13,11 @@
     /// </remarks>
     public class JSILProvider : IJSILProvider
     {
-        private readonly IPackageGlobalTool _packageGlobalTool;
+        private readonly IKnownToolProvider _knownToolProvider;
 
-        private readonly IPackageManager _packageManager;
-
-        private readonly IHostPlatformDetector _hostPlatformDetector;
-
-        public JSILProvider(
-            IPackageGlobalTool packageGlobalTool,
-            IPackageManager packageManager,
-            IHostPlatformDetector hostPlatformDetector)
+        public JSILProvider(IKnownToolProvider knownToolProvider)
         {
-            _packageGlobalTool = packageGlobalTool;
-            _packageManager = packageManager;
-            _hostPlatformDetector = hostPlatformDetector;
+            _knownToolProvider = knownToolProvider;
         }
 
         /// <summary>
@@ -41,21 +32,7 @@
         /// <param name="jsilCompilerFile">The JSIL compiler executable.</param>
         public bool GetJSIL(out string jsilDirectory, out string jsilCompilerFile)
         {
-            jsilCompilerFile = _packageGlobalTool.ResolveGlobalToolIfPresent("JSILc");
-            if (jsilCompilerFile == null)
-            {
-                var package = new PackageRef
-                {
-                    Uri = "http://protobuild.org/hach-que/JSIL",
-                    GitRef = "master",
-                    Folder = null
-                };
-
-                Console.WriteLine("Installing http://protobuild.org/hach-que/JSIL...");
-                _packageManager.Resolve(null, package, _hostPlatformDetector.DetectPlatform(), null, false, true);
-            }
-
-            jsilCompilerFile = _packageGlobalTool.ResolveGlobalToolIfPresent("JSILc");
+            jsilCompilerFile = _knownToolProvider.GetToolExecutablePath("JSILc");
             if (jsilCompilerFile == null)
             {
                 jsilDirectory = null;
@@ -82,7 +59,7 @@
         /// <returns>The JSIL runtime directory.</returns>
         private string GetJSILRuntimeDirectory()
         {
-            var jsilCompilerFile = _packageGlobalTool.ResolveGlobalToolIfPresent("JSILc");
+            var jsilCompilerFile = _knownToolProvider.GetToolExecutablePath("JSILc");
             if (jsilCompilerFile == null)
             {
                 throw new InvalidOperationException("JSIL is not installed.");

@@ -45,6 +45,10 @@ if ($LASTEXITCODE -ne 0) {
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
+& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs.lzma
+if ($LASTEXITCODE -ne 0) {
+    exit 1
+}
 
 echo "Performing second-pass build..."
 & $msbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln

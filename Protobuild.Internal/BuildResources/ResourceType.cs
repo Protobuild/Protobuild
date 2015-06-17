@@ -9,6 +9,12 @@ namespace Protobuild
         SelectSolution,
 
         GenerateSolution,
+
+        GenerationFunctions,
+
+        AdditionalGenerationFunctions,
+
+        AdditionalProjectTransforms
     }
 }
 
