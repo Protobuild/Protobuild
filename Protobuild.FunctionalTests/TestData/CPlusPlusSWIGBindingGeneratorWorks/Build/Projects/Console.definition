@@ -6,9 +6,5 @@
   </References>
   <Files>
     <Compile Include="Program.cs" />
-    <None Include="..\Library\bin\Windows\$(Platform)\$(Configuration)\libLibrary.so">
-      <Link>libLibrary.so</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </Files>
 </Project>
