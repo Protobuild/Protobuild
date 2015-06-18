@@ -33,8 +33,8 @@ namespace Protobuild
 
             return @"
   <msxsl:script language=""C#"" implements-prefix=""" + prefix + @""">
-" + assemblies.Select(x => "<msxsl:assembly name=\"" + x + "\" />").Aggregate((a, b) => a + " " + b) +
-  usings.Select(x => "<msxsl:using namespace=\"" + x + "\" />").Aggregate((a, b) => a + " " + b) + @"
+" + assemblies.Select(x => "<msxsl:assembly name=\"" + x + "\" />\r\n").Aggregate((a, b) => a + " " + b) +
+  usings.Select(x => "<msxsl:using namespace=\"" + x + "\" />\r\n").Aggregate((a, b) => a + " " + b) + @"
 <![CDATA[
 " + code + @"
 ]]>
