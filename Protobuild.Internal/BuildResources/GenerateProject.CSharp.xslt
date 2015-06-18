@@ -565,7 +565,7 @@
         <xsl:otherwise>
           <xsl:message terminate="yes">
             <xsl:text>The project </xsl:text>
-            <xsl:value-of select="$project_name" />
+            <xsl:value-of select="$target_project/@Name" />
             <xsl:text>does not have a known language (it was '</xsl:text>
             <xsl:value-of select="$target_project/@Language" />
             <xsl:text>').</xsl:text>
