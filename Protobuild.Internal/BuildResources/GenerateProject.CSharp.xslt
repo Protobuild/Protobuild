@@ -1528,14 +1528,84 @@
         </xsl:for-each>
         
         <xsl:for-each select="$project/References/Reference">
-          <xsl:variable name="include-path" select="./@Include" />
+          <xsl:variable name="include-name" select="./@Include" />
+
           <xsl:if test="
-            count(/Input/Projects/Project[@Name=$include-path]) > 0">
+            count(/Input/Projects/Project[@Name=$include-name]) = 0">
             <xsl:if test="
-              count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+              count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+              <xsl:variable name="extern"
+                select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+              <xsl:for-each select="$extern/Reference">
+                <xsl:variable name="refd-name" select="./@Include" />
+                <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                  <xsl:call-template name="InsertNativeBinariesForReferencedCPPProject">
+                    <xsl:with-param name="target_project_name"><xsl:value-of select="$refd-name" /></xsl:with-param>
+                    <xsl:with-param name="source_project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                  </xsl:call-template>
+                </xsl:if>
+              </xsl:for-each>
+
+
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=/Input/Generation/Platform]">
+                <xsl:for-each select="./Reference">
+                  <xsl:variable name="refd-name" select="./@Include" />
+                  <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                    <xsl:call-template name="InsertNativeBinariesForReferencedCPPProject">
+                      <xsl:with-param name="target_project_name"><xsl:value-of select="$refd-name" /></xsl:with-param>
+                      <xsl:with-param name="source_project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                    </xsl:call-template>
+                  </xsl:if>
+                </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Reference">
+                      <xsl:variable name="refd-name" select="./@Include" />
+                      <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                        <xsl:call-template name="InsertNativeBinariesForReferencedCPPProject">
+                          <xsl:with-param name="target_project_name"><xsl:value-of select="$refd-name" /></xsl:with-param>
+                          <xsl:with-param name="source_project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                        </xsl:call-template>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  /Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./Reference">
+                    <xsl:variable name="refd-name" select="./@Include" />
+                    <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                      <xsl:call-template name="InsertNativeBinariesForReferencedCPPProject">
+                        <xsl:with-param name="target_project_name"><xsl:value-of select="$refd-name" /></xsl:with-param>
+                        <xsl:with-param name="source_project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+                      </xsl:call-template>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:if>
+              </xsl:for-each>
+
+            </xsl:if>
+          </xsl:if>
+          
+          <xsl:if test="
+            count(/Input/Projects/Project[@Name=$include-name]) > 0">
+            <xsl:if test="
+              count(/Input/Projects/ExternalProject[@Name=$include-name]) = 0">
 
               <xsl:call-template name="InsertNativeBinariesForReferencedCPPProject">
-                <xsl:with-param name="target_project_name"><xsl:value-of select="$include-path" /></xsl:with-param>
+                <xsl:with-param name="target_project_name"><xsl:value-of select="$include-name" /></xsl:with-param>
                 <xsl:with-param name="source_project_name"><xsl:value-of select="$project/@Name" /></xsl:with-param>
               </xsl:call-template>
             </xsl:if>
