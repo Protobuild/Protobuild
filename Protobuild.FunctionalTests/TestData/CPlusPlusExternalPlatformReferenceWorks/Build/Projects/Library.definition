@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Library" Path="Library" Type="Library" Language="C++">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Properties>
+    <Property Name="BindingGenerator" Value="SWIG" />
+  </Properties>
+  <Files>
+    <Compile Include="util.c" />
+    <None Include="util.h" />
+    <None Include="util.i" />
+  </Files>
+</Project>

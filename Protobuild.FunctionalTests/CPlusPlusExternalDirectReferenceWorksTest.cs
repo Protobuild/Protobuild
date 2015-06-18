@@ -4,12 +4,12 @@
     using System.IO;
     using Xunit;
 
-    public class CPlusPlusDirectReferenceWorksTest : ProtobuildTest
+    public class CPlusPlusExternalDirectReferenceWorksTest : ProtobuildTest
     {
         [Fact]
         public void GenerationIsCorrect()
         {
-            this.SetupTest("CPlusPlusDirectReferenceWorks");
+            this.SetupTest("CPlusPlusExternalDirectReferenceWorks");
 
             this.Generate("Windows");
 

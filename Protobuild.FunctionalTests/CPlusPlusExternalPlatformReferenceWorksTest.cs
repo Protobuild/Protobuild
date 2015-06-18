@@ -4,12 +4,12 @@
     using System.IO;
     using Xunit;
 
-    public class CPlusPlusDirectReferenceWorksTest : ProtobuildTest
+    public class CPlusPlusExternalPlatformReferenceWorksTest : ProtobuildTest
     {
         [Fact]
         public void GenerationIsCorrect()
         {
-            this.SetupTest("CPlusPlusDirectReferenceWorks");
+            this.SetupTest("CPlusPlusExternalPlatformReferenceWorks");
 
             this.Generate("Windows");
 
@@ -31,6 +31,27 @@
             }
 
             Assert.Contains("LibraryBinding.dll", consoleContents);
+
+            this.Generate("Linux");
+
+            Assert.True(File.Exists(this.GetPath(@"Console\Console.Linux.csproj")));
+            Assert.True(
+                File.Exists(this.GetPath(@"Library\Library.Linux.cproj")) ||
+                File.Exists(this.GetPath(@"Library\Library.Linux.vcxproj")));
+
+            consoleContents = this.ReadFile(@"Console\Console.Linux.csproj");
+
+            if (Path.DirectorySeparatorChar == '/')
+            {
+                Assert.DoesNotContain("libLibrary.so", consoleContents);
+            }
+            else
+            {
+                Assert.DoesNotContain("Library32.dll", consoleContents);
+                Assert.DoesNotContain("Library64.dll", consoleContents);
+            }
+
+            Assert.DoesNotContain("LibraryBinding.dll", consoleContents);
         }
     }
 }
