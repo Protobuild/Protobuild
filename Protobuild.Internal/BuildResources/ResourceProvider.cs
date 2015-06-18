@@ -176,7 +176,7 @@ namespace Protobuild
                         using (var reader = new StreamReader(stream))
                         {
                             var text = reader.ReadToEnd();
-                            text = text.Replace("{" + replacement.Key + "}", replacementData);
+                            text = text.Replace("<!-- {" + replacement.Key + "} -->", replacementData);
                             writer.Write(text);
                             writer.Flush();
                         }
@@ -218,11 +218,37 @@ namespace Protobuild
             var result = new XslCompiledTransform();
             using (var reader = XmlReader.Create(source))
             {
-                result.Load(
-                    reader,
-                    XsltSettings.TrustedXslt,
-                    resolver
-                );
+                try
+                {
+                    result.Load(
+                        reader,
+                        XsltSettings.TrustedXslt,
+                        resolver
+                    );
+                }
+                catch (XsltCompileException ex)
+                {
+                    var lines = readerInspect.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                    var line = ex.LineNumber;
+                    var minLine = Math.Max(line - 5, 0);
+                    var maxLine = Math.Min(line + 5, lines.Length - 1);
+                    var selectedLines = new List<string>();
+                    for (var l = minLine; l <= maxLine; l++)
+                    {
+                        if (l == line)
+                        {
+                            selectedLines.Add(">> " + lines[l]);
+                        }
+                        else
+                        {
+                            selectedLines.Add("   " + lines[l]);
+                        }
+                    }
+                    var context = string.Join(Environment.NewLine, selectedLines);
+                    throw new XsltCompileException(
+                        ex.Message + "\r\n" + context,
+                        ex);
+                }
             }
 
             m_CachedTransforms[hash] = result;
