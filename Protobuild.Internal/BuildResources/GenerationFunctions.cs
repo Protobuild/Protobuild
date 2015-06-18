@@ -1,15 +1,11 @@
-﻿// assembly System.Core
+﻿// assembly mscorlib
+// assembly System
+// assembly System.Core
 // assembly System.Web
 // assembly Microsoft.CSharp
 // using System
-// using System.Collections.Generic
-// using System.IO
-// using System.Linq
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 public class GenerationFunctions
 {
@@ -27,8 +23,8 @@ public class GenerationFunctions
         try
         {
             var current = Environment.CurrentDirectory;
-            from = Path.Combine(current, from.Replace('\\', '/'));
-            to = Path.Combine(current, to.Replace('\\', '/'));
+            from = System.IO.Path.Combine(current, from.Replace('\\', '/'));
+            to = System.IO.Path.Combine(current, to.Replace('\\', '/'));
             return (new Uri(from).MakeRelativeUri(new Uri(to)))
                 .ToString().Replace('/', '\\');
         }
@@ -122,7 +118,7 @@ public class GenerationFunctions
             var excludeServices = excludeServiceString.Split(',');
             foreach (var i in excludeServices)
             {
-                if (activeServices.Contains(i))
+                if (System.Linq.Enumerable.Contains(activeServices, i))
                 {
                     // This service is excluded.
                     return false;
@@ -141,7 +137,7 @@ public class GenerationFunctions
         var services = serviceString.Split(',');
         foreach (var i in services)
         {
-            if (activeServices.Contains(i))
+            if (System.Linq.Enumerable.Contains(activeServices, i))
             {
                 return true;
             }
@@ -162,10 +158,10 @@ public class GenerationFunctions
 
     public string ReadFile(string path)
     {
-        path = path.Replace('/', Path.DirectorySeparatorChar);
-        path = path.Replace('\\', Path.DirectorySeparatorChar);
+        path = path.Replace('/', System.IO.Path.DirectorySeparatorChar);
+        path = path.Replace('\\', System.IO.Path.DirectorySeparatorChar);
 
-        using (var reader = new StreamReader(path))
+        using (var reader = new System.IO.StreamReader(path))
         {
             return reader.ReadToEnd();
         }
@@ -173,7 +169,7 @@ public class GenerationFunctions
 
     public bool HasXamarinMac()
     {
-        return File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
+        return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
     }
 
     public bool CodesignKeyExists()
@@ -183,8 +179,8 @@ public class GenerationFunctions
         {
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         }
-        var path = Path.Combine(home, ".codesignkey");
-        return File.Exists(path);
+        var path = System.IO.Path.Combine(home, ".codesignkey");
+        return System.IO.File.Exists(path);
     }
 
     public string GetCodesignKey()
@@ -194,8 +190,8 @@ public class GenerationFunctions
         {
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         }
-        var path = Path.Combine(home, ".codesignkey");
-        using (var reader = new StreamReader(path))
+        var path = System.IO.Path.Combine(home, ".codesignkey");
+        using (var reader = new System.IO.StreamReader(path))
         {
             return reader.ReadToEnd().Trim();
         }
@@ -206,7 +202,7 @@ public class GenerationFunctions
         var addArray = addDefines.Trim(';').Split(';');
         var removeArray = removeDefines.Trim(';').Split(';');
 
-        var list = new List<string>();
+        var list = new System.Collections.Generic.List<string>();
         foreach (var a in addArray)
         {
             if (!list.Contains(a))
@@ -252,8 +248,8 @@ public class GenerationFunctions
         var x86programfiles = ProgramFilesx86();
         for (var i = 20; i >= 10; i--)
         {
-            var path = Path.Combine(x86programfiles, @"Microsoft Visual Studio " + i + @".0\VC");
-            if (Directory.Exists(path))
+            var path = System.IO.Path.Combine(x86programfiles, @"Microsoft Visual Studio " + i + @".0\VC");
+            if (System.IO.Directory.Exists(path))
             {
                 return i.ToString();
             }
@@ -280,7 +276,7 @@ public class GenerationFunctions
             return _getKnownToolCached(toolName);
         }
         var assembly =
-            AppDomain.CurrentDomain.GetAssemblies().First(x => x.FullName.Contains("Protobuild.Internal"));
+            System.Linq.Enumerable.First(AppDomain.CurrentDomain.GetAssemblies(), x => x.FullName.Contains("Protobuild.Internal"));
         var type = assembly.GetType("Protobuild.LightweightKernel");
 
         dynamic kernel = Activator.CreateInstance(type);
@@ -346,7 +342,7 @@ public class GenerationFunctions
         var services = serviceString.Split(',');
         foreach (var i in services)
         {
-            if (activeServices.Contains(i))
+            if (System.Linq.Enumerable.Contains(activeServices, i))
             {
                 return true;
             }
