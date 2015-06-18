@@ -22,11 +22,11 @@
 
                 Assert.Contains("swig -csharp -dllimport libLibrary util.i", consoleContents);
             }
-            else if (File.Exists(this.GetPath(@"Console\Console.Windows.vcxproj")))
+            else if (File.Exists(this.GetPath(@"Library\Library.Windows.vcxproj")))
             {
                 var consoleContents = this.ReadFile(@"Library\Library.Windows.vcxproj");
 
-                Assert.Contains("swig -csharp -dllimport libLibrary util.i", consoleContents);
+                Assert.Contains("swig -csharp -dllimport Library.dll util.i", consoleContents);
             }
         }
     }
