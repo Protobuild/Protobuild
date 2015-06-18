@@ -111,6 +111,13 @@ namespace Protobuild.Tests
             p.BeginErrorReadLine();
             p.WaitForExit();
 
+            if (p.ExitCode == 134)
+            {
+                // SIGSEGV due to Mono bugs, try again.
+                this.OtherMode(mode, args, expectFailure, purge);
+                return;
+            }
+
             if (expectFailure)
             {
                 Xunit.Assert.Equal(1, p.ExitCode);

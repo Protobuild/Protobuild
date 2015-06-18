@@ -8,9 +8,9 @@
 
   <xsl:output method="xml" indent="no" />
   
-  {GENERATION_FUNCTIONS}
+  <!-- {GENERATION_FUNCTIONS} -->
 
-  {ADDITIONAL_GENERATION_FUNCTIONS}
+  <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:variable
     name="project"

@@ -6,9 +6,9 @@
   exclude-result-prefixes="xsl msxsl user"
   version="1.0">
 
-  {GENERATION_FUNCTIONS}
+  <!-- {GENERATION_FUNCTIONS} -->
 
-  {ADDITIONAL_GENERATION_FUNCTIONS}
+  <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:template match="/">
     <Projects>

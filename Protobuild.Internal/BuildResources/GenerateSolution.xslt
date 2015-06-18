@@ -9,9 +9,9 @@
   
   <xsl:output method="text" indent="no" />
 
-  {GENERATION_FUNCTIONS}
+  <!-- {GENERATION_FUNCTIONS} -->
 
-  {ADDITIONAL_GENERATION_FUNCTIONS}
+  <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:template match="/">
     <xsl:choose>
