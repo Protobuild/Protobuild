@@ -328,6 +328,66 @@
     </PropertyGroup>
   </xsl:template>
   
+  <xsl:template name="ReferenceToProtobuildProject"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:param name="target_project_name" />
+    <xsl:param name="source_project_name" />
+    
+    <xsl:variable
+      name="target_project"
+      select="/Input/Projects/Project[@Name=$target_project_name]" />
+    <xsl:variable
+      name="source_project"
+      select="/Input/Projects/Project[@Name=$source_project_name]" />
+    
+    <xsl:if test="user:ProjectIsActive(
+      $target_project/@Platforms,
+      '',
+      '',
+      /Input/Generation/Platform)">
+
+      <xsl:choose>
+        <xsl:when test="$target_project/@Language = 'C#'">
+          <xsl:message error="true" text="C++ projects can not reference C# projects." />
+        </xsl:when>
+        <xsl:when test="$target_project/@Language = 'C++'">
+          <Package IsProject="True">
+            <xsl:attribute name="file">
+              <xsl:value-of
+                select="user:GetRelativePath(
+                  concat(
+                    $source_project/@Path,
+                    '\',
+                    $source_project/@Name,
+                    '.',
+                    /Input/Generation/Platform,
+                    '.srcproj'),
+                  concat(
+                    $target_project/@Path,
+                    '\',
+                    $target_project/@Name,
+                    '.',
+                    /Input/Generation/Platform,
+                    '.md.pc'))" />
+            </xsl:attribute>
+            <xsl:attribute name="file">
+              <xsl:value-of select="$target_project/@Name" />
+            </xsl:attribute>
+          </Package>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message terminate="yes">
+            <xsl:text>The project </xsl:text>
+            <xsl:value-of select="$target_project_name" />
+            <xsl:text>does not have a known language (it was '</xsl:text>
+            <xsl:value-of select="$target_project/@Language" />
+            <xsl:text>').</xsl:text>
+          </xsl:message>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+  
   <xsl:template match="/">
 
     <xsl:variable name="ToolsVersion">4.0</xsl:variable>
@@ -345,6 +405,130 @@
         </Compiler>
         <Language>C</Language>
         <Target>Bin</Target>
+        <Packages>
+          <Packages>
+            <xsl:for-each select="$project/References/Reference">
+              <xsl:variable name="include-name" select="./@Include" />
+              <xsl:if test="
+                count(/Input/Projects/Project[@Name=$include-name]) = 0">
+                <xsl:if test="
+                  count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+                  <xsl:variable name="extern"
+                    select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+                  <xsl:for-each select="$extern/Project">
+                    <!-- Ignore this tag for now -->
+                  </xsl:for-each>
+
+                  <xsl:for-each select="$extern/Platform
+                                          [@Type=/Input/Generation/Platform]">
+                    <xsl:for-each select="./Project">
+                      <!-- Ignore this tag for now -->
+                    </xsl:for-each>
+                    <xsl:for-each select="./Service">
+                      <xsl:if test="user:ServiceIsActive(
+                        ./@Name,
+                        '',
+                        '',
+                        /Input/Services/ActiveServicesNames)">
+                        <xsl:for-each select="./Project">
+                          <!-- Ignore this tag for now -->
+                        </xsl:for-each>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:for-each>
+                  <xsl:for-each select="$extern/Service">
+                    <xsl:if test="user:ServiceIsActive(
+                      ./@Name,
+                      '',
+                      '',
+                      /Input/Services/ActiveServicesNames)">
+                      <xsl:for-each select="./Project">
+                        <!-- Ignore this tag for now -->
+                      </xsl:for-each>
+                    </xsl:if>
+                  </xsl:for-each>
+
+                  <xsl:for-each select="$extern/Reference">
+                    <xsl:variable name="refd-name" select="./@Include" />
+                    <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                      <xsl:call-template name="ReferenceToProtobuildProject">
+                        <xsl:with-param name="target_project_name" select="$refd-name" />
+                        <xsl:with-param name="source_project_name" select="$project/@Name" />
+                      </xsl:call-template>
+                    </xsl:if>
+                  </xsl:for-each>
+
+
+                  <xsl:for-each select="$extern/Platform
+                                          [@Type=/Input/Generation/Platform]">
+                    <xsl:for-each select="./Reference">
+                      <xsl:variable name="refd-name" select="./@Include" />
+                      <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                        <xsl:call-template name="ReferenceToProtobuildProject">
+                          <xsl:with-param name="target_project_name" select="$refd-name" />
+                          <xsl:with-param name="source_project_name" select="$project/@Name" />
+                        </xsl:call-template>
+                      </xsl:if>
+                    </xsl:for-each>
+                    <xsl:for-each select="./Service">
+                      <xsl:if test="user:ServiceIsActive(
+                        ./@Name,
+                        '',
+                        '',
+                        /Input/Services/ActiveServicesNames)">
+                        <xsl:for-each select="./Reference">
+                          <xsl:variable name="refd-name" select="./@Include" />
+                          <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                            <xsl:call-template name="ReferenceToProtobuildProject">
+                              <xsl:with-param name="target_project_name" select="$refd-name" />
+                              <xsl:with-param name="source_project_name" select="$project/@Name" />
+                            </xsl:call-template>
+
+                          </xsl:if>
+                        </xsl:for-each>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:for-each>
+                  <xsl:for-each select="$extern/Service">
+                    <xsl:if test="user:ServiceIsActive(
+                      ./@Name,
+                      '',
+                      '',
+                      /Input/Services/ActiveServicesNames)">
+                      <xsl:for-each select="./Reference">
+                        <xsl:variable name="refd-name" select="./@Include" />
+                        <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                          <xsl:call-template name="ReferenceToProtobuildProject">
+                            <xsl:with-param name="target_project_name" select="$refd-name" />
+                            <xsl:with-param name="source_project_name" select="$project/@Name" />
+                          </xsl:call-template>
+                        </xsl:if>
+                      </xsl:for-each>
+                    </xsl:if>
+                  </xsl:for-each>
+
+                </xsl:if>
+              </xsl:if>
+            </xsl:for-each>
+
+            <xsl:for-each select="$project/References/Reference">
+              <xsl:variable name="include-path" select="./@Include" />
+              <xsl:if test="
+                count(/Input/Projects/Project[@Name=$include-path]) > 0">
+                <xsl:if test="
+                  count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+                  <xsl:call-template name="ReferenceToProtobuildProject">
+                    <xsl:with-param name="target_project_name" select="$include-path" />
+                    <xsl:with-param name="source_project_name" select="$project/@Name" />
+                  </xsl:call-template>
+                </xsl:if>
+              </xsl:if>
+            </xsl:for-each>
+
+          </Packages>
+        </Packages>
       </PropertyGroup>
       
       <xsl:call-template name="configuration">
