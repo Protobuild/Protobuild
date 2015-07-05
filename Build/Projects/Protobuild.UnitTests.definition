@@ -22,6 +22,7 @@
     <Reference Include="xunit" />
   </References>
   <Files>
+    <Compile Include="PackageRefTests.cs" />
     <Compile Include="PathUtilsTests.cs" />
     <Compile Include="ServiceResolutionTests.cs" />
   </Files>
