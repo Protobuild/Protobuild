@@ -22,8 +22,20 @@ namespace Protobuild
                             ex = e.Error;
                         }
 
-                        downloadProgressRenderer.Update(100, e.Result.Length / 1024);
-                        result = e.Result;
+                        try
+                        {
+                            if (e.Result != null)
+                            {
+                                downloadProgressRenderer.Update(100, e.Result.Length / 1024);
+                            }
+                            result = e.Result;
+                        }
+                        catch (System.Reflection.TargetInvocationException)
+                        {
+                            // This is sometimes thrown when an error occurs.  It is
+                            // thrown when reporting that the result is invalid.
+                        }
+
                         done = true;
                     };
                     client.DownloadProgressChanged += (sender, e) => {
