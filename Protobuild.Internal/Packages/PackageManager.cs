@@ -104,7 +104,7 @@ namespace Protobuild
             _packageLookup.Lookup(
                 reference.Uri,
                 platform,
-                !forceUpgrade,
+                !forceUpgrade && reference.IsCommitReference,
                 out sourceUri, 
                 out type,
                 out downloadMap,

@@ -47,6 +47,19 @@ namespace Protobuild
                 return true;
             }
         }
+
+        public bool IsCommitReference 
+        {
+            get
+            {
+                if (this.GitRef.Length != 40)
+                {
+                    return false;
+                }
+
+                return System.Text.RegularExpressions.Regex.Match(this.GitRef, "^[0-9a-f]{40,40}$").Success;
+            }
+        }
     }
 }
 
