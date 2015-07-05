@@ -26,7 +26,7 @@
             {
                 var consoleContents = this.ReadFile(@"Library\Library.Windows.vcxproj");
 
-                Assert.Contains("swig -csharp -dllimport Library.dll util.i", consoleContents);
+                Assert.Contains("swig\" -csharp -dllimport Library.dll util.i", consoleContents);
             }
         }
     }
