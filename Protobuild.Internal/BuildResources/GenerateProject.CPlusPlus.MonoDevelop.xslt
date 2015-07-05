@@ -348,7 +348,9 @@
 
       <xsl:choose>
         <xsl:when test="$target_project/@Language = 'C#'">
-          <xsl:message error="true" text="C++ projects can not reference C# projects." />
+          <xsl:message terminate="yes">
+            C++ projects can not reference C# projects.
+          </xsl:message>
         </xsl:when>
         <xsl:when test="$target_project/@Language = 'C++'">
           <Package IsProject="True">
