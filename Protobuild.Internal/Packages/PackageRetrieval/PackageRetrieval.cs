@@ -120,7 +120,15 @@ namespace Protobuild
             var resolvedGitHash = resolvedHash[gitHash];
 
             format = archiveType;
-            return _progressiveWebOperation.Get(fileUri);
+            try
+            {
+                return _progressiveWebOperation.Get(fileUri);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine("Unable to download binary package for version \"" + gitHash + "\" and platform \"" + platform + "\", falling back to source version");
+                return null;
+            }
         }
     }
 }
