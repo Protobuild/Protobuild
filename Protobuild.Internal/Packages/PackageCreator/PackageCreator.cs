@@ -16,98 +16,135 @@ namespace Protobuild
 
         public void Create(Stream target, FileFilter filter, string basePath, string packageFormat)
         {
-            var archive = new MemoryStream();
+            Stream archive = new MemoryStream();
+            string cleanUp = null;
 
-            switch (packageFormat)
+            try
             {
-                case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                    {
-                        Console.WriteLine("Writing package in tar/gzip format...");
-                        break;
-                    }
-                case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
-                default:
-                    {
-                        Console.WriteLine("Writing package in tar/lzma format...");
-                        break;
-                    }
-            }
-
-            switch (packageFormat)
-            {
-                case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
-                default:
-                    {
-                        var state = _deduplicator.CreateState();
-
-                        Console.Write("Deduplicating files in package...");
-
-                        var progressHelper = new DedupProgressRenderer(filter.Count());
-                        var current = 0;
-
-                        foreach (var kv in filter.OrderBy(kv => kv.Value))
+                switch (packageFormat)
+                {
+                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                         {
-                            if (kv.Value.EndsWith("/"))
+                            Console.WriteLine("Writing package in tar/gzip format...");
+                            break;
+                        }
+                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                    default:
+                        {
+                            Console.WriteLine("Writing package in tar/lzma format...");
+                            break;
+                        }
+                }
+
+                switch (packageFormat)
+                {
+                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                    default:
+                        {
+                            var state = _deduplicator.CreateState();
+
+                            Console.Write("Deduplicating files in package...");
+
+                            var progressHelper = new DedupProgressRenderer(filter.Count());
+                            var current = 0;
+
+                            foreach (var kv in filter.OrderBy(kv => kv.Value))
                             {
-                                // Directory
-                                _deduplicator.AddDirectory(state, kv.Value);
+                                if (kv.Value.EndsWith("/"))
+                                {
+                                    // Directory
+                                    _deduplicator.AddDirectory(state, kv.Value);
+                                }
+                                else
+                                {
+                                    // File
+                                    var realFile = Path.Combine(basePath, kv.Key);
+                                    var realFileInfo = new FileInfo(realFile);
+
+                                    _deduplicator.AddFile(state, realFileInfo, kv.Value);
+                                }
+
+                                current++;
+
+                                progressHelper.SetProgress(current);
                             }
-                            else
+
+                            Console.WriteLine();
+                            Console.WriteLine("Adding files to package...");
+
+                            try
                             {
-                                // File
-                                var realFile = Path.Combine(basePath, kv.Key);
-                                var realFileInfo = new FileInfo(realFile);
-
-                                _deduplicator.AddFile(state, realFileInfo, kv.Value);
+                                using (var writer = new tar_cs.TarWriter(archive))
+                                {
+                                    _deduplicator.PushToTar(state, writer);
+                                }
+                            }
+                            catch (OutOfMemoryException ex)
+                            {
+                                // It's possible the archive is too large to store in memory.  Fall
+                                // back to using a temporary file on disk.
+                                cleanUp = Path.GetTempFileName();
+                                Console.WriteLine(
+                                    "WARNING: Out-of-memory while creating TAR file, falling back to storing " +
+                                    "temporary file on disk at " + cleanUp + " during package creation.");
+                                archive.Dispose();
+                                archive = new FileStream(cleanUp, FileMode.Create, FileAccess.ReadWrite);
+                                
+                                using (var writer = new tar_cs.TarWriter(archive))
+                                {
+                                    _deduplicator.PushToTar(state, writer);
+                                }
                             }
 
-                            current++;
-
-                            progressHelper.SetProgress(current);
+                            break;
                         }
+                }
 
-                        Console.WriteLine();
-                        Console.WriteLine("Adding files to package...");
+                archive.Seek(0, SeekOrigin.Begin);
 
-                        using (var writer = new tar_cs.TarWriter(archive))
+                switch (packageFormat)
+                {
+                    case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                         {
-                            _deduplicator.PushToTar(state, writer);
-                        }
+                            Console.WriteLine("Compressing package...");
 
-                        break;
-                    }
+                            using (var compress = new GZipStream(target, CompressionMode.Compress))
+                            {
+                                archive.CopyTo(compress);
+                            }
+
+                            break;
+                        }
+                    case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                    default:
+                        {
+                            Console.Write("Compressing package...");
+
+                            var progressHelper = new CompressProgressRenderer(archive.Length);
+
+                            LZMA.LzmaHelper.Compress(archive, target, progressHelper);
+
+                            Console.WriteLine();
+
+                            break;
+                        }
+                }
             }
-
-            archive.Seek(0, SeekOrigin.Begin);
-
-            switch (packageFormat)
+            finally
             {
-                case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                if (cleanUp != null)
+                {
+                    try
                     {
-                        Console.WriteLine("Compressing package...");
-
-                        using (var compress = new GZipStream(target, CompressionMode.Compress))
-                        {
-                            archive.CopyTo(compress);
-                        }
-
-                        break;
+                        File.Delete(cleanUp);
                     }
-                case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
-                default:
+                    catch
                     {
-                        Console.Write("Compressing package...");
-
-                        var progressHelper = new CompressProgressRenderer(archive.Length);
-
-                        LZMA.LzmaHelper.Compress(archive, target, progressHelper);
-
-                        Console.WriteLine();
-
-                        break;
+                        Console.WriteLine("WARNING: Unable to clean up temporary package file at " + cleanUp);
                     }
                 }
+            }
         }
     }
 }
