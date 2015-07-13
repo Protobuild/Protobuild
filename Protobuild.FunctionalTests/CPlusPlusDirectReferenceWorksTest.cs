@@ -4,6 +4,7 @@
     using System.IO;
     using Xunit;
 
+    [Collection("CPlusPlusPotentialSWIGInstallation")]
     public class CPlusPlusDirectReferenceWorksTest : ProtobuildTest
     {
         [Fact]
