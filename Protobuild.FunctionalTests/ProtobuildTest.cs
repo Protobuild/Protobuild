@@ -120,11 +120,11 @@ namespace Protobuild.Tests
 
             if (expectFailure)
             {
-                Xunit.Assert.Equal(1, p.ExitCode);
+                Xunit.Assert.True(1 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to fail, but got successful exit code.");
             }
             else
             {
-                Xunit.Assert.Equal(0, p.ExitCode);
+                Xunit.Assert.True(0 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to succeed, but got failure exit code.");
             }
         }
 

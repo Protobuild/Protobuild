@@ -13,7 +13,7 @@ namespace Protobuild
 
         private readonly Dictionary<string, string> _knownTools = new Dictionary<string, string>
         {
-            {"JSILc", "http://protobuild.org/hach-que/JSIL"},
+            {"jsilc", "http://protobuild.org/hach-que/JSIL"},
             {"swig", "http://protobuild.org/hach-que/SWIG"},
         };
 
@@ -30,16 +30,16 @@ namespace Protobuild
         public string GetToolExecutablePath(string toolName)
         {
             var executableFile = _packageGlobalTool.ResolveGlobalToolIfPresent(toolName);
-            if (executableFile == null && _knownTools.ContainsKey(toolName))
+            if (executableFile == null && _knownTools.ContainsKey(toolName.ToLowerInvariant()))
             {
                 var package = new PackageRef
                 {
-                    Uri = _knownTools[toolName],
+                    Uri = _knownTools[toolName.ToLowerInvariant()],
                     GitRef = "master",
                     Folder = null
                 };
 
-                Console.WriteLine("Installing {0}...", _knownTools[toolName]);
+                Console.WriteLine("Installing {0}...", _knownTools[toolName.ToLowerInvariant()]);
                 _packageManager.Resolve(null, package, _hostPlatformDetector.DetectPlatform(), null, false, true);
             }
             else

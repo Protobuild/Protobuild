@@ -3,6 +3,7 @@
     using System.IO;
     using Xunit;
 
+    [Collection("CPlusPlusPotentialSWIGInstallation")]
     public class CPlusPlusSWIGBindingGeneratorWorksTest : ProtobuildTest
     {
         [Fact]
@@ -26,7 +27,7 @@
             {
                 var consoleContents = this.ReadFile(@"Library\Library.Windows.vcxproj");
 
-                Assert.Contains("swig\" -csharp -dllimport Library.dll util.i", consoleContents);
+                Assert.Contains("swig.exe\" -csharp -dllimport Library util.i", consoleContents);
             }
         }
     }

@@ -273,7 +273,12 @@ public class GenerationFunctions
     {
         if (_getKnownToolCached != null)
         {
-            return _getKnownToolCached(toolName);
+            var result = _getKnownToolCached(toolName);
+            if (result == null)
+            {
+                throw new InvalidOperationException("Unable to find tool '" + toolName + "', but it is required for project generation to complete.");
+            }
+            return result;
         }
         var assembly =
             System.Linq.Enumerable.First(AppDomain.CurrentDomain.GetAssemblies(), x => x.FullName.Contains("Protobuild.Internal"));
@@ -284,7 +289,12 @@ public class GenerationFunctions
 
         dynamic knownToolProvider = kernel.Get(assembly.GetType("Protobuild.IKnownToolProvider"));
         _getKnownToolCached = s => knownToolProvider.GetToolExecutablePath(s);
-        return _getKnownToolCached(toolName);
+        var result2 = _getKnownToolCached(toolName);
+        if (result2 == null)
+        {
+            throw new InvalidOperationException("Unable to find tool '" + toolName + "', but it is required for project generation to complete.");
+        }
+        return result2;
     }
 
     public bool PathEndsWith(string path, string ext)
