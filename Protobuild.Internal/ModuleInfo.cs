@@ -182,7 +182,13 @@ namespace Protobuild
 
             foreach (var submodule in this.GetSubmodules(platform))
             {
-                foreach (var definition in submodule.GetDefinitionsRecursively(platform, (relative + '\\' + submodule.Name).Trim('\\')))
+                var current = Environment.CurrentDirectory;
+                var from = this.Path.Replace('\\', '/');
+                var to = submodule.Path.Replace('\\', '/');
+                var subRelativePath = (new Uri(from).MakeRelativeUri(new Uri(to)))
+                    .ToString().Replace('/', '\\');
+
+                foreach (var definition in submodule.GetDefinitionsRecursively(platform, subRelativePath.Trim('\\')))
                 {
                     definitions.Add(definition);
                 }

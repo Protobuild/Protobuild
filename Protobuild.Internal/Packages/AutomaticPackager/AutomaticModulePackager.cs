@@ -549,8 +549,6 @@ namespace Protobuild
                             {
                                 if (assemblyFile.EndsWith(".exe"))
                                 {
-                                    Console.WriteLine("INCLUDING TOOL " + assemblyFile);
-
                                     var binaryEntry = externalProjectDocument.CreateElement("Tool");
                                     binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
                                     binaryEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyFile);
