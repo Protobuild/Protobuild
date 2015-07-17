@@ -21,6 +21,8 @@ namespace Protobuild
 
         private readonly IPackageGlobalTool m_PackageGlobalTool;
 
+        private readonly IPackageRedirector packageRedirector;
+
         public const string ARCHIVE_FORMAT_TAR_LZMA = "tar/lzma";
 
         public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
@@ -35,8 +37,10 @@ namespace Protobuild
             IPackageCache packageCache,
             IPackageLookup packageLookup,
             IPackageLocator packageLocator,
-            IPackageGlobalTool packageGlobalTool)
+            IPackageGlobalTool packageGlobalTool,
+            IPackageRedirector packageRedirector)
         {
+            this.packageRedirector = packageRedirector;
             this.m_PackageCache = packageCache;
             _packageLookup = packageLookup;
             this.m_PackageLocator = packageLocator;
@@ -45,17 +49,24 @@ namespace Protobuild
 
         public void ResolveAll(ModuleInfo module, string platform)
         {
-            if (module.Packages == null || module.Packages.Count == 0)
-            {
-                return;
-            }
-
             Console.WriteLine("Starting resolution of packages...");
 
-            foreach (var submodule in module.Packages)
+            if (module.Packages != null && module.Packages.Count > 0)
             {
-                Console.WriteLine("Resolving: " + submodule.Uri);
-                this.Resolve(module, submodule, platform, null, null);
+                foreach (var submodule in module.Packages)
+                {
+                    Console.WriteLine("Resolving: " + submodule.Uri);
+                    this.Resolve(module, submodule, platform, null, null);
+                }
+            }
+
+            foreach (var submodule in module.GetSubmodules(platform))
+            {
+                Console.WriteLine(
+                    "Invoking package resolution in submodule for " + submodule.Name);
+                submodule.RunProtobuild("-resolve " + platform + " " + packageRedirector.GetRedirectionArguments());
+                Console.WriteLine(
+                    "Finished submodule package resolution for " + submodule.Name);
             }
 
             Console.WriteLine("Package resolution complete.");
