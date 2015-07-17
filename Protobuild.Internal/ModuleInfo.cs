@@ -327,38 +327,67 @@ namespace Protobuild
             {
             }
 
-            if (File.Exists(protobuildPath))
+            for (var attempt = 0; attempt < 3; attempt++)
             {
-                var pi = new ProcessStartInfo
+                if (File.Exists(protobuildPath))
                 {
-                    FileName = protobuildPath,
-                    Arguments = args,
-                    WorkingDirectory = this.Path,
-                    CreateNoWindow = true,
-                    RedirectStandardError = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                };
-                var p = new Process { StartInfo = pi };
-                p.OutputDataReceived += (sender, eventArgs) =>
-                {
-                    if (!string.IsNullOrEmpty(eventArgs.Data))
+                    var pi = new ProcessStartInfo
                     {
-                        Console.WriteLine(eventArgs.Data);
-                    }
-                };
-                p.ErrorDataReceived += (sender, eventArgs) =>
-                {
-                    if (!string.IsNullOrEmpty(eventArgs.Data))
+                        FileName = protobuildPath,
+                        Arguments = args,
+                        WorkingDirectory = this.Path,
+                        CreateNoWindow = true,
+                        RedirectStandardError = true,
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false
+                    };
+                    var p = new Process { StartInfo = pi };
+                    p.OutputDataReceived += (sender, eventArgs) =>
                     {
-                        Console.Error.WriteLine(eventArgs.Data);
+                        if (!string.IsNullOrEmpty(eventArgs.Data))
+                        {
+                            Console.WriteLine(eventArgs.Data);
+                        }
+                    };
+                    p.ErrorDataReceived += (sender, eventArgs) =>
+                    {
+                        if (!string.IsNullOrEmpty(eventArgs.Data))
+                        {
+                            Console.Error.WriteLine(eventArgs.Data);
+                        }
+                    };
+                    try
+                    {
+                        p.Start();
                     }
-                };
-                p.Start();
-                p.BeginOutputReadLine();
-                p.BeginErrorReadLine();
-                p.WaitForExit();
+                    catch (System.ComponentModel.Win32Exception ex)
+                    {
+                        if (ex.Message.Contains("Cannot find the specified file"))
+                        {
+                            // Mono sometimes throws this error even though the
+                            // file does exist on disk.  The best guess is there's
+                            // a race condition between performing chmod on the
+                            // file and Mono actually seeing it as an executable file.
+                            // Show a warning and sleep for a bit before retrying.
+                            if (attempt != 2)
+                            {
+                                Console.WriteLine("WARNING: Unable to execute Protobuild.exe, will retry again...");
+                                System.Threading.Thread.Sleep(2000);
+                                continue;
+                            }
+                            else
+                            {
+                                Console.WriteLine("ERROR: Still unable to execute Protobuild.exe.");
+                                throw;
+                            }
+                        }
+                    }
+                    p.BeginOutputReadLine();
+                    p.BeginErrorReadLine();
+                    p.WaitForExit();
+                    break;
+                }
             }
         }
 
