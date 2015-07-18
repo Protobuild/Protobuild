@@ -182,8 +182,7 @@ namespace Protobuild
 
             foreach (var submodule in this.GetSubmodules(platform))
             {
-                var current = Environment.CurrentDirectory;
-                var from = this.Path.Replace('\\', '/');
+                var from = this.Path.Replace('\\', '/').TrimEnd('/') + "/";
                 var to = submodule.Path.Replace('\\', '/');
                 var subRelativePath = (new Uri(from).MakeRelativeUri(new Uri(to)))
                     .ToString().Replace('/', '\\');
