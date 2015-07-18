@@ -9,7 +9,10 @@ namespace Protobuild
     {
         public void ResolveExternalProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc)
         {
-            var documentsByName = documents.ToDictionary(k => k.DocumentElement.GetAttribute("Name"), v => v);
+            var documentsByName = documents.ToDictionarySafe(
+                k => k.DocumentElement.GetAttribute("Name"),
+                v => v,
+                x => Console.WriteLine("WARNING: There is more than one project with the name " + x.DocumentElement.GetAttribute("Name")));
 
             var modified = true;
             while (modified)
