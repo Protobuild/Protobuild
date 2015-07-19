@@ -86,11 +86,22 @@ namespace Protobuild
                 }
             }
 
+            var packagePaths = module.Packages
+                .Select(x => new DirectoryInfo(System.IO.Path.Combine(module.Path, x.Folder)).FullName)
+                .ToArray();
+
             foreach (var definition in definitions)
             {
                 if (definition.SkipAutopackage)
                 {
                     Console.WriteLine("Skipping: " + definition.Name);
+                    continue;
+                }
+
+                var definitionNormalizedPath = new FileInfo(definition.AbsolutePath).FullName;
+                if (packagePaths.Any(definitionNormalizedPath.StartsWith))
+                {
+                    Console.WriteLine("Skipping: " + definition.Name + " (part of another package)");
                     continue;
                 }
 
