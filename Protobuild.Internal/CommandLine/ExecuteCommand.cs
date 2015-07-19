@@ -65,40 +65,80 @@ namespace Protobuild
             {
                 var platform = this.m_HostPlatformDetector.DetectPlatform();
                 var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-                var definitions = module.GetDefinitionsRecursively(platform);
+                var definitions = module.GetDefinitionsRecursively(platform).ToList();
                 var target = definitions.FirstOrDefault(x => x.Name == execution.ExecuteProjectName);
                 if (target == null)
                 {
-                    var globalToolPath = this.m_PackageGlobalTool.ResolveGlobalToolIfPresent(execution.ExecuteProjectName);
-                    if (globalToolPath == null)
+                    // Check to see if there is any external project definition that provides the tool.
+                    foreach (var definition in definitions)
                     {
-                        Console.WriteLine(
-                            "There is no project definition with name '" + execution.ExecuteProjectName + "'");
-                        return 1;
+                        var document = XDocument.Load(definition.DefinitionPath);
+                        if (document.Root.Name.LocalName == "ExternalProject")
+                        {
+                            foreach (var node in document.Root.Elements().Where(x => x.Name.LocalName == "Tool"))
+                            {
+                                var name = node.Attribute(XName.Get("Name")).Value;
+                                var path = node.Attribute(XName.Get("Path")).Value;
+
+                                if (name == execution.ExecuteProjectName)
+                                {
+                                    executablePath = Path.Combine(definition.ModulePath, path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar));
+                                    break;
+                                }
+                            }
+                        }
                     }
-                    else
+
+                    if (executablePath == null)
                     {
-                        executablePath = globalToolPath;
+                        var globalToolPath = this.m_PackageGlobalTool.ResolveGlobalToolIfPresent(execution.ExecuteProjectName);
+                        if (globalToolPath == null)
+                        {
+                            Console.WriteLine(
+                                "There is no project definition with name '" + execution.ExecuteProjectName + "'");
+                            return 1;
+                        }
+                        else
+                        {
+                            executablePath = globalToolPath;
+                        }
                     }
                 }
                 else
                 {
                     var document = XDocument.Load(target.DefinitionPath);
-                    var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, target, document);
-                    var prefixPath = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, target, document, false);
-                    var directory = new DirectoryInfo(prefixPath);
-                    var subdirectories = directory.GetDirectories();
-                    var debugDirectory = subdirectories.FirstOrDefault(x => x.Name.ToLowerInvariant() == "debug");
-                    if (debugDirectory != null)
+                    if (document.Root.Name.LocalName == "Project")
                     {
-                        executablePath = Path.Combine(debugDirectory.FullName, assemblyName + ".exe");
-                    }
-                    else
-                    {
-                        var firstDirectory = subdirectories.FirstOrDefault();
-                        if (firstDirectory != null)
+                        var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, target, document);
+                        var prefixPath = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, target, document, false);
+                        var directory = new DirectoryInfo(prefixPath);
+                        var subdirectories = directory.GetDirectories();
+                        var debugDirectory = subdirectories.FirstOrDefault(x => x.Name.ToLowerInvariant() == "debug");
+                        if (debugDirectory != null)
                         {
-                            executablePath = Path.Combine(firstDirectory.FullName, assemblyName + ".exe");
+                            executablePath = Path.Combine(debugDirectory.FullName, assemblyName + ".exe");
+                        }
+                        else
+                        {
+                            var firstDirectory = subdirectories.FirstOrDefault();
+                            if (firstDirectory != null)
+                            {
+                                executablePath = Path.Combine(firstDirectory.FullName, assemblyName + ".exe");
+                            }
+                        }
+                    }
+                    else if (document.Root.Name.LocalName == "ExternalProject")
+                    {
+                        foreach (var node in document.Root.Elements().Where(x => x.Name.LocalName == "Tool"))
+                        {
+                            var name = node.Attribute(XName.Get("Name")).Value;
+                            var path = node.Attribute(XName.Get("Path")).Value;
+
+                            if (name == execution.ExecuteProjectName)
+                            {
+                                executablePath = Path.Combine(target.ModulePath, path.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar));
+                                break;
+                            }
                         }
                     }
 
