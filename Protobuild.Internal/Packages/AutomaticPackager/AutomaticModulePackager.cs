@@ -403,6 +403,35 @@ namespace Protobuild
             externalProjectDocument.AppendChild(externalProject);
             externalProject.SetAttribute("Name", definition.Name);
 
+            var externalProjectServices = externalProjectDocument.CreateElement("Services");
+            externalProject.AppendChild(externalProjectServices);
+
+            // Just import all declared services as available, regardless of conflicts or
+            // requirements.  We don't have a clean way of automatically translating
+            // services for packages (it has to be done manually because services can
+            // change the resulting code that's built).  So that things work 95% of time,
+            // just declare all services available for projects included via the automatic
+            // packaging mechanism.
+            var servicesToDeclare = new List<string>();
+            var servicesDeclared = document.Root.Element(XName.Get("Services"));
+            if (servicesDeclared != null)
+            {
+                foreach (var serviceElement in servicesDeclared.Elements().Where(x => x.Name.LocalName == "Service"))
+                {
+                    servicesToDeclare.Add(serviceElement.Attribute(XName.Get("Name")).Value);
+                }
+            }
+
+            foreach (var serviceToDeclare in servicesToDeclare)
+            {
+                var serviceElem = externalProjectDocument.CreateElement("Service");
+                serviceElem.SetAttribute("Name", serviceToDeclare);
+                var defaultForRoot = externalProjectDocument.CreateElement("DefaultForRoot");
+                defaultForRoot.InnerText = "True";
+                serviceElem.AppendChild(defaultForRoot);
+                externalProjectServices.AppendChild(serviceElem);
+            }
+
             var pathPrefix = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, definition, document, true);
             var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, definition, document);
             var outputMode = this.m_ProjectOutputPathCalculator.GetProjectOutputMode(document);
