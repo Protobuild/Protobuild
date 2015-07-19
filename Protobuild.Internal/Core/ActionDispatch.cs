@@ -34,6 +34,7 @@ namespace Protobuild
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
+        /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         public bool PerformAction(
             ModuleInfo module, 
             string action, 
@@ -41,7 +42,8 @@ namespace Protobuild
             string[] enabledServices = null, 
             string[] disabledServices = null, 
             string serviceSpecPath = null,
-            bool debugServiceResolution = false)
+            bool debugServiceResolution = false,
+            bool disablePackageResolution = false)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
@@ -130,7 +132,10 @@ namespace Protobuild
             }
 
             // Resolve submodules as needed.
-            this.m_PackageManager.ResolveAll(module, primaryPlatform);
+            if (!disablePackageResolution)
+            {
+                this.m_PackageManager.ResolveAll(module, primaryPlatform);
+            }
 
             // You can configure the default action for Protobuild in their project
             // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
@@ -141,14 +146,28 @@ namespace Protobuild
             switch (action.ToLower())
             {
                 case "generate":
-                    if (!this.GenerateProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution))
+                    if (!this.GenerateProjectsForPlatform(
+                        module, 
+                        primaryPlatform,
+                        enabledServices,
+                        disabledServices,
+                        serviceSpecPath, 
+                        debugServiceResolution,
+                        disablePackageResolution))
                     {
                         return false;
                     }
 
                     break;
                 case "resync":
-                    if (!this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution))
+                    if (!this.ResyncProjectsForPlatform(
+                        module, 
+                        primaryPlatform, 
+                        enabledServices, 
+                        disabledServices, 
+                        serviceSpecPath, 
+                        debugServiceResolution,
+                        disablePackageResolution))
                     {
                         return false;
                     }
@@ -165,7 +184,14 @@ namespace Protobuild
                     break;
                 default:
                     Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
-                    return this.ResyncProjectsForPlatform(module, primaryPlatform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution);
+                    return this.ResyncProjectsForPlatform(
+                        module,
+                        primaryPlatform,
+                        enabledServices,
+                        disabledServices,
+                        serviceSpecPath,
+                        debugServiceResolution,
+                        disablePackageResolution);
             }
 
             // Now iterate through the multiple platforms specified.
@@ -180,7 +206,10 @@ namespace Protobuild
                 }
 
                 // Resolve submodules as needed.
-                this.m_PackageManager.ResolveAll(module, platformIter);
+                if (!disablePackageResolution)
+                {
+                    this.m_PackageManager.ResolveAll(module, platformIter);
+                }
 
                 switch (action.ToLower())
                 {
@@ -188,7 +217,14 @@ namespace Protobuild
                     case "resync":
                         // We do a generate under resync mode since we only want the primary platform
                         // to have synchronisation done (and it has had above).
-                        if (!this.GenerateProjectsForPlatform(module, platformIter, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution))
+                        if (!this.GenerateProjectsForPlatform(
+                            module,
+                            platformIter,
+                            enabledServices,
+                            disabledServices,
+                            serviceSpecPath,
+                            debugServiceResolution,
+                            disablePackageResolution))
                         {
                             return false;
                         }
@@ -220,15 +256,25 @@ namespace Protobuild
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
+        /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         public bool DefaultAction(
             ModuleInfo module, 
             string platform = null, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
             string serviceSpecPath = null,
-            bool debugServiceResolution = false)
+            bool debugServiceResolution = false,
+            bool disablePackageResolution = false)
         {
-            return PerformAction(module, module.DefaultAction, platform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution);
+            return PerformAction(
+                module, 
+                module.DefaultAction,
+                platform,
+                enabledServices,
+                disabledServices, 
+                serviceSpecPath, 
+                debugServiceResolution,
+                disablePackageResolution);
         }
 
         /// <summary>
@@ -241,13 +287,15 @@ namespace Protobuild
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
+        /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         private bool ResyncProjectsForPlatform(
             ModuleInfo module, 
             string platform, 
             string[] enabledServices = null, 
             string[] disabledServices = null, 
             string serviceSpecPath = null,
-            bool debugServiceResolution = false)
+            bool debugServiceResolution = false,
+            bool disablePackageResolution = false)
         {
             if (module.DisableSynchronisation ?? false)
             {
@@ -263,7 +311,14 @@ namespace Protobuild
                     return false;
                 }
 
-                return GenerateProjectsForPlatform(module, platform, enabledServices, disabledServices, serviceSpecPath, debugServiceResolution);
+                return GenerateProjectsForPlatform(
+                    module,
+                    platform,
+                    enabledServices,
+                    disabledServices,
+                    serviceSpecPath,
+                    debugServiceResolution,
+                    disablePackageResolution);
             }
         }
 
@@ -304,13 +359,15 @@ namespace Protobuild
         /// <param name="disabledServices">A list of disabled services.</param>
         /// <param name="serviceSpecPath">The service specification path.</param>
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
+        /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         private bool GenerateProjectsForPlatform(
             ModuleInfo module,
             string platform,
             string[] enabledServices = null,
             string[] disabledServices = null,
             string serviceSpecPath = null,
-            bool debugServiceResolution = false)
+            bool debugServiceResolution = false,
+            bool disablePackageResolution = false)
         {
             if (string.IsNullOrWhiteSpace(platform)) 
             {
@@ -326,6 +383,7 @@ namespace Protobuild
             task.DisableServices = disabledServices;
             task.ServiceSpecPath = serviceSpecPath;
             task.DebugServiceResolution = debugServiceResolution;
+            task.DisablePackageResolution = disablePackageResolution;
             return task.Execute();
         }
 

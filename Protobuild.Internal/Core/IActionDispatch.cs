@@ -11,7 +11,8 @@ namespace Protobuild
             string[] enabledServices = null, 
             string[] disabledServices = null, 
             string serviceSpecPath = null,
-            bool debugServiceResolution = false);
+            bool debugServiceResolution = false,
+            bool disablePackageResolution = false);
 
         bool DefaultAction(
             ModuleInfo module, 
@@ -19,7 +20,8 @@ namespace Protobuild
             string[] enabledServices = null, 
             string[] disabledServices = null, 
             string serviceSpecPath = null,
-            bool debugServiceResolution = false);
+            bool debugServiceResolution = false,
+            bool disablePackageResolution = false);
     }
 }
 

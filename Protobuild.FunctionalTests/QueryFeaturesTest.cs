@@ -9,9 +9,10 @@
         {
             this.SetupTest("QueryFeatures");
 
-            var featureList = this.OtherMode("query-features", capture: true).Item1.Split('\n');
+            var featureList = this.OtherMode("query-features", capture: true).Item1.Split(new[] { '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
             var expectedFeatureList = new[] {
                 "query-features",
+                "no-resolve",
             };
 
             Assert.Equal(expectedFeatureList, featureList);

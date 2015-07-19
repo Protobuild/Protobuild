@@ -66,6 +66,8 @@ namespace Protobuild.Tasks
 
         public bool DebugServiceResolution { get; set; }
 
+        public bool DisablePackageResolution { get; set; }
+
         public override bool Execute()
         {
             if (string.Compare(this.Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
@@ -166,7 +168,12 @@ namespace Protobuild.Tasks
             {
                 this.LogMessage(
                     "Invoking submodule generation for " + submodule.Name);
-                submodule.RunProtobuild("-generate " + this.Platform + " -spec " + serviceSpecPath + " " + this.m_PackageRedirector.GetRedirectionArguments());
+                var noResolve = submodule.HasProtobuildFeature("no-resolve") ? " -no-resolve" : string.Empty;
+                submodule.RunProtobuild(
+                    "-generate " + this.Platform + 
+                    " -spec " + serviceSpecPath + 
+                    " " + this.m_PackageRedirector.GetRedirectionArguments() + 
+                    noResolve);
                 this.LogMessage(
                     "Finished submodule generation for " + submodule.Name);
             }

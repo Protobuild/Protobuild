@@ -1,28 +1,27 @@
 ﻿using System;
+using System.IO;
 
 namespace Protobuild
 {
-    public class QueryFeaturesCommand : ICommand
+    public class NoResolveCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {
-            pendingExecution.SetCommandToExecuteIfNotDefault(this);
+            pendingExecution.DisablePackageResolution = true;
         }
 
         public int Execute(Execution execution)
         {
-            Console.WriteLine("query-features");
-            Console.WriteLine("no-resolve");
-            return 0;
+            throw new NotSupportedException();
         }
 
         public string GetDescription()
         {
             return @"
-Returns a newline-delimited list of features this version of
-Protobuild supports.  This is used by Protobuild to determine
-what functionality submodules support so that they can be
-invoked correctly.
+Prevents package resolution occurring when any of the standard
+actions are used.  This option is used when Protobuild calls
+into submodules, as package resolution has already occurred
+for submodules during the main package resolution step.
 ";
         }
 
