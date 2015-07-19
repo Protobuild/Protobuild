@@ -57,6 +57,8 @@ namespace Protobuild
 
         public bool DebugServiceResolution { get; set; }
 
+        public bool DisablePackageResolution { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)

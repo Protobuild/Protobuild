@@ -44,4 +44,6 @@ TestSummary.htm
 /Protobuild.FunctionalTests/TestData/CPlusPlusSWIGBindingGeneratorWorks/Library/Library.Windows.md.pc
 *.opensdf
 UpgradeLog.htm
-Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerationFunctions.cs
+/Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerationFunctions.cs
+/Protobuild.FunctionalTests/TestData/PackageResolutionDoesNotOccurInSubmodulesTwice/Package/
+/Protobuild.FunctionalTests/TestData/PackageResolutionDoesNotOccurInSubmodulesTwice/Submodule/Package/.redirect

@@ -69,9 +69,9 @@ namespace Protobuild.Tests
             }
         }
 
-        protected void Generate(string platform = null, string args = null, bool expectFailure = false)
+        protected Tuple<string, string> Generate(string platform = null, string args = null, bool expectFailure = false, bool capture = false)
         {
-            this.OtherMode("generate", (platform ?? "Windows") + " " + args, expectFailure);
+            return this.OtherMode("generate", (platform ?? "Windows") + " " + args, expectFailure, capture: capture);
         }
 
         protected Tuple<string, string> OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true, bool capture = false)
@@ -101,7 +101,7 @@ namespace Protobuild.Tests
                 {
                     if (capture)
                     {
-                        stdout += eventArgs.Data;
+                        stdout += eventArgs.Data + "\n";
                     }
                     else
                     {
@@ -115,7 +115,7 @@ namespace Protobuild.Tests
                 {
                     if (capture)
                     {
-                        stderr += eventArgs.Data;
+                        stderr += eventArgs.Data + "\n";
                     }
                     else
                     {

@@ -94,6 +94,7 @@
     <Compile Include="PackageLocationTwoNestedSubmoduleSamePackageTest.cs" />
     <Compile Include="PackageLocationTwoSubmoduleSamePackageTest.cs" />
     <Compile Include="PackageRedirectionToLocalPathTest.cs" />
+    <Compile Include="PackageResolutionDoesNotOccurInSubmodulesTwiceTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
@@ -340,6 +341,12 @@
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Module.xml" />
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Projects\Console.definition" />
     <None Include="TestData\PackageRedirectionToLocalPath\Console\Program.cs" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Build\Module.xml" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Console\Program.cs" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Build\Module.xml" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Build\Projects\Library.definition" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Library\Class.cs" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputDefault\Test\Program.cs" />

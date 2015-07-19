@@ -34,7 +34,8 @@ namespace Protobuild
                     execution.EnabledServices.ToArray(),
                     execution.DisabledServices.ToArray(),
                     execution.ServiceSpecificationPath,
-                    execution.DebugServiceResolution)
+                    execution.DebugServiceResolution,
+                    execution.DisablePackageResolution)
                     ? 0
                     : 1;
             }
