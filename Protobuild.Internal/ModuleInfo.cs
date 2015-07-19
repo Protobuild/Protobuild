@@ -289,25 +289,52 @@ namespace Protobuild
             writer.Close();
         }
 
+        private string[] featureCache;
+
+        /// <summary>
+        /// Determines whether the instance of Protobuild in this module
+        /// has a specified feature.
+        /// </summary>
+        public bool HasProtobuildFeature(string feature)
+        {
+            if (featureCache == null)
+            {
+                var result = this.RunProtobuild("--query-features", true);
+                var exitCode = result.Item1;
+                var stdout = result.Item2;
+
+                if (exitCode != 0 || stdout.Contains("Protobuild.exe [options]"))
+                {
+                    featureCache = new string[0];
+                }
+
+                featureCache = stdout.Split('\n');
+            }
+
+            return featureCache.Contains(feature);
+        }
+
         /// <summary>
         /// Runs the instance of Protobuild.exe present in the module.
         /// </summary>
         /// <param name="args">The arguments to pass to Protobuild.</param>
-        public void RunProtobuild(string args)
+        public Tuple<int, string, string> RunProtobuild(string args, bool capture = false)
         {
-            if (ExecEnvironment.RunProtobuildInProcess)
+            if (ExecEnvironment.RunProtobuildInProcess && !capture)
             {
                 var old = Environment.CurrentDirectory;
                 try
                 {
                     Environment.CurrentDirectory = this.Path;
-                    ExecEnvironment.InvokeSelf(args.Split(' '));
+                    return new Tuple<int, string, string>(
+                        ExecEnvironment.InvokeSelf(args.Split(' ')),
+                        string.Empty,
+                        string.Empty);
                 }
                 finally
                 {
                     Environment.CurrentDirectory = old;
                 }
-                return;
             }
 
             var protobuildPath = System.IO.Path.Combine(this.Path, "Protobuild.exe");
@@ -332,6 +359,9 @@ namespace Protobuild
             {
             }
 
+            var stdout = string.Empty;
+            var stderr = string.Empty;
+
             for (var attempt = 0; attempt < 3; attempt++)
             {
                 if (File.Exists(protobuildPath))
@@ -352,14 +382,28 @@ namespace Protobuild
                     {
                         if (!string.IsNullOrEmpty(eventArgs.Data))
                         {
-                            Console.WriteLine(eventArgs.Data);
+                            if (capture)
+                            {
+                                stdout += eventArgs.Data + "\n";
+                            }
+                            else
+                            {
+                                Console.WriteLine(eventArgs.Data);
+                            }
                         }
                     };
                     p.ErrorDataReceived += (sender, eventArgs) =>
                     {
                         if (!string.IsNullOrEmpty(eventArgs.Data))
                         {
-                            Console.Error.WriteLine(eventArgs.Data);
+                            if (capture)
+                            {
+                                stderr += eventArgs.Data + "\n";
+                            }
+                            else
+                            {
+                                Console.Error.WriteLine(eventArgs.Data);
+                            }
                         }
                     };
                     try
@@ -391,9 +435,11 @@ namespace Protobuild
                     p.BeginOutputReadLine();
                     p.BeginErrorReadLine();
                     p.WaitForExit();
-                    break;
+                    return new Tuple<int, string, string>(p.ExitCode, stdout, stderr);
                 }
             }
+
+            return new Tuple<int, string, string>(1, string.Empty, string.Empty);
         }
 
         /// <summary>

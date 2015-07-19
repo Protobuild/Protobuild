@@ -99,6 +99,7 @@
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
+    <Compile Include="QueryFeaturesTest.cs" />
     <Compile Include="ResyncPreventedWhenSyncIsDisabledTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
     <Compile Include="ServicesDefaultForRootTest.cs" />
@@ -353,6 +354,9 @@
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleA\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\ConsoleB\Program.cs" />
+    <None Include="TestData\QueryFeatures\Build\Module.xml" />
+    <None Include="TestData\QueryFeatures\Build\Projects\Console.definition" />
+    <None Include="TestData\QueryFeatures\Console\Program.cs" />
     <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Build\Module.xml" />
     <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Build\Projects\Console.definition" />
     <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Console\Program.cs" />
