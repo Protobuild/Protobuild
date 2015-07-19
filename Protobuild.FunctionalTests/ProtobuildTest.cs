@@ -74,12 +74,15 @@ namespace Protobuild.Tests
             this.OtherMode("generate", (platform ?? "Windows") + " " + args, expectFailure);
         }
 
-        protected void OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true)
+        protected Tuple<string, string> OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true, bool capture = false)
         {
             if (purge)
             {
                 this.PurgeSolutionsAndProjects(this.m_TestLocation);
             }
+
+            var stdout = string.Empty;
+            var stderr = string.Empty;
 
             var pi = new ProcessStartInfo
             {
@@ -96,14 +99,28 @@ namespace Protobuild.Tests
             {
                 if (!string.IsNullOrEmpty(eventArgs.Data))
                 {
-                    Console.WriteLine(eventArgs.Data);
+                    if (capture)
+                    {
+                        stdout += eventArgs.Data;
+                    }
+                    else
+                    {
+                        Console.WriteLine(eventArgs.Data);
+                    }
                 }
             };
             p.ErrorDataReceived += (sender, eventArgs) =>
             {
                 if (!string.IsNullOrEmpty(eventArgs.Data))
                 {
-                    Console.WriteLine(eventArgs.Data);
+                    if (capture)
+                    {
+                        stderr += eventArgs.Data;
+                    }
+                    else
+                    {
+                        Console.WriteLine(eventArgs.Data);
+                    }
                 }
             };
             p.Start();
@@ -114,8 +131,7 @@ namespace Protobuild.Tests
             if (p.ExitCode == 134)
             {
                 // SIGSEGV due to Mono bugs, try again.
-                this.OtherMode(mode, args, expectFailure, purge);
-                return;
+                return this.OtherMode(mode, args, expectFailure, purge, capture);
             }
 
             if (expectFailure)
@@ -126,6 +142,8 @@ namespace Protobuild.Tests
             {
                 Xunit.Assert.True(0 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to succeed, but got failure exit code.");
             }
+
+            return new Tuple<string, string>(stdout, stderr);
         }
 
         protected string ReadFile(string path)

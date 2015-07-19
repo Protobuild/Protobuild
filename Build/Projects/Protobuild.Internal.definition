@@ -114,6 +114,7 @@
     <Compile Include="CommandLine\PackageRootCommand.cs" />
     <Compile Include="CommandLine\PackPackageCommand.cs" />
     <Compile Include="CommandLine\PushPackageCommand.cs" />
+    <Compile Include="CommandLine\QueryFeaturesCommand.cs" />
     <Compile Include="CommandLine\RedirectPackageCommand.cs" />
     <Compile Include="CommandLine\RepushPackageCommand.cs" />
     <Compile Include="CommandLine\ResolveCommand.cs" />

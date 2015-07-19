@@ -10,17 +10,22 @@ namespace Protobuild
 
         public static int SelfInvokeCounter = 0;
 
-        public static void InvokeSelf(string[] args)
+        public static int InvokeSelf(string[] args)
         {
             SelfInvokeCounter++;
             try
             {
                 MainClass.Main(args);
+                return 0;
             }
-            catch (SelfInvokeExitException)
+            catch (SelfInvokeExitException ex)
             {
+                return ex.ExitCode;
             }
-            SelfInvokeCounter--;
+            finally
+            {
+                SelfInvokeCounter--;
+            }
         }
 
         public static void Exit(int exitCode)
@@ -31,12 +36,18 @@ namespace Protobuild
             }
             else
             {
-                throw new SelfInvokeExitException();
+                throw new SelfInvokeExitException(exitCode);
             }
         }
 
         public class SelfInvokeExitException : Exception
         {
+            public int ExitCode { get; private set; }
+
+            public SelfInvokeExitException(int exitCode)
+            {
+                this.ExitCode = exitCode;
+            }
         }
     }
 }
