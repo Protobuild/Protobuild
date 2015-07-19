@@ -76,7 +76,7 @@ namespace Protobuild
         {
             if (module != null && reference.Folder != null)
             {
-                var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference);
+                var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference, platform);
                 if (existingPath != null)
                 {
                     Console.WriteLine("Found an existing working copy of this package at " + existingPath);

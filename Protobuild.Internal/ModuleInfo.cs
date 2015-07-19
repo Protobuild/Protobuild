@@ -249,8 +249,21 @@ namespace Protobuild
 
             if (platform != null)
             {
-                foreach (var directory in new DirectoryInfo(this.Path).GetDirectories())
+                foreach (var directoryInit in new DirectoryInfo(this.Path).GetDirectories())
                 {
+                    var directory = directoryInit;
+
+                    if (File.Exists(System.IO.Path.Combine(directory.FullName, ".redirect")))
+                    {
+                        // This is a redirected submodule (due to package resolution).  Load the
+                        // module from it's actual path.
+                        using (var reader = new StreamReader(System.IO.Path.Combine(directory.FullName, ".redirect")))
+                        {
+                            var targetPath = reader.ReadToEnd().Trim();
+                            directory = new DirectoryInfo(targetPath);
+                        }
+                    }
+
                     var platformDirectory = new DirectoryInfo(System.IO.Path.Combine(directory.FullName, platform));
 
                     if (!platformDirectory.Exists)
