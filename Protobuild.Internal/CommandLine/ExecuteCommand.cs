@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace Protobuild
 {
@@ -45,8 +46,18 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
+            var assemblyPath = Assembly.GetEntryAssembly().Location;
+            var fileInfo = new FileInfo(assemblyPath);
+            var modulePath = fileInfo.DirectoryName;
+            if (modulePath == null)
+            {
+                Console.WriteLine(
+                    "Unable to determine the location of Protobuild.");
+                return 1;
+            }
+
             string executablePath = null;
-            if (!File.Exists(Path.Combine("Build", "Module.xml")))
+            if (!File.Exists(Path.Combine(modulePath, "Build", "Module.xml")))
             {
                 // We can only run global tools.
                 var globalToolPath = this.m_PackageGlobalTool.ResolveGlobalToolIfPresent(execution.ExecuteProjectName);
@@ -64,7 +75,7 @@ namespace Protobuild
             else
             {
                 var platform = this.m_HostPlatformDetector.DetectPlatform();
-                var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                var module = ModuleInfo.Load(Path.Combine(modulePath, "Build", "Module.xml"));
                 var definitions = module.GetDefinitionsRecursively(platform).ToList();
                 var target = definitions.FirstOrDefault(x => x.Name == execution.ExecuteProjectName);
                 if (target == null)
@@ -111,19 +122,27 @@ namespace Protobuild
                     {
                         var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, target, document);
                         var prefixPath = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, target, document, false);
-                        var directory = new DirectoryInfo(prefixPath);
+                        var directory = new DirectoryInfo(Path.Combine(modulePath, prefixPath));
                         var subdirectories = directory.GetDirectories();
                         var debugDirectory = subdirectories.FirstOrDefault(x => x.Name.ToLowerInvariant() == "debug");
-                        if (debugDirectory != null)
+                        if (debugDirectory != null && File.Exists(Path.Combine(debugDirectory.FullName, assemblyName + ".exe")))
                         {
                             executablePath = Path.Combine(debugDirectory.FullName, assemblyName + ".exe");
                         }
                         else
                         {
-                            var firstDirectory = subdirectories.FirstOrDefault();
-                            if (firstDirectory != null)
+                            string tempPath = null;
+                            foreach (var subdirectory in subdirectories)
                             {
-                                executablePath = Path.Combine(firstDirectory.FullName, assemblyName + ".exe");
+                                tempPath = Path.Combine(subdirectory.FullName, assemblyName + ".exe");
+                                if (File.Exists(tempPath))
+                                {
+                                    break;
+                                }
+                            }
+                            if (tempPath != null && File.Exists(tempPath))
+                            {
+                                executablePath = tempPath;
                             }
                         }
                     }
