@@ -1,5 +1,6 @@
 ﻿param(
-    [switch] [bool] $NoGen)
+    [switch] [bool] $NoGen,
+    [switch] [bool] $NoTest)
 
 $ErrorActionPreference = 'Stop'
 
@@ -68,11 +69,13 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-echo "Running tests..."
-.\Protobuild.exe --execute xunit.console Protobuild.UnitTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.UnitTests.dll Protobuild.FunctionalTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.FunctionalTests.dll -noshadow -html TestSummary.htm
-if ($LASTEXITCODE -ne 0) {
-    echo "One or more tests failed.  See the test report in TestSummary.htm"
-    exit 1
+if (!$NoTest) {
+    echo "Running tests..."
+    .\Protobuild.exe --execute xunit.console Protobuild.UnitTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.UnitTests.dll Protobuild.FunctionalTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.FunctionalTests.dll -noshadow -html TestSummary.htm
+    if ($LASTEXITCODE -ne 0) {
+        echo "One or more tests failed.  See the test report in TestSummary.htm"
+        exit 1
+    }
 }
 
 echo "Copying built Protobuild to root of repository..."
