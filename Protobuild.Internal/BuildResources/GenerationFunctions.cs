@@ -364,6 +364,27 @@ public class GenerationFunctions
     {
         return Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(input));
     }
-    
+   
+    public string WarnForConcretePCLUsage(string platform)
+    {
+        if (platform == "PCL")
+        {
+            return string.Empty;
+        }
+
+        Console.WriteLine(
+          "WARNING: This project is being built as a PCL (portable class " + 
+          "library) for the purpose of concrete code implementation, even " +
+          "though the current platform is '" + platform + "'.  Portable " +
+          "class library support may not be installed by default " +
+          "on end-user machines and this may result in run-time errors or " +
+          "crashes when executing the code.  If you encounter compile-time " +
+          "errors when building the solution, ensure you have PCL support " +
+          "installed on your development machine.  Protobuild STRONGLY " +
+          "ADVISES THAT YOU DO NOT USE PORTABLE CLASS LIBRARIES, as their " +
+          "support is not guarenteed on less-tested platforms.");
+        return string.Empty;
+    }
+
     // **end**
 }

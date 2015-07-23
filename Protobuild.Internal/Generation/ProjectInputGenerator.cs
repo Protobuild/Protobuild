@@ -178,6 +178,14 @@ namespace Protobuild
                     {
                         if (property.Name.ToLower() == "property")
                         {
+                            if (property.GetAttribute("Name") == null)
+                            {
+                                throw new Exception(
+                                    "A property is missing the Name attribute in the '" + 
+                                    projectDoc.DocumentElement.GetAttribute("Name") + 
+                                    "' project.");
+                            }
+
                             var nodeName = doc.CreateElement(property.GetAttribute("Name"));
                             nodeName.AppendChild(doc.CreateTextNode(
                                 property.GetAttribute("Value")));

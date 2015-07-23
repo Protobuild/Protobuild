@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Library" Path="Library" Type="Library">
+  <Properties>
+    <Property Name="ForcePCL" Value="True" />
+  </Properties>
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Files>
+    <Compile Include="MyClass.cs" />
+  </Files>
+</Project>
