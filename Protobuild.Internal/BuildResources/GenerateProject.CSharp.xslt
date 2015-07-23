@@ -83,6 +83,12 @@
       </xsl:when>
       <xsl:otherwise>
         <xsl:choose>
+          <xsl:when test="user:IsTrue(/Input/Properties/ForcePCL)">
+            <xsl:value-of select="user:WarnForConcretePCLUsage(/Input/Generation/Platform)" />
+            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+            <TargetFrameworkProfile>Profile136</TargetFrameworkProfile>
+            <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+          </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
             <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
           </xsl:when>
@@ -103,7 +109,7 @@
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'PCL'">
             <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-            <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+            <TargetFrameworkProfile>Profile136</TargetFrameworkProfile>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>
           <xsl:otherwise>
@@ -127,7 +133,7 @@
           <xsl:value-of select="/Input/Properties/FrameworkVersions/Profile" />
         </TargetFrameworkProfile>
       </xsl:when>
-      <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'PSMobile' or /Input/Generation/Platform = 'PCL'">
+      <xsl:when test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'PSMobile' or /Input/Generation/Platform = 'PCL' or user:IsTrue(/Input/Properties/ForcePCL)">
       </xsl:when>
       <xsl:otherwise>
         <TargetFrameworkProfile></TargetFrameworkProfile>
@@ -769,7 +775,7 @@
         <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
           <xsl:text>12.0</xsl:text>
         </xsl:when>
-        <xsl:when test="/Input/Generation/Platform = 'PCL'">
+        <xsl:when test="/Input/Generation/Platform = 'PCL' or user:IsTrue(/Input/Properties/ForcePCL)">
           <xsl:text>12.0</xsl:text>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'Windows' or 
@@ -798,7 +804,7 @@
       DefaultTargets="Build"
       xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="{$ToolsVersion}">
 
-      <xsl:if test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81' or /Input/Generation/Platform = 'PCL'">
+      <xsl:if test="/Input/Generation/Platform = 'Windows8' or /Input/Generation/Platform = 'WindowsPhone81' or /Input/Generation/Platform = 'PCL' or user:IsTrue(/Input/Properties/ForcePCL)">
         <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
       </xsl:if>
 
@@ -828,6 +834,12 @@
           <xsl:when test="$project/@Type = 'Website'">
             <ProjectTypeGuids>
               <xsl:text>{349C5851-65DF-11DA-9384-00065B846F21};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'PCL' or user:IsTrue(/Input/Properties/ForcePCL)">
+            <ProjectTypeGuids>
+              <xsl:text>{786C830F-07A1-408B-BD7F-6EE04809D6DB};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
@@ -885,12 +897,6 @@
             <ProjectTypeGuids>
               <xsl:text>{76F1466A-8B6D-4E39-A767-685A06062A39};</xsl:text>
               <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
-            </ProjectTypeGuids>
-          </xsl:when>
-          <xsl:when test="/Input/Generation/Platform = 'PCL'">
-            <ProjectTypeGuids>
-              <xsl:text>{786C830F-07A1-408B-BD7F-6EE04809D6DB};</xsl:text>
-              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
           <xsl:otherwise>
@@ -958,7 +964,7 @@
           </xsl:choose>
         </RootNamespace>
         <AssemblyName><xsl:copy-of select="$assembly_name" /></AssemblyName>
-        <xsl:if test="/Input/Generation/Platform != 'PCL'">
+        <xsl:if test="/Input/Generation/Platform != 'PCL' and not(user:IsTrue(/Input/Generation/ForcePCL))">
           <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         </xsl:if>
         <NoWarn><xsl:value-of select="/Input/Properties/NoWarn" /></NoWarn>
@@ -2062,6 +2068,9 @@
       </ItemGroup>
 
       <xsl:choose>
+        <xsl:when test="/Input/Generation/Platform = 'PCL' or user:IsTrue(/Input/Properties/ForcePCL)">
+          <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+        </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'Android' or /Input/Generation/Platform = 'Ouya'">
           <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
         </xsl:when>
@@ -2098,9 +2107,6 @@
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
           <Import Project="$(MSBuildExtensionsPath)\Sce\Sce.Psm.CSharp.targets" />
-        </xsl:when>
-        <xsl:when test="/Input/Generation/Platform = 'PCL'">
-          <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'iOS' and not(user:IsTrue(/Input/Properties/UseLegacyiOSAPI))">
           <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
