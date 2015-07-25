@@ -83,6 +83,7 @@ namespace Protobuild
 
             var packagePath = new DirectoryInfo(tempFolder).GetFiles("*.nuspec").First().FullName;
             var libraryReferences = new Dictionary<string, string>();
+            var packageDependencies = new Dictionary<string, string>();
 
             // Use the nuspec file if it exists.
             List<string> references = new List<string>();
@@ -105,6 +106,23 @@ namespace Protobuild
                             .Select(x => x.Attributes["file"].Value)
                             .ToList();
                 }
+
+                // If there are dependencies specified, store them and convert them to
+                // Protobuild references, and reference them in the Module.xml file.
+                if (
+                    packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                    .Count(x => x.Name == "dependencies") > 0)
+                {
+                    packageDependencies =
+                        packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                            .First(x => x.Name == "dependencies")
+                            .ChildNodes.OfType<XmlElement>()
+                            .Where(x => x.Name == "dependency")
+                            .ToDictionarySafe(
+                                k => k.Attributes["id"].Value,
+                                v => v.Attributes["version"].Value,
+                                c => Console.WriteLine("WARNING: More than one dependency on " + c + " in NuGet package."));
+                }
             }
 
             // Determine the priority of the frameworks that we want to target
@@ -123,9 +141,12 @@ namespace Protobuild
                 "=20",
                 "=11",
                 "=",
+                "=net45",
+                "=Net45",
 
                 // Substring matches
                 "?net4",
+                "?Net4",
                 "?MonoAndroid",
             };
 
@@ -273,14 +294,32 @@ namespace Protobuild
             {
                 var binaryReference = document.CreateElement("Binary");
                 binaryReference.SetAttribute("Name", kv.Key);
-                binaryReference.SetAttribute("Path", kv.Value.Substring(tempFolder.Length).TrimStart(new[] { '/', '\\' }));
+                binaryReference.SetAttribute("Path", kv.Value.Substring(tempFolder.Length).TrimStart(new[] { '/', '\\' }).Replace("%2B", "-"));
                 externalProject.AppendChild(binaryReference);
+            }
+            foreach (var package in packageDependencies)
+            {
+                var externalReference = document.CreateElement("Reference");
+                externalReference.SetAttribute("Include", package.Key);
+                externalProject.AppendChild(externalReference);
             }
             document.Save(Path.Combine(tempFolder, "_ProtobuildExternalProject.xml"));
 
             Console.WriteLine("Generating module...");
             var generatedModule = new ModuleInfo();
             generatedModule.Name = packageName;
+            generatedModule.Packages = new List<PackageRef>();
+
+            foreach (var package in packageDependencies)
+            {
+                generatedModule.Packages.Add(new PackageRef
+                    {
+                        Uri = repoUrl.Replace("http://", "http-nuget://").Replace("https://", "https-nuget://") + "|" + package.Key,
+                        GitRef = package.Value.TrimStart('[').TrimEnd(']'),
+                        Folder = package.Key
+                    });
+            }
+
             generatedModule.Save(Path.Combine(tempFolder, "_ProtobuildModule.xml"));
 
             Console.WriteLine("Converting to a Protobuild package...");
@@ -290,7 +329,11 @@ namespace Protobuild
 
             foreach (var kv in libraryReferences)
             {
-                filter.ApplyInclude(Regex.Escape(kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/')));
+                filter.ApplyInclude(
+                    Regex.Escape(kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/')));
+                filter.ApplyRewrite(
+                    Regex.Escape(kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/')),
+                    kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/').Replace("%2B", "-"));
             }
 
             filter.ApplyInclude("_ProtobuildExternalProject\\.xml");
