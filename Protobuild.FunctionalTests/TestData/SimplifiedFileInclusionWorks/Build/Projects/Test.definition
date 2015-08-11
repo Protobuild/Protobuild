@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Test" Path="Test" Type="Console">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+    <Content Include="Program.cs" />
+    <None Include="Program.cs" />
+    <EmbeddedResource Include="Program.cs" />
+    <EmbeddedNativeLibrary Include="Program.cs" />
+    <EmbeddedShaderProgram Include="Program.cs" />
+    <ShaderProgram Include="Program.cs" />
+    <ApplicationDefinition Include="Program.cs" />
+    <Page Include="Program.cs" />
+    <AppxManifest Include="Program.cs" />
+    <BundleResource Include="Program.cs" />
+    <InterfaceDefinition Include="Program.cs" />
+    <AndroidResource Include="Program.cs" />
+    <SplashScreen Include="Program.cs" />
+    <Resource Include="Program.cs" />
+    <XamarinComponentReference Include="Program.cs" />
+  </Files>
+</Project>
