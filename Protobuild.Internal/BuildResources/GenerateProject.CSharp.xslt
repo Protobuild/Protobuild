@@ -1415,51 +1415,52 @@
         </xsl:for-each>
       </ItemGroup>
 
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/Compile">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
+      <xsl:variable name="item_types">
+        <ItemType>Compile</ItemType>
+        <ItemType>Content</ItemType>
+        <ItemType>None</ItemType>
+        <ItemType>EmbeddedResource</ItemType>
+        <ItemType>EmbeddedNativeLibrary</ItemType>
+        <ItemType>EmbeddedShaderProgram</ItemType>
+        <ItemType>ShaderProgram</ItemType>
+        <ItemType>ApplicationDefinition</ItemType>
+        <ItemType>Page</ItemType>
+        <ItemType>AppxManifest</ItemType>
+        <ItemType>BundleResource</ItemType>
+        <ItemType>InterfaceDefinition</ItemType>
+        <ItemType>AndroidResource</ItemType>
+        <ItemType>SplashScreen</ItemType>
+        <ItemType>Resource</ItemType>
+        <ItemType>XamarinComponentReference</ItemType>
+      </xsl:variable>
 
+      <xsl:for-each select="msxsl:node-set($item_types)/*">
+        <xsl:variable name="item_type" select="./text()" />
+        <ItemGroup>
+          <xsl:for-each select="$project/Files/*[name()=$item_type]">
+            <xsl:if test="user:ProjectAndServiceIsActive(
+                ./Platforms,
+                ./IncludePlatforms,
+                ./ExcludePlatforms,
+                ./Services,
+                ./IncludeServices,
+                ./ExcludeServices,
+                /Input/Generation/Platform,
+                /Input/Services/ActiveServicesNames)">
+              <xsl:element
+                name="{name()}"
+                namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+                <xsl:attribute name="Include">
+                  <xsl:value-of select="@Include" />
+                </xsl:attribute>
+                <xsl:apply-templates select="node()"/>
+              </xsl:element>
+            </xsl:if>
+          </xsl:for-each>
+        </ItemGroup>
+      </xsl:for-each>
+      
       <ItemGroup>
-        <xsl:for-each select="$project/Files/None">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
@@ -1619,98 +1620,6 @@
         </xsl:for-each>
       </ItemGroup>
 
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/Content">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/EmbeddedResource">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/EmbeddedNativeLibrary">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/EmbeddedShaderProgram">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
       <xsl:if test="/Input/Generation/Platform = 'Web'">
         <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console' or $project/@Type = 'GUI' or $project/@Type = 'GTK'">
           <ItemGroup>
@@ -1732,236 +1641,6 @@
           </ItemGroup>
         </xsl:if>
       </xsl:if>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/ShaderProgram">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/ApplicationDefinition">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/Page">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/AppxManifest">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/BundleResource">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/InterfaceDefinition">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/AndroidResource">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/SplashScreen">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/Resource">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
-
-      <ItemGroup>
-        <xsl:for-each select="$project/Files/XamarinComponentReference">
-          <xsl:if test="user:ProjectAndServiceIsActive(
-              ./Platforms,
-              ./IncludePlatforms,
-              ./ExcludePlatforms,
-              ./Services,
-              ./IncludeServices,
-              ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
-            <xsl:element
-              name="{name()}"
-              namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-              <xsl:attribute name="Include">
-                <xsl:value-of select="@Include" />
-              </xsl:attribute>
-              <xsl:apply-templates select="node()"/>
-            </xsl:element>
-          </xsl:if>
-        </xsl:for-each>
-      </ItemGroup>
 
       <ItemGroup>
         <xsl:for-each select="$project/References/Reference">

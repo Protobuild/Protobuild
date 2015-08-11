@@ -114,6 +114,7 @@
     <Compile Include="ServicesNotDefaultForRootTest.cs" />
     <Compile Include="ServicesRecommendsTest.cs" />
     <Compile Include="ServicesRelativeRequireTest.cs" />
+    <Compile Include="SimplifiedFileInclusionWorksTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentExtensiveTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
@@ -445,6 +446,11 @@
     <None Include="TestData\ServicesRelativeRequire\Submodule\Build\Module.xml" />
     <None Include="TestData\ServicesRelativeRequire\Submodule\Build\Projects\Library.definition" />
     <None Include="TestData\ServicesRelativeRequire\Submodule\Library\MyClass.cs" />
+    <None Include="TestData\SimplifiedFileInclusionWorks\Build\Module.xml" />
+    <None Include="TestData\SimplifiedFileInclusionWorks\Build\Projects\Test.definition">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TestData\SimplifiedFileInclusionWorks\Test\Program.cs" />
     <None Include="TestData\SrcPackage\Build\Module.xml" />
     <None Include="TestData\SrcPackage\Build\Projects\PackageExternal.definition" />
     <None Include="TestData\SrcPackage\Build\Projects\PackageLibrary.definition" />
