@@ -30,124 +30,162 @@
   </xsl:template>
  
   <xsl:template match="p:Compile">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:None">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:Content">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:EmbeddedResource">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:EmbeddedNativeLibrary">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:EmbeddedShaderProgram">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:ShaderProgram">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:ApplicationDefinition">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:Page">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:AppxManifest">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:BundleResource">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:InterfaceDefinition">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:AndroidResource">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:SplashScreen">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
  
   <xsl:template match="p:Resource">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="p:XamarinComponentReference">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="p:ClInclude">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="p:ClCompile">
-    <Included>
-      <xsl:element
-        name="Compile"
-        namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-        <xsl:attribute name="Include">
-          <xsl:value-of select="@Include" />
-        </xsl:attribute>
-        <xsl:copy-of select="./*" />
-      </xsl:element>
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:element
+          name="Compile"
+          namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+          <xsl:attribute name="Include">
+            <xsl:value-of select="@Include" />
+          </xsl:attribute>
+          <xsl:copy-of select="./*" />
+        </xsl:element>
+      </Included>
+    </xsl:if>
   </xsl:template>
 
   <xsl:template match="p:ResourceCompile">
-    <Included>
-      <xsl:copy-of select="." />
-    </Included>
+    <xsl:if test="not(./FromIncludeProject)">
+      <Included>
+        <xsl:copy-of select="." />
+      </Included>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="*"></xsl:template>
