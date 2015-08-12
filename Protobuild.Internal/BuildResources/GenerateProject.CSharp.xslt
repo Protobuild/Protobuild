@@ -741,6 +741,88 @@
       </xsl:for-each>
     </Reference>
   </xsl:template>
+
+  <xsl:template name="AddFiles"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:param name="project" />
+    <xsl:param name="item_type" />
+
+    <xsl:for-each select="$project/Files/*[name()=$item_type]">
+      <xsl:if test="user:ProjectAndServiceIsActive(
+                ./Platforms,
+                ./IncludePlatforms,
+                ./ExcludePlatforms,
+                ./Services,
+                ./IncludeServices,
+                ./ExcludeServices,
+                /Input/Generation/Platform,
+                /Input/Services/ActiveServicesNames)">
+        <xsl:element
+          name="{name()}"
+          namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+          <xsl:attribute name="Include">
+            <xsl:value-of select="@Include" />
+          </xsl:attribute>
+          <xsl:apply-templates select="node()"/>
+        </xsl:element>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
+
+  <xsl:template name="AddFilesFromInclude"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:param name="include_project" />
+    <xsl:param name="target_project" />
+    <xsl:param name="item_type" />
+
+    <xsl:for-each select="$include_project/Files/*[name()=$item_type]">
+      <xsl:if test="user:ProjectAndServiceIsActive(
+                ./Platforms,
+                ./IncludePlatforms,
+                ./ExcludePlatforms,
+                ./Services,
+                ./IncludeServices,
+                ./ExcludeServices,
+                /Input/Generation/Platform,
+                /Input/Services/ActiveServicesNames)">
+        <xsl:element
+          name="{name()}"
+          namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+          <xsl:attribute name="Include">
+            <xsl:value-of select="user:GetRelativePath(
+              concat(
+                /Input/Generation/RootPath,
+                $target_project/@Path,
+                '\',
+                $target_project/@Name,
+                '.',
+                /Input/Generation/Platform,
+                '.srcproj'),
+              concat(
+                /Input/Generation/RootPath,
+                $include_project/@Path,
+                '\',
+                current()/@Include))" />
+          </xsl:attribute>
+          <xsl:choose>
+            <xsl:when test="./Link">
+              <!-- The Link tag will be included by apply-templates -->
+            </xsl:when>
+            <xsl:otherwise>
+              <Link>
+                <xsl:text>Included Code\</xsl:text>
+                <xsl:value-of select="$include_project/@Path"/>
+                <xsl:text>\</xsl:text>
+                <xsl:value-of select="current()/@Include" />
+              </Link>
+            </xsl:otherwise>
+          </xsl:choose>
+          <xsl:apply-templates select="node()"/>
+          <FromIncludeProject>True</FromIncludeProject>
+        </xsl:element>
+      </xsl:if>
+    </xsl:for-each>
+  </xsl:template>
   
   <xsl:template match="/">
 
@@ -1238,13 +1320,16 @@
               count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
               <xsl:if test="
                 count(/Input/Projects/ContentProject[@Name=$include-path]) = 0">
+                <xsl:if test="
+                  count(/Input/Projects/IncludeProject[@Name=$include-path]) = 0">
 
-                <Reference>
-                  <xsl:attribute name="Include">
-                    <xsl:value-of select="@Include" />
-                  </xsl:attribute>
-                  <xsl:text />
-                </Reference>
+                  <Reference>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of select="@Include" />
+                    </xsl:attribute>
+                    <xsl:text />
+                  </Reference>
+                </xsl:if>
               </xsl:if>
             </xsl:if>
           </xsl:if>
@@ -1263,7 +1348,8 @@
               <xsl:for-each select="$extern/Reference">
                 <xsl:variable name="refd-name" select="@Include" />
                 <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
-                              count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
+                              count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0 and 
+                              count(/Input/Projects/IncludeProject[@Name=$refd-name]) = 0">
                   <xsl:call-template name="ReferenceToGAC">
                     <xsl:with-param name="gac" select="." />
                   </xsl:call-template>
@@ -1274,7 +1360,8 @@
                 <xsl:for-each select="./Reference">
                   <xsl:variable name="refd-name" select="@Include" />
                   <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
-                                count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
+                                count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0 and 
+                                count(/Input/Projects/IncludeProject[@Name=$refd-name]) = 0">
                     <xsl:call-template name="ReferenceToGAC">
                       <xsl:with-param name="gac" select="." />
                     </xsl:call-template>
@@ -1289,7 +1376,8 @@
                     <xsl:for-each select="./Reference">
                       <xsl:variable name="refd-name" select="@Include" />
                       <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
-                                    count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
+                                    count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0 and 
+                                    count(/Input/Projects/IncludeProject[@Name=$refd-name]) = 0">
                         <xsl:call-template name="ReferenceToGAC">
                           <xsl:with-param name="gac" select="." />
                         </xsl:call-template>
@@ -1307,7 +1395,8 @@
                   <xsl:for-each select="./Reference">
                     <xsl:variable name="refd-name" select="@Include" />
                     <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) = 0 and 
-                                  count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0">
+                                  count(/Input/Projects/ExternalProject[@Name=$refd-name]) = 0 and 
+                                  count(/Input/Projects/IncludeProject[@Name=$refd-name]) = 0">
                       <xsl:call-template name="ReferenceToGAC">
                         <xsl:with-param name="gac" select="." />
                       </xsl:call-template>
@@ -1437,24 +1526,98 @@
       <xsl:for-each select="msxsl:node-set($item_types)/*">
         <xsl:variable name="item_type" select="./text()" />
         <ItemGroup>
-          <xsl:for-each select="$project/Files/*[name()=$item_type]">
-            <xsl:if test="user:ProjectAndServiceIsActive(
-                ./Platforms,
-                ./IncludePlatforms,
-                ./ExcludePlatforms,
-                ./Services,
-                ./IncludeServices,
-                ./ExcludeServices,
-                /Input/Generation/Platform,
-                /Input/Services/ActiveServicesNames)">
-              <xsl:element
-                name="{name()}"
-                namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-                <xsl:attribute name="Include">
-                  <xsl:value-of select="@Include" />
-                </xsl:attribute>
-                <xsl:apply-templates select="node()"/>
-              </xsl:element>
+          <xsl:call-template name="AddFiles">
+            <xsl:with-param name="project" select="$project" />
+            <xsl:with-param name="item_type" select="$item_type" />
+          </xsl:call-template>
+          
+          <xsl:for-each select="$project/References/Reference">
+            <xsl:variable name="include-name" select="./@Include" />
+            <xsl:if test="
+              count(/Input/Projects/IncludeProject[@Name=$include-name]) = 0">
+              <xsl:if test="
+                count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+                <xsl:variable name="extern"
+                  select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+                <xsl:for-each select="$extern/Reference">
+                  <xsl:variable name="refd-name" select="./@Include" />
+                  <xsl:if test="count(/Input/Projects/IncludeProject[@Name=$refd-name]) > 0">
+                    <xsl:call-template name="AddFilesFromInclude">
+                      <xsl:with-param name="target_project" select="$project" />
+                      <xsl:with-param name="include_project" select="/Input/Projects/IncludeProject[@Name=$refd-name]" />
+                      <xsl:with-param name="item_type" select="$item_type" />
+                    </xsl:call-template>
+                  </xsl:if>
+                </xsl:for-each>
+
+                <xsl:for-each select="$extern/Platform
+                                        [@Type=/Input/Generation/Platform]">
+                  <xsl:for-each select="./Reference">
+                    <xsl:variable name="refd-name" select="./@Include" />
+                    <xsl:if test="count(/Input/Projects/IncludeProject[@Name=$refd-name]) > 0">
+                      <xsl:call-template name="AddFilesFromInclude">
+                        <xsl:with-param name="target_project" select="$project" />
+                        <xsl:with-param name="include_project" select="/Input/Projects/IncludeProject[@Name=$refd-name]" />
+                        <xsl:with-param name="item_type" select="$item_type" />
+                      </xsl:call-template>
+                    </xsl:if>
+                  </xsl:for-each>
+                  <xsl:for-each select="./Service">
+                    <xsl:if test="user:ServiceIsActive(
+                      ./@Name,
+                      '',
+                      '',
+                      /Input/Services/ActiveServicesNames)">
+                      <xsl:for-each select="./Reference">
+                        <xsl:variable name="refd-name" select="./@Include" />
+                        <xsl:if test="count(/Input/Projects/IncludeProject[@Name=$refd-name]) > 0">
+                          <xsl:call-template name="AddFilesFromInclude">
+                            <xsl:with-param name="target_project" select="$project" />
+                            <xsl:with-param name="include_project" select="/Input/Projects/IncludeProject[@Name=$refd-name]" />
+                            <xsl:with-param name="item_type" select="$item_type" />
+                          </xsl:call-template>
+                        </xsl:if>
+                      </xsl:for-each>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:for-each>
+                <xsl:for-each select="$extern/Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    /Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Reference">
+                      <xsl:variable name="refd-name" select="./@Include" />
+                      <xsl:if test="count(/Input/Projects/IncludeProject[@Name=$refd-name]) > 0">
+                        <xsl:call-template name="AddFilesFromInclude">
+                          <xsl:with-param name="target_project" select="$project" />
+                          <xsl:with-param name="include_project" select="/Input/Projects/IncludeProject[@Name=$refd-name]" />
+                          <xsl:with-param name="item_type" select="$item_type" />
+                        </xsl:call-template>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+
+              </xsl:if>
+            </xsl:if>
+          </xsl:for-each>
+
+          <xsl:for-each select="$project/References/Reference">
+            <xsl:variable name="include-path" select="./@Include" />
+            <xsl:if test="
+              count(/Input/Projects/IncludeProject[@Name=$include-path]) > 0">
+              <xsl:if test="
+                count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+                  <xsl:call-template name="AddFilesFromInclude">
+                    <xsl:with-param name="target_project" select="$project" />
+                    <xsl:with-param name="include_project" select="/Input/Projects/IncludeProject[@Name=$include-path]" />
+                    <xsl:with-param name="item_type" select="$item_type" />
+                  </xsl:call-template>
+              </xsl:if>
             </xsl:if>
           </xsl:for-each>
         </ItemGroup>

@@ -146,6 +146,10 @@ namespace Protobuild
             {
                 def.Type = "External";
             }
+            else if (doc.Root.Name == "IncludeProject")
+            {
+                def.Type = "Include";
+            }
             else if (doc.Root.Name == "ContentProject")
             {
                 def.Type = "Content";
