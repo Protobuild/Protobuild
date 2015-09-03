@@ -18,13 +18,13 @@ namespace Protobuild
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
 
-            if (args.Length < 2 || args[0] == null || args[1] == null)
+            if (args.Length < 1 || args[0] == null)
             {
-                throw new InvalidOperationException("You must provide the template's URL and the new module name.");
+                throw new InvalidOperationException("You must provide the template's URL.");
             }
 
             pendingExecution.StartProjectTemplateURL = args[0];
-            pendingExecution.StartProjectName = args[1];
+            pendingExecution.StartProjectName = args.Length >= 2 ? args[1] : null;
         }
 
         public int Execute(Execution execution)
@@ -49,6 +49,14 @@ namespace Protobuild
                 GitRef = branch,
                 Folder = string.Empty
             };
+
+            // If no project name is specified, use the name of the current directory.
+            if (string.IsNullOrWhiteSpace(execution.StartProjectName))
+            {
+                var dir = new DirectoryInfo(Environment.CurrentDirectory);
+                execution.StartProjectName = dir.Name;
+                Console.WriteLine("Using current directory name '" + dir.Name + "' as name of new module.");
+            }
 
             // The module can not be loaded before this point because it doesn't
             // yet exist.
