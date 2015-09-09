@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
+using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class QueryFeaturesCommand : ICommand
+    public class ListPackagesCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {
@@ -11,19 +13,25 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            Console.WriteLine("query-features");
-            Console.WriteLine("no-resolve");
-            Console.WriteLine("list-packages");
+            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+
+            if (module.Packages == null)
+            {
+                module.Packages = new List<PackageRef>();
+            }
+
+            foreach (var package in module.Packages)
+            {
+                Console.WriteLine(package.Uri);
+            }
+
             return 0;
         }
 
         public string GetDescription()
         {
             return @"
-Returns a newline-delimited list of features this version of
-Protobuild supports.  This is used by Protobuild to determine
-what functionality submodules support so that they can be
-invoked correctly.
+Lists the URLs of all packages in this module.
 ";
         }
 

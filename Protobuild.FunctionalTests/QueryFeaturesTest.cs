@@ -13,6 +13,7 @@
             var expectedFeatureList = new[] {
                 "query-features",
                 "no-resolve",
+                "list-packages",
             };
 
             Assert.Equal(expectedFeatureList, featureList);
