@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using fastJSON;
 using System.IO;
@@ -37,6 +37,11 @@ namespace Protobuild
         {
             uri = _packageRedirector.RedirectPackageUrl(uri);
             transformer = null;
+
+            if (uri.StartsWith("local-pointer://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new InvalidOperationException("local-pointer:// URIs should never reach this section of code.");
+            }
 
             if (uri.StartsWith("local-git://", StringComparison.InvariantCultureIgnoreCase))
             {

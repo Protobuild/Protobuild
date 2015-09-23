@@ -275,7 +275,9 @@
     <None Include="BuildResources\GenerateProject.CSharp.xslt">
       <SubType>Designer</SubType>
     </None>
-    <None Include="BuildResources\GenerateSolution.xslt" />
+    <None Include="BuildResources\GenerateSolution.xslt">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="BuildResources\JSILTemplate.htm" />
     <None Include="BuildResources\SelectSolution.xslt" />
   </Files>

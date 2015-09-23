@@ -47,3 +47,4 @@ UpgradeLog.htm
 /Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/GenerationFunctions.cs
 /Protobuild.FunctionalTests/TestData/PackageResolutionDoesNotOccurInSubmodulesTwice/Package/
 /Protobuild.FunctionalTests/TestData/PackageResolutionDoesNotOccurInSubmodulesTwice/Submodule/Package/.redirect
+/Protobuild.FunctionalTests/TestData/PackageRedirectionToLocalPointer/Package/.redirect
