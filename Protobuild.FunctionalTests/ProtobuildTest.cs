@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 
 namespace Protobuild.Tests
 {
@@ -74,7 +74,7 @@ namespace Protobuild.Tests
             return this.OtherMode("generate", (platform ?? "Windows") + " " + args, expectFailure, capture: capture);
         }
 
-        protected Tuple<string, string> OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true, bool capture = false)
+        protected Tuple<string, string> OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true, bool capture = false, string workingSubdirectory = null)
         {
             if (purge)
             {
@@ -88,7 +88,7 @@ namespace Protobuild.Tests
             {
                 FileName = Path.Combine(this.m_TestLocation, "Protobuild.exe"),
                 Arguments = "--" + mode + " " + (args ?? string.Empty),
-                WorkingDirectory = this.m_TestLocation,
+                WorkingDirectory = workingSubdirectory != null ? Path.Combine(this.m_TestLocation, workingSubdirectory) : this.m_TestLocation,
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardError = true,
@@ -213,6 +213,21 @@ namespace Protobuild.Tests
             CopyDirectory(dataLocation, tempLocation);
 
             File.Copy(protobuildLocation, Path.Combine(tempLocation, "Protobuild.exe"), true);
+
+            RunGitAndCapture(tempLocation, "init");
+            RunGitAndCapture(tempLocation, "add -f .");
+            RunGitAndCapture(tempLocation, "commit -a -m 'temp'");
+
+            return tempLocation;
+        }
+
+        protected string SetupSrcTemplate()
+        {
+            var location = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
+            var dataLocation = Path.Combine(location, "..", "..", "..", "..", "TestData", "SrcTemplate");
+
+            var tempLocation = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            CopyDirectory(dataLocation, tempLocation);
 
             RunGitAndCapture(tempLocation, "init");
             RunGitAndCapture(tempLocation, "add -f .");

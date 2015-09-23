@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Name="{PROJECT_XML_NAME}" Path="{PROJECT_XML_NAME}" Type="App">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="Ninject" />
+    <Reference Include="MonoGame.Framework" />
+    <Reference Include="Protogame" />
+    <Reference Include="Protogame.ThirdParty" />
+    <Reference Include="{PROJECT_XML_NAME}.Content" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+    <Compile Include="{PROJECT_SAFE_XML_NAME}Game.cs" />
+    <Compile Include="{PROJECT_SAFE_XML_NAME}World.cs" />
+    <Compile Include="{PROJECT_SAFE_XML_NAME}Activity.cs" />
+    <None Include="Properties/AndroidManifest.xml" />
+  </Files>
+</Project>

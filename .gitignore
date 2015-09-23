@@ -48,3 +48,5 @@ UpgradeLog.htm
 /Protobuild.FunctionalTests/TestData/PackageResolutionDoesNotOccurInSubmodulesTwice/Package/
 /Protobuild.FunctionalTests/TestData/PackageResolutionDoesNotOccurInSubmodulesTwice/Submodule/Package/.redirect
 /Protobuild.FunctionalTests/TestData/PackageRedirectionToLocalPointer/Package/.redirect
+/Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectly/Generated
+/Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectlyWithUnsafeName/Generated
