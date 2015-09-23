@@ -225,8 +225,27 @@ namespace Protobuild
 
             var package = m_PackageCache.GetSourcePackage(source, reference.GitRef);
             package.ExtractTo(".staging");
+            
+            this.ApplyProjectTemplateFromStaging(templateName, NormalizeTemplateName(templateName));
+        }
 
-            this.ApplyProjectTemplateFromStaging(templateName);
+        private string NormalizeTemplateName(string name)
+        {
+            var normalized = string.Empty;
+            for (var i = 0; i < name.Length; i++)
+            {
+                if ((name[i] >= 'a' && name[i] <= 'z') ||
+                    (name[i] >= 'A' && name[i] <= 'Z') ||
+                    (i >= 1 && (name[i] >= '0' && name[i] <= '9')))
+                {
+                    normalized += name[i];
+                }
+            }
+            if (string.IsNullOrWhiteSpace(normalized))
+            {
+                normalized = "Default";
+            }
+            return normalized;
         }
 
         private void ResolveLibraryBinary(PackageRef reference, string platform, string source, bool forceUpgrade)
@@ -337,7 +356,7 @@ namespace Protobuild
 
             package.ExtractTo(".staging");
 
-            ApplyProjectTemplateFromStaging(templateName);
+            ApplyProjectTemplateFromStaging(templateName, NormalizeTemplateName(templateName));
         }
 
         private void ResolveGlobalToolBinary(PackageRef reference, string toolFolder, string platform, bool forceUpgrade)
@@ -373,7 +392,7 @@ namespace Protobuild
             Console.WriteLine("Binary resolution complete");
         }
 
-        private void ApplyProjectTemplateFromStaging(string name)
+        private void ApplyProjectTemplateFromStaging(string name, string normalizedTemplateName)
         {
             foreach (var pathToFile in GetFilesFromStaging())
             {
@@ -381,6 +400,7 @@ namespace Protobuild
                 var file = pathToFile.Value;
 
                 var replacedPath = path.Replace("{PROJECT_NAME}", name);
+                replacedPath = replacedPath.Replace("{PROJECT_SAFE_NAME}", normalizedTemplateName);
                 var dirSeperator = replacedPath.LastIndexOfAny(new[] { '/', '\\' });
                 if (dirSeperator != -1)
                 {
@@ -397,10 +417,12 @@ namespace Protobuild
                     contents = reader.ReadToEnd();
                 }
 
-                if (contents.Contains("{PROJECT_NAME}") || contents.Contains("{PROJECT_XML_NAME}"))
+                if (contents.Contains("{PROJECT_NAME}") || contents.Contains("{PROJECT_XML_NAME}") || contents.Contains("{PROJECT_SAFE_NAME}") || contents.Contains("{PROJECT_SAFE_XML_NAME}"))
                 {
                     contents = contents.Replace("{PROJECT_NAME}", name);
                     contents = contents.Replace("{PROJECT_XML_NAME}", System.Security.SecurityElement.Escape(name));
+                    contents = contents.Replace("{PROJECT_SAFE_NAME}", normalizedTemplateName);
+                    contents = contents.Replace("{PROJECT_SAFE_XML_NAME}", System.Security.SecurityElement.Escape(normalizedTemplateName));
                     using (var writer = new StreamWriter(replacedPath))
                     {
                         writer.Write(contents);

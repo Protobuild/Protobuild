@@ -100,6 +100,8 @@
     <Compile Include="PackageRedirectionToLocalPathTest.cs" />
     <Compile Include="PackageRedirectionToLocalPointerTest.cs" />
     <Compile Include="PackageResolutionDoesNotOccurInSubmodulesTwiceTest.cs" />
+    <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
+    <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
@@ -381,6 +383,8 @@
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Build\Module.xml" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Build\Projects\Library.definition" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Library\Class.cs" />
+    <None Include="TestData\PackageTemplateAppliesCorrectly\.gitkeep" />
+    <None Include="TestData\PackageTemplateAppliesCorrectlyWithUnsafeName\.gitkeep" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputDefault\Test\Program.cs" />
@@ -482,6 +486,16 @@
     <None Include="TestData\SrcPackage\Build\Projects\PackageExternal.definition" />
     <None Include="TestData\SrcPackage\Build\Projects\PackageLibrary.definition" />
     <None Include="TestData\SrcPackage\PackageLibrary\PackageClass.cs" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}.Content\assets\AssetReadme.txt" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}.Content\compiled\CompiledReadme.txt" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}\{PROJECT_SAFE_NAME}Activity.cs" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}\{PROJECT_SAFE_NAME}Game.cs" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}\{PROJECT_SAFE_NAME}World.cs" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}\Program.cs" />
+    <None Include="TestData\SrcTemplate\{PROJECT_NAME}\Properties\AndroidManifest.xml" />
+    <None Include="TestData\SrcTemplate\Build\Module.xml" />
+    <None Include="TestData\SrcTemplate\Build\Projects\{PROJECT_NAME}.Content.definition" />
+    <None Include="TestData\SrcTemplate\Build\Projects\{PROJECT_NAME}.definition" />
     <None Include="TestData\SyncDoesNotIncludeContentExtensive\Build\Module.xml" />
     <None Include="TestData\SyncDoesNotIncludeContentExtensive\Build\Projects\HMRQ.Content.definition" />
     <None Include="TestData\SyncDoesNotIncludeContentExtensive\Build\Projects\HMRQ.definition" />
