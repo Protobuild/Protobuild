@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -6,8 +6,24 @@ namespace Protobuild
 {
     public class PackageLocator : IPackageLocator
     {
+        private readonly IPackageRedirector _packageRedirector;
+
+        public PackageLocator(IPackageRedirector packageRedirector)
+        {
+            _packageRedirector = packageRedirector;
+        }
+
         public string DiscoverExistingPackagePath(string moduleRoot, PackageRef package, string platform)
         {
+            var redirectedUri = _packageRedirector.RedirectPackageUrl(package.Uri);
+            if (redirectedUri.StartsWith("local-pointer://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // This is a locally redirected package, where the redirect goes straight to another folder
+                // on the local computer (alternatively local-git:// will still clone from the target
+                // folder, while this allows you to work on the target folder directly).
+                return redirectedUri.Substring("local-pointer://".Length);
+            }
+
             // Check the ModuleInfo.xml files of other modules in the
             // hierarchy in this order:
             // * Above us (this ensures the common libraries are at the highest point)
