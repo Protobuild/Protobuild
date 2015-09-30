@@ -11,7 +11,8 @@ if ($PSScriptRoot -ne $null) {
 }
 
 $PLATFORM="Windows"
-$msbuild = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe"
+$msbuild = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\14.0" -Name MSBuildToolsPath).MSBuildToolsPath
+$msbuild = "$msbuild\MSBuild.exe"
 
 echo "Generating project and performing first-pass build..."
 if ($NoGen) {

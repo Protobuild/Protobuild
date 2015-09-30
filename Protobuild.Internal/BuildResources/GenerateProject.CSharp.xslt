@@ -63,6 +63,20 @@
       </xsl:otherwise>
     </xsl:choose>
   </xsl:template>
+  
+  <xsl:template name="AllowLangVersion"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:choose>
+      <xsl:when test="/Input/Properties/LangVersion">
+        <LangVersion>
+          <xsl:value-of select="/Input/Properties/LangVersion"/>
+        </LangVersion>
+      </xsl:when>
+      <xsl:otherwise>
+        <LangVersion>6</LangVersion>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
 
   <xsl:template name="profile_and_version"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -85,8 +99,8 @@
         <xsl:choose>
           <xsl:when test="user:IsTrue(/Input/Properties/ForcePCL)">
             <xsl:value-of select="user:WarnForConcretePCLUsage(/Input/Generation/Platform)" />
-            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-            <TargetFrameworkProfile>Profile136</TargetFrameworkProfile>
+            <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+            <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'Android'">
@@ -108,12 +122,12 @@
           <xsl:when test="/Input/Generation/Platform = 'iOS' or /Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
           <xsl:when test="/Input/Generation/Platform = 'PCL'">
-            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-            <TargetFrameworkProfile>Profile136</TargetFrameworkProfile>
+            <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+            <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>
           <xsl:otherwise>
-            <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+            <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:otherwise>
@@ -139,6 +153,7 @@
         <TargetFrameworkProfile></TargetFrameworkProfile>
       </xsl:otherwise>
     </xsl:choose>
+    <xsl:call-template name="AllowLangVersion" />
     <xsl:if test="/Input/Generation/Platform = 'Windows8'">
       <DefaultLanguage>en-US</DefaultLanguage>
     </xsl:if>
@@ -858,7 +873,7 @@
           <xsl:text>12.0</xsl:text>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'PCL' or user:IsTrue(/Input/Properties/ForcePCL)">
-          <xsl:text>12.0</xsl:text>
+          <xsl:text>14.0</xsl:text>
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'Windows' or 
           /Input/Generation/Platform = 'MacOS' or 
@@ -868,16 +883,16 @@
             and later use a ToolsVersion that aligns with Visual Studio's version.
           -->
           <xsl:choose>
-            <xsl:when test="$__FrameworkVersion = 'v4.5'">
-              <xsl:text>12.0</xsl:text>
+            <xsl:when test="$__FrameworkVersion = 'v4.0'">
+              <xsl:text>4.0</xsl:text>
             </xsl:when>
             <xsl:otherwise>
-              <xsl:text>4.0</xsl:text>
+              <xsl:text>14.0</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
         </xsl:when>
         <xsl:otherwise>
-          <xsl:text>4.0</xsl:text>
+          <xsl:text>14.0</xsl:text>
         </xsl:otherwise>
       </xsl:choose>
     </xsl:variable>
