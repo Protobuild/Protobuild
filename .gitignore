@@ -50,3 +50,4 @@ UpgradeLog.htm
 /Protobuild.FunctionalTests/TestData/PackageRedirectionToLocalPointer/Package/.redirect
 /Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectly/Generated
 /Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectlyWithUnsafeName/Generated
+Protobuild.FunctionalTests/TestData/ModuleInfoGetsUpgraded/Build/Module.xml

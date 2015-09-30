@@ -77,6 +77,7 @@
     <Compile Include="IncludeProjectWorksTest.cs" />
     <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
+    <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="NuGetAndroidDoesNotCrashTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentTest.cs" />
@@ -253,6 +254,8 @@
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
+    <None Include="TestData\ModuleInfoGetsUpgraded\Build\Module.xml" />
+    <None Include="TestData\ModuleInfoGetsUpgraded\Build\Projects\.gitkeep" />
     <None Include="TestData\NativeBinaryPresent\Build\Module.xml" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />

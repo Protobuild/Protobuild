@@ -23,6 +23,10 @@
 //     THE SOFTWARE.
 // </copyright>
 //-----------------------------------------------------------------------
+
+using System.Xml;
+using System.Xml.Linq;
+
 namespace Protobuild
 {
     using System;
@@ -36,25 +40,13 @@ namespace Protobuild
     /// <summary>
     /// Represents a Protobuild module.
     /// </summary>
-    [Serializable]
     public class ModuleInfo
     {
-        /// <summary>
-        /// The root path of this module.
-        /// </summary>
-        [NonSerialized]
-        [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-            "Microsoft.StyleCop.CSharp.Maintainability", 
-            "SA1401:FieldsMustBePrivate", 
-            Justification = "This must be a field to allow usage of the NonSerialized attribute.")]
-        public string Path;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Protobuild.ModuleInfo"/> class.
         /// </summary>
         public ModuleInfo()
         {
-            this.ModuleAssemblies = new string[0];
             this.DefaultAction = "resync";
             this.GenerateNuGetRepositories = true;
         }
@@ -64,6 +56,11 @@ namespace Protobuild
         /// </summary>
         /// <value>The module name.</value>
         public string Name { get; set; }
+
+        /// <summary>
+        /// The root path of this module.
+        /// </summary>
+        public string Path { get; set; }
 
         /// <summary>
         /// Gets or sets the default action to be taken when Protobuild runs in the module.
@@ -108,15 +105,6 @@ namespace Protobuild
         public bool? DisableSynchronisation { get; set; }
 
         /// <summary>
-        /// Gets or sets the list of .NET assemblies to load when running Protobuild in this module.
-        /// </summary>
-        /// <remarks>
-        /// This list of assemblies is used to load additional templates in the GUI-based module manager.
-        /// </remarks>
-        /// <value>The list of assemblies to load.</value>
-        public string[] ModuleAssemblies { get; set; }
-
-        /// <summary>
         /// Gets or sets the name of the default startup project.
         /// </summary>
         /// <value>The name of the default startup project.</value>
@@ -135,12 +123,72 @@ namespace Protobuild
         /// <returns>The loaded Protobuild module.</returns>
         public static ModuleInfo Load(string xmlFile)
         {
-            var serializer = new XmlSerializer(typeof(ModuleInfo));
-            var reader = new StreamReader(xmlFile);
-            var module = (ModuleInfo)serializer.Deserialize(reader);
-            module.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
-            reader.Close();
-            return module;
+            var def = new ModuleInfo();
+            var doc = XDocument.Load(xmlFile);
+
+            var xsi = doc.Root == null ? null : doc.Root.Attribute(XName.Get("xsi", "http://www.w3.org/2000/xmlns/"));
+            if (xsi != null)
+            {
+                // This is a previous module info format.
+                var serializer = new XmlSerializer(typeof(ModuleInfo));
+                var reader = new StreamReader(xmlFile);
+                var module = (ModuleInfo)serializer.Deserialize(reader);
+                module.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
+                reader.Close();
+
+                // Re-save in the new format.
+                module.Save(xmlFile);
+
+                return module;
+            }
+
+            Func<string, string> getStringValue = name =>
+            {
+                if (doc.Root == null)
+                {
+                    return null;
+                }
+
+                var elem = doc.Root.Element(XName.Get(name));
+                if (elem == null)
+                {
+                    return null;
+                }
+
+                return elem.Value;
+            };
+            
+            def.Name = getStringValue("Name");
+            def.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
+            def.DefaultAction = getStringValue("DefaultAction");
+            def.DefaultLinuxPlatforms = getStringValue("DefaultLinuxPlatforms");
+            def.DefaultMacOSPlatforms = getStringValue("DefaultMacOSPlatforms");
+            def.DefaultWindowsPlatforms = getStringValue("DefaultWindowsPlatforms");
+            def.DefaultStartupProject = getStringValue("DefaultStartupProject");
+            def.SupportedPlatforms = getStringValue("SupportedPlatforms");
+            def.DisableSynchronisation = getStringValue("DisableSynchronisation") == "true";
+            def.GenerateNuGetRepositories = getStringValue("GenerateNuGetRepositories") == "true";
+            def.Packages = new List<PackageRef>();
+
+            if (doc.Root != null)
+            {
+                var packagesElem = doc.Root.Element(XName.Get("Packages"));
+                if (packagesElem != null)
+                {
+                    var packages = packagesElem.Elements();
+                    foreach (var package in packages)
+                    {
+                        def.Packages.Add(new PackageRef
+                        {
+                            Folder = package.Attribute(XName.Get("Folder")).Value,
+                            GitRef = package.Attribute(XName.Get("GitRef")).Value,
+                            Uri = package.Attribute(XName.Get("Uri")).Value,
+                        });
+                    }
+                }
+            }
+
+            return def;
         }
 
         /// <summary>
@@ -296,10 +344,60 @@ namespace Protobuild
         /// <param name="xmlFile">The path to a Module.xml file.</param>
         public void Save(string xmlFile)
         {
-            var serializer = new XmlSerializer(typeof(ModuleInfo));
-            var writer = new StreamWriter(xmlFile);
-            serializer.Serialize(writer, this);
-            writer.Close();
+            var doc = new XmlDocument();
+
+            var root = doc.CreateElement("Module");
+            doc.AppendChild(root);
+
+            Action<string, string> createStringElement = (name, val) =>
+            {
+                if (val != null)
+                {
+                    var e = doc.CreateElement(name);
+                    e.InnerText = val;
+                    root.AppendChild(e);
+                }
+            };
+
+            Action<string, bool?> createBooleanElement = (name, val) =>
+            {
+                if (val != null)
+                {
+                    var e = doc.CreateElement(name);
+                    e.InnerText = val.Value ? "true" : "false";
+                    root.AppendChild(e);
+                }
+            };
+
+            createStringElement("Name", Name);
+            createStringElement("DefaultAction", DefaultAction);
+            createStringElement("DefaultLinuxPlatforms", DefaultLinuxPlatforms);
+            createStringElement("DefaultMacOSPlatforms", DefaultMacOSPlatforms);
+            createStringElement("DefaultWindowsPlatforms", DefaultWindowsPlatforms);
+            createStringElement("DefaultStartupProject", DefaultStartupProject);
+            createStringElement("SupportedPlatforms", SupportedPlatforms);
+            createBooleanElement("DisableSynchronisation", DisableSynchronisation);
+            createBooleanElement("GenerateNuGetRepositories", GenerateNuGetRepositories);
+
+            if (Packages != null && Packages.Count > 0)
+            {
+                var elem = doc.CreateElement("Packages");
+                root.AppendChild(elem);
+
+                foreach (var package in Packages)
+                {
+                    var packageElem = doc.CreateElement("Package");
+                    packageElem.SetAttribute("Uri", package.Uri);
+                    packageElem.SetAttribute("Folder", package.Folder);
+                    packageElem.SetAttribute("GitRef", package.GitRef);
+                    elem.AppendChild(packageElem);
+                }
+            }
+
+            using (var writer = XmlWriter.Create(xmlFile, new XmlWriterSettings {Indent = true, IndentChars = "  "}))
+            {
+                doc.Save(writer);
+            }
         }
 
         private string[] featureCache;
