@@ -66,6 +66,7 @@
             kernel.Bind<IGetRecursiveUtilitiesInPath, GetRecursiveUtilitiesInPath>();
             kernel.Bind<IPackageUrlParser, PackageUrlParser>();
             kernel.Bind<IKnownToolProvider, KnownToolProvider>();
+            kernel.Bind<IPackageNameLookup, PackageNameLookup>();
         }
     }
 }

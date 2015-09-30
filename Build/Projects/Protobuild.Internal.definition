@@ -185,6 +185,7 @@
     <Compile Include="Packages\AutomaticPackager\ProjectOutputPathCalculator.cs" />
     <Compile Include="Packages\GitUtils.cs" />
     <Compile Include="Packages\IPackageManager.cs" />
+    <Compile Include="Packages\IPackageNameLookup.cs" />
     <Compile Include="Packages\IPackageUrlParser.cs" />
     <Compile Include="Packages\PackageCache\IPackageCache.cs" />
     <Compile Include="Packages\PackageCache\IPackageCacheConfiguration.cs" />
@@ -206,6 +207,7 @@
     <Compile Include="Packages\PackageLookup\IPackageLookup.cs" />
     <Compile Include="Packages\PackageLookup\PackageLookup.cs" />
     <Compile Include="Packages\PackageManager.cs" />
+    <Compile Include="Packages\PackageNameLookup.cs" />
     <Compile Include="Packages\PackageRedirector\IPackageRedirector.cs" />
     <Compile Include="Packages\PackageRedirector\PackageRedirector.cs" />
     <Compile Include="Packages\PackageRetrieval\IPackageRetrieval.cs" />

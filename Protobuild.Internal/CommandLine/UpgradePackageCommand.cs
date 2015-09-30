@@ -9,11 +9,13 @@ namespace Protobuild
     {
         private readonly IPackageManager _packageManager;
         private readonly IHostPlatformDetector _hostPlatformDetector;
+        private readonly IPackageNameLookup _packageNameLookup;
 
-        public UpgradePackageCommand(IPackageManager packageManager, IHostPlatformDetector hostPlatformDetector)
+        public UpgradePackageCommand(IPackageManager packageManager, IHostPlatformDetector hostPlatformDetector, IPackageNameLookup packageNameLookup)
         {
             _packageManager = packageManager;
             _hostPlatformDetector = hostPlatformDetector;
+            _packageNameLookup = packageNameLookup;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -51,12 +53,7 @@ namespace Protobuild
                 url = url.Substring(0, url.LastIndexOf('@'));
             }
 
-            if (module.Packages.All(x => x.Uri != url))
-            {
-                throw new InvalidOperationException("No such package has been added");
-            }
-
-            var packageRef = module.Packages.First(x => x.Uri == url);
+            var packageRef = _packageNameLookup.LookupPackageByName(module, url);
 
             _packageManager.Resolve(
                 module,
