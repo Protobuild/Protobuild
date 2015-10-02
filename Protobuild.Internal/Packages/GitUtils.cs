@@ -8,20 +8,34 @@ namespace Protobuild
 {
     public static class GitUtils
     {
-        public static void RunGit(string folder, string str)
+        private static void RunGitInternal(string str, string workingDirectory, string consoleWriteLine)
         {
             var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = "git",
-                    Arguments = str,
-                    WorkingDirectory = folder == null ? Environment.CurrentDirectory : Path.Combine(Environment.CurrentDirectory, folder)
-                };
+            {
+                FileName = "git",
+                Arguments = str,
+                WorkingDirectory = workingDirectory,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+            };
+            
+            Console.WriteLine(consoleWriteLine);
 
-            var suffix = folder == null ? "" : " (" + folder + ")";
-            Console.WriteLine("Executing: git " + str + suffix);
-
+            var renderer = new GitRenderer();
+            DataReceivedEventHandler handler = (sender, args) =>
+            {
+                renderer.Update(args.Data);
+            };
+            
             var process = Process.Start(processStartInfo);
+            process.OutputDataReceived += handler;
+            process.ErrorDataReceived += handler;
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
             process.WaitForExit();
+            renderer.Finalize();
 
             if (process.ExitCode != 0)
             {
@@ -29,24 +43,19 @@ namespace Protobuild
             }
         }
 
+        public static void RunGit(string folder, string str)
+        {
+            var suffix = folder == null ? "" : " (" + folder + ")";
+            RunGitInternal(str,
+                folder == null ? Environment.CurrentDirectory : Path.Combine(Environment.CurrentDirectory, folder),
+                "Executing: git " + str + suffix);
+        }
+
         public static void RunGitAbsolute(string folder, string str)
         {
-            var processStartInfo = new ProcessStartInfo
-                {
-                    FileName = "git",
-                    Arguments = str,
-                    WorkingDirectory = folder,
-                };
-
-            Console.WriteLine("Executing: git " + str + " (in " + folder + ")");
-
-            var process = Process.Start(processStartInfo);
-            process.WaitForExit();
-
-            if (process.ExitCode != 0)
-            {
-                throw new InvalidOperationException("Got an unexpected exit code of " + process.ExitCode + " from Git");
-            }
+            RunGitInternal(str,
+                folder,
+                "Executing: git " + str + " (in " + folder + ")");
         }
 
         public static string RunGitAndCapture(string folder, string str)

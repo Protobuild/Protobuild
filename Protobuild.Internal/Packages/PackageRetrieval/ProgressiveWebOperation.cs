@@ -50,7 +50,7 @@ namespace Protobuild
                         System.Threading.Thread.Sleep(0);
                     }
 
-                    Console.WriteLine();
+                    downloadProgressRenderer.Finalize();
 
                     if (ex != null)
                     {

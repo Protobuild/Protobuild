@@ -77,7 +77,7 @@ namespace Protobuild
             }
 
             Directory.CreateDirectory(targetPath);
-            GitUtils.RunGit(targetPath, "git clone --bare " + gitUrl + " .");
+            GitUtils.RunGit(targetPath, "git clone --progress --bare " + gitUrl + " .");
         }
 
         public byte[] DownloadBinaryPackage(string uri, string gitHash, string platform, out string format)

@@ -28,7 +28,7 @@ namespace Protobuild
                 GitUtils.UnmarkIgnored(path);
             }
 
-            GitUtils.RunGit(null, "clone " + this.SourcePath + " " + path);
+            GitUtils.RunGit(null, "clone --progress " + this.SourcePath + " " + path);
             GitUtils.RunGit(path, "checkout -f " + this.GitRef);
             this.InitializeSubmodulesFromCache(path);
 

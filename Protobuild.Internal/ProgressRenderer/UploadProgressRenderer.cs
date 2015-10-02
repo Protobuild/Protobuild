@@ -8,7 +8,7 @@ namespace Protobuild
         {
             if (this.OutputAllowed)
             {
-                Console.Write("\rUploading package; " + percentage + "% complete (" + kbUploaded + "kb sent)");
+                Output("Uploading package; " + percentage + "% complete (" + kbUploaded + "kb sent)");
             }
 
             base.Update();

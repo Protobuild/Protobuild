@@ -8,7 +8,7 @@ namespace Protobuild
         {
             if (this.OutputAllowed)
             {
-                Console.Write("\rDownloading package; " + percentage + "% complete (" + kbReceived + "kb received)");
+                Output("Downloading package; " + percentage + "% complete (" + kbReceived + "kb received)");
             }
 
             base.Update();
