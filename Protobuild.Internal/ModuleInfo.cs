@@ -127,7 +127,7 @@ namespace Protobuild
             var doc = XDocument.Load(xmlFile);
 
             var xsi = doc.Root == null ? null : doc.Root.Attribute(XName.Get("xsi", "http://www.w3.org/2000/xmlns/"));
-            if (xsi != null)
+            if (xsi != null && xsi.Value == "http://www.w3.org/2001/XMLSchema-instance")
             {
                 // This is a previous module info format.
                 var serializer = new XmlSerializer(typeof(ModuleInfo));
@@ -137,7 +137,10 @@ namespace Protobuild
                 reader.Close();
 
                 // Re-save in the new format.
-                module.Save(xmlFile);
+                if (xmlFile == System.IO.Path.Combine("Build", "Module.xml"))
+                {
+                    module.Save(xmlFile);
+                }
 
                 return module;
             }

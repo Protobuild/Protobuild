@@ -8,6 +8,7 @@ namespace Protobuild
         private bool m_IsShowingProgress;
         private bool m_IsSuspended;
         private DateTime m_LastSuspensionTime;
+        private bool m_DidOutput;
 
         protected BaseProgressRenderer()
         {
@@ -37,6 +38,20 @@ namespace Protobuild
                 {
                     this.m_IsSuspended = false;
                 }
+            }
+        }
+
+        protected void Output(string str)
+        {
+            Console.Write("\r" + str);
+            this.m_DidOutput = true;
+        }
+
+        public void Finalize()
+        {
+            if (this.m_DidOutput)
+            {
+                Console.WriteLine();
             }
         }
     }

@@ -144,7 +144,7 @@ namespace Protobuild
             }
 
             Directory.CreateDirectory(sourceName);
-            GitUtils.RunGit(null, "clone --bare " + url + " " + sourceName);
+            GitUtils.RunGit(null, "clone --progress --bare " + url + " " + sourceName);
 
             return new SourcePackageContent(this)
             {

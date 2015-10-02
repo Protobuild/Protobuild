@@ -216,7 +216,7 @@ import NuGet packages.
                         System.Threading.Thread.Sleep(0);
                     }
 
-                    Console.WriteLine();
+                    uploadProgressRenderer.Finalize();
 
                     if (ex != null)
                     {

@@ -16,7 +16,7 @@ namespace Protobuild
             if (this.OutputAllowed)
             {
                 var progress = (int)((current / (double)this.m_Total) * 100);
-                Console.Write("\rDeduplicating files in package; " + progress + "% complete (" + current + " of " + this.m_Total + " files)");
+                Output("Deduplicating files in package; " + progress + "% complete (" + current + " of " + this.m_Total + " files)");
             }
 
             base.Update();

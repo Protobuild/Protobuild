@@ -207,7 +207,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                         System.Threading.Thread.Sleep(0);
                     }
 
-                    Console.WriteLine();
+                    uploadProgressRenderer.Finalize();
 
                     if (ex != null)
                     {

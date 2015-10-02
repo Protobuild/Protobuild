@@ -70,7 +70,7 @@ namespace Protobuild
                                 progressHelper.SetProgress(current);
                             }
 
-                            Console.WriteLine();
+                            progressHelper.Finalize();
                             Console.WriteLine("Adding files to package...");
 
                             try
@@ -125,7 +125,7 @@ namespace Protobuild
 
                             LZMA.LzmaHelper.Compress(archive, target, progressHelper);
 
-                            Console.WriteLine();
+                            progressHelper.Finalize();
 
                             break;
                         }
