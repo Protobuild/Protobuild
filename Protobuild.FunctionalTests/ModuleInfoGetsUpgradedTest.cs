@@ -30,7 +30,7 @@
   <Packages>
     <Package Uri=""http://protobuild.org/hach-que/xunit"" Folder=""xunit"" GitRef=""master"" />
   </Packages>
-</Module>", ReadFile(Path.Combine("Build", "Module.xml")).Trim());
+</Module>".Replace("\r\n", "\n"), ReadFile(Path.Combine("Build", "Module.xml")).Trim().Replace("\r\n", "\n"));
         }
     }
 }
