@@ -886,6 +886,10 @@
             <xsl:when test="$__FrameworkVersion = 'v4.0'">
               <xsl:text>4.0</xsl:text>
             </xsl:when>
+            <xsl:when test="/Input/Generation/HostPlatform = 'Linux'">
+              <!-- xbuild does not support 14.0 yet -->
+              <xsl:text>12.0</xsl:text>
+            </xsl:when>
             <xsl:otherwise>
               <xsl:text>14.0</xsl:text>
             </xsl:otherwise>
