@@ -1,11 +1,17 @@
 namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageTemplateAppliesCorrectlyWithUnsafeNameTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageTemplateAppliesCorrectlyWithUnsafeNameTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GeneratedTemplateIsCorrect()
         {
             this.SetupTest("PackageTemplateAppliesCorrectlyWithUnsafeName", true);
@@ -23,16 +29,16 @@ namespace Protobuild.Tests
             this.OtherMode(
                 "start", "local-template-git://" + templateFolder + " Generated.WithDot", workingSubdirectory: "Generated");
 
-            Assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot"))));
-            Assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot.Content"))));
-            Assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotActivity.cs"))));
-            Assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotGame.cs"))));
-            Assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"))));
+            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot"))));
+            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot.Content"))));
+            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotActivity.cs"))));
+            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotGame.cs"))));
+            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"))));
 
             var worldFile = ReadFile(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"));
 
-            Assert.Contains("public class GeneratedWithDotWorld", worldFile);
-            Assert.Contains("Hello Generated.WithDot!", worldFile);
+            _assert.Contains("public class GeneratedWithDotWorld", worldFile);
+            _assert.Contains("Hello Generated.WithDot!", worldFile);
         }
     }
 }

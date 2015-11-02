@@ -1,44 +1,50 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class ServicesExternalProjectsTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ServicesExternalProjectsTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("ServicesExternalProjects");
 
             this.Generate(platform: "Windows");
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
 
             var consoleContents = this.ReadFile(@"Console\Console.Windows.csproj");
 
-            Assert.Contains("RefGACNoPlatform", consoleContents);
-            Assert.Contains("RefBinaryNoPlatform", consoleContents);
-            Assert.Contains("RefProjectNoPlatform", consoleContents);
-            Assert.Contains("RefProtobuildNoPlatform", consoleContents);
-            Assert.Contains("RefGACPlatform", consoleContents);
-            Assert.Contains("RefBinaryPlatform", consoleContents);
-            Assert.Contains("RefProjectPlatform", consoleContents);
-            Assert.Contains("RefProtobuildPlatform", consoleContents);
+            _assert.Contains("RefGACNoPlatform", consoleContents);
+            _assert.Contains("RefBinaryNoPlatform", consoleContents);
+            _assert.Contains("RefProjectNoPlatform", consoleContents);
+            _assert.Contains("RefProtobuildNoPlatform", consoleContents);
+            _assert.Contains("RefGACPlatform", consoleContents);
+            _assert.Contains("RefBinaryPlatform", consoleContents);
+            _assert.Contains("RefProjectPlatform", consoleContents);
+            _assert.Contains("RefProtobuildPlatform", consoleContents);
 
             this.Generate(platform: "Linux");
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Linux.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Linux.csproj")));
 
             consoleContents = this.ReadFile(@"Console\Console.Linux.csproj");
 
-            Assert.Contains("RefGACNoPlatform", consoleContents);
-            Assert.Contains("RefBinaryNoPlatform", consoleContents);
-            Assert.Contains("RefProjectNoPlatform", consoleContents);
-            Assert.Contains("RefProtobuildNoPlatform", consoleContents);
-            Assert.DoesNotContain("RefGACPlatform", consoleContents);
-            Assert.DoesNotContain("RefBinaryPlatform", consoleContents);
-            Assert.DoesNotContain("RefProjectPlatform", consoleContents);
-            Assert.DoesNotContain("RefProtobuildPlatform", consoleContents);
+            _assert.Contains("RefGACNoPlatform", consoleContents);
+            _assert.Contains("RefBinaryNoPlatform", consoleContents);
+            _assert.Contains("RefProjectNoPlatform", consoleContents);
+            _assert.Contains("RefProtobuildNoPlatform", consoleContents);
+            _assert.DoesNotContain("RefGACPlatform", consoleContents);
+            _assert.DoesNotContain("RefBinaryPlatform", consoleContents);
+            _assert.DoesNotContain("RefProjectPlatform", consoleContents);
+            _assert.DoesNotContain("RefProtobuildPlatform", consoleContents);
         }
     }
 }

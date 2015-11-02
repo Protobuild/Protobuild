@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageLocationParentAndSubmoduleSamePackageTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageLocationParentAndSubmoduleSamePackageTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("PackageLocationParentAndSubmoduleSamePackage");
@@ -20,18 +26,18 @@
 
             this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src);
 
-            Assert.True(File.Exists(this.GetPath("Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
-            Assert.True(File.Exists(this.GetPath("Submodule\\Package\\.redirect")));
-            Assert.True(File.Exists(this.GetPath("Submodule\\Library\\Library.Windows.csproj")));
-            Assert.True(File.Exists(this.GetPath("Console\\Console.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath("Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath("Submodule\\Package\\.redirect")));
+            _assert.True(File.Exists(this.GetPath("Submodule\\Library\\Library.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath("Console\\Console.Windows.csproj")));
 
             var consoleContents = this.ReadFile("Console\\Console.Windows.csproj");
             var libraryContents = this.ReadFile("Submodule\\Library\\Library.Windows.csproj");
 
-            Assert.Contains(
+            _assert.Contains(
                 @"Include=""..\Package\PackageLibrary\PackageLibrary.Windows.csproj""",
                 consoleContents);
-            Assert.Contains(
+            _assert.Contains(
                 @"Include=""..\..\Package\PackageLibrary\PackageLibrary.Windows.csproj""",
                 libraryContents);
         }

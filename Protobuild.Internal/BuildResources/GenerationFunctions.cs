@@ -34,6 +34,24 @@ public class GenerationFunctions
         }
     }
 
+    public string StripLeadingDotPaths(string path)
+    {
+        var components = path.Replace('\\', '/').Split('/');
+        var a = 0;
+        for (var i = 0; i < components.Length; i++)
+        {
+            if (components[i] == "." || components[i] == "..")
+            {
+                continue;
+            }
+
+            a = i;
+            break;
+        }
+        return System.Linq.Enumerable.Aggregate(System.Linq.Enumerable.Skip(components, a),
+            (x, b) => x + "/" + b);
+    }
+
     public bool ProjectAndServiceIsActive(
         string platformString,
         string includePlatformString,

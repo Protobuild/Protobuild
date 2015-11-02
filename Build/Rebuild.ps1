@@ -72,9 +72,14 @@ if ($LASTEXITCODE -ne 0) {
 
 if (!$NoTest) {
     echo "Running tests..."
-    .\Protobuild.exe --execute xunit.console Protobuild.UnitTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.UnitTests.dll Protobuild.FunctionalTests\bin\$PLATFORM\AnyCPU\Release\Protobuild.FunctionalTests.dll -noshadow -html TestSummary.htm
+    .\Protobuild.exe --execute Protobuild.UnitTests
     if ($LASTEXITCODE -ne 0) {
-        echo "One or more tests failed.  See the test report in TestSummary.htm"
+        echo "One or more unit tests failed."
+        exit 1
+    }
+    .\Protobuild.exe --execute Protobuild.FunctionalTests
+    if ($LASTEXITCODE -ne 0) {
+        echo "One or more functional tests failed."
         exit 1
     }
 }

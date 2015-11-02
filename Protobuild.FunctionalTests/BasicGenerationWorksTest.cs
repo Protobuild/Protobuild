@@ -1,11 +1,14 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class BasicGenerationWorksTest : ProtobuildTest
     {
-        [Fact]
+        public BasicGenerationWorksTest(IAssert assert) : base(assert)
+        {
+        }
+        
         public void GenerationIsCorrect()
         {
             this.SetupTest("BasicGenerationWorks");

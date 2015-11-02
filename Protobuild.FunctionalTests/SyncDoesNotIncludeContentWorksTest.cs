@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class SyncDoesNotIncludeContentWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public SyncDoesNotIncludeContentWorksTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void SyncIsCorrect()
         {
             this.SetupTest("SyncDoesNotIncludeContentWorks");
@@ -21,9 +27,9 @@
 
             try
             {
-                Assert.Contains("Program.cs", targetContents);
-                Assert.Contains("Added.cs", targetContents);
-                Assert.DoesNotContain("Content", targetContents);
+                _assert.Contains("Program.cs", targetContents);
+                _assert.Contains("Added.cs", targetContents);
+                _assert.DoesNotContain("Content", targetContents);
             }
             finally
             {

@@ -310,7 +310,6 @@ namespace Protobuild
                         FileName = "chmod",
                         Arguments = "a+x Protobuild.exe",
                         WorkingDirectory = folder,
-                        CreateNoWindow = true,
                         UseShellExecute = false
                     };
                     Process.Start(chmodStartInfo);

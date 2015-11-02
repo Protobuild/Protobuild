@@ -193,20 +193,22 @@ namespace Protobuild
                     .Aggregate((a, b) => a + " " + b);
             }
 
-            Process process;
+            ProcessStartInfo startInfo;
             if (Path.DirectorySeparatorChar == '/')
             {
-                process = Process.Start(
+                startInfo = new ProcessStartInfo(
                     "mono",
                     "--debug \"" + executablePath + "\" " + arguments);
             }
             else
             {
-                process = Process.Start(
+                startInfo = new ProcessStartInfo(
                     executablePath,
                     arguments);
             }
+            startInfo.UseShellExecute = false;
 
+            var process = Process.Start(startInfo);
             process.WaitForExit();
             return process.ExitCode;
         }

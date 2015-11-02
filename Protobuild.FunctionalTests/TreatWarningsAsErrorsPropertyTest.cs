@@ -1,22 +1,28 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class TreatWarningsAsErrorsPropertyTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public TreatWarningsAsErrorsPropertyTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("TreatWarningsAsErrorsProperty");
 
             this.Generate("Windows");
 
-            Assert.True(File.Exists(this.GetPath(@"Test\Test.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Test\Test.Windows.csproj")));
 
             var projectContents = this.ReadFile(@"Test\Test.Windows.csproj");
 
-            Assert.Contains(@"<TreatWarningsAsErrors>TREAT_WARNINGS_AS_ERRORS_TEST</TreatWarningsAsErrors>", projectContents);
+            _assert.Contains(@"<TreatWarningsAsErrors>TREAT_WARNINGS_AS_ERRORS_TEST</TreatWarningsAsErrors>", projectContents);
         }
     }
 }

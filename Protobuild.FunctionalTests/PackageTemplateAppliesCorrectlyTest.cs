@@ -1,11 +1,17 @@
 namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageTemplateAppliesCorrectlyTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageTemplateAppliesCorrectlyTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GeneratedTemplateIsCorrect()
         {
             this.SetupTest("PackageTemplateAppliesCorrectly", true);
@@ -23,16 +29,16 @@ namespace Protobuild.Tests
             this.OtherMode(
                 "start", "local-template-git://" + templateFolder, workingSubdirectory: "Generated");
 
-            Assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated"))));
-            Assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.Content"))));
-            Assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedActivity.cs"))));
-            Assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedGame.cs"))));
-            Assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"))));
+            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated"))));
+            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.Content"))));
+            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedActivity.cs"))));
+            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedGame.cs"))));
+            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"))));
 
             var worldFile = ReadFile(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"));
 
-            Assert.Contains("public class GeneratedWorld", worldFile);
-            Assert.Contains("Hello Generated!", worldFile);
+            _assert.Contains("public class GeneratedWorld", worldFile);
+            _assert.Contains("Hello Generated!", worldFile);
         }
     }
 }

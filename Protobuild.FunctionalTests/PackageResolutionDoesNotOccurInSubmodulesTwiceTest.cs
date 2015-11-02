@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageResolutionDoesNotOccurInSubmodulesTwiceTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageResolutionDoesNotOccurInSubmodulesTwiceTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("PackageResolutionDoesNotOccurInSubmodulesTwice");
@@ -23,13 +29,13 @@
                 capture: true).Item1;
 
             var idxSubmoduleGeneration = stdout.IndexOf("Invoking submodule generation for Submodule", System.StringComparison.InvariantCulture);
-            Assert.NotEqual(-1, idxSubmoduleGeneration);
+            _assert.NotEqual(-1, idxSubmoduleGeneration);
 
             var substrStdout = stdout.Substring(idxSubmoduleGeneration);
             var idxPackageResolution = substrStdout.IndexOf("Starting resolution of packages...", System.StringComparison.InvariantCulture);
 
             // We should not see any package resolution we invoke submodule generation.
-            Assert.Equal(-1, idxPackageResolution);
+            _assert.Equal(-1, idxPackageResolution);
         }
     }
 }

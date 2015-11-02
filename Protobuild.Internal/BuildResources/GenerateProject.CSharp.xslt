@@ -826,7 +826,7 @@
             <xsl:otherwise>
               <Link>
                 <xsl:text>Included Code\</xsl:text>
-                <xsl:value-of select="$include_project/@Path"/>
+                <xsl:value-of select="user:StripLeadingDotPaths($include_project/@Path)"/>
                 <xsl:text>\</xsl:text>
                 <xsl:value-of select="current()/@Include" />
               </Link>

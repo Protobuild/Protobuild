@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageFilterCorrectTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageFilterCorrectTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void PackageIsCorrect()
         {
             this.SetupTest("PackageFilterCorrect", isPackTest: true);
@@ -14,19 +20,19 @@
 
             var packagedFiles = this.LoadPackage("Windows.tar.lzma");
 
-            Assert.Contains("Build/", packagedFiles.Keys);
-            Assert.Contains("Build/Module.xml", packagedFiles.Keys);
-            Assert.Contains("Build/Projects/", packagedFiles.Keys);
-            Assert.Contains("Build/Projects/Console.Windows.definition", packagedFiles.Keys);
-            Assert.Contains("Console/", packagedFiles.Keys);
-            Assert.Contains("Console/Program.cs", packagedFiles.Keys);
-            Assert.Equal(6, packagedFiles.Count);
+            _assert.Contains("Build/", packagedFiles.Keys);
+            _assert.Contains("Build/Module.xml", packagedFiles.Keys);
+            _assert.Contains("Build/Projects/", packagedFiles.Keys);
+            _assert.Contains("Build/Projects/Console.Windows.definition", packagedFiles.Keys);
+            _assert.Contains("Console/", packagedFiles.Keys);
+            _assert.Contains("Console/Program.cs", packagedFiles.Keys);
+            _assert.Equal(6, packagedFiles.Count);
 
             using (var stream = new MemoryStream(packagedFiles["Build/Projects/Console.Windows.definition"]))
             {
                 using (var reader = new StreamReader(stream))
                 {
-                    Assert.Contains("WINDOWS", reader.ReadToEnd());
+                    _assert.Contains("WINDOWS", reader.ReadToEnd());
                 }
             }
 
@@ -34,19 +40,19 @@
 
             packagedFiles = this.LoadPackage("Linux.tar.lzma");
 
-            Assert.Contains("Build/", packagedFiles.Keys);
-            Assert.Contains("Build/Module.xml", packagedFiles.Keys);
-            Assert.Contains("Build/Projects/", packagedFiles.Keys);
-            Assert.Contains("Build/Projects/Console.Linux.definition", packagedFiles.Keys);
-            Assert.Contains("Console/", packagedFiles.Keys);
-            Assert.Contains("Console/Program.cs", packagedFiles.Keys);
-            Assert.Equal(6, packagedFiles.Count);
+            _assert.Contains("Build/", packagedFiles.Keys);
+            _assert.Contains("Build/Module.xml", packagedFiles.Keys);
+            _assert.Contains("Build/Projects/", packagedFiles.Keys);
+            _assert.Contains("Build/Projects/Console.Linux.definition", packagedFiles.Keys);
+            _assert.Contains("Console/", packagedFiles.Keys);
+            _assert.Contains("Console/Program.cs", packagedFiles.Keys);
+            _assert.Equal(6, packagedFiles.Count);
 
             using (var stream = new MemoryStream(packagedFiles["Build/Projects/Console.Linux.definition"]))
             {
                 using (var reader = new StreamReader(stream))
                 {
-                    Assert.Contains("LINUX", reader.ReadToEnd());
+                    _assert.Contains("LINUX", reader.ReadToEnd());
                 }
             }
         }

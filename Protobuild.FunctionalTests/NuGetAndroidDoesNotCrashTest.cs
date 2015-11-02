@@ -1,25 +1,31 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class NuGetAndroidDoesNotCrashTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public NuGetAndroidDoesNotCrashTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("NuGetAndroidDoesNotCrash");
 
             this.Generate("Android");
 
-            Assert.True(File.Exists(this.GetPath(@"Module.Android.sln")));
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Android.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Module.Android.sln")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Android.csproj")));
 
             var consoleContents = this.ReadFile(@"Console\Console.Android.csproj");
 
-            Assert.Contains("MonoAndroid10", consoleContents);
-            Assert.Contains("MonoAndroid403", consoleContents);
-            Assert.Contains("MonoAndroid41", consoleContents);
+            _assert.Contains("MonoAndroid10", consoleContents);
+            _assert.Contains("MonoAndroid403", consoleContents);
+            _assert.Contains("MonoAndroid41", consoleContents);
         }
     }
 }

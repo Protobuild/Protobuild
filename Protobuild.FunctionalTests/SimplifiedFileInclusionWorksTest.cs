@@ -1,37 +1,43 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class SimplifiedFileInclusionWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public SimplifiedFileInclusionWorksTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("SimplifiedFileInclusionWorks");
 
             this.Generate("Windows");
 
-            Assert.True(File.Exists(this.GetPath(@"Test\Test.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Test\Test.Windows.csproj")));
 
             var projectContents = this.ReadFile(@"Test\Test.Windows.csproj");
 
-            Assert.Contains(@"<Compile", projectContents);
-            Assert.Contains(@"<Content", projectContents);
-            Assert.Contains(@"<None", projectContents);
-            Assert.Contains(@"<EmbeddedResource", projectContents);
-            Assert.Contains(@"<EmbeddedNativeLibrary", projectContents);
-            Assert.Contains(@"<EmbeddedShaderProgram", projectContents);
-            Assert.Contains(@"<ShaderProgram", projectContents);
-            Assert.Contains(@"<ApplicationDefinition", projectContents);
-            Assert.Contains(@"<Page", projectContents);
-            Assert.Contains(@"<AppxManifest", projectContents);
-            Assert.Contains(@"<BundleResource", projectContents);
-            Assert.Contains(@"<InterfaceDefinition", projectContents);
-            Assert.Contains(@"<AndroidResource", projectContents);
-            Assert.Contains(@"<SplashScreen", projectContents);
-            Assert.Contains(@"<Resource", projectContents);
-            Assert.Contains(@"<XamarinComponentReference", projectContents);
+            _assert.Contains(@"<Compile", projectContents);
+            _assert.Contains(@"<Content", projectContents);
+            _assert.Contains(@"<None", projectContents);
+            _assert.Contains(@"<EmbeddedResource", projectContents);
+            _assert.Contains(@"<EmbeddedNativeLibrary", projectContents);
+            _assert.Contains(@"<EmbeddedShaderProgram", projectContents);
+            _assert.Contains(@"<ShaderProgram", projectContents);
+            _assert.Contains(@"<ApplicationDefinition", projectContents);
+            _assert.Contains(@"<Page", projectContents);
+            _assert.Contains(@"<AppxManifest", projectContents);
+            _assert.Contains(@"<BundleResource", projectContents);
+            _assert.Contains(@"<InterfaceDefinition", projectContents);
+            _assert.Contains(@"<AndroidResource", projectContents);
+            _assert.Contains(@"<SplashScreen", projectContents);
+            _assert.Contains(@"<Resource", projectContents);
+            _assert.Contains(@"<XamarinComponentReference", projectContents);
         }
     }
 }

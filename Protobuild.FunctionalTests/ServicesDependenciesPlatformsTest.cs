@@ -1,42 +1,48 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class ServicesDependenciesPlatformsTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ServicesDependenciesPlatformsTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("ServicesDependenciesPlatforms");
 
             this.Generate("Windows");
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
-            Assert.True(File.Exists(this.GetPath(@"Module.Windows.sln")));
-            Assert.True(File.Exists(this.GetPath(@"Submodule\Library\Library.Windows.csproj")));
-            Assert.True(File.Exists(this.GetPath(@"Submodule\Submodule.Windows.sln")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Module.Windows.sln")));
+            _assert.True(File.Exists(this.GetPath(@"Submodule\Library\Library.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Submodule\Submodule.Windows.sln")));
 
             var moduleContents = this.ReadFile(@"Module.Windows.sln");
             var submoduleContents = this.ReadFile(@"Submodule\Submodule.Windows.sln");
 
-            Assert.Contains("Console.Windows.csproj", moduleContents);
-            Assert.Contains("Library.Windows.csproj", moduleContents);
-            Assert.Contains("Library.Windows.csproj", submoduleContents);
+            _assert.Contains("Console.Windows.csproj", moduleContents);
+            _assert.Contains("Library.Windows.csproj", moduleContents);
+            _assert.Contains("Library.Windows.csproj", submoduleContents);
 
             this.Generate("Linux");
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Linux.csproj")));
-            Assert.True(File.Exists(this.GetPath(@"Module.Linux.sln")));
-            Assert.False(File.Exists(this.GetPath(@"Submodule\Library\Library.Linux.csproj")));
-            Assert.True(File.Exists(this.GetPath(@"Submodule\Submodule.Linux.sln")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Linux.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Module.Linux.sln")));
+            _assert.False(File.Exists(this.GetPath(@"Submodule\Library\Library.Linux.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Submodule\Submodule.Linux.sln")));
 
             moduleContents = this.ReadFile(@"Module.Linux.sln");
             submoduleContents = this.ReadFile(@"Submodule\Submodule.Linux.sln");
 
-            Assert.Contains("Console.Linux.csproj", moduleContents);
-            Assert.DoesNotContain("Library.Linux.csproj", moduleContents);
-            Assert.DoesNotContain("Library.Linux.csproj", submoduleContents);
+            _assert.Contains("Console.Linux.csproj", moduleContents);
+            _assert.DoesNotContain("Library.Linux.csproj", moduleContents);
+            _assert.DoesNotContain("Library.Linux.csproj", submoduleContents);
         }
     }
 }

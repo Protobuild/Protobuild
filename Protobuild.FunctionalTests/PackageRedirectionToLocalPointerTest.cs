@@ -1,11 +1,17 @@
 namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageRedirectionToLocalPointerTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageRedirectionToLocalPointerTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("PackageRedirectionToLocalPointer");
@@ -22,7 +28,7 @@ namespace Protobuild.Tests
 
             // Pointers should create a .redirect file which Protobuild uses to then link
             // across the folder hierarchy.
-            Assert.True(File.Exists(this.GetPath("Package\\.redirect")));
+            _assert.True(File.Exists(this.GetPath("Package\\.redirect")));
         }
     }
 }
