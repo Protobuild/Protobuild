@@ -53,6 +53,8 @@ namespace Protobuild
 
         public string[] ExecuteProjectArguments { get; set; }
 
+        public string ExecuteProjectConfiguration { get; set; }
+
         public string PackageRoot { get; set; }
 
         public bool DebugServiceResolution { get; set; }

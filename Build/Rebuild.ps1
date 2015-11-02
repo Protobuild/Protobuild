@@ -72,12 +72,12 @@ if ($LASTEXITCODE -ne 0) {
 
 if (!$NoTest) {
     echo "Running tests..."
-    .\Protobuild.exe --execute Protobuild.UnitTests
+    .\Protobuild.exe --execute-configuration Release --execute Protobuild.UnitTests
     if ($LASTEXITCODE -ne 0) {
         echo "One or more unit tests failed."
         exit 1
     }
-    .\Protobuild.exe --execute Protobuild.FunctionalTests
+    .\Protobuild.exe --execute-configuration Release --execute Protobuild.FunctionalTests
     if ($LASTEXITCODE -ne 0) {
         echo "One or more functional tests failed."
         exit 1

@@ -58,8 +58,8 @@ xbuild /p:Configuration=$CONFIGURATION /t:Rebuild Protobuild.$PLATFORM.sln
 
 if [ "$NOTEST" == "false" ]; then
   echo "Running tests..."
-  mono Protobuild.exe --execute Protobuild.UnitTests
-  mono Protobuild.exe --execute Protobuild.FunctionalTests
+  mono Protobuild.exe --execute-configuration $CONFIGURATION --execute Protobuild.UnitTests
+  mono Protobuild.exe --execute-configuration $CONFIGURATION --execute Protobuild.FunctionalTests
 fi
 
 if [ "$CONFIGURATION" == "Release" ]; then

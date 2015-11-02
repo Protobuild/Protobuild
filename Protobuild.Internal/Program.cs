@@ -54,6 +54,7 @@ namespace Protobuild
                 { "swap-to-binary", kernel.Get<SwapToBinaryCommand>() },
                 { "start", kernel.Get<StartCommand>() },
                 { "execute", kernel.Get<ExecuteCommand>() },
+                { "execute-configuration", kernel.Get<ExecuteConfigurationCommand>() },
             };
 
             var execution = new Execution();

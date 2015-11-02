@@ -124,10 +124,11 @@ namespace Protobuild
                         var prefixPath = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, target, document, false);
                         var directory = new DirectoryInfo(Path.Combine(modulePath, prefixPath));
                         var subdirectories = directory.GetDirectories();
-                        var debugDirectory = subdirectories.FirstOrDefault(x => x.Name.ToLowerInvariant() == "debug");
-                        if (debugDirectory != null && File.Exists(Path.Combine(debugDirectory.FullName, assemblyName + ".exe")))
+                        var preferredName = (execution.ExecuteProjectConfiguration ?? "Debug").ToLowerInvariant();
+                        var preferredDirectory = subdirectories.FirstOrDefault(x => x.Name.ToLowerInvariant() == preferredName);
+                        if (preferredDirectory != null && File.Exists(Path.Combine(preferredDirectory.FullName, assemblyName + ".exe")))
                         {
-                            executablePath = Path.Combine(debugDirectory.FullName, assemblyName + ".exe");
+                            executablePath = Path.Combine(preferredDirectory.FullName, assemblyName + ".exe");
                         }
                         else
                         {
