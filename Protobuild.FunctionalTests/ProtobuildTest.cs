@@ -234,6 +234,8 @@ namespace Protobuild.Tests
             CopyDirectory(dataLocation, tempLocation);
 
             RunGitAndCapture(tempLocation, "init");
+            RunGitAndCapture(tempLocation, "config user.email temp@temp.com");
+            RunGitAndCapture(tempLocation, "config user.name Temp");
             RunGitAndCapture(tempLocation, "add -f .");
             RunGitAndCapture(tempLocation, "commit -a -m 'temp'");
 
