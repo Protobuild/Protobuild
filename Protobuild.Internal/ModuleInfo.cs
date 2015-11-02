@@ -460,6 +460,7 @@ namespace Protobuild
                     FileName = "chmod",
                     Arguments = "a+x Protobuild.exe",
                     WorkingDirectory = this.Path,
+                    CreateNoWindow = capture,
                     UseShellExecute = false
                 };
                 Process.Start(chmodStartInfo);
@@ -484,9 +485,44 @@ namespace Protobuild
                         FileName = protobuildPath,
                         Arguments = args,
                         WorkingDirectory = this.Path,
+                        CreateNoWindow = capture,
+                        RedirectStandardError = capture,
+                        RedirectStandardInput = capture,
+                        RedirectStandardOutput = capture,
                         UseShellExecute = false
                     };
                     var p = new Process { StartInfo = pi };
+                    if (capture)
+                    {
+                        p.OutputDataReceived += (sender, eventArgs) =>
+                        {
+                            if (!string.IsNullOrEmpty(eventArgs.Data))
+                            {
+                                if (capture)
+                                {
+                                    stdout += eventArgs.Data + "\n";
+                                }
+                                else
+                                {
+                                    Console.WriteLine(eventArgs.Data);
+                                }
+                            }
+                        };
+                        p.ErrorDataReceived += (sender, eventArgs) =>
+                        {
+                            if (!string.IsNullOrEmpty(eventArgs.Data))
+                            {
+                                if (capture)
+                                {
+                                    stderr += eventArgs.Data + "\n";
+                                }
+                                else
+                                {
+                                    Console.Error.WriteLine(eventArgs.Data);
+                                }
+                            }
+                        };
+                    }
                     try
                     {
                         p.Start();
@@ -512,6 +548,11 @@ namespace Protobuild
                                 throw;
                             }
                         }
+                    }
+                    if (capture)
+                    {
+                        p.BeginOutputReadLine();
+                        p.BeginErrorReadLine();
                     }
                     p.WaitForExit();
                     return new Tuple<int, string, string>(p.ExitCode, stdout, stderr);
