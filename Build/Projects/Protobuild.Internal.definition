@@ -104,6 +104,7 @@
     <Compile Include="CommandLine\DisableServiceCommand.cs" />
     <Compile Include="CommandLine\EnableServiceCommand.cs" />
     <Compile Include="CommandLine\ExecuteCommand.cs" />
+    <Compile Include="CommandLine\ExecuteConfigurationCommand.cs" />
     <Compile Include="CommandLine\Execution.cs" />
     <Compile Include="CommandLine\ExtractXSLTCommand.cs" />
     <Compile Include="CommandLine\FormatPackageCommand.cs" />
