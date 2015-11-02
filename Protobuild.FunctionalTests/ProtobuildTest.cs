@@ -217,6 +217,8 @@ namespace Protobuild.Tests
             File.Copy(protobuildLocation, Path.Combine(tempLocation, "Protobuild.exe"), true);
 
             RunGitAndCapture(tempLocation, "init");
+            RunGitAndCapture(tempLocation, "config user.email temp@temp.com");
+            RunGitAndCapture(tempLocation, "config user.name Temp");
             RunGitAndCapture(tempLocation, "add -f .");
             RunGitAndCapture(tempLocation, "commit -a -m 'temp'");
 
