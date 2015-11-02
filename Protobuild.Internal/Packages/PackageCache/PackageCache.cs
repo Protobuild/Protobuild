@@ -120,35 +120,49 @@ namespace Protobuild
 
         public IPackageContent GetSourcePackage(string url, string gitHash)
         {
-            var sourceName = Path.Combine(
+            var sourcePath = Path.Combine(
                 _packageCacheConfiguration.GetCacheDirectory(),
                 this.GetPackageName(url, string.Empty, "Source", string.Empty));
 
             if (this.HasSourcePackage(url, gitHash))
             {
-                try
+                if (Directory.Exists(Path.Combine(sourcePath, ".git")))
                 {
-                    GitUtils.RunGitAbsolute(sourceName, "fetch origin +refs/heads/*:refs/heads/*");
-                }
-                catch (InvalidOperationException)
-                {
-                    // Ignore exceptions here in case the user is offline.
-                }
+                    try
+                    {
+                        GitUtils.RunGitAbsolute(sourcePath, "fetch origin +refs/heads/*:refs/heads/*");
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Ignore exceptions here in case the user is offline.
+                    }
 
-                return new SourcePackageContent(this)
+                    return new SourcePackageContent(this)
+                    {
+                        SourcePath = sourcePath,
+                        GitRef = gitHash,
+                        OriginalGitUri = url,
+                    };
+                }
+                else
                 {
-                    SourcePath = sourceName,
-                    GitRef = gitHash,
-                    OriginalGitUri = url,
-                };
+                    try
+                    {
+                        Directory.Delete(sourcePath, true);
+                    }
+                    catch (Exception)
+                    {
+                        Console.Error.WriteLine("WARNING: Unable to delete invalid source package from cache!");
+                    }
+                }
             }
 
-            Directory.CreateDirectory(sourceName);
-            GitUtils.RunGit(null, "clone --progress --bare " + url + " " + sourceName);
+            Directory.CreateDirectory(sourcePath);
+            GitUtils.RunGit(null, "clone --progress --bare " + url + " " + sourcePath);
 
             return new SourcePackageContent(this)
             {
-                SourcePath = sourceName,
+                SourcePath = sourcePath,
                 GitRef = gitHash,
                 OriginalGitUri = url,
             };
