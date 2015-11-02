@@ -1,18 +1,24 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class CPlusPlusConsoleWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public CPlusPlusConsoleWorksTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("CPlusPlusConsoleWorks");
 
             this.Generate("Windows");
 
-            Assert.True(
+            _assert.True(
                 File.Exists(this.GetPath(@"Console\Console.Windows.cproj")) ||
                 File.Exists(this.GetPath(@"Console\Console.Windows.vcxproj")));
 
@@ -21,10 +27,10 @@
                 var consoleContents = this.ReadFile(@"Console\Console.Windows.cproj");
 
                 // Looks for various C++ specific configuration values.
-                Assert.Contains("main.c", consoleContents);
-                Assert.Contains("SourceDirectory", consoleContents);
-                Assert.Contains("DefineSymbols", consoleContents);
-                Assert.Contains("GccCompiler", consoleContents);
+                _assert.Contains("main.c", consoleContents);
+                _assert.Contains("SourceDirectory", consoleContents);
+                _assert.Contains("DefineSymbols", consoleContents);
+                _assert.Contains("GccCompiler", consoleContents);
             }
             else if (File.Exists(this.GetPath(@"Console\Console.Windows.vcxproj")))
             {

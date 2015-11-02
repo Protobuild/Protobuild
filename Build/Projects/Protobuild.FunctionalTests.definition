@@ -1,25 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Name="Protobuild.FunctionalTests" Path="Protobuild.FunctionalTests" Type="Library">
-  <Properties>
-    <FrameworkVersions>
-      <Platform Name="Windows">
-        <Version>v4.5</Version>
-      </Platform>
-      <Platform Name="MacOS">
-        <Version>v4.5</Version>
-      </Platform>
-      <Platform Name="Linux">
-        <Version>v4.5</Version>
-      </Platform>
-    </FrameworkVersions>
-  </Properties>
+<Project Name="Protobuild.FunctionalTests" Path="Protobuild.FunctionalTests" Type="Console">
   <References>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Protobuild" />
-    <Reference Include="xunit" />
+    <Reference Include="Prototest" />
   </References>
   <Files>
     <Compile Include="..\Protobuild.Internal\Packages\Reduplicator.cs">

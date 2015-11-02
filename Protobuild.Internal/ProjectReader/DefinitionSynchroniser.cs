@@ -210,6 +210,16 @@ namespace Protobuild
                     }
                 }
                 
+                // Ignore files included by include projects.
+                if (element.ChildNodes.OfType<XmlNode>().Any(x => x.Name == "FromIncludeProject"))
+                {
+                    if (element.ChildNodes.OfType<XmlNode>().First(x => x.Name == "FromIncludeProject").InnerText.Trim() ==
+                        "True")
+                    {
+                        continue;
+                    }
+                }
+
                 // Ignore native binaries.
                 if (element.Name == "None")
                 {

@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class ForcePCLGenerationWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ForcePCLGenerationWorksTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("ForcePCLGenerationWorks");

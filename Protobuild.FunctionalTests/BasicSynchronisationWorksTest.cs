@@ -1,11 +1,14 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class BasicSynchronisationWorksTest : ProtobuildTest
     {
-        [Fact]
+        public BasicSynchronisationWorksTest(IAssert assert) : base(assert)
+        {
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("BasicSynchronisationWorks");

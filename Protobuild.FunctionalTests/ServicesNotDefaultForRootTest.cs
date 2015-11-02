@@ -1,22 +1,28 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class ServicesNotDefaultForRootTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ServicesNotDefaultForRootTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("ServicesNotDefaultForRoot");
 
             this.Generate();
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
 
             var projectContents = this.ReadFile(@"Console\Console.Windows.csproj");
 
-            Assert.DoesNotContain("CONSOLE_SERVICE;", projectContents);
+            _assert.DoesNotContain("CONSOLE_SERVICE;", projectContents);
         }
     }
 }

@@ -15,27 +15,13 @@ namespace Protobuild
                 FileName = "git",
                 Arguments = str,
                 WorkingDirectory = workingDirectory,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
                 UseShellExecute = false,
             };
             
             Console.WriteLine(consoleWriteLine);
-
-            var renderer = new GitRenderer();
-            DataReceivedEventHandler handler = (sender, args) =>
-            {
-                renderer.Update(args.Data);
-            };
             
             var process = Process.Start(processStartInfo);
-            process.OutputDataReceived += handler;
-            process.ErrorDataReceived += handler;
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
             process.WaitForExit();
-            renderer.Finalize();
 
             if (process.ExitCode != 0)
             {

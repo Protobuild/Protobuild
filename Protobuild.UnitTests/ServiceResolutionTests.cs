@@ -1,12 +1,18 @@
-﻿using Xunit;
-using Protobuild.Services;
+﻿using Protobuild.Services;
 using System.Collections.Generic;
+using Prototest.Library.Version1;
 
 namespace Protobuild.Tests
 {
     public class ServiceResolutionTests
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ServiceResolutionTests(IAssert assert)
+        {
+            _assert = assert;
+        }
+        
         public void MultiPassResolutionDoesNotIntroduceConflictingRequirements()
         {
             var a = new Service
@@ -37,12 +43,11 @@ namespace Protobuild.Tests
 
             // This should not throw an exception.
             var enabled = manager.ResolveServices(services);
-            Assert.DoesNotContain(a, enabled);
-            Assert.DoesNotContain(b, enabled);
-            Assert.Contains(c, enabled);
+            _assert.DoesNotContain(a, enabled);
+            _assert.DoesNotContain(b, enabled);
+            _assert.Contains(c, enabled);
         }
-
-        [Fact]
+        
         public void EnabledServiceWithConflictingDependencyDisablesDependentRecommendedService()
         {
             var a = new Service
@@ -73,9 +78,9 @@ namespace Protobuild.Tests
 
             // This should not throw an exception.
             var enabled = manager.ResolveServices(services);
-            Assert.DoesNotContain(a, enabled);
-            Assert.DoesNotContain(b, enabled);
-            Assert.Contains(c, enabled);
+            _assert.DoesNotContain(a, enabled);
+            _assert.DoesNotContain(b, enabled);
+            _assert.Contains(c, enabled);
         }
     }
 }

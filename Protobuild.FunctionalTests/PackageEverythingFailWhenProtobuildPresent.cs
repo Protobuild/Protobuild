@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageEverythingFailWhenProtobuildPresentTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageEverythingFailWhenProtobuildPresentTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void PackageIsCorrect()
         {
             this.SetupTest("PackageEverythingFailWhenProtobuildPresent", isPackTest: true);

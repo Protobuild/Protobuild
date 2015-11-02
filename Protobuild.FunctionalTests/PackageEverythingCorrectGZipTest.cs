@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageEverythingCorrectGZipTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageEverythingCorrectGZipTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void PackageIsCorrect()
         {
             this.SetupTest("PackageEverythingCorrectGZip", isPackTest: true);
@@ -14,13 +20,13 @@
 
             var packagedFiles = this.LoadPackage("Test.tar.gz");
 
-            Assert.Contains("Build/", packagedFiles.Keys);
-            Assert.Contains("Build/Module.xml", packagedFiles.Keys);
-            Assert.Contains("Build/Projects/", packagedFiles.Keys);
-            Assert.Contains("Build/Projects/Console.definition", packagedFiles.Keys);
-            Assert.Contains("Console/", packagedFiles.Keys);
-            Assert.Contains("Console/Program.cs", packagedFiles.Keys);
-            Assert.Equal(6, packagedFiles.Count);
+            _assert.Contains("Build/", packagedFiles.Keys);
+            _assert.Contains("Build/Module.xml", packagedFiles.Keys);
+            _assert.Contains("Build/Projects/", packagedFiles.Keys);
+            _assert.Contains("Build/Projects/Console.definition", packagedFiles.Keys);
+            _assert.Contains("Console/", packagedFiles.Keys);
+            _assert.Contains("Console/Program.cs", packagedFiles.Keys);
+            _assert.Equal(6, packagedFiles.Count);
         }
     }
 }

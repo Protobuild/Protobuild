@@ -1,10 +1,16 @@
 ﻿namespace Protobuild.Tests
 {
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class QueryFeaturesTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public QueryFeaturesTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("QueryFeatures");
@@ -16,7 +22,7 @@
                 "list-packages",
             };
 
-            Assert.Equal(expectedFeatureList, featureList);
+            _assert.Equal(expectedFeatureList, featureList);
         }
     }
 }

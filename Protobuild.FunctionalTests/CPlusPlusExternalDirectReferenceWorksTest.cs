@@ -2,20 +2,27 @@
 {
     using System;
     using System.IO;
-    using Xunit;
-
-    [Collection("CPlusPlusPotentialSWIGInstallation")]
+    using Prototest.Library.Version1;
+    
     public class CPlusPlusExternalDirectReferenceWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public CPlusPlusExternalDirectReferenceWorksTest(IAssert assert, ICategorize categorize) : base(assert)
+        {
+            _assert = assert;
+
+            categorize.Method("CPlusPlusPotentialSWIGInstallation", () => GenerationIsCorrect());
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("CPlusPlusExternalDirectReferenceWorks");
 
             this.Generate("Windows");
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
-            Assert.True(
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
+            _assert.True(
                 File.Exists(this.GetPath(@"Library\Library.Windows.cproj")) ||
                 File.Exists(this.GetPath(@"Library\Library.Windows.vcxproj")));
 
@@ -23,15 +30,15 @@
 
             if (Path.DirectorySeparatorChar == '/')
             {
-                Assert.Contains("libLibrary.so", consoleContents);
+                _assert.Contains("libLibrary.so", consoleContents);
             }
             else
             {
-                Assert.Contains("Library32.dll", consoleContents);
-                Assert.Contains("Library64.dll", consoleContents);
+                _assert.Contains("Library32.dll", consoleContents);
+                _assert.Contains("Library64.dll", consoleContents);
             }
 
-            Assert.Contains("LibraryBinding.dll", consoleContents);
+            _assert.Contains("LibraryBinding.dll", consoleContents);
         }
     }
 }

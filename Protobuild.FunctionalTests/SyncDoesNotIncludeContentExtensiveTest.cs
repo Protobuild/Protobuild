@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class SyncDoesNotIncludeContentExtensiveTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public SyncDoesNotIncludeContentExtensiveTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void SyncIsCorrect()
         {
             this.SetupTest("SyncDoesNotIncludeContentExtensive");
@@ -21,10 +27,10 @@
 
             try
             {
-                Assert.Contains("Program.cs", targetContents);
-                Assert.Contains("Furnace.cs", targetContents);
-                Assert.DoesNotContain(@"..\HMRQ.Content\assets\.source", targetContents);
-                Assert.DoesNotContain(@"..\HMRQ.Content\assets\audio\Jump.wav", targetContents);
+                _assert.Contains("Program.cs", targetContents);
+                _assert.Contains("Furnace.cs", targetContents);
+                _assert.DoesNotContain(@"..\HMRQ.Content\assets\.source", targetContents);
+                _assert.DoesNotContain(@"..\HMRQ.Content\assets\audio\Jump.wav", targetContents);
             }
             finally
             {

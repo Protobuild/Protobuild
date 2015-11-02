@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using Prototest.Library.Version1;
 
 namespace Protobuild.Tests
 {
@@ -11,14 +12,23 @@ namespace Protobuild.Tests
 
     public abstract class ProtobuildTest
     {
+        private readonly IAssert _assert;
+
         private string m_TestName;
 
         private string m_TestLocation;
 
+        private string _protobuildName;
+
+        protected ProtobuildTest(IAssert assert)
+        {
+            _assert = assert;
+        }
+
         protected void SetupTest(string name, bool isPackTest = false)
         {
             // This is used to ensure Protobuild.exe is referenced.
-            Console.WriteLine(typeof(Protobuild.Bootstrap.Program).FullName);
+            _protobuildName = typeof(Protobuild.Bootstrap.Program).FullName;
 
             this.m_TestName = name;
 
@@ -89,43 +99,35 @@ namespace Protobuild.Tests
                 FileName = Path.Combine(this.m_TestLocation, "Protobuild.exe"),
                 Arguments = "--" + mode + " " + (args ?? string.Empty),
                 WorkingDirectory = workingSubdirectory != null ? Path.Combine(this.m_TestLocation, workingSubdirectory) : this.m_TestLocation,
-                CreateNoWindow = true,
+                CreateNoWindow = capture,
                 UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
+                RedirectStandardError = capture,
+                RedirectStandardOutput = capture,
             };
             var p = new Process { StartInfo = pi };
-            p.OutputDataReceived += (sender, eventArgs) =>
+            if (capture)
             {
-                if (!string.IsNullOrEmpty(eventArgs.Data))
+                p.OutputDataReceived += (sender, eventArgs) =>
                 {
-                    if (capture)
+                    if (!string.IsNullOrEmpty(eventArgs.Data))
                     {
                         stdout += eventArgs.Data + "\n";
                     }
-                    else
-                    {
-                        Console.WriteLine(eventArgs.Data);
-                    }
-                }
-            };
-            p.ErrorDataReceived += (sender, eventArgs) =>
-            {
-                if (!string.IsNullOrEmpty(eventArgs.Data))
+                };
+                p.ErrorDataReceived += (sender, eventArgs) =>
                 {
-                    if (capture)
+                    if (!string.IsNullOrEmpty(eventArgs.Data))
                     {
                         stderr += eventArgs.Data + "\n";
                     }
-                    else
-                    {
-                        Console.WriteLine(eventArgs.Data);
-                    }
-                }
-            };
+                };
+            }
             p.Start();
-            p.BeginOutputReadLine();
-            p.BeginErrorReadLine();
+            if (capture)
+            {
+                p.BeginOutputReadLine();
+                p.BeginErrorReadLine();
+            }
             p.WaitForExit();
 
             if (p.ExitCode == 134)
@@ -136,11 +138,11 @@ namespace Protobuild.Tests
 
             if (expectFailure)
             {
-                Xunit.Assert.True(1 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to fail, but got successful exit code.");
+                _assert.True(1 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to fail, but got successful exit code.");
             }
             else
             {
-                Xunit.Assert.True(0 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to succeed, but got failure exit code.");
+                _assert.True(0 == p.ExitCode, "Expected command '" + pi.FileName + " " + pi.Arguments + "' to succeed, but got failure exit code.");
             }
 
             return new Tuple<string, string>(stdout, stderr);

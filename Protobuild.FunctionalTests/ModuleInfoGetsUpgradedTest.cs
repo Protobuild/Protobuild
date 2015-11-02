@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class ModuleInfoGetsUpgradedTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ModuleInfoGetsUpgradedTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("ModuleInfoGetsUpgraded");
@@ -21,8 +27,8 @@
 
             this.Generate("Windows");
 
-            Assert.True(File.Exists(GetPath(Path.Combine("Build", "Module.xml"))));
-            Assert.Equal(@"<?xml version=""1.0"" encoding=""utf-8""?>
+            _assert.True(File.Exists(GetPath(Path.Combine("Build", "Module.xml"))));
+            _assert.Equal(@"<?xml version=""1.0"" encoding=""utf-8""?>
 <Module>
   <Name>Protobuild</Name>
   <DefaultAction>resync</DefaultAction>

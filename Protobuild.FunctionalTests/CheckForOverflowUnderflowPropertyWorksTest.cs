@@ -1,22 +1,28 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class CheckForOverflowUnderflowPropertyWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public CheckForOverflowUnderflowPropertyWorksTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("CheckForOverflowUnderflowPropertyWorks");
 
             this.Generate("Windows");
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
 
             var consoleContents = this.ReadFile(@"Console\Console.Windows.csproj");
 
-            Assert.Contains("<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>", consoleContents);
+            _assert.Contains("<CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>", consoleContents);
         }
     }
 }

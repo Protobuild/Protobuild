@@ -1,11 +1,17 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class PackageLocationTwoNestedSubmoduleSamePackageTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public PackageLocationTwoNestedSubmoduleSamePackageTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("PackageLocationTwoNestedSubmoduleSamePackage");
@@ -24,26 +30,26 @@
 
             this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src);
 
-            Assert.False(File.Exists(this.GetPath("Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
-            Assert.False(File.Exists(this.GetPath("SubmoduleA\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
-            Assert.False(File.Exists(this.GetPath("SubmoduleB\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
-            Assert.True(File.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
-            Assert.False(File.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
-            Assert.False(File.Exists(this.GetPath("Package\\.redirect")));
-            Assert.False(File.Exists(this.GetPath("SubmoduleA\\Package\\.redirect")));
-            Assert.False(File.Exists(this.GetPath("SubmoduleB\\Package\\.redirect")));
-            Assert.False(File.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package\\.redirect")));
-            Assert.True(File.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package\\.redirect")));
-            Assert.True(File.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\NestedLibraryA\\NestedLibraryA.Windows.csproj")));
-            Assert.True(File.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\NestedLibraryB\\NestedLibraryB.Windows.csproj")));
+            _assert.False(File.Exists(this.GetPath("Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
+            _assert.False(File.Exists(this.GetPath("SubmoduleA\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
+            _assert.False(File.Exists(this.GetPath("SubmoduleB\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
+            _assert.False(File.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package\\PackageLibrary\\PackageLibrary.Windows.csproj")));
+            _assert.False(File.Exists(this.GetPath("Package\\.redirect")));
+            _assert.False(File.Exists(this.GetPath("SubmoduleA\\Package\\.redirect")));
+            _assert.False(File.Exists(this.GetPath("SubmoduleB\\Package\\.redirect")));
+            _assert.False(File.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\Package\\.redirect")));
+            _assert.True(File.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\Package\\.redirect")));
+            _assert.True(File.Exists(this.GetPath("SubmoduleA\\NestedSubmoduleA\\NestedLibraryA\\NestedLibraryA.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath("SubmoduleB\\NestedSubmoduleB\\NestedLibraryB\\NestedLibraryB.Windows.csproj")));
 
             var nestedLibraryAContents = this.ReadFile("SubmoduleA\\NestedSubmoduleA\\NestedLibraryA\\NestedLibraryA.Windows.csproj");
             var nestedLibraryBContents = this.ReadFile("SubmoduleB\\NestedSubmoduleB\\NestedLibraryB\\NestedLibraryB.Windows.csproj");
 
-            Assert.Contains(
+            _assert.Contains(
                 @"Include=""..\Package\PackageLibrary\PackageLibrary.Windows.csproj""",
                 nestedLibraryAContents);
-            Assert.Contains(
+            _assert.Contains(
                 @"Include=""..\..\..\SubmoduleA\NestedSubmoduleA\Package\PackageLibrary\PackageLibrary.Windows.csproj""",
                 nestedLibraryBContents);
         }

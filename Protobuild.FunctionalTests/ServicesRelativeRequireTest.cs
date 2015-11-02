@@ -1,23 +1,29 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class ServicesRelativeRequireTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public ServicesRelativeRequireTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("ServicesRelativeRequire");
 
             this.Generate();
 
-            Assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
 
             var projectContents = this.ReadFile(@"Console\Console.Windows.csproj");
 
-            Assert.Contains("CONSOLE_SERVICE_A;", projectContents);
-            Assert.Contains("CONSOLE_SERVICE_B;", projectContents);
+            _assert.Contains("CONSOLE_SERVICE_A;", projectContents);
+            _assert.Contains("CONSOLE_SERVICE_B;", projectContents);
         }
     }
 }

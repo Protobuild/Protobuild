@@ -1,25 +1,31 @@
 ﻿namespace Protobuild.Tests
 {
     using System.IO;
-    using Xunit;
+    using Prototest.Library.Version1;
 
     public class iOSUnifiedAPIGenerationWorksTest : ProtobuildTest
     {
-        [Fact]
+        private readonly IAssert _assert;
+
+        public iOSUnifiedAPIGenerationWorksTest(IAssert assert) : base(assert)
+        {
+            _assert = assert;
+        }
+
         public void GenerationIsCorrect()
         {
             this.SetupTest("iOSUnifiedAPIGenerationWorks");
 
             this.Generate("iOS");
 
-            Assert.True(File.Exists(this.GetPath(@"App\App.iOS.csproj")));
+            _assert.True(File.Exists(this.GetPath(@"App\App.iOS.csproj")));
 
             var appContents = this.ReadFile(@"App\App.iOS.csproj");
 
-            Assert.Contains(@"Xamarin.iOS", appContents);
-            Assert.Contains(@"$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets", appContents);
-            Assert.DoesNotContain(@"monotouch", appContents);
-            Assert.DoesNotContain(@"$(MSBuildToolsPath)\Microsoft.CSharp.targets", appContents);
+            _assert.Contains(@"Xamarin.iOS", appContents);
+            _assert.Contains(@"$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets", appContents);
+            _assert.DoesNotContain(@"monotouch", appContents);
+            _assert.DoesNotContain(@"$(MSBuildToolsPath)\Microsoft.CSharp.targets", appContents);
         }
     }
 }
