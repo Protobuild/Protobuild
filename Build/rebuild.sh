@@ -12,14 +12,20 @@ else
   PLATFORM=Linux
 fi
 
-if [ "$1" == "--nogen" ]; then
+if [ "$1" == "--nogen" ||  "$2" == "--nogen" ||  "$3" == "--nogen" ]; then
   NOGEN="true"
 else
   NOGEN="false"
 fi
 
+if [ "$1" == "--notest" ||  "$2" == "--notest" ||  "$3" == "--notest" ]; then
+  NOTEST="true"
+else
+  NOTEST="false"
+fi
+
 CONFIGURATION="Release"
-if [ "$1" == "--debug" || "$2" == "--debug" ]; then
+if [ "$1" == "--debug" || "$2" == "--debug" || "$3" == "--debug" ]; then
   CONFIGURATION="Debug"
 fi
 
@@ -50,8 +56,11 @@ mono $PROTOBUILD_COMPRESS Protobuild.Internal/bin/$PLATFORM/AnyCPU/$CONFIGURATIO
 echo "Performing final-pass build..."
 xbuild /p:Configuration=$CONFIGURATION /t:Rebuild Protobuild.$PLATFORM.sln
 
-echo "Running tests..."
-mono Protobuild.exe --execute xunit.console Protobuild.UnitTests/bin/$PLATFORM/AnyCPU/$CONFIGURATION/Protobuild.UnitTests.dll Protobuild.FunctionalTests/bin/$PLATFORM/AnyCPU/$CONFIGURATION/Protobuild.FunctionalTests.dll -noshadow -html TestSummary.htm
+if [ "$NOTEST" == "false" ]; then
+  echo "Running tests..."
+  mono Protobuild.exe --execute Protobuild.UnitTests
+  mono Protobuild.exe --execute Protobuild.FunctionalTests
+fi
 
 if [ "$CONFIGURATION" == "Release" ]; then
   echo "Copying built Protobuild to root of repository..."
