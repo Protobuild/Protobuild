@@ -12,20 +12,20 @@ else
   PLATFORM=Linux
 fi
 
-if [ "$1" == "--nogen" ||  "$2" == "--nogen" ||  "$3" == "--nogen" ]; then
+if [ "$1" == "--nogen" ] || [ "$2" == "--nogen" ] || [ "$3" == "--nogen" ]; then
   NOGEN="true"
 else
   NOGEN="false"
 fi
 
-if [ "$1" == "--notest" ||  "$2" == "--notest" ||  "$3" == "--notest" ]; then
+if [ "$1" == "--notest" ] || [ "$2" == "--notest" ] || [ "$3" == "--notest" ]; then
   NOTEST="true"
 else
   NOTEST="false"
 fi
 
 CONFIGURATION="Release"
-if [ "$1" == "--debug" || "$2" == "--debug" || "$3" == "--debug" ]; then
+if [ "$1" == "--debug" ] || [ "$2" == "--debug" ] || [ "$3" == "--debug" ]; then
   CONFIGURATION="Debug"
 fi
 

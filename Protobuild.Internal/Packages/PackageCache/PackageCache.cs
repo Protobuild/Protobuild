@@ -126,7 +126,8 @@ namespace Protobuild
 
             if (this.HasSourcePackage(url, gitHash))
             {
-                if (Directory.Exists(Path.Combine(sourcePath, ".git")))
+                if (Directory.Exists(Path.Combine(sourcePath, "objects")) &&
+                    File.Exists(Path.Combine(sourcePath, "config")))
                 {
                     try
                     {
@@ -146,6 +147,7 @@ namespace Protobuild
                 }
                 else
                 {
+                    Console.Error.WriteLine("WARNING: Source package cache is corrupt, removing and cloning again...");
                     try
                     {
                         Directory.Delete(sourcePath, true);
