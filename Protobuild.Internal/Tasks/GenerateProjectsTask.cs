@@ -93,11 +93,7 @@ namespace Protobuild.Tasks
                 this.LogMessage("Loading: " + definition.Name);
                 loadedProjects.Add(
                     this.m_ProjectLoader.Load(
-                        Path.Combine(
-                            definition.ModulePath,
-                            "Build",
-                            "Projects",
-                            definition.Name + ".definition"),
+                        definition.DefinitionPath,
                         this.Platform,
                         module.Path,
                         definition.ModulePath));

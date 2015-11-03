@@ -43,11 +43,7 @@ namespace Protobuild
                 Console.WriteLine("Loading: " + definition.Name);
                 loadedProjects.Add(
                     this.m_ProjectLoader.Load(
-                        Path.Combine(
-                            definition.ModulePath,
-                            "Build",
-                            "Projects",
-                            definition.Name + ".definition"),
+                        definition.DefinitionPath,
                         platform,
                         module.Path,
                         definition.ModulePath));

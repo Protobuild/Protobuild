@@ -59,6 +59,11 @@ namespace Protobuild
                 throw new InvalidOperationException("The source folder " + execution.PackageSourceFolder + " does not exist.");
             }
 
+            if (execution.PackagePlatform == "Template")
+            {
+                return ExecuteForTemplate(execution);
+            }
+
             var allowAutopackage = true;
             var moduleExpectedPath = Path.Combine(execution.PackageSourceFolder, "Build", "Module.xml");
             ModuleInfo rootModule = null;
@@ -127,6 +132,100 @@ namespace Protobuild
             else
             {
                 customDirectives["autopackage"](filter);
+            }
+
+            if (File.Exists(execution.PackageDestinationFile))
+            {
+                Console.WriteLine("The destination file " + execution.PackageDestinationFile + " already exists; it will be overwritten.");
+                File.Delete(execution.PackageDestinationFile);
+            }
+
+            filter.ImplyDirectories();
+
+            var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
+
+            if (!filterDictionary.ContainsValue("Build/"))
+            {
+                Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
+                return 1;
+            }
+
+            if (!filterDictionary.ContainsValue("Build/Projects/"))
+            {
+                Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
+                return 1;
+            }
+
+            if (!filterDictionary.ContainsValue("Build/Module.xml"))
+            {
+                Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
+                return 1;
+            }
+
+            if (filterDictionary.ContainsValue("Protobuild.exe"))
+            {
+                Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
+                if (execution.PackageFilterFile != null)
+                {
+                    this.PrintFilterMappings(filterDictionary);
+                }
+                return 1;
+            }
+
+            using (var target = new FileStream(execution.PackageDestinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                _packageCreator.Create(
+                    target,
+                    filter,
+                    execution.PackageSourceFolder,
+                    execution.PackageFormat);
+            }
+
+            Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
+            return 0;
+        }
+
+        public int ExecuteForTemplate(Execution execution)
+        {
+            if (!Directory.Exists(execution.PackageSourceFolder))
+            {
+                throw new InvalidOperationException("The source folder " + execution.PackageSourceFolder + " does not exist.");
+            }
+
+            Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
+
+            var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(execution.PackageSourceFolder));
+            if (execution.PackageFilterFile != null)
+            {
+                using (var reader = new StreamReader(execution.PackageFilterFile))
+                {
+                    var contents = reader.ReadToEnd();
+                    contents = contents.Replace("%PLATFORM%", execution.PackagePlatform);
+
+                    using (var inputStream = new MemoryStream(Encoding.ASCII.GetBytes(contents)))
+                    {
+                        this.m_FileFilterParser.ParseAndApply(filter, inputStream, new Dictionary<string, Action<FileFilter>>());
+                    }
+                }
+            }
+            else
+            {
+                filter.ApplyInclude("^.*$");
+                filter.ApplyExclude("^\\.git/.*$");
+                filter.ApplyExclude("^\\.hg/.*$");
+                filter.ApplyExclude("^\\.svn/.*$");
             }
 
             if (File.Exists(execution.PackageDestinationFile))
