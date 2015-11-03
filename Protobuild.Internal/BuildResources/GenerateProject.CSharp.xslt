@@ -886,8 +886,12 @@
             <xsl:when test="$__FrameworkVersion = 'v4.0'">
               <xsl:text>4.0</xsl:text>
             </xsl:when>
-            <xsl:when test="/Input/Generation/HostPlatform = 'Linux'">
-              <!-- xbuild does not support 14.0 yet -->
+            <xsl:when test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
+              <!--
+                xbuild and mdtool do not support 14.0 yet, but their C# compiler
+                supports language level 6, even on older build tools (on Windows
+                you must be using MSBuild 14.0 to target C# 6).
+              -->
               <xsl:text>12.0</xsl:text>
             </xsl:when>
             <xsl:otherwise>
