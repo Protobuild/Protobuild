@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Hook.Library" Path="Hook.Library" Type="Library">
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Files>
+    <Compile Include="Class1.cs" />
+  </Files>
+</Project>
