@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="Hook.External" PostBuildHook="True">
+  <Tool Name="Hook.External" Path="Hook.External.exe" />
+</ExternalProject>

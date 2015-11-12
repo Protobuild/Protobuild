@@ -109,6 +109,8 @@ namespace Protobuild
             get;
             set;
         }
+
+        public bool PostBuildHook { get; set; }
     
         /// <summary>
         /// Loads a project definition from the specified XML file.
@@ -160,6 +162,13 @@ namespace Protobuild
                 var skipValue = 
                     doc.Root.Attribute(XName.Get("SkipAutopackage")).Value.ToLowerInvariant();
                 def.SkipAutopackage = skipValue == "true";
+            }
+
+            if (doc.Root.Attributes().Any(x => x.Name == "PostBuildHook"))
+            {
+                var skipValue =
+                    doc.Root.Attribute(XName.Get("PostBuildHook")).Value.ToLowerInvariant();
+                def.PostBuildHook = skipValue == "true";
             }
 
             return def;

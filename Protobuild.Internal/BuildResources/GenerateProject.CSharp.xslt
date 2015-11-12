@@ -2056,9 +2056,173 @@
         </xsl:if>
       </xsl:if>
 
+      <xsl:variable name="post_build_hooks">
+        <xsl:for-each select="/Input/Projects/Project[@PostBuildHook='True']">
+          <xsl:if test="(./@Name != $project/@Name) and not(./Properties/PostBuildHookExcludes/Project[@Name=$project/@Name])">
+            <xsl:variable name="hook_platform_path">
+              <xsl:call-template name="platform_path">
+                <xsl:with-param name="type" select="./@Type" />
+                <xsl:with-param name="projectname" select="./@Name" />
+                <xsl:with-param name="platform">$(Platform)</xsl:with-param>
+                <xsl:with-param name="config">$(Configuration)</xsl:with-param>
+                <xsl:with-param name="platform_specific_output_folder" select="./Properties/PlatformSpecificOutputFolder" />
+                <xsl:with-param name="project_specific_output_folder" select="./Properties/ProjectSpecificOutputFolder" />
+              </xsl:call-template>
+            </xsl:variable>
+            <xsl:variable name="hook_assembly_name">
+              <xsl:choose>
+                <xsl:when test="./Properties/AssemblyName">
+                  <xsl:value-of select="./Properties/AssemblyName"/>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:value-of select="./@Name"/>
+                </xsl:otherwise>
+              </xsl:choose>
+            </xsl:variable>
+            <xsl:variable name="hook_path">
+              <xsl:value-of
+                select="
+              concat(
+                /Input/Generation/RootPath,
+                ./@Path,
+                '\bin\',
+                $hook_platform_path,
+                '\',
+                $hook_assembly_name,
+                '.exe')" />
+            </xsl:variable>
+            <PostBuildHook>
+              <xsl:attribute name="Path">
+                <xsl:value-of select="$hook_path"/>
+              </xsl:attribute>
+              <xsl:attribute name="Name">
+                <xsl:value-of select="./@Name"/>
+              </xsl:attribute>
+            </PostBuildHook>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="/Input/Projects/ExternalProject[@PostBuildHook='True']">
+          <xsl:variable name="hook_path">
+            <xsl:value-of
+              select="
+            concat(
+              /Input/Generation/RootPath,
+              ./@Path,
+              '\',
+              ./Tool/@Path)" />
+          </xsl:variable>
+          <PostBuildHook>
+            <xsl:attribute name="Path">
+              <xsl:value-of select="$hook_path"/>
+            </xsl:attribute>
+            <xsl:attribute name="Name">
+              <xsl:value-of select="./@Name"/>
+            </xsl:attribute>
+          </PostBuildHook>
+        </xsl:for-each>
+      </xsl:variable>
+
+      <Target Name="PostBuildHooks">
+        <xsl:attribute name="AfterTargets">
+          <xsl:choose>
+            <xsl:when test="/Input/Generation/Platform = 'Web'">
+              <xsl:text>JSILCompile</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>AfterBuild</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:attribute>
+        <xsl:variable name="current_platform_path">
+          <xsl:call-template name="platform_path">
+            <xsl:with-param name="type" select="$project/@Type" />
+            <xsl:with-param name="projectname" select="$project/@Name" />
+            <xsl:with-param name="platform">$(Platform)</xsl:with-param>
+            <xsl:with-param name="config">$(Configuration)</xsl:with-param>
+            <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
+            <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+          </xsl:call-template>
+        </xsl:variable>
+        <xsl:variable name="current_assembly_name">
+          <xsl:choose>
+            <xsl:when test="/Input/Properties/AssemblyName">
+              <xsl:value-of select="/Input/Properties/AssemblyName"/>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="$project/@Name"/>
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:variable>
+        <xsl:variable name="current_path">
+          <xsl:value-of
+            select="user:GetRelativePath(
+              concat(
+                /Input/Generation/RootPath,
+                $project/@Path,
+                '\',
+                $project/@Name,
+                '.',
+                /Input/Generation/Platform,
+                '.srcproj'),
+              concat(
+                /Input/Generation/RootPath,
+                $project/@Path,
+                '\',
+                $current_platform_path,
+                '\',
+                $current_assembly_name,
+                '.exe'))" />
+        </xsl:variable>
+        <xsl:variable name="working_directory">
+          <xsl:value-of select="concat(/Input/Generation/RootPath, $project/@Path)" />
+        </xsl:variable>
+        <xsl:for-each select="msxsl:node-set($post_build_hooks)/*">
+          <Message Importance="high">
+            <xsl:attribute name="Text">
+              <xsl:text>Running "</xsl:text>
+              <xsl:value-of select="./@Name"/>
+              <xsl:text>" post-build hook...</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="Condition">
+              <xsl:text>Exists('</xsl:text>
+              <xsl:value-of select="./@Path"/>
+              <xsl:text>')</xsl:text>
+            </xsl:attribute>
+          </Message>
+          <Exec>
+            <xsl:attribute name="Condition">
+              <xsl:text>Exists('</xsl:text>
+              <xsl:value-of select="./@Path"/>
+              <xsl:text>')</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="WorkingDirectory">
+              <xsl:value-of select="$working_directory" />
+            </xsl:attribute>
+            <xsl:attribute name="Command">
+              <xsl:if test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
+                <xsl:text>mono </xsl:text>
+              </xsl:if>
+              <xsl:text>"</xsl:text>
+              <xsl:value-of select="./@Path" />
+              <xsl:text>" "bin\</xsl:text>
+              <xsl:copy-of select="$current_path" />
+              <xsl:text>"</xsl:text>
+            </xsl:attribute>
+          </Exec>
+        </xsl:for-each>
+      </Target>
+
       <!-- {ADDITIONAL_TRANSFORMS} -->
 
       <ItemGroup>
+        <xsl:for-each select="/Input/Projects/Project[@PostBuildHook='True']">
+          <xsl:if test="(./@Name != $project/@Name) and not(./Properties/PostBuildHookExcludes/Project[@Name=$project/@Name])">
+            <xsl:call-template name="ReferenceToProtobuildProject">
+              <xsl:with-param name="target_project_name" select="./@Name" />
+              <xsl:with-param name="source_project_name" select="$project/@Name" />
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:for-each>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="

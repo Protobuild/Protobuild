@@ -93,6 +93,7 @@
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
+    <Compile Include="PostBuildHookWorksTest.cs" />
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="QueryFeaturesTest.cs" />
@@ -384,6 +385,14 @@
     <None Include="TestData\PlatformSpecificXSLTGenerationWorks\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificXSLTGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\PlatformSpecificXSLTGenerationWorks\Console\Program.cs" />
+    <None Include="TestData\PostBuildHookWorks\Build\Module.xml" />
+    <None Include="TestData\PostBuildHookWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\PostBuildHookWorks\Build\Projects\Hook.definition" />
+    <None Include="TestData\PostBuildHookWorks\Build\Projects\Hook.External.definition" />
+    <None Include="TestData\PostBuildHookWorks\Build\Projects\Hook.Library.definition" />
+    <None Include="TestData\PostBuildHookWorks\Console\Program.cs" />
+    <None Include="TestData\PostBuildHookWorks\Hook.Library\Class1.cs" />
+    <None Include="TestData\PostBuildHookWorks\Hook\Program.cs" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Module.xml" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleA.definition" />
     <None Include="TestData\ProjectSpecificOutputFolder\Build\Projects\ConsoleB.definition" />

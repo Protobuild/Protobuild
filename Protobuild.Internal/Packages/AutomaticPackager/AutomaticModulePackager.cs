@@ -399,6 +399,11 @@ namespace Protobuild
             externalProjectDocument.AppendChild(externalProject);
             externalProject.SetAttribute("Name", definition.Name);
 
+            if (definition.PostBuildHook)
+            {
+                externalProject.SetAttribute("PostBuildHook", "True");
+            }
+
             var externalProjectServices = externalProjectDocument.CreateElement("Services");
             externalProject.AppendChild(externalProjectServices);
 
