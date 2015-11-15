@@ -308,6 +308,16 @@
         </PlatformTarget>
       </xsl:when>
     </xsl:choose>
+    <xsl:choose>
+      <xsl:when test="/Input/Properties/Prefer32Bit">
+        <Prefer32Bit>
+          <xsl:value-of select="/Input/Properties/Prefer32Bit" />
+        </Prefer32Bit>
+    </xsl:when>
+      <xsl:otherwise>
+        <Prefer32Bit>false</Prefer32Bit>
+      </xsl:otherwise>
+    </xsl:choose>
     <xsl:if test="user:IsTrue(/Input/Properties/CheckForOverflowUnderflow)">
       <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     </xsl:if>
@@ -2122,57 +2132,7 @@
         </xsl:for-each>
       </xsl:variable>
 
-      <Target Name="PostBuildHooks">
-        <xsl:attribute name="AfterTargets">
-          <xsl:choose>
-            <xsl:when test="/Input/Generation/Platform = 'Web'">
-              <xsl:text>JSILCompile</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>AfterBuild</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:attribute>
-        <xsl:variable name="current_platform_path">
-          <xsl:call-template name="platform_path">
-            <xsl:with-param name="type" select="$project/@Type" />
-            <xsl:with-param name="projectname" select="$project/@Name" />
-            <xsl:with-param name="platform">$(Platform)</xsl:with-param>
-            <xsl:with-param name="config">$(Configuration)</xsl:with-param>
-            <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
-            <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
-          </xsl:call-template>
-        </xsl:variable>
-        <xsl:variable name="current_assembly_name">
-          <xsl:choose>
-            <xsl:when test="/Input/Properties/AssemblyName">
-              <xsl:value-of select="/Input/Properties/AssemblyName"/>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="$project/@Name"/>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:variable>
-        <xsl:variable name="current_path">
-          <xsl:value-of
-            select="user:GetRelativePath(
-              concat(
-                /Input/Generation/RootPath,
-                $project/@Path,
-                '\',
-                $project/@Name,
-                '.',
-                /Input/Generation/Platform,
-                '.srcproj'),
-              concat(
-                /Input/Generation/RootPath,
-                $project/@Path,
-                '\',
-                $current_platform_path,
-                '\',
-                $current_assembly_name,
-                '.exe'))" />
-        </xsl:variable>
+      <Target Name="PostBuildHooks" Inputs="@(IntermediateAssembly)" Outputs="@(IntermediateAssembly); $(IntermediateAssembly)\PostBuildHook.timestamp" AfterTargets="CoreCompile" BeforeTargets="AfterCompile">
         <xsl:variable name="working_directory">
           <xsl:value-of select="concat(/Input/Generation/RootPath, $project/@Path)" />
         </xsl:variable>
@@ -2189,6 +2149,22 @@
               <xsl:text>')</xsl:text>
             </xsl:attribute>
           </Message>
+          <xsl:if test="/Input/Generation/HostPlatform = 'Linux' or /Input/Generation/HostPlatform = 'MacOS'">
+            <Exec>
+              <xsl:attribute name="Condition">
+                <xsl:text>Exists('</xsl:text>
+                <xsl:value-of select="./@Path"/>
+                <xsl:text>')</xsl:text>
+              </xsl:attribute>
+              <xsl:attribute name="WorkingDirectory">
+                <xsl:value-of select="$working_directory" />
+              </xsl:attribute>
+              <xsl:attribute name="Command">
+                <xsl:text>chmod u+x </xsl:text>
+                <xsl:text>"@(IntermediateAssembly)"</xsl:text>
+              </xsl:attribute>
+            </Exec>
+          </xsl:if>
           <Exec>
             <xsl:attribute name="Condition">
               <xsl:text>Exists('</xsl:text>
@@ -2204,9 +2180,7 @@
               </xsl:if>
               <xsl:text>"</xsl:text>
               <xsl:value-of select="./@Path" />
-              <xsl:text>" "bin\</xsl:text>
-              <xsl:copy-of select="$current_path" />
-              <xsl:text>"</xsl:text>
+              <xsl:text>" "@(IntermediateAssembly)"</xsl:text>
             </xsl:attribute>
           </Exec>
         </xsl:for-each>

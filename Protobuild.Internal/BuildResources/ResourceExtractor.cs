@@ -38,7 +38,7 @@ namespace Protobuild
                     using (var reader = new StreamReader(stream))
                     {
                         var text = reader.ReadToEnd();
-                        text = text.Replace("{NAME}", name);
+                        text = text.Replace("__NAME__", name);
                         writer.Write(text);
                         writer.Flush();
                     }
