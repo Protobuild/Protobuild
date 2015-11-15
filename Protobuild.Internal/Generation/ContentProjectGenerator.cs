@@ -111,6 +111,10 @@ namespace Protobuild
         private List<string> GetListOfFilesInDirectory(string folder, string match)
         {
             var result = new List<string>();
+            if (!Directory.Exists(folder))
+            {
+                return result;
+            }
             var directoryInfo = new DirectoryInfo(folder);
             foreach (var directory in directoryInfo.GetDirectories())
             {
