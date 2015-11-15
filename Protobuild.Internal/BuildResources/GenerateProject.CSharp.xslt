@@ -313,7 +313,7 @@
         <Prefer32Bit>
           <xsl:value-of select="/Input/Properties/Prefer32Bit" />
         </Prefer32Bit>
-    </xsl:when>
+      </xsl:when>
       <xsl:otherwise>
         <Prefer32Bit>false</Prefer32Bit>
       </xsl:otherwise>
