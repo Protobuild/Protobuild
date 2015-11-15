@@ -14,7 +14,7 @@
         libraryRoot: "Libraries/",
  
         manifests: [
-          "{NAME}.exe"
+          "__NAME__.exe"
         ],
       };
     </script>
@@ -42,7 +42,7 @@
         */
         
         var asm = JSIL.GetAssembly("{NAME}", true);
-        asm.{NAME}.Program.Main();
+        asm.__NAME__.Program.Main();
       };
     </script>
   </body>

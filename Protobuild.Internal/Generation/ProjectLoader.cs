@@ -49,7 +49,8 @@ namespace Protobuild
                     var projectsToUpdate = xDoc.Descendants().Where(x => x.Name == "Project");
                     var binariesToUpdate = xDoc.Descendants().Where(x => x.Name == "Binary");
                     var nativeBinariesToUpdate = xDoc.Descendants().Where(x => x.Name == "NativeBinary");
-                    foreach (var pathToUpdate in projectsToUpdate.Concat(binariesToUpdate).Concat(nativeBinariesToUpdate)
+                    var toolsToUpdate = xDoc.Descendants().Where(x => x.Name == "Tool");
+                    foreach (var pathToUpdate in projectsToUpdate.Concat(binariesToUpdate).Concat(nativeBinariesToUpdate).Concat(toolsToUpdate)
                         .Where(x => x.Attribute("Path") != null))
                     {
                         pathToUpdate.Attribute("Path").Value =
