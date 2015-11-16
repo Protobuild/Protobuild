@@ -70,3 +70,4 @@ Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook.Library/Re
 Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Properties/AndroidManifest.xml
 Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Properties/Info.plist
 Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Resources/Resource.Designer.cs
+*.orig
