@@ -6,16 +6,18 @@
   exclude-result-prefixes="xsl msxsl user"
   version="1.0">
 
+  <xsl:variable name="root" select="/"/>
+
   <!-- {GENERATION_FUNCTIONS} -->
 
   <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:template match="/">
     <Projects>
-      <xsl:for-each select="/Input/Projects/Project">
+      <xsl:for-each select="$root/Input/Projects/Project">
         <xsl:if test="user:ProjectIsActive(
             current()/@Platforms,
-            /Input/Generation/Platform)">
+            $root/Input/Generation/Platform)">
           <Project>
             <Type>
               <xsl:value-of select="current()/@Type" />
@@ -27,7 +29,7 @@
               <xsl:value-of select="concat(
                 current()/@Name,
                 '.',
-                /Input/Generation/Platform)" />
+                $root/Input/Generation/Platform)" />
             </Name>
             <Guid>
               <xsl:value-of select="current()/@Guid" />
@@ -38,8 +40,8 @@
                 '\',
                 current()/@Name,
                 '.',
-                /Input/Generation/Platform,
-                user:GetProjectExtension(current()/@Language, /Input/Generation/HostPlatform))" />
+                $root/Input/Generation/Platform,
+                user:GetProjectExtension(current()/@Language, $root/Input/Generation/HostPlatform))" />
             </Path>
             <Language>
               <xsl:choose>
@@ -67,7 +69,7 @@
           </Project>
         </xsl:if>
       </xsl:for-each>
-      <xsl:for-each select="/Input/Projects/ExternalProject
+      <xsl:for-each select="$root/Input/Projects/ExternalProject
                             /Project">
         <Project>
           <Type>External</Type>
@@ -88,8 +90,8 @@
           <xsl:copy-of select="current()/PostProject" />
         </Project>
       </xsl:for-each>
-      <xsl:for-each select="/Input/Projects/ExternalProject
-                            /Platform[@Type=/Input/Generation/Platform]
+      <xsl:for-each select="$root/Input/Projects/ExternalProject
+                            /Platform[@Type=$root/Input/Generation/Platform]
                             /Project">
         <Project>
           <Type>External</Type>
@@ -110,12 +112,12 @@
           <xsl:copy-of select="current()/PostProject" />
         </Project>
       </xsl:for-each>
-      <xsl:for-each select="/Input/Projects/ExternalProject
-                            /Platform[@Type=/Input/Generation/Platform]
+      <xsl:for-each select="$root/Input/Projects/ExternalProject
+                            /Platform[@Type=$root/Input/Generation/Platform]
                             /Service">
         <xsl:if test="user:ServiceIsActive(
           ./@Name,
-          /Input/Services/ActiveServicesNames)">
+          $root/Input/Services/ActiveServicesNames)">
           <xsl:for-each select="./Project">
             <Project>
               <Type>External</Type>
@@ -138,11 +140,11 @@
           </xsl:for-each>
         </xsl:if>
       </xsl:for-each>
-      <xsl:for-each select="/Input/Projects/ExternalProject
+      <xsl:for-each select="$root/Input/Projects/ExternalProject
                             /Service">
         <xsl:if test="user:ServiceIsActive(
           ./@Name,
-          /Input/Services/ActiveServicesNames)">
+          $root/Input/Services/ActiveServicesNames)">
           <xsl:for-each select="./Project">
             <Project>
               <Type>External</Type>
