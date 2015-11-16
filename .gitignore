@@ -52,3 +52,5 @@ UpgradeLog.htm
 /Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectlyWithUnsafeName/Generated
 Protobuild.FunctionalTests/TestData/ModuleInfoGetsUpgraded/Build/Module.xml
 Prototest/
+/.kdev4/Protobuild.kdev4
+/Protobuild.kdev4

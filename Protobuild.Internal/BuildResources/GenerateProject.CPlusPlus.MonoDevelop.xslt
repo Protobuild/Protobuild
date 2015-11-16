@@ -8,25 +8,27 @@
 
   <xsl:output method="xml" indent="no" />
 
+  <xsl:variable name="root" select="/"/>
+
   <!-- {GENERATION_FUNCTIONS} -->
 
   <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:variable
     name="project"
-    select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
+    select="$root/Input/Projects/Project[@Name=$root/Input/Generation/ProjectName]" />
 
   <xsl:variable name="assembly_name">
     <xsl:choose>
-      <xsl:when test="/Input/Properties/AssemblyName
-	        /Platform[@Name=/Input/Generation/Platform]">
-        <xsl:value-of select="/Input/Properties/AssemblyName/Platform[@Name=/Input/Generation/Platform]" />
+      <xsl:when test="$root/Input/Properties/AssemblyName
+	        /Platform[@Name=$root/Input/Generation/Platform]">
+        <xsl:value-of select="$root/Input/Properties/AssemblyName/Platform[@Name=$root/Input/Generation/Platform]" />
       </xsl:when>
-      <xsl:when test="/Input/Properties/AssemblyName">
-        <xsl:value-of select="/Input/Properties/AssemblyName" />
+      <xsl:when test="$root/Input/Properties/AssemblyName">
+        <xsl:value-of select="$root/Input/Properties/AssemblyName" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]/@Name" />
+        <xsl:value-of select="$root/Input/Projects/Project[@Name=$root/Input/Generation/ProjectName]/@Name" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -49,14 +51,14 @@
       <xsl:when test="user:IsTrue($project_specific_output_folder)">
         <xsl:value-of select="$projectname" />
         <xsl:text>/</xsl:text>
-        <xsl:value-of select="/Input/Generation/Platform" />
+        <xsl:value-of select="$root/Input/Generation/Platform" />
         <xsl:text>/</xsl:text>
         <xsl:value-of select="$platform" />
         <xsl:text>/</xsl:text>
         <xsl:value-of select="$config" />
       </xsl:when>
       <xsl:when test="user:IsTrueDefault($platform_specific_output_folder)">
-        <xsl:value-of select="/Input/Generation/Platform" />
+        <xsl:value-of select="$root/Input/Generation/Platform" />
         <xsl:text>/</xsl:text>
         <xsl:value-of select="$platform" />
         <xsl:text>/</xsl:text>
@@ -80,7 +82,7 @@
             <xsl:text>swig -csharp -dllimport lib</xsl:text>
             <xsl:value-of select="$assembly_name" />
             <xsl:text> </xsl:text>
-            <xsl:if test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+            <xsl:if test="user:IsTrue($root/Input/Properties/BindingGeneratorSWIGEnableCPP)">
               <xsl:text>-c++ </xsl:text>
             </xsl:if>
             <xsl:for-each select="$project/Files/None">
@@ -91,8 +93,8 @@
                   ./Services,
                   ./IncludeServices,
                   ./ExcludeServices,
-                  /Input/Generation/Platform,
-                  /Input/Services/ActiveServicesNames)">
+                  $root/Input/Generation/Platform,
+                  $root/Input/Services/ActiveServicesNames)">
                 <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
                   <xsl:value-of select="@Include" />
                   <xsl:text> </xsl:text>
@@ -118,8 +120,8 @@
                   ./Services,
                   ./IncludeServices,
                   ./ExcludeServices,
-                  /Input/Generation/Platform,
-                  /Input/Services/ActiveServicesNames)">
+                  $root/Input/Generation/Platform,
+                  $root/Input/Services/ActiveServicesNames)">
                 <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
                   <xsl:value-of select="user:StripExtension(@Include)" />
                   <xsl:text>.cs </xsl:text>
@@ -144,15 +146,15 @@
           ./Services,
           ./IncludeServices,
           ./ExcludeServices,
-          /Input/Generation/Platform,
-          /Input/Services/ActiveServicesNames)">
+          $root/Input/Generation/Platform,
+          $root/Input/Services/ActiveServicesNames)">
         <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
           <Compile>
             <xsl:attribute name="Include">
               <xsl:value-of select="user:StripExtension(@Include)" />
               <xsl:text>_wrap.</xsl:text>
               <xsl:choose>
-                <xsl:when test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+                <xsl:when test="user:IsTrue($root/Input/Properties/BindingGeneratorSWIGEnableCPP)">
                   <xsl:text>cxx</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
@@ -176,8 +178,8 @@
           ./Services,
           ./IncludeServices,
           ./ExcludeServices,
-          /Input/Generation/Platform,
-          /Input/Services/ActiveServicesNames)">
+          $root/Input/Generation/Platform,
+          $root/Input/Services/ActiveServicesNames)">
         <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
           <None>
             <xsl:attribute name="Include">
@@ -243,8 +245,8 @@
           <xsl:with-param name="projectname" select="$projectname" />
           <xsl:with-param name="platform" select="$platform" />
           <xsl:with-param name="config" select="$config" />
-          <xsl:with-param name="platform_specific_output_folder" select="/Input/Properties/PlatformSpecificOutputFolder" />
-          <xsl:with-param name="project_specific_output_folder" select="/Input/Properties/ProjectSpecificOutputFolder" />
+          <xsl:with-param name="platform_specific_output_folder" select="$root/Input/Properties/PlatformSpecificOutputFolder" />
+          <xsl:with-param name="project_specific_output_folder" select="$root/Input/Properties/ProjectSpecificOutputFolder" />
         </xsl:call-template>
       </xsl:variable>
       <OutputPath><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /></OutputPath>
@@ -253,56 +255,56 @@
           <xsl:if test="$debug = 'true'">
             <xsl:text>DEBUG </xsl:text>
           </xsl:if>
-          <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+          <xsl:for-each select="$root/Input/Services/Service[@Project=$root/Input/Generation/ProjectName]">
             <xsl:for-each select="./AddDefines/AddDefine">
               <xsl:value-of select="." />
               <xsl:text> </xsl:text>
             </xsl:for-each>
           </xsl:for-each>
           <xsl:choose>
-            <xsl:when test="/Input/Properties/CustomDefinitions">
-              <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
-                <xsl:if test="/Input/Generation/Platform = ./@Name">
+            <xsl:when test="$root/Input/Properties/CustomDefinitions">
+              <xsl:for-each select="$root/Input/Properties/CustomDefinitions/Platform">
+                <xsl:if test="$root/Input/Generation/Platform = ./@Name">
                   <xsl:value-of select="." />
                 </xsl:if>
               </xsl:for-each>
             </xsl:when>
             <xsl:otherwise>
               <xsl:choose>
-                <xsl:when test="/Input/Generation/Platform = 'Android'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Android'">
                   <xsl:text>PLATFORM_ANDROID</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'iOS'">
+                <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
                   <xsl:text>PLATFORM_IOS</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'Linux'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Linux'">
                   <xsl:text>PLATFORM_LINUX</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'MacOS'">
+                <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
                   <xsl:text>PLATFORM_MACOS</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'Ouya'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Ouya'">
                   <xsl:text>PLATFORM_OUYA</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'PSMobile'">
+                <xsl:when test="$root/Input/Generation/Platform = 'PSMobile'">
                   <xsl:text>PLATFORM_PSMOBILE</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Windows'">
                   <xsl:text>PLATFORM_WINDOWS</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'Windows8'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Windows8'">
                   <xsl:text>PLATFORM_WINDOWS8</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'WindowsGL'">
+                <xsl:when test="$root/Input/Generation/Platform = 'WindowsGL'">
                   <xsl:text>PLATFORM_WINDOWSGL</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+                <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone'">
                   <xsl:text>PLATFORM_WINDOWSPHONE</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'WindowsPhone81'">
+                <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
                   <xsl:text>PLATFORM_WINDOWSPHONE81</xsl:text>
                 </xsl:when>
-                <xsl:when test="/Input/Generation/Platform = 'Web'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Web'">
                   <xsl:text>PLATFORM_WEB</xsl:text>
                 </xsl:when>
               </xsl:choose>
@@ -311,7 +313,7 @@
           </xsl:choose>
         </xsl:variable>
         <xsl:variable name="removeDefines">
-          <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+          <xsl:for-each select="$root/Input/Services/Service[@Project=$root/Input/Generation/ProjectName]">
             <xsl:for-each select="./RemoveDefines/RemoveDefine">
               <xsl:value-of select="." />
               <xsl:text> </xsl:text>
@@ -321,7 +323,7 @@
         <xsl:value-of select="user:CalculateDefines($addDefines, $removeDefines)" />
       </DefineSymbols>
       
-      <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+      <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
         <xsl:call-template name="swig_binding_generator">
         </xsl:call-template>
       </xsl:if>
@@ -335,16 +337,16 @@
     
     <xsl:variable
       name="target_project"
-      select="/Input/Projects/Project[@Name=$target_project_name]" />
+      select="$root/Input/Projects/Project[@Name=$target_project_name]" />
     <xsl:variable
       name="source_project"
-      select="/Input/Projects/Project[@Name=$source_project_name]" />
+      select="$root/Input/Projects/Project[@Name=$source_project_name]" />
     
     <xsl:if test="user:ProjectIsActive(
       $target_project/@Platforms,
       '',
       '',
-      /Input/Generation/Platform)">
+      $root/Input/Generation/Platform)">
 
       <xsl:choose>
         <xsl:when test="$target_project/@Language = 'C#'">
@@ -362,14 +364,14 @@
                     '\',
                     $source_project/@Name,
                     '.',
-                    /Input/Generation/Platform,
+                    $root/Input/Generation/Platform,
                     '.srcproj'),
                   concat(
                     $target_project/@Path,
                     '\',
                     $target_project/@Name,
                     '.',
-                    /Input/Generation/Platform,
+                    $root/Input/Generation/Platform,
                     '.md.pc'))" />
             </xsl:attribute>
             <xsl:attribute name="file">
@@ -412,19 +414,19 @@
             <xsl:for-each select="$project/References/Reference">
               <xsl:variable name="include-name" select="./@Include" />
               <xsl:if test="
-                count(/Input/Projects/Project[@Name=$include-name]) = 0">
+                count($root/Input/Projects/Project[@Name=$include-name]) = 0">
                 <xsl:if test="
-                  count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+                  count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
 
                   <xsl:variable name="extern"
-                    select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+                    select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
 
                   <xsl:for-each select="$extern/Project">
                     <!-- Ignore this tag for now -->
                   </xsl:for-each>
 
                   <xsl:for-each select="$extern/Platform
-                                          [@Type=/Input/Generation/Platform]">
+                                          [@Type=$root/Input/Generation/Platform]">
                     <xsl:for-each select="./Project">
                       <!-- Ignore this tag for now -->
                     </xsl:for-each>
@@ -433,7 +435,7 @@
                         ./@Name,
                         '',
                         '',
-                        /Input/Services/ActiveServicesNames)">
+                        $root/Input/Services/ActiveServicesNames)">
                         <xsl:for-each select="./Project">
                           <!-- Ignore this tag for now -->
                         </xsl:for-each>
@@ -445,7 +447,7 @@
                       ./@Name,
                       '',
                       '',
-                      /Input/Services/ActiveServicesNames)">
+                      $root/Input/Services/ActiveServicesNames)">
                       <xsl:for-each select="./Project">
                         <!-- Ignore this tag for now -->
                       </xsl:for-each>
@@ -454,7 +456,7 @@
 
                   <xsl:for-each select="$extern/Reference">
                     <xsl:variable name="refd-name" select="./@Include" />
-                    <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                    <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
                       <xsl:call-template name="ReferenceToProtobuildProject">
                         <xsl:with-param name="target_project_name" select="$refd-name" />
                         <xsl:with-param name="source_project_name" select="$project/@Name" />
@@ -464,10 +466,10 @@
 
 
                   <xsl:for-each select="$extern/Platform
-                                          [@Type=/Input/Generation/Platform]">
+                                          [@Type=$root/Input/Generation/Platform]">
                     <xsl:for-each select="./Reference">
                       <xsl:variable name="refd-name" select="./@Include" />
-                      <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                      <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
                         <xsl:call-template name="ReferenceToProtobuildProject">
                           <xsl:with-param name="target_project_name" select="$refd-name" />
                           <xsl:with-param name="source_project_name" select="$project/@Name" />
@@ -479,10 +481,10 @@
                         ./@Name,
                         '',
                         '',
-                        /Input/Services/ActiveServicesNames)">
+                        $root/Input/Services/ActiveServicesNames)">
                         <xsl:for-each select="./Reference">
                           <xsl:variable name="refd-name" select="./@Include" />
-                          <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                          <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
                             <xsl:call-template name="ReferenceToProtobuildProject">
                               <xsl:with-param name="target_project_name" select="$refd-name" />
                               <xsl:with-param name="source_project_name" select="$project/@Name" />
@@ -498,10 +500,10 @@
                       ./@Name,
                       '',
                       '',
-                      /Input/Services/ActiveServicesNames)">
+                      $root/Input/Services/ActiveServicesNames)">
                       <xsl:for-each select="./Reference">
                         <xsl:variable name="refd-name" select="./@Include" />
-                        <xsl:if test="count(/Input/Projects/Project[@Name=$refd-name]) > 0">
+                        <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
                           <xsl:call-template name="ReferenceToProtobuildProject">
                             <xsl:with-param name="target_project_name" select="$refd-name" />
                             <xsl:with-param name="source_project_name" select="$project/@Name" />
@@ -518,9 +520,9 @@
             <xsl:for-each select="$project/References/Reference">
               <xsl:variable name="include-path" select="./@Include" />
               <xsl:if test="
-                count(/Input/Projects/Project[@Name=$include-path]) > 0">
+                count($root/Input/Projects/Project[@Name=$include-path]) > 0">
                 <xsl:if test="
-                  count(/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+                  count($root/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
                   <xsl:call-template name="ReferenceToProtobuildProject">
                     <xsl:with-param name="target_project_name" select="$include-path" />
                     <xsl:with-param name="source_project_name" select="$project/@Name" />
@@ -557,8 +559,8 @@
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -570,7 +572,7 @@
           </xsl:if>
         </xsl:for-each>
 
-        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+        <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
           <xsl:call-template name="swig_binding_generator_includes">
           </xsl:call-template>
         </xsl:if>
@@ -585,8 +587,8 @@
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -598,7 +600,7 @@
           </xsl:if>
         </xsl:for-each>
 
-        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+        <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
           <xsl:call-template name="swig_binding_generator_extras">
           </xsl:call-template>
         </xsl:if>

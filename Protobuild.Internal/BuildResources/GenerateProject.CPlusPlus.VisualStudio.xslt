@@ -7,6 +7,8 @@
   version="1.0">
 
   <xsl:output method="xml" indent="no" />
+
+  <xsl:variable name="root" select="/"/>
   
   <!-- {GENERATION_FUNCTIONS} -->
 
@@ -14,19 +16,19 @@
 
   <xsl:variable
     name="project"
-    select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]" />
+    select="$root/Input/Projects/Project[@Name=$root/Input/Generation/ProjectName]" />
 
   <xsl:variable name="assembly_name">
     <xsl:choose>
-      <xsl:when test="/Input/Properties/AssemblyName
-	        /Platform[@Name=/Input/Generation/Platform]">
-        <xsl:value-of select="/Input/Properties/AssemblyName/Platform[@Name=/Input/Generation/Platform]" />
+      <xsl:when test="$root/Input/Properties/AssemblyName
+	        /Platform[@Name=$root/Input/Generation/Platform]">
+        <xsl:value-of select="$root/Input/Properties/AssemblyName/Platform[@Name=$root/Input/Generation/Platform]" />
       </xsl:when>
-      <xsl:when test="/Input/Properties/AssemblyName">
-        <xsl:value-of select="/Input/Properties/AssemblyName" />
+      <xsl:when test="$root/Input/Properties/AssemblyName">
+        <xsl:value-of select="$root/Input/Properties/AssemblyName" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:value-of select="/Input/Projects/Project[@Name=/Input/Generation/ProjectName]/@Name" />
+        <xsl:value-of select="$root/Input/Projects/Project[@Name=$root/Input/Generation/ProjectName]/@Name" />
       </xsl:otherwise>
     </xsl:choose>
   </xsl:variable>
@@ -58,7 +60,7 @@
         <xsl:text>" -csharp -dllimport </xsl:text>
         <xsl:value-of select="$assembly_name" />
         <xsl:text> </xsl:text>
-        <xsl:if test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+        <xsl:if test="user:IsTrue($root/Input/Properties/BindingGeneratorSWIGEnableCPP)">
           <xsl:text>-c++ </xsl:text>
         </xsl:if>
         <xsl:for-each select="$project/Files/None">
@@ -69,8 +71,8 @@
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
               <xsl:value-of select="@Include" />
               <xsl:text> </xsl:text>
@@ -150,8 +152,8 @@ Set-Content -Path $filename -Value $code;
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
               <xsl:value-of select="user:StripExtension(@Include)" />
               <xsl:text>.cs </xsl:text>
@@ -174,15 +176,15 @@ Set-Content -Path $filename -Value $code;
           ./Services,
           ./IncludeServices,
           ./ExcludeServices,
-          /Input/Generation/Platform,
-          /Input/Services/ActiveServicesNames)">
+          $root/Input/Generation/Platform,
+          $root/Input/Services/ActiveServicesNames)">
         <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
           <ClCompile>
             <xsl:attribute name="Include">
               <xsl:value-of select="user:StripExtension(@Include)" />
               <xsl:text>_wrap.</xsl:text>
               <xsl:choose>
-                <xsl:when test="user:IsTrue(/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+                <xsl:when test="user:IsTrue($root/Input/Properties/BindingGeneratorSWIGEnableCPP)">
                   <xsl:text>cxx</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
@@ -206,8 +208,8 @@ Set-Content -Path $filename -Value $code;
           ./Services,
           ./IncludeServices,
           ./ExcludeServices,
-          /Input/Generation/Platform,
-          /Input/Services/ActiveServicesNames)">
+          $root/Input/Generation/Platform,
+          $root/Input/Services/ActiveServicesNames)">
         <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
           <None>
             <xsl:attribute name="Include">
@@ -309,17 +311,17 @@ Set-Content -Path $filename -Value $code;
               IMPORTANT: When modifying this, or adding new options, 
               remember to update AutomaticProjectPackager as well.
           -->
-          <xsl:when test="user:IsTrue(/Input/Properties/ProjectSpecificOutputFolder)">
+          <xsl:when test="user:IsTrue($root/Input/Properties/ProjectSpecificOutputFolder)">
             <xsl:value-of select="$projectname" />
             <xsl:text>\</xsl:text>
-            <xsl:value-of select="/Input/Generation/Platform" />
+            <xsl:value-of select="$root/Input/Generation/Platform" />
             <xsl:text>\</xsl:text>
             <xsl:value-of select="$platform" />
             <xsl:text>\</xsl:text>
             <xsl:value-of select="$config" />
           </xsl:when>
-          <xsl:when test="user:IsTrueDefault(/Input/Properties/PlatformSpecificOutputFolder)">
-            <xsl:value-of select="/Input/Generation/Platform" />
+          <xsl:when test="user:IsTrueDefault($root/Input/Properties/PlatformSpecificOutputFolder)">
+            <xsl:value-of select="$root/Input/Generation/Platform" />
       	    <xsl:text>\</xsl:text>
       	    <xsl:value-of select="$platform" />
       	    <xsl:text>\</xsl:text>
@@ -374,23 +376,23 @@ Set-Content -Path $filename -Value $code;
             <xsl:if test="$debug = 'true'">
               <xsl:text>_DEBUG;</xsl:text>
             </xsl:if>
-            <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+            <xsl:for-each select="$root/Input/Services/Service[@Project=$root/Input/Generation/ProjectName]">
               <xsl:for-each select="./AddDefines/AddDefine">
                 <xsl:value-of select="." />
                 <xsl:text>;</xsl:text>
               </xsl:for-each>
             </xsl:for-each>
             <xsl:choose>
-              <xsl:when test="/Input/Properties/CustomDefinitions">
-                <xsl:for-each select="/Input/Properties/CustomDefinitions/Platform">
-                  <xsl:if test="/Input/Generation/Platform = ./@Name">
+              <xsl:when test="$root/Input/Properties/CustomDefinitions">
+                <xsl:for-each select="$root/Input/Properties/CustomDefinitions/Platform">
+                  <xsl:if test="$root/Input/Generation/Platform = ./@Name">
                     <xsl:value-of select="." />
                   </xsl:if>
                 </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:choose>
-                  <xsl:when test="/Input/Generation/Platform = 'Windows'">
+                  <xsl:when test="$root/Input/Generation/Platform = 'Windows'">
                     <xsl:text>_WIN32_WINNT=0x0601;WIN32;_WINDOWS</xsl:text>
                   </xsl:when>
                   <xsl:otherwise>
@@ -401,7 +403,7 @@ Set-Content -Path $filename -Value $code;
             </xsl:choose>
           </xsl:variable>
           <xsl:variable name="removeDefines">
-            <xsl:for-each select="/Input/Services/Service[@Project=/Input/Generation/ProjectName]">
+            <xsl:for-each select="$root/Input/Services/Service[@Project=$root/Input/Generation/ProjectName]">
               <xsl:for-each select="./RemoveDefines/RemoveDefine">
                 <xsl:value-of select="." />
                 <xsl:text>;</xsl:text>
@@ -412,7 +414,7 @@ Set-Content -Path $filename -Value $code;
           <xsl:text>;%(PreprocessorDefinitions)</xsl:text>
         </PreprocessorDefinitions>
         <AdditionalIncludeDirectories>.\DirectX\XNAMath</AdditionalIncludeDirectories>
-        <DisableSpecificWarnings><xsl:value-of select="/Input/Properties/NoWarn" /></DisableSpecificWarnings>
+        <DisableSpecificWarnings><xsl:value-of select="$root/Input/Properties/NoWarn" /></DisableSpecificWarnings>
         <PrecompiledHeaderFile></PrecompiledHeaderFile>
         <PrecompiledHeaderOutputFile></PrecompiledHeaderOutputFile>
       </ClCompile>
@@ -434,19 +436,19 @@ Set-Content -Path $filename -Value $code;
           <xsl:for-each select="$project/References/Reference">
             <xsl:variable name="include-name" select="./@Include" />
             <xsl:if test="
-              count(/Input/Projects/Project[@Name=$include-name]) = 0">
+              count($root/Input/Projects/Project[@Name=$include-name]) = 0">
               <xsl:if test="
-                count(/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+                count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
 
                 <xsl:variable name="extern"
-                  select="/Input/Projects/ExternalProject[@Name=$include-name]" />
+                  select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
 
                 <xsl:for-each select="$extern/NativeLibraryLink">
                   <xsl:value-of select="@Name" />
                   <xsl:text>.lib;</xsl:text>
                 </xsl:for-each>
                 <xsl:for-each select="$extern/Platform
-                                        [@Type=/Input/Generation/Platform]">
+                                        [@Type=$root/Input/Generation/Platform]">
                   <xsl:for-each select="./NativeLibraryLink">
                     <xsl:value-of select="@Name" />
                     <xsl:text>.lib;</xsl:text>
@@ -456,7 +458,7 @@ Set-Content -Path $filename -Value $code;
                       ./@Name,
                       '',
                       '',
-                      /Input/Services/ActiveServicesNames)">
+                      $root/Input/Services/ActiveServicesNames)">
                       <xsl:for-each select="./NativeLibraryLink">
                         <xsl:value-of select="@Name" />
                         <xsl:text>.lib;</xsl:text>
@@ -469,7 +471,7 @@ Set-Content -Path $filename -Value $code;
                     ./@Name,
                     '',
                     '',
-                    /Input/Services/ActiveServicesNames)">
+                    $root/Input/Services/ActiveServicesNames)">
                     <xsl:for-each select="./NativeLibraryLink">
                       <xsl:value-of select="@Name" />
                       <xsl:text>.lib;</xsl:text>
@@ -492,7 +494,7 @@ Set-Content -Path $filename -Value $code;
           </xsl:otherwise>
         </xsl:choose>
       </Link>
-      <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+      <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
         <xsl:call-template name="swig_binding_generator">
         </xsl:call-template>
       </xsl:if>
@@ -545,8 +547,8 @@ Set-Content -Path $filename -Value $code;
         <Keyword>Win32Proj</Keyword>
         <RootNamespace>
           <xsl:choose>
-            <xsl:when test="/Input/Properties/RootNamespace">
-              <xsl:value-of select="/Input/Properties/RootNamespace" />
+            <xsl:when test="$root/Input/Properties/RootNamespace">
+              <xsl:value-of select="$root/Input/Properties/RootNamespace" />
             </xsl:when>
             <xsl:otherwise>
               <xsl:value-of select="$project/@Name" />
@@ -680,8 +682,8 @@ Set-Content -Path $filename -Value $code;
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -693,7 +695,7 @@ Set-Content -Path $filename -Value $code;
           </xsl:if>
         </xsl:for-each>
 
-        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+        <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
           <xsl:call-template name="swig_binding_generator_extras">
           </xsl:call-template>
         </xsl:if>
@@ -708,8 +710,8 @@ Set-Content -Path $filename -Value $code;
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -731,8 +733,8 @@ Set-Content -Path $filename -Value $code;
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:element
               name="ClCompile"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -744,7 +746,7 @@ Set-Content -Path $filename -Value $code;
           </xsl:if>
         </xsl:for-each>
 
-        <xsl:if test="/Input/Properties/BindingGenerator = 'SWIG'">
+        <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
           <xsl:call-template name="swig_binding_generator_includes">
           </xsl:call-template>
         </xsl:if>
@@ -759,8 +761,8 @@ Set-Content -Path $filename -Value $code;
               ./Services,
               ./IncludeServices,
               ./ExcludeServices,
-              /Input/Generation/Platform,
-              /Input/Services/ActiveServicesNames)">
+              $root/Input/Generation/Platform,
+              $root/Input/Services/ActiveServicesNames)">
             <xsl:element
               name="{name()}"
               namespace="http://schemas.microsoft.com/developer/msbuild/2003">
