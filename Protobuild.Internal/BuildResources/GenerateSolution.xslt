@@ -17,7 +17,14 @@
 
   <xsl:template match="/">
     <xsl:choose>
-      <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
+		<xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+			<xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22609.0
+MinimumVisualStudioVersion = 10.0.40219.1
+</xsl:text>
+		</xsl:when>		
+		<xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
 <xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 </xsl:text>
