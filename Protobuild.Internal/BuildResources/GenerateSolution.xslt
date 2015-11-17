@@ -9,7 +9,7 @@
   
   <xsl:output method="text" indent="no" />
 
-  <xsl:variable name="root" select="/"/>
+  <xsl:variable name="documentroot" select="/"/>
   
   <!-- {GENERATION_FUNCTIONS} -->
 
@@ -17,12 +17,12 @@
 
   <xsl:template match="/">
     <xsl:choose>
-      <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'WindowsPhone81'">
 <xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsPhone'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'Windows8' or $documentroot/Input/Generation/Platform = 'WindowsPhone'">
 <xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 </xsl:text>
@@ -33,7 +33,7 @@
 </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:for-each select="$root/Input/Projects/Project">
+    <xsl:for-each select="$documentroot/Input/Projects/Project">
       <xsl:sort select="current()/Priority" />
       <xsl:call-template name="project-definition">
         <xsl:with-param name="type" select="current()/Type" />
@@ -45,7 +45,7 @@
       </xsl:call-template>
     </xsl:for-each>
     <xsl:choose>
-      <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'iOS'">
         <xsl:text>Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|iPhoneSimulator = Debug|iPhoneSimulator
@@ -58,7 +58,7 @@
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'WindowsPhone'">
         <xsl:text>Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -69,7 +69,7 @@
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'WindowsPhone81'">
         <xsl:text>Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,7 +88,7 @@
 </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
-    <xsl:for-each select="$root/Input/Projects/Project">
+    <xsl:for-each select="$documentroot/Input/Projects/Project">
       <xsl:sort select="current()/Priority" />
       <xsl:call-template name="project-configuration">
         <xsl:with-param name="guid" select="current()/Guid" />
@@ -115,7 +115,7 @@ EndGlobal
       </xsl:when>
       <xsl:when test="$language = 'C++'">
         <xsl:choose>
-          <xsl:when test="$root/Input/Generation/HostPlatform = 'Windows'">
+          <xsl:when test="$documentroot/Input/Generation/HostPlatform = 'Windows'">
             <xsl:text>8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942</xsl:text>
           </xsl:when>
           <xsl:otherwise>
@@ -164,7 +164,7 @@ EndGlobal
     </xsl:variable>
     
     <xsl:choose>
-      <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'iOS'">
         <xsl:text>		{</xsl:text>
         <xsl:value-of select="$guid" />
         <xsl:text>}.Ad-Hoc|iPhone.ActiveCfg = </xsl:text>
@@ -322,7 +322,7 @@ EndGlobal
         <xsl:text>
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone'">
+      <xsl:when test="$documentroot/Input/Generation/Platform = 'WindowsPhone'">
         <xsl:text>		{</xsl:text>
         <xsl:value-of select="$guid" />
         <xsl:text>}.Debug|x86.ActiveCfg = </xsl:text>
@@ -428,7 +428,7 @@ EndGlobal
         <xsl:text>
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$language = 'C++' and $root/Input/Generation/HostPlatform = 'Windows'">
+      <xsl:when test="$language = 'C++' and $documentroot/Input/Generation/HostPlatform = 'Windows'">
         <xsl:text>		{</xsl:text>
         <xsl:value-of select="$guid" />
         <xsl:text>}.Debug|Any CPU.ActiveCfg = </xsl:text>
