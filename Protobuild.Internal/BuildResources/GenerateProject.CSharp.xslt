@@ -128,6 +128,16 @@
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>
+          <xsl:when test="$root/Input/Generation/Platform = 'MacOS' and user:HasXamarinMac()">
+            <xsl:choose>
+              <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI)">
+              </xsl:when>
+              <xsl:otherwise>
+                <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+                <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
+              </xsl:otherwise>
+            </xsl:choose>
+          </xsl:when>
           <xsl:otherwise>
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
           </xsl:otherwise>
@@ -245,6 +255,16 @@
               </xsl:when>
               <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
                 <xsl:text>PLATFORM_MACOS</xsl:text>
+                <xsl:choose>
+                  <xsl:when test="user:HasXamarinMac()">
+                    <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI)">
+                      <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
+                    </xsl:if>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:when>
               <xsl:when test="$root/Input/Generation/Platform = 'Ouya'">
                 <xsl:text>PLATFORM_OUYA</xsl:text>
@@ -983,7 +1003,14 @@
             <ProjectTypeGuids>
               <xsl:choose>
                 <xsl:when test="user:HasXamarinMac()">
-                  <xsl:text>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};</xsl:text>
+                  <xsl:choose>
+                    <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI)">
+                      <xsl:text>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:when>
                 <xsl:otherwise>
                   <xsl:text>{948B3504-5B70-4649-8FE4-BDE1FB46EC69};</xsl:text>
@@ -1328,7 +1355,14 @@
         <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
           <xsl:choose>
             <xsl:when test="user:HasXamarinMac()">
-              <Reference Include="XamMac" />
+              <xsl:choose>
+                <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyiOSAPI)">
+                  <Reference Include="XamMac" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <Reference Include="Xamarin.Mac" />
+                </xsl:otherwise>
+              </xsl:choose>
             </xsl:when>
             <xsl:otherwise>
               <Reference Include="MonoMac" />
@@ -1988,6 +2022,9 @@
         <xsl:when test="$root/Input/Generation/Platform = 'iOS' and not(user:IsTrue($root/Input/Properties/UseLegacyiOSAPI))">
           <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
         </xsl:when>
+        <xsl:when test="$root/Input/Generation/Platform = 'MacOS' and not(user:IsTrue($root/Input/Properties/UseLegacyMacAPI))">
+          <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+        </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
         </xsl:otherwise>
@@ -2137,6 +2174,26 @@
       <PropertyGroup>
         <_PostBuildHookTimestamp>@(IntermediateAssembly->'%(FullPath)')</_PostBuildHookTimestamp>
       </PropertyGroup>
+
+      <!-- 
+        Post-build hooks don't work on this platform due to Xamarin limitations.  There's no
+        way to work around the issue without significant effort (because these post-build hooks
+        need to run after compilation but before AOT).
+      -->
+      <xsl:if test="msxsl:node-set($post_build_hooks)/PostBuildHook">
+        <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
+          <xsl:choose>
+            <xsl:when test="user:HasXamarinMac()">
+              <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI)">
+                <xsl:value-of select="user:WarnForPostBuildHooksOnOldMacPlatform()" />
+              </xsl:if>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="user:WarnForPostBuildHooksOnOldMacPlatform()" />
+            </xsl:otherwise>
+          </xsl:choose>
+        </xsl:if>
+      </xsl:if>
       
       <Target Name="PostBuildHooks" Inputs="@(IntermediateAssembly)" Outputs="@(IntermediateAssembly); $(_PostBuildHookTimestamp)" AfterTargets="CoreCompile" BeforeTargets="AfterCompile">
         <xsl:variable name="working_directory">
