@@ -404,5 +404,17 @@ public class GenerationFunctions
         return string.Empty;
     }
 
+    public string WarnForPostBuildHooksOnOldMacPlatform()
+    {
+        Console.WriteLine(
+            "WARNING: Post-build hooks will NOT work in this project under " +
+            "mdtool or Xamarin Studio as it is targeting an old version of " +
+            "Mac APIs.  For post-build hooks to run, you must build the " +
+            "project with xbuild (but you can't use Mac APIs if you do), " +
+            "or have a licensed version of Xamarin Studio and use the Unified " +
+            "Mac APIs (the default if Xamarin Studio is installed).");
+        return string.Empty;
+    }
+
     // **end**
 }
