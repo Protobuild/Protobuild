@@ -8,6 +8,7 @@ namespace Protobuild
     public interface IProjectGenerator
     {
         void Generate(
+            DefinitionInfo current,
             List<XmlDocument> definitions1,
             string rootPath,
             string projectName,

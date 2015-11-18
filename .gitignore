@@ -54,3 +54,6 @@ Protobuild.FunctionalTests/TestData/ModuleInfoGetsUpgraded/Build/Module.xml
 Prototest/
 /.kdev4/Protobuild.kdev4
 /Protobuild.kdev4
+/Protobuild.FunctionalTests/TestData/InfoPListFileIsGenerated/Console/Info.plist
+/Protobuild.FunctionalTests/TestData/iOSLegacyAPIGenerationWorks/App/Info.plist
+/Protobuild.FunctionalTests/TestData/iOSUnifiedAPIGenerationWorks/App/Info.plist

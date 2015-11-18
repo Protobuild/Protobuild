@@ -62,8 +62,8 @@
     <Compile Include="IncludeProjectViaExternalWorksTest.cs" />
     <Compile Include="IncludeProjectViaSubmoduleWorksTest.cs" />
     <Compile Include="IncludeProjectWorksTest.cs" />
+    <Compile Include="InfoPListFileIsGeneratedTest.cs" />
     <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
-    <Compile Include="iOSSolutionHasCorrectProjectMappingsTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
@@ -237,12 +237,12 @@
     <None Include="TestData\IncludeProjectWorks\Build\Projects\Includable.definition" />
     <None Include="TestData\IncludeProjectWorks\Console\Program.cs" />
     <None Include="TestData\IncludeProjectWorks\Includable\MyIncludableClass.cs" />
+    <None Include="TestData\InfoPListFileIsGenerated\Build\Module.xml" />
+    <None Include="TestData\InfoPListFileIsGenerated\Build\Projects\Console.definition" />
+    <None Include="TestData\InfoPListFileIsGenerated\Console\Program.cs" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Projects\App.definition" />
-    <None Include="TestData\iOSSolutionHasCorrectProjectMappings\App\Program.cs" />
-    <None Include="TestData\iOSSolutionHasCorrectProjectMappings\Build\Module.xml" />
-    <None Include="TestData\iOSSolutionHasCorrectProjectMappings\Build\Projects\App.definition" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
