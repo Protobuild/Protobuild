@@ -5,8 +5,15 @@ namespace Protobuild
 {
     public class HostPlatformDetector : IHostPlatformDetector
     {
+        public static string SimulatedHostPlatform { get; set; }
+
         public string DetectPlatform()
         {
+            if (SimulatedHostPlatform != null)
+            {
+                return SimulatedHostPlatform;
+            }
+
             if (Path.DirectorySeparatorChar == '/')
             {
                 if (Directory.Exists("/Library"))

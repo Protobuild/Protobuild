@@ -181,6 +181,7 @@ namespace Protobuild.Tasks
                 string repositoryPath;
                 var definitionCopy = definition;
                 this.m_ProjectGenerator.Generate(
+                    definition,
                     loadedProjects,
                     this.RootPath,
                     definition.Name,

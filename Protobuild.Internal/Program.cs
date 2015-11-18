@@ -36,6 +36,7 @@ namespace Protobuild
                 { "enable", kernel.Get<EnableServiceCommand>() },
                 { "disable", kernel.Get<DisableServiceCommand>() },
                 { "debug-service-resolution", kernel.Get<DebugServiceResolutionCommand>() },
+                { "simulate-host-platform", kernel.Get<SimulateHostPlatformCommand>() },
                 { "spec", kernel.Get<ServiceSpecificationCommand>() },
                 { "query-features", kernel.Get<QueryFeaturesCommand>() },
                 { "add", kernel.Get<AddPackageCommand>() },
@@ -74,6 +75,11 @@ namespace Protobuild
                 {
                     options[key + "@" + value.GetArgCount()] = x => { value.Encounter(execution, x); };
                 }
+            }
+
+            if (execution.SimulateHostPlatform != null)
+            {
+                HostPlatformDetector.SimulatedHostPlatform = execution.SimulateHostPlatform;
             }
 
             Action<string[]> helpAction = x => 

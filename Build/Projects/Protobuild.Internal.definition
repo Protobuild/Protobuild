@@ -123,6 +123,7 @@
     <Compile Include="CommandLine\ResolveCommand.cs" />
     <Compile Include="CommandLine\ResyncCommand.cs" />
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
+    <Compile Include="CommandLine\SimulateHostPlatformCommand.cs" />
     <Compile Include="CommandLine\StartCommand.cs" />
     <Compile Include="CommandLine\SwapToBinaryCommand.cs" />
     <Compile Include="CommandLine\SwapToSourceCommand.cs" />
@@ -152,6 +153,8 @@
     <Compile Include="Generation\IContentProjectGenerator.cs" />
     <Compile Include="Generation\IExcludedServiceAwareProjectDetector.cs" />
     <Compile Include="Generation\IExternalProjectReferenceResolver.cs" />
+    <Compile Include="Generation\IInfoPListGenerator.cs" />
+    <Compile Include="Generation\InfoPListGenerator.cs" />
     <Compile Include="Generation\INuGetConfigMover.cs" />
     <Compile Include="Generation\INuGetReferenceDetector.cs" />
     <Compile Include="Generation\INuGetRepositoriesConfigGenerator.cs" />

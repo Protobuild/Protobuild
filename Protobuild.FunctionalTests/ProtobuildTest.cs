@@ -79,12 +79,12 @@ namespace Protobuild.Tests
             }
         }
 
-        protected Tuple<string, string> Generate(string platform = null, string args = null, bool expectFailure = false, bool capture = false)
+        protected Tuple<string, string> Generate(string platform = null, string args = null, bool expectFailure = false, bool capture = false, string hostPlatform = null)
         {
             return this.OtherMode("generate", (platform ?? "Windows") + " " + args, expectFailure, capture: capture);
         }
 
-        protected Tuple<string, string> OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true, bool capture = false, string workingSubdirectory = null)
+        protected Tuple<string, string> OtherMode(string mode, string args = null, bool expectFailure = false, bool purge = true, bool capture = false, string workingSubdirectory = null, string hostPlatform = null)
         {
             if (purge)
             {
@@ -93,6 +93,11 @@ namespace Protobuild.Tests
 
             var stdout = string.Empty;
             var stderr = string.Empty;
+
+            if (hostPlatform != null)
+            {
+                args = "--simulate-host-platform " + hostPlatform + " " + args;
+            }
 
             var pi = new ProcessStartInfo
             {

@@ -27,13 +27,16 @@ namespace Protobuild
 
         private readonly ILanguageStringProvider m_LanguageStringProvider;
 
+        private readonly IInfoPListGenerator m_InfoPListGenerator;
+
         public ProjectGenerator(
             IResourceProvider resourceProvider,
             INuGetConfigMover nuGetConfigMover,
             IProjectInputGenerator projectInputGenerator,
             IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
             IExternalProjectReferenceResolver externalProjectReferenceResolver,
-            ILanguageStringProvider mLanguageStringProvider)
+            ILanguageStringProvider mLanguageStringProvider,
+            IInfoPListGenerator infoPListGenerator)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
@@ -41,6 +44,7 @@ namespace Protobuild
             this.m_ExcludedServiceAwareProjectDetector = excludedServiceAwareProjectDetector;
             this.m_ExternalProjectReferenceResolver = externalProjectReferenceResolver;
             this.m_LanguageStringProvider = mLanguageStringProvider;
+            this.m_InfoPListGenerator = infoPListGenerator;
         }
 
         /// <summary>
@@ -54,6 +58,7 @@ namespace Protobuild
         /// </param>
         /// <param name="onActualGeneration"></param>
         public void Generate(
+            DefinitionInfo current,
             List<XmlDocument> documents,
             string rootPath,
             string projectName,
@@ -129,6 +134,9 @@ namespace Protobuild
             // this so that external projects can reference other external projects (which
             // we can't reasonably handle at the XSLT level since it's recursive).
             this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(documents, projectDoc);
+
+            // Generate Info.plist files if necessary (for Mac / iOS).
+            this.m_InfoPListGenerator.GenerateInfoPListIfNeeded(current, projectDoc, platformName);
 
             // Work out what path to save at.
             var path = Path.Combine(
