@@ -39,7 +39,7 @@ namespace Protobuild
             }
 
             // Hash the memory stream.
-            var sha1 = new SHA1Cng();
+            var sha1 = new SHA1Managed();
             memory.Seek(0, SeekOrigin.Begin);
             var hashBytes = sha1.ComputeHash(memory);
             var hashString = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
