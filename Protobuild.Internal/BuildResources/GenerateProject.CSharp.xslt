@@ -128,16 +128,6 @@
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>
-          <xsl:when test="$root/Input/Generation/Platform = 'MacOS' and user:HasXamarinMac()">
-            <xsl:choose>
-              <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI)">
-              </xsl:when>
-              <xsl:otherwise>
-                <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
-                <TargetFrameworkIdentifier>Xamarin.Mac</TargetFrameworkIdentifier>
-              </xsl:otherwise>
-            </xsl:choose>
-          </xsl:when>
           <xsl:otherwise>
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
           </xsl:otherwise>
