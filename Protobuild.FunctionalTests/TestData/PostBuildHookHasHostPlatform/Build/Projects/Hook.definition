@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="Hook" Path="Hook" Type="Console" PostBuildHook="True">
+  <Properties>
+    <!-- Prevent the hook from running on these projects -->
+    <PostBuildHookExcludes>
+      <Project Name="Hook.Library" />
+    </PostBuildHookExcludes>
+  </Properties>
+  <References>
+    <Reference Include="System" />
+    <Reference Include="Hook.Library" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>
