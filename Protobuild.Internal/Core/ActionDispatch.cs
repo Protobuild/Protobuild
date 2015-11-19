@@ -47,9 +47,10 @@ namespace Protobuild
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
+            var hostPlatform = this.m_HostPlatformDetector.DetectPlatform();
             if (string.IsNullOrWhiteSpace(platform))
             {
-                platform = this.m_HostPlatformDetector.DetectPlatform();
+                platform = hostPlatform;
             }
 
             var originalPlatform = platform;
@@ -194,10 +195,28 @@ namespace Protobuild
                         disablePackageResolution);
             }
 
+            // Create the list of multiple platforms.
+            var multiplePlatformsList =
+                multiplePlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
+
+            // If the host platform is not in the list, add it.  We do this because even when we are targeting
+            // a mobile platform, we'll still want host projects like IDE editors and post-build hooks to
+            // be built for the host platform so that we can develop for the mobile platform.
+            var hostPlatformNormalized = module.NormalizePlatform(hostPlatform);
+            if (hostPlatformNormalized == null)
+            {
+                Console.WriteLine(
+                    "WARNING: The current host platform is not a supported platform for the solution.  IDE editor " +
+                    "projects and post-build hooks will not be available, and this may cause the project to be " +
+                    "built incorrectly!");
+            }
+            else if (!multiplePlatformsList.Contains(hostPlatformNormalized))
+            {
+                multiplePlatformsList.Add(hostPlatformNormalized);
+            }
+
             // Now iterate through the multiple platforms specified.
-            var multiplePlatformsArray =
-                multiplePlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-            foreach (var platformIter in multiplePlatformsArray)
+            foreach (var platformIter in multiplePlatformsList)
             {
                 if (platformIter == primaryPlatform)
                 {

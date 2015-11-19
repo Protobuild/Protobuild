@@ -75,16 +75,6 @@ namespace Protobuild
         }
 
         /// <summary>
-        /// Gets or sets the GUID of the project.
-        /// </summary>
-        /// <value>The project GUID.</value>
-        public Guid Guid
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// Gets the path to the definition file this definition was loaded from.
         /// </summary>
         /// <value>The path to the definition file.</value>
@@ -132,11 +122,6 @@ namespace Protobuild
                 if (doc.Root.Attributes().Any(x => x.Name == "Path"))
                 {
                     def.RelativePath = doc.Root.Attribute(XName.Get("Path")).Value;
-                }
-
-                if (doc.Root.Attributes().Any(x => x.Name == "Guid"))
-                {
-                    def.Guid = Guid.Parse(doc.Root.Attribute(XName.Get("Guid")).Value);
                 }
 
                 if (doc.Root.Attributes().Any(x => x.Name == "Type"))

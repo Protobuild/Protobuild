@@ -23,7 +23,7 @@ namespace Protobuild
                     break;
             }
 
-            pendingExecution.SimulateHostPlatform = args[0];
+            HostPlatformDetector.SimulatedHostPlatform = args[0];
         }
 
         public int Execute(Execution execution)
@@ -42,12 +42,12 @@ under different platforms.
 
         public int GetArgCount()
         {
-            return 0;
+            return 1;
         }
 
         public string[] GetArgNames()
         {
-            return new string[0];
+            return new[] { "platform" };
         }
     }
 }

@@ -13,159 +13,169 @@
   <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:template match="/">
+    <xsl:variable name="target_platforms">
+      <Platform><xsl:value-of select="$root/Input/Generation/HostPlatform" /></Platform>
+      <xsl:if test="$root/Input/Generation/HostPlatform != $root/Input/Generation/Platform">
+        <Platform><xsl:value-of select="$root/Input/Generation/Platform" /></Platform>
+      </xsl:if>
+    </xsl:variable>
+
     <Projects>
-      <xsl:for-each select="$root/Input/Projects/Project">
-        <xsl:if test="user:ProjectIsActive(
-            current()/@Platforms,
-            $root/Input/Generation/Platform)">
+      <xsl:for-each select="msxsl:node-set($target_platforms)/*">
+        <xsl:variable name="platform" select="." />
+        <xsl:for-each select="$root/Input/Projects/Project">
+          <xsl:if test="user:ProjectIsActive(
+              current()/@Platforms,
+              $platform)">
+            <Project>
+              <Type>
+                <xsl:value-of select="current()/@Type" />
+              </Type>
+              <RawName>
+                <xsl:value-of select="current()/@Name" />
+              </RawName>
+              <Name>
+                <xsl:value-of select="concat(
+                  current()/@Name,
+                  '.',
+                  $platform)" />
+              </Name>
+              <Guid>
+                <xsl:value-of select="current()/ProjectGuids/Platform[@Name=$platform]" />
+              </Guid>
+              <Path>
+                <xsl:value-of select="concat(
+                  current()/@Path,
+                  '\',
+                  current()/@Name,
+                  '.',
+                  $platform,
+                  user:GetProjectExtension(current()/@Language, $root/Input/Generation/HostPlatform))" />
+              </Path>
+              <Language>
+                <xsl:choose>
+                  <xsl:when test="current()/@Language">
+                    <xsl:value-of select="current()/@Language" />
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:text>C#</xsl:text>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </Language>
+              <Priority>
+                <xsl:choose>
+                  <xsl:when test="current()/@Language = 'C++'">
+                    <!-- C++ projects must come first because they need to build first under MonoDevelop -->
+                    <xsl:text>100</xsl:text>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:text>200</xsl:text>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </Priority>
+              <xsl:copy-of select="current()/ConfigurationMapping" />
+              <xsl:copy-of select="current()/PostProject" />
+            </Project>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$root/Input/Projects/ExternalProject
+                              /Project">
           <Project>
-            <Type>
-              <xsl:value-of select="current()/@Type" />
-            </Type>
+            <Type>External</Type>
             <RawName>
               <xsl:value-of select="current()/@Name" />
             </RawName>
             <Name>
-              <xsl:value-of select="concat(
-                current()/@Name,
-                '.',
-                $root/Input/Generation/Platform)" />
+              <xsl:value-of select="current()/@Name" />
             </Name>
             <Guid>
               <xsl:value-of select="current()/@Guid" />
             </Guid>
             <Path>
-              <xsl:value-of select="concat(
-                current()/@Path,
-                '\',
-                current()/@Name,
-                '.',
-                $root/Input/Generation/Platform,
-                user:GetProjectExtension(current()/@Language, $root/Input/Generation/HostPlatform))" />
+              <xsl:value-of select="current()/@Path" />
             </Path>
-            <Language>
-              <xsl:choose>
-                <xsl:when test="current()/@Language">
-                  <xsl:value-of select="current()/@Language" />
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>C#</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
-            </Language>
-            <Priority>
-              <xsl:choose>
-                <xsl:when test="current()/@Language = 'C++'">
-                  <!-- C++ projects must come first because they need to build first under MonoDevelop -->
-                  <xsl:text>100</xsl:text>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>200</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
-            </Priority>
+            <Priority>9999</Priority>
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>
-        </xsl:if>
-      </xsl:for-each>
-      <xsl:for-each select="$root/Input/Projects/ExternalProject
-                            /Project">
-        <Project>
-          <Type>External</Type>
-          <RawName>
-            <xsl:value-of select="current()/@Name" />
-          </RawName>
-          <Name>
-            <xsl:value-of select="current()/@Name" />
-          </Name>
-          <Guid>
-            <xsl:value-of select="current()/@Guid" />
-          </Guid>
-          <Path>
-            <xsl:value-of select="current()/@Path" />
-          </Path>
-          <Priority>9999</Priority>
-          <xsl:copy-of select="current()/ConfigurationMapping" />
-          <xsl:copy-of select="current()/PostProject" />
-        </Project>
-      </xsl:for-each>
-      <xsl:for-each select="$root/Input/Projects/ExternalProject
-                            /Platform[@Type=$root/Input/Generation/Platform]
-                            /Project">
-        <Project>
-          <Type>External</Type>
-          <RawName>
-            <xsl:value-of select="current()/@Name" />
-          </RawName>
-          <Name>
-            <xsl:value-of select="current()/@Name" />
-          </Name>
-          <Guid>
-            <xsl:value-of select="current()/@Guid" />
-          </Guid>
-          <Path>
-            <xsl:value-of select="current()/@Path" />
-          </Path>
-          <Priority>9999</Priority>
-          <xsl:copy-of select="current()/ConfigurationMapping" />
-          <xsl:copy-of select="current()/PostProject" />
-        </Project>
-      </xsl:for-each>
-      <xsl:for-each select="$root/Input/Projects/ExternalProject
-                            /Platform[@Type=$root/Input/Generation/Platform]
-                            /Service">
-        <xsl:if test="user:ServiceIsActive(
-          ./@Name,
-          $root/Input/Services/ActiveServicesNames)">
-          <xsl:for-each select="./Project">
-            <Project>
-              <Type>External</Type>
-              <RawName>
-                <xsl:value-of select="current()/@Name" />
-              </RawName>
-              <Name>
-                <xsl:value-of select="current()/@Name" />
-              </Name>
-              <Guid>
-                <xsl:value-of select="current()/@Guid" />
-              </Guid>
-              <Path>
-                <xsl:value-of select="current()/@Path" />
-              </Path>
-              <Priority>9999</Priority>
-              <xsl:copy-of select="current()/ConfigurationMapping" />
-              <xsl:copy-of select="current()/PostProject" />
-            </Project>
-          </xsl:for-each>
-        </xsl:if>
-      </xsl:for-each>
-      <xsl:for-each select="$root/Input/Projects/ExternalProject
-                            /Service">
-        <xsl:if test="user:ServiceIsActive(
-          ./@Name,
-          $root/Input/Services/ActiveServicesNames)">
-          <xsl:for-each select="./Project">
-            <Project>
-              <Type>External</Type>
-              <RawName>
-                <xsl:value-of select="current()/@Name" />
-              </RawName>
-              <Name>
-                <xsl:value-of select="current()/@Name" />
-              </Name>
-              <Guid>
-                <xsl:value-of select="current()/@Guid" />
-              </Guid>
-              <Path>
-                <xsl:value-of select="current()/@Path" />
-              </Path>
-              <Priority>9999</Priority>
-              <xsl:copy-of select="current()/ConfigurationMapping" />
-              <xsl:copy-of select="current()/PostProject" />
-            </Project>
-          </xsl:for-each>
-        </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$root/Input/Projects/ExternalProject
+                              /Platform[@Type=$platform]
+                              /Project">
+          <Project>
+            <Type>External</Type>
+            <RawName>
+              <xsl:value-of select="current()/@Name" />
+            </RawName>
+            <Name>
+              <xsl:value-of select="current()/@Name" />
+            </Name>
+            <Guid>
+              <xsl:value-of select="current()/@Guid" />
+            </Guid>
+            <Path>
+              <xsl:value-of select="current()/@Path" />
+            </Path>
+            <Priority>9999</Priority>
+            <xsl:copy-of select="current()/ConfigurationMapping" />
+            <xsl:copy-of select="current()/PostProject" />
+          </Project>
+        </xsl:for-each>
+        <xsl:for-each select="$root/Input/Projects/ExternalProject
+                              /Platform[@Type=$platform]
+                              /Service">
+          <xsl:if test="user:ServiceIsActive(
+            ./@Name,
+            $root/Input/Services/ActiveServicesNames)">
+            <xsl:for-each select="./Project">
+              <Project>
+                <Type>External</Type>
+                <RawName>
+                  <xsl:value-of select="current()/@Name" />
+                </RawName>
+                <Name>
+                  <xsl:value-of select="current()/@Name" />
+                </Name>
+                <Guid>
+                  <xsl:value-of select="current()/@Guid" />
+                </Guid>
+                <Path>
+                  <xsl:value-of select="current()/@Path" />
+                </Path>
+                <Priority>9999</Priority>
+                <xsl:copy-of select="current()/ConfigurationMapping" />
+                <xsl:copy-of select="current()/PostProject" />
+              </Project>
+            </xsl:for-each>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$root/Input/Projects/ExternalProject
+                              /Service">
+          <xsl:if test="user:ServiceIsActive(
+            ./@Name,
+            $root/Input/Services/ActiveServicesNames)">
+            <xsl:for-each select="./Project">
+              <Project>
+                <Type>External</Type>
+                <RawName>
+                  <xsl:value-of select="current()/@Name" />
+                </RawName>
+                <Name>
+                  <xsl:value-of select="current()/@Name" />
+                </Name>
+                <Guid>
+                  <xsl:value-of select="current()/@Guid" />
+                </Guid>
+                <Path>
+                  <xsl:value-of select="current()/@Path" />
+                </Path>
+                <Priority>9999</Priority>
+                <xsl:copy-of select="current()/ConfigurationMapping" />
+                <xsl:copy-of select="current()/PostProject" />
+              </Project>
+            </xsl:for-each>
+          </xsl:if>
+        </xsl:for-each>
       </xsl:for-each>
     </Projects>
   </xsl:template>

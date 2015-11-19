@@ -543,7 +543,7 @@ Set-Content -Path $filename -Value $code;
         </xsl:call-template>
       </ItemGroup>
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{<xsl:value-of select="$project/@Guid" />}</ProjectGuid>
+        <ProjectGuid>{<xsl:value-of select="$project/ProjectGuids/Platform[@Name=$root/Input/Generation/Platform]" />}</ProjectGuid>
         <Keyword>Win32Proj</Keyword>
         <RootNamespace>
           <xsl:choose>

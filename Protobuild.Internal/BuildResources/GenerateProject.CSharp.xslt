@@ -956,7 +956,7 @@
           </xsl:otherwise>
         </xsl:choose>
         <SchemaVersion>2.0</SchemaVersion>
-        <ProjectGuid>{<xsl:value-of select="$project/@Guid" />}</ProjectGuid>
+        <ProjectGuid>{<xsl:value-of select="$project/ProjectGuids/Platform[@Name=$root/Input/Generation/Platform]" />}</ProjectGuid>
         <xsl:choose>
           <xsl:when test="$project/@Type = 'Website'">
             <ProjectTypeGuids>

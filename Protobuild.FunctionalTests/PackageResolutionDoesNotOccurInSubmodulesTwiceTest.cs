@@ -24,7 +24,19 @@
                 PathUtils.AggressiveDirectoryDelete(this.GetPath("Package"));
             }
 
+            var platform = "Windows";
+            if (Path.DirectorySeparatorChar == '/')
+            {
+                platform = "Linux";
+
+                if (Directory.Exists("/Library"))
+                {
+                    platform = "MacOS";
+                }
+            }
+
             var stdout = this.Generate(
+                platform: platform,
                 args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src,
                 capture: true).Item1;
 

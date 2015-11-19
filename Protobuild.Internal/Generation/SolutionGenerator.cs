@@ -50,7 +50,7 @@ namespace Protobuild
                 var existingGuids = new List<string>();
                 foreach (var element in document.DocumentElement.SelectNodes("/Projects/Project").OfType<XmlElement>().ToList())
                 {
-                    var f = element.SelectNodes("Guid").OfType<XmlElement>().FirstOrDefault();
+                    var f = element.SelectNodes("ProjectGuids/Platform[@Name='" + platformName + "']").OfType<XmlElement>().FirstOrDefault();
 
                     if (f != null)
                     {
@@ -62,6 +62,21 @@ namespace Protobuild
                         else
                         {
                             existingGuids.Add(f.InnerText.Trim());
+                        }
+                    }
+
+                    var s = element.SelectNodes("Guid").OfType<XmlElement>().FirstOrDefault();
+
+                    if (s != null)
+                    {
+                        if (existingGuids.Contains(s.InnerText.Trim()))
+                        {
+                            element.ParentNode.RemoveChild(element);
+                            continue;
+                        }
+                        else
+                        {
+                            existingGuids.Add(s.InnerText.Trim());
                         }
                     }
 
