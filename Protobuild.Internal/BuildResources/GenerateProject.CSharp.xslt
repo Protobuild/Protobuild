@@ -32,6 +32,7 @@
   <xsl:template name="platform_path">
     <xsl:param name="type" />
     <xsl:param name="projectname" />
+    <xsl:param name="protobuildplatform" />
     <xsl:param name="platform" />
     <xsl:param name="config" />
     <xsl:param name="project_specific_output_folder" />
@@ -47,14 +48,14 @@
       <xsl:when test="user:IsTrue($project_specific_output_folder)">
         <xsl:value-of select="$projectname" />
         <xsl:text>\</xsl:text>
-        <xsl:value-of select="$root/Input/Generation/Platform" />
+        <xsl:value-of select="$protobuildplatform" />
         <xsl:text>\</xsl:text>
         <xsl:value-of select="$platform" />
         <xsl:text>\</xsl:text>
         <xsl:value-of select="$config" />
       </xsl:when>
       <xsl:when test="user:IsTrueDefault($platform_specific_output_folder)">
-        <xsl:value-of select="$root/Input/Generation/Platform" />
+        <xsl:value-of select="$protobuildplatform" />
       	<xsl:text>\</xsl:text>
       	<xsl:value-of select="$platform" />
       	<xsl:text>\</xsl:text>
@@ -204,6 +205,7 @@
       <xsl:call-template name="platform_path">
         <xsl:with-param name="type" select="$type" />
         <xsl:with-param name="projectname" select="$projectname" />
+        <xsl:with-param name="protobuildplatform" select="$root/Input/Generation/Platform" />
         <xsl:with-param name="platform" select="$platform" />
         <xsl:with-param name="config" select="$config" />
         <xsl:with-param name="platform_specific_output_folder" select="$root/Input/Properties/PlatformSpecificOutputFolder" />
@@ -507,6 +509,7 @@
             <xsl:call-template name="platform_path">
               <xsl:with-param name="type" select="$target_project/@Type" />
               <xsl:with-param name="projectname" select="@Name" />
+              <xsl:with-param name="protobuildplatform" select="$root/Input/Generation/Platform" />
               <xsl:with-param name="platform">$(Platform)</xsl:with-param>
               <xsl:with-param name="config">$(Configuration)</xsl:with-param>
               <xsl:with-param name="platform_specific_output_folder" select="$target_project/Properties/PlatformSpecificOutputFolder" />
@@ -517,6 +520,7 @@
             <xsl:call-template name="platform_path">
               <xsl:with-param name="type" select="$target_project/@Type" />
               <xsl:with-param name="projectname" select="@Name" />
+              <xsl:with-param name="protobuildplatform" select="$root/Input/Generation/Platform" />
               <xsl:with-param name="platform">x64</xsl:with-param>
               <xsl:with-param name="config">$(Configuration)</xsl:with-param>
               <xsl:with-param name="platform_specific_output_folder" select="$target_project/Properties/PlatformSpecificOutputFolder" />
@@ -527,6 +531,7 @@
             <xsl:call-template name="platform_path">
               <xsl:with-param name="type" select="$target_project/@Type" />
               <xsl:with-param name="projectname" select="@Name" />
+              <xsl:with-param name="protobuildplatform" select="$root/Input/Generation/Platform" />
               <xsl:with-param name="platform">Win32</xsl:with-param>
               <xsl:with-param name="config">$(Configuration)</xsl:with-param>
               <xsl:with-param name="platform_specific_output_folder" select="$target_project/Properties/PlatformSpecificOutputFolder" />
@@ -657,7 +662,7 @@
                     $root/Input/Generation/Platform,
                     '.csproj'))" />
             </xsl:attribute>
-            <Project>{<xsl:value-of select="$target_project/@Guid" />}</Project>
+            <Project>{<xsl:value-of select="$target_project/ProjectGuids/Platform[@Name=$root/Input/Generation/Platform]" />}</Project>
             <Name><xsl:value-of select="$target_project/@Name" /><xsl:text>.</xsl:text><xsl:value-of select="$root/Input/Generation/Platform" /></Name>
             <xsl:for-each select="./Alias">
               <xsl:if test="@Platform = $root/Input/Generation/Platform">
@@ -2102,6 +2107,7 @@
               <xsl:call-template name="platform_path">
                 <xsl:with-param name="type" select="./@Type" />
                 <xsl:with-param name="projectname" select="./@Name" />
+                <xsl:with-param name="protobuildplatform" select="$root/Input/Generation/HostPlatform" />
                 <xsl:with-param name="platform">$(Platform)</xsl:with-param>
                 <xsl:with-param name="config">$(Configuration)</xsl:with-param>
                 <xsl:with-param name="platform_specific_output_folder" select="./Properties/PlatformSpecificOutputFolder" />
