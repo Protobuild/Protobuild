@@ -2168,7 +2168,7 @@
       </xsl:variable>
       
       <PropertyGroup>
-        <_PostBuildHookTimestamp>@(IntermediateAssembly->'%(FullPath)')</_PostBuildHookTimestamp>
+        <_PostBuildHookTimestamp>@(IntermediateAssembly->'%(FullPath).timestamp')</_PostBuildHookTimestamp>
       </PropertyGroup>
 
       <!-- 
