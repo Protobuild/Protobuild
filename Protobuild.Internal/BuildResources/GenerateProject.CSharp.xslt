@@ -2191,7 +2191,7 @@
         </xsl:if>
       </xsl:if>
       
-      <Target Name="PostBuildHooks" Inputs="@(IntermediateAssembly)" Outputs="@(IntermediateAssembly); $(_PostBuildHookTimestamp)" AfterTargets="CoreCompile" BeforeTargets="AfterCompile">
+      <Target Name="PostBuildHooks" Inputs="@(IntermediateAssembly);@(ReferencePath)" Outputs="@(IntermediateAssembly);$(_PostBuildHookTimestamp)" AfterTargets="CoreCompile" BeforeTargets="AfterCompile">
         <xsl:variable name="working_directory">
           <xsl:value-of select="concat($root/Input/Generation/RootPath, $project/@Path)" />
         </xsl:variable>
@@ -2241,7 +2241,7 @@
               </xsl:if>
               <xsl:text>"</xsl:text>
               <xsl:value-of select="./@Path" />
-              <xsl:text>" "@(IntermediateAssembly)"</xsl:text>
+              <xsl:text>" "@(IntermediateAssembly)" "@(ReferencePath)"</xsl:text>
             </xsl:attribute>
           </Exec>
         </xsl:for-each>
