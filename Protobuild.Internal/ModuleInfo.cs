@@ -562,6 +562,11 @@ namespace Protobuild
             return new Tuple<int, string, string>(1, string.Empty, string.Empty);
         }
 
+        public static string GetSupportedPlatformsDefault()
+        {
+            return "Android,iOS,Linux,MacOS,Ouya,PCL,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81";
+        }
+
         /// <summary>
         /// Normalizes the platform string from user input, automatically correcting case
         /// and validating against a list of supported platforms.
@@ -570,7 +575,7 @@ namespace Protobuild
         /// <param name="platform">The normalized platform string.</param>
         public string NormalizePlatform(string platform)
         {
-            var supportedPlatforms = "Android,iOS,Linux,MacOS,Ouya,PCL,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81";
+            var supportedPlatforms = GetSupportedPlatformsDefault();
             var defaultPlatforms = true;
 
             if (!string.IsNullOrEmpty(this.SupportedPlatforms))

@@ -59,6 +59,7 @@
     <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="ForcePCLGenerationWorksTest.cs" />
+    <Compile Include="HostPlatformGenerationWorksTest.cs" />
     <Compile Include="IncludeProjectViaExternalWorksTest.cs" />
     <Compile Include="IncludeProjectViaSubmoduleWorksTest.cs" />
     <Compile Include="IncludeProjectWorksTest.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="ServicesRecommendsTest.cs" />
     <Compile Include="ServicesRelativeRequireTest.cs" />
     <Compile Include="SimplifiedFileInclusionWorksTest.cs" />
+    <Compile Include="SimulateHostPlatformGenerationWorksTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentExtensiveTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
@@ -217,6 +219,9 @@
     <None Include="TestData\ForcePCLGenerationWorks\Build\Projects\Library.definition" />
     <None Include="TestData\ForcePCLGenerationWorks\Console\Program.cs" />
     <None Include="TestData\ForcePCLGenerationWorks\Library\MyClass.cs" />
+    <None Include="TestData\HostPlatformGenerationWorks\Build\Module.xml" />
+    <None Include="TestData\HostPlatformGenerationWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\HostPlatformGenerationWorks\Console\Program.cs" />
     <None Include="TestData\IncludeProjectViaExternalWorks\Build\Module.xml" />
     <None Include="TestData\IncludeProjectViaExternalWorks\Build\Projects\Console.definition" />
     <None Include="TestData\IncludeProjectViaExternalWorks\Build\Projects\External.definition" />
@@ -485,6 +490,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="TestData\SimplifiedFileInclusionWorks\Test\Program.cs" />
+    <None Include="TestData\SimulateHostPlatformWorks\Build\Module.xml" />
+    <None Include="TestData\SimulateHostPlatformWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\SimulateHostPlatformWorks\Console\Program.cs" />
     <None Include="TestData\SrcPackage\Build\Module.xml" />
     <None Include="TestData\SrcPackage\Build\Projects\PackageExternal.definition" />
     <None Include="TestData\SrcPackage\Build\Projects\PackageLibrary.definition" />

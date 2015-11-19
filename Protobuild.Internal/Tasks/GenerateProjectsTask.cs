@@ -93,10 +93,9 @@ namespace Protobuild.Tasks
                 this.LogMessage("Loading: " + definition.Name);
                 loadedProjects.Add(
                     this.m_ProjectLoader.Load(
-                        definition.DefinitionPath,
                         this.Platform,
-                        module.Path,
-                        definition.ModulePath));
+                        module,
+                        definition));
             }
 
             var serviceManager = new ServiceManager(this.Platform);

@@ -5,7 +5,7 @@ namespace Protobuild
 {
     public interface IContentProjectGenerator
     {
-        XmlDocument Generate(string platformName, XmlDocument source, string rootPath);
+        XmlDocument Generate(string targetPlatform, XmlDocument source, string rootPath);
     }
 }
 

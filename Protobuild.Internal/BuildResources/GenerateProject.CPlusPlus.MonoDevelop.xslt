@@ -403,7 +403,7 @@
       <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{<xsl:value-of select="$project/@Guid" />}</ProjectGuid>
+        <ProjectGuid>{<xsl:value-of select="$project/ProjectGuids/Platform[@Name=$root/Input/Generation/Platform]" />}</ProjectGuid>
         <Compiler>
           <Compiler ctype="GccCompiler" />
         </Compiler>

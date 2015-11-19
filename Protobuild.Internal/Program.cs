@@ -77,11 +77,6 @@ namespace Protobuild
                 }
             }
 
-            if (execution.SimulateHostPlatform != null)
-            {
-                HostPlatformDetector.SimulatedHostPlatform = execution.SimulateHostPlatform;
-            }
-
             Action<string[]> helpAction = x => 
             { 
                 PrintHelp(commandMappings);

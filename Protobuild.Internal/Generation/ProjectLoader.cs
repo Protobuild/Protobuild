@@ -15,23 +15,23 @@ namespace Protobuild
             this.m_ContentProjectGenerator = contentProjectGenerator;
         }
 
-        public XmlDocument Load(string path, string platformName, string rootPath, string modulePath)
+        public XmlDocument Load(string targetPlatform, ModuleInfo module, DefinitionInfo definition)
         {
             var doc = new XmlDocument();
-            doc.Load(path);
+            doc.Load(definition.DefinitionPath);
 
             // If this is a ContentProject, we actually need to generate the
             // full project node from the files that are in the Source folder.
             XmlDocument newDoc = null;
             if (doc.DocumentElement.Name == "ContentProject")
-                newDoc = this.m_ContentProjectGenerator.Generate(platformName, doc, modulePath);
+                newDoc = this.m_ContentProjectGenerator.Generate(targetPlatform, doc, definition.ModulePath);
             else
                 newDoc = doc;
-            if (rootPath != null && modulePath != null)
+            if (module.Path != null && definition.ModulePath != null)
             {
                 var additionalPath = PathUtils.GetRelativePath(
-                    rootPath.TrimEnd(System.IO.Path.DirectorySeparatorChar) + System.IO.Path.DirectorySeparatorChar,
-                    modulePath.TrimEnd(System.IO.Path.DirectorySeparatorChar) + System.IO.Path.DirectorySeparatorChar);
+                    module.Path.TrimEnd(System.IO.Path.DirectorySeparatorChar) + System.IO.Path.DirectorySeparatorChar,
+                    definition.ModulePath.TrimEnd(System.IO.Path.DirectorySeparatorChar) + System.IO.Path.DirectorySeparatorChar);
 
                 if (newDoc.DocumentElement != null &&
                     newDoc.DocumentElement.Attributes["Path"] != null &&
@@ -61,27 +61,36 @@ namespace Protobuild
                 }
             }
 
-            // If the Guid property doesn't exist, we do one of two things:
-            //  * Check for the existance of a Guid under the ProjectGuids tag
-            //  * Autogenerate a Guid for the project
-            if (doc.DocumentElement.Attributes["Guid"] == null)
+            // If the ProjectGuids element doesn't exist, create it.
+            var projectGuids = doc.DocumentElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "ProjectGuids");
+            if (projectGuids == null)
             {
-                var autogenerate = true;
-                var projectGuids = doc.DocumentElement.ChildNodes.OfType<XmlElement>().FirstOrDefault(x => x.Name == "ProjectGuids");
-                if (projectGuids != null)
-                {
-                    var platform = projectGuids.ChildNodes.OfType<XmlElement>().FirstOrDefault(x =>
-                        x.Name == "Platform" && x.HasAttribute("Name") && x.GetAttribute("Name") == platformName);
-                    if (platform != null)
-                    {
-                        autogenerate = false;
-                        doc.DocumentElement.SetAttribute("Guid", platform.InnerText.Trim().ToUpper());
-                    }
-                }
+                projectGuids = doc.CreateElement("ProjectGuids");
+                doc.DocumentElement.AppendChild(projectGuids);
+            }
 
-                if (autogenerate)
+            // For all the supported platforms of this project, or all the
+            // supported platforms of the module, generate GUIDs for any platform
+            // that doesn't already exist.
+            var platforms = doc.DocumentElement.GetAttribute("Platforms");
+            if (string.IsNullOrWhiteSpace(platforms))
+            {
+                platforms = module.SupportedPlatforms;
+            }
+            if (string.IsNullOrWhiteSpace(platforms))
+            {
+                platforms = ModuleInfo.GetSupportedPlatformsDefault();
+            }
+            foreach (var platform in platforms.Split(','))
+            {
+                var existing = projectGuids.ChildNodes.OfType<XmlElement>().FirstOrDefault(x =>
+                    x.Name == "Platform" && x.HasAttribute("Name") && x.GetAttribute("Name") == platform);
+                if (existing == null)
                 {
-                    var name = doc.DocumentElement.GetAttribute("Name") + "." + platformName;
+                    var platformElement = doc.CreateElement("Platform");
+                    platformElement.SetAttribute("Name", platform);
+
+                    var name = doc.DocumentElement.GetAttribute("Name") + "." + platform;
                     var guidBytes = new byte[16];
                     for (var i = 0; i < guidBytes.Length; i++)
                         guidBytes[i] = (byte)0;
@@ -94,7 +103,8 @@ namespace Protobuild
                             guidBytes[i] += nameBytes[i % nameBytes.Length];
                     }
                     var guid = new Guid(guidBytes);
-                    doc.DocumentElement.SetAttribute("Guid", guid.ToString().ToUpper());
+                    platformElement.InnerText = guid.ToString().ToUpper();
+                    projectGuids.AppendChild(platformElement);
                 }
             }
 

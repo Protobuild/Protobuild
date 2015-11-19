@@ -43,10 +43,9 @@ namespace Protobuild
                 Console.WriteLine("Loading: " + definition.Name);
                 loadedProjects.Add(
                     this.m_ProjectLoader.Load(
-                        definition.DefinitionPath,
                         platform,
-                        module.Path,
-                        definition.ModulePath));
+                        module,
+                        definition));
             }
 
             var serviceManager = new ServiceManager(platform);
