@@ -31,7 +31,7 @@
             kernel.Bind<IServiceReferenceTranslator, ServiceReferenceTranslator>();
             kernel.Bind<ISolutionGenerator, SolutionGenerator>();
             kernel.Bind<ISolutionInputGenerator, SolutionInputGenerator>();
-            kernel.Bind<IInfoPListGenerator, InfoPListGenerator>();
+            kernel.Bind<IPlatformResourcesGenerator, PlatformResourcesGenerator>();
         }
 
         public static void BindJSIL(this LightweightKernel kernel)

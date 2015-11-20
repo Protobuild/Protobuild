@@ -153,11 +153,10 @@
     <Compile Include="Generation\IContentProjectGenerator.cs" />
     <Compile Include="Generation\IExcludedServiceAwareProjectDetector.cs" />
     <Compile Include="Generation\IExternalProjectReferenceResolver.cs" />
-    <Compile Include="Generation\IInfoPListGenerator.cs" />
-    <Compile Include="Generation\InfoPListGenerator.cs" />
     <Compile Include="Generation\INuGetConfigMover.cs" />
     <Compile Include="Generation\INuGetReferenceDetector.cs" />
     <Compile Include="Generation\INuGetRepositoriesConfigGenerator.cs" />
+    <Compile Include="Generation\IPlatformResourcesGenerator.cs" />
     <Compile Include="Generation\IProjectGenerator.cs" />
     <Compile Include="Generation\IProjectInputGenerator.cs" />
     <Compile Include="Generation\IProjectLoader.cs" />
@@ -168,6 +167,7 @@
     <Compile Include="Generation\NuGetConfigMover.cs" />
     <Compile Include="Generation\NuGetReferenceDetector.cs" />
     <Compile Include="Generation\NuGetRepositoriesConfigGenerator.cs" />
+    <Compile Include="Generation\PlatformResourcesGenerator.cs" />
     <Compile Include="Generation\ProjectGenerator.cs" />
     <Compile Include="Generation\ProjectInputGenerator.cs" />
     <Compile Include="Generation\ProjectLoader.cs" />
