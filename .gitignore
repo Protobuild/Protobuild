@@ -57,3 +57,16 @@ Prototest/
 /Protobuild.FunctionalTests/TestData/InfoPListFileIsGenerated/Console/Info.plist
 /Protobuild.FunctionalTests/TestData/iOSLegacyAPIGenerationWorks/App/Info.plist
 /Protobuild.FunctionalTests/TestData/iOSUnifiedAPIGenerationWorks/App/Info.plist
+Protobuild.FunctionalTests/TestData/HostPlatformGenerationWorks/Console/Properties/AndroidManifest.xml
+Protobuild.FunctionalTests/TestData/HostPlatformGenerationWorks/Console/Properties/Info.plist
+Protobuild.FunctionalTests/TestData/HostPlatformGenerationWorks/Console/Resources/Resource.Designer.cs
+Protobuild.FunctionalTests/TestData/NuGetAndroidDoesNotCrash/Console/Properties/AndroidManifest.xml
+Protobuild.FunctionalTests/TestData/NuGetAndroidDoesNotCrash/Console/Properties/Info.plist
+Protobuild.FunctionalTests/TestData/NuGetAndroidDoesNotCrash/Console/Resources/Resource.Designer.cs
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Console/Properties/AndroidManifest.xml
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Console/Properties/Info.plist
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Console/Resources/Resource.Designer.cs
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook.Library/Resources/Resource.Designer.cs
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Properties/AndroidManifest.xml
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Properties/Info.plist
+Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Resources/Resource.Designer.cs

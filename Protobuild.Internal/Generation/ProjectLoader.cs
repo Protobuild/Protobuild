@@ -114,6 +114,29 @@ namespace Protobuild
                 doc.DocumentElement.SetAttribute("Language", "C#");
             }
 
+            // Normalize the project type for backwards compatibility.
+            var projectType = doc.DocumentElement.Attributes["Type"];
+            if (projectType == null)
+            {
+                doc.DocumentElement.SetAttribute("Type", "Library");
+            }
+            else
+            {
+                switch (projectType.Value)
+                {
+                    case "Library":
+                    case "App":
+                    case "Console":
+                    case "Website":
+                        break;
+                    case "GUI":
+                    case "XNA":
+                    case "GTK":
+                        doc.DocumentElement.SetAttribute("Type", "App");
+                        break;
+                }
+            }
+
             return newDoc;
         }
     }

@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-	public interface IInfoPListGenerator
+	public interface IPlatformResourcesGenerator
 	{
         void GenerateInfoPListIfNeeded(DefinitionInfo definition, XmlDocument project, string platform);
 	}

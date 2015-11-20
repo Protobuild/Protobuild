@@ -27,7 +27,7 @@ namespace Protobuild
 
         private readonly ILanguageStringProvider m_LanguageStringProvider;
 
-        private readonly IInfoPListGenerator m_InfoPListGenerator;
+        private readonly IPlatformResourcesGenerator _mPlatformResourcesGenerator;
 
         public ProjectGenerator(
             IResourceProvider resourceProvider,
@@ -36,7 +36,7 @@ namespace Protobuild
             IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
             IExternalProjectReferenceResolver externalProjectReferenceResolver,
             ILanguageStringProvider mLanguageStringProvider,
-            IInfoPListGenerator infoPListGenerator)
+            IPlatformResourcesGenerator platformResourcesGenerator)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
@@ -44,7 +44,7 @@ namespace Protobuild
             this.m_ExcludedServiceAwareProjectDetector = excludedServiceAwareProjectDetector;
             this.m_ExternalProjectReferenceResolver = externalProjectReferenceResolver;
             this.m_LanguageStringProvider = mLanguageStringProvider;
-            this.m_InfoPListGenerator = infoPListGenerator;
+            this._mPlatformResourcesGenerator = platformResourcesGenerator;
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Protobuild
             this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(documents, projectDoc);
 
             // Generate Info.plist files if necessary (for Mac / iOS).
-            this.m_InfoPListGenerator.GenerateInfoPListIfNeeded(current, projectDoc, platformName);
+            this._mPlatformResourcesGenerator.GenerateInfoPListIfNeeded(current, projectDoc, platformName);
 
             // Work out what path to save at.
             var path = Path.Combine(

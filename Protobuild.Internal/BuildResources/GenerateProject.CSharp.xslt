@@ -1046,23 +1046,7 @@
         </xsl:if>
         <OutputType>
           <xsl:choose>
-            <xsl:when test="$project/@Type = 'Console'">
-              <xsl:text>Exe</xsl:text>
-            </xsl:when>
-            <xsl:when test="$project/@Type = 'GUI'">
-              <xsl:text>WinExe</xsl:text>
-            </xsl:when>
-            <xsl:when test="$project/@Type = 'GTK'">
-              <xsl:choose>
-                <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
-                  <xsl:text>Exe</xsl:text>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>WinExe</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:when>
-            <xsl:when test="$project/@Type = 'App' or $project/@Type = 'XNA'">
+            <xsl:when test="$project/@Type = 'App' or $project/@Type = 'Console'">
               <xsl:choose>
                 <xsl:when test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
                   <xsl:text>Library</xsl:text>
@@ -1077,7 +1061,14 @@
                   <xsl:text>AppContainerExe</xsl:text>
                 </xsl:when>
                 <xsl:when test="$root/Input/Generation/Platform = 'Windows'">
-                  <xsl:text>WinExe</xsl:text>
+                  <xsl:choose>
+                    <xsl:when test="$project/@Type = 'Console'">
+                      <xsl:text>Exe</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>WinExe</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:when>
                 <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
                   <xsl:text>Exe</xsl:text>
@@ -1115,7 +1106,7 @@
             <AndroidStoreUncompressedFileExtensions />
             <MandroidI18n />
             <DeployExternal>False</DeployExternal>
-            <xsl:if test="$project/@Type = 'App'">
+            <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console'">
               <xsl:choose>
                 <xsl:when test="Input/Properties/ManifestPrefix">
                   <AndroidManifest>
@@ -1132,14 +1123,14 @@
                 </xsl:otherwise>
               </xsl:choose>
               <AndroidApplication>True</AndroidApplication>
-              <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
-              <AndroidResgenClass>Resource</AndroidResgenClass>
             </xsl:if>
+            <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
+            <AndroidResgenClass>Resource</AndroidResgenClass>
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
             <SynchReleaseVersion>False</SynchReleaseVersion>
             <xsl:choose>
-              <xsl:when test="$project/@Type = 'App'">
+              <xsl:when test="$project/@Type = 'App' or $project/@Type = 'Console'">
                 <ConsolePause>false</ConsolePause>
               </xsl:when>
             </xsl:choose>
@@ -1151,7 +1142,7 @@
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone'">
             <xsl:choose>
-              <xsl:when test="$project/@Type = 'App'">
+              <xsl:when test="$project/@Type = 'App' or $project/@Type = 'Console'">
                 <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
                 <SilverlightApplication>true</SilverlightApplication>
                 <XapFilename>
@@ -1326,27 +1317,6 @@
       </xsl:choose>
 
       <ItemGroup>
-        <xsl:if test="$project/@Type = 'GTK'">
-          <Reference Include="gtk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-            <SpecificVersion>False</SpecificVersion>
-          </Reference>
-          <Reference Include="gdk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-            <SpecificVersion>False</SpecificVersion>
-          </Reference>
-          <Reference Include="glib-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-            <SpecificVersion>False</SpecificVersion>
-          </Reference>
-          <Reference Include="glade-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-            <SpecificVersion>False</SpecificVersion>
-          </Reference>
-          <Reference Include="pango-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-            <SpecificVersion>False</SpecificVersion>
-          </Reference>
-          <Reference Include="atk-sharp, Version=2.4.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f">
-            <SpecificVersion>False</SpecificVersion>
-          </Reference>
-        </xsl:if>
-
         <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
           <xsl:choose>
             <xsl:when test="user:HasXamarinMac()">
@@ -1374,6 +1344,10 @@
               <Reference Include="Xamarin.iOS" />
             </xsl:otherwise>
           </xsl:choose>
+        </xsl:if>
+
+        <xsl:if test="$root/Input/Generation/Platform = 'Android'">
+          <Reference Include="Mono.Android" />
         </xsl:if>
 
         <xsl:for-each select="$project/References/Reference">
@@ -1848,7 +1822,7 @@
       </ItemGroup>
 
       <xsl:if test="$root/Input/Generation/Platform = 'Web'">
-        <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console' or $project/@Type = 'GUI' or $project/@Type = 'GTK'">
+        <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console'">
           <ItemGroup>
             <xsl:for-each select="$root/Input/Generation/JSILLibraries/Library">
               <None>
@@ -2026,7 +2000,7 @@
       </xsl:choose>
 
       <xsl:if test="$root/Input/Generation/Platform = 'Web'">
-        <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console' or $project/@Type = 'GUI' or $project/@Type = 'GTK'">
+        <xsl:if test="$project/@Type = 'App' or $project/@Type = 'Console'">
 
           <xsl:choose>
             <xsl:when test="user:IsTrue($root/Input/Generation/Properties/IgnoreWebPlatform)">
