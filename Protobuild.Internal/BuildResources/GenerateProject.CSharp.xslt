@@ -17,7 +17,7 @@
   <xsl:variable name="assembly_name">
     <xsl:choose>
       <xsl:when test="$root/Input/Properties/AssemblyName
-	        /Platform[@Name=$root/Input/Generation/Platform]">
+            /Platform[@Name=$root/Input/Generation/Platform]">
         <xsl:value-of select="$root/Input/Properties/AssemblyName/Platform[@Name=$root/Input/Generation/Platform]" />
       </xsl:when>
       <xsl:when test="$root/Input/Properties/AssemblyName">
@@ -55,10 +55,10 @@
       </xsl:when>
       <xsl:when test="user:IsTrueDefault($platform_specific_output_folder)">
         <xsl:value-of select="$root/Input/Generation/Platform" />
-      	<xsl:text>\</xsl:text>
-      	<xsl:value-of select="$platform" />
-      	<xsl:text>\</xsl:text>
-      	<xsl:value-of select="$config" />
+        <xsl:text>\</xsl:text>
+        <xsl:value-of select="$platform" />
+        <xsl:text>\</xsl:text>
+        <xsl:value-of select="$config" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:value-of select="$config" />
@@ -122,11 +122,11 @@
             <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
-			  <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-			  <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
-			  <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
-			  <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
-		  </xsl:when>		
+              <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+              <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
+              <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
+              <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+          </xsl:when>		
           <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'PSMobile'">
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'PCL'">
@@ -178,8 +178,8 @@
       <xsl:attribute name="Condition">
         <xsl:text> '$(Configuration)|$(Platform)' == '</xsl:text>
         <xsl:value-of select="$config" />
-	<xsl:text>|</xsl:text>
-	<xsl:value-of select="$platform" />
+    <xsl:text>|</xsl:text>
+    <xsl:value-of select="$platform" />
         <xsl:text>' </xsl:text>
       </xsl:attribute>
     <xsl:choose>
@@ -194,7 +194,7 @@
       </xsl:when>
       <xsl:otherwise>
         <Optimize>true</Optimize>
-				<DebugType>
+                <DebugType>
           <xsl:choose>
             <xsl:when test="$root/Input/Properties/DebugSymbolsOnRelease">
               <xsl:value-of select="$root/Input/Properties/DebugSymbolsOnRelease" />
@@ -203,7 +203,7 @@
               <xsl:text>none</xsl:text>
             </xsl:otherwise>
           </xsl:choose>
-				</DebugType>
+                </DebugType>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:variable name="platform_path">
@@ -411,9 +411,9 @@
             <xsl:choose>
               <xsl:when test="$root/Input/Properties/IncludeMonoRuntimeOnMac">
                 <IncludeMonoRuntime><xsl:value-of select="$root/Input/Properties/IncludeMonoRuntimeOnMac" /></IncludeMonoRuntime>
-	            <xsl:if test="$root/Input/Properties/MonoMacRuntimeLinkMode">
-	              <LinkMode><xsl:value-of select="$root/Input/Properties/MonoMacRuntimeLinkMode" /></LinkMode>
-	            </xsl:if>
+                <xsl:if test="$root/Input/Properties/MonoMacRuntimeLinkMode">
+                  <LinkMode><xsl:value-of select="$root/Input/Properties/MonoMacRuntimeLinkMode" /></LinkMode>
+                </xsl:if>
               </xsl:when>
               <xsl:otherwise>
                 <IncludeMonoRuntime>False</IncludeMonoRuntime>
@@ -950,10 +950,10 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:choose>
-			<xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
-				<FileAlignment>512</FileAlignment>
-			</xsl:when>
-			<xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsPhone81'">
+            <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+                <FileAlignment>512</FileAlignment>
+            </xsl:when>
+            <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsPhone81'">
             <ProductVersion>8.0.30703</ProductVersion>
           </xsl:when>
           <xsl:otherwise>
@@ -1978,13 +1978,13 @@
           </PropertyGroup>
           <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
-		  <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
-			  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
-				  <VisualStudioVersion>14.0</VisualStudioVersion>
-			  </PropertyGroup>
-			  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-		  </xsl:when>
-		  <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
+          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+              <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+                  <VisualStudioVersion>14.0</VisualStudioVersion>
+              </PropertyGroup>
+              <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+          </xsl:when>
+          <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
           <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
             <VisualStudioVersion>12.0</VisualStudioVersion>
           </PropertyGroup>
