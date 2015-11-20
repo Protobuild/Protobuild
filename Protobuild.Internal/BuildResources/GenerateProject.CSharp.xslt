@@ -121,7 +121,7 @@
             <TargetPlatformVersion>8.1</TargetPlatformVersion>
             <MinimumVisualStudioVersion>12</MinimumVisualStudioVersion>
           </xsl:when>
-          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
               <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
               <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
               <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
@@ -155,14 +155,14 @@
           <xsl:value-of select="$root/Input/Properties/FrameworkVersions/Profile" />
         </TargetFrameworkProfile>
       </xsl:when>
-      <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUAP' or $root/Input/Generation/Platform = 'PSMobile' or $root/Input/Generation/Platform = 'PCL' or user:IsTrue($root/Input/Properties/ForcePCL)">
+      <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUniversal' or $root/Input/Generation/Platform = 'PSMobile' or $root/Input/Generation/Platform = 'PCL' or user:IsTrue($root/Input/Properties/ForcePCL)">
       </xsl:when>
       <xsl:otherwise>
         <TargetFrameworkProfile></TargetFrameworkProfile>
       </xsl:otherwise>
     </xsl:choose>
     <xsl:call-template name="AllowLangVersion" />
-    <xsl:if test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUAP'">
+    <xsl:if test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUniversal'">
       <DefaultLanguage>en-US</DefaultLanguage>
     </xsl:if>
   </xsl:template>
@@ -273,8 +273,8 @@
               <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
                 <xsl:text>PLATFORM_WINDOWSPHONE81</xsl:text>
               </xsl:when>
-              <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
-                <xsl:text>PLATFORM_WINDOWSUAP</xsl:text>
+              <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
+                <xsl:text>PLATFORM_WindowsUniversal</xsl:text>
               </xsl:when>
               <xsl:when test="$root/Input/Generation/Platform = 'Web'">
                 <xsl:text>PLATFORM_WEB</xsl:text>
@@ -890,7 +890,7 @@
       </xsl:variable>
 
       <xsl:choose>
-        <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+        <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
           <xsl:text>14.0</xsl:text>
         </xsl:when>		
         <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
@@ -933,7 +933,7 @@
       DefaultTargets="Build"
       xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="{$ToolsVersion}">
 
-      <xsl:if test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'WindowsUAP' or $root/Input/Generation/Platform = 'PCL' or user:IsTrue($root/Input/Properties/ForcePCL)">
+      <xsl:if test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'WindowsUniversal' or $root/Input/Generation/Platform = 'PCL' or user:IsTrue($root/Input/Properties/ForcePCL)">
         <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
       </xsl:if>
 
@@ -950,7 +950,7 @@
           </xsl:otherwise>
         </xsl:choose>
         <xsl:choose>
-            <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+            <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
                 <FileAlignment>512</FileAlignment>
             </xsl:when>
             <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsPhone81'">
@@ -1031,7 +1031,7 @@
               <xsl:text>{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
-          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
             <ProjectTypeGuids>
               <xsl:text>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
@@ -1072,7 +1072,7 @@
                 <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
                   <xsl:text>Library</xsl:text>
                 </xsl:when>
-                <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUAP'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUniversal'">
                   <xsl:text>AppContainerExe</xsl:text>
                 </xsl:when>
                 <xsl:when test="$root/Input/Generation/Platform = 'Windows'">
@@ -1872,7 +1872,7 @@
                                   /ContentProject[@Name=$include-path]
                                   /Compiled">
               <xsl:choose>
-                <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUAP' or $root/Input/Generation/Platform = 'Windows'">
+                <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUniversal' or $root/Input/Generation/Platform = 'Windows'">
                   <Content>
                     <xsl:attribute name="Include">
                       <xsl:value-of
@@ -1978,7 +1978,7 @@
           </PropertyGroup>
           <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
         </xsl:when>
-          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUAP'">
+          <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
               <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
                   <VisualStudioVersion>14.0</VisualStudioVersion>
               </PropertyGroup>
