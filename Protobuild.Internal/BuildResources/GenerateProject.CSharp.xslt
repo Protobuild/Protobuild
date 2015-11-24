@@ -286,7 +286,7 @@
                 <xsl:text>PLATFORM_WINDOWSPHONE81</xsl:text>
               </xsl:when>
               <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
-                <xsl:text>PLATFORM_WindowsUniversal</xsl:text>
+                <xsl:text>PLATFORM_WINDOWSUNIVERSAL</xsl:text>
               </xsl:when>
               <xsl:when test="$root/Input/Generation/Platform = 'Web'">
                 <xsl:text>PLATFORM_WEB</xsl:text>
