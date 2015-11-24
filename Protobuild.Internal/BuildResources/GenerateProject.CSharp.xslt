@@ -128,7 +128,7 @@
               <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
               <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
           </xsl:when>		
-          <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'PSMobile'">
+          <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'PSMobile' or $root/Input/Generation/Platform = 'tvOS'">
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'PCL'">
             <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
@@ -291,6 +291,9 @@
               <xsl:when test="$root/Input/Generation/Platform = 'Web'">
                 <xsl:text>PLATFORM_WEB</xsl:text>
               </xsl:when>
+              <xsl:when test="$root/Input/Generation/Platform = 'tvOS'">
+                <xsl:text>PLATFORM_TVOS</xsl:text>
+              </xsl:when>
             </xsl:choose>
             <xsl:text>;</xsl:text>
           </xsl:otherwise>
@@ -359,7 +362,7 @@
           </xsl:otherwise>
         </xsl:choose>
       </xsl:when>
-      <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
+      <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
         <xsl:if test="$debug = 'true'">
           <MtouchDebug>True</MtouchDebug>
         </xsl:if>
@@ -1009,6 +1012,12 @@
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
+          <xsl:when test="/Input/Generation/Platform = 'tvOS'">
+            <ProjectTypeGuids>
+              <xsl:text>{06FA79CB-D6CD-4721-BB4B-1BD202089C55};</xsl:text>
+              <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
+            </ProjectTypeGuids>
+          </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
             <ProjectTypeGuids>
               <xsl:choose>
@@ -1091,7 +1100,7 @@
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:when>
-                <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
+                <xsl:when test="$root/Input/Generation/Platform = 'iOS'  or $root/Input/Generation/Platform = 'tvOS'">
                   <xsl:text>Exe</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
@@ -1148,7 +1157,7 @@
             <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
             <AndroidResgenClass>Resource</AndroidResgenClass>
           </xsl:when>
-          <xsl:when test="$root/Input/Generation/Platform = 'iOS'">
+          <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
             <SynchReleaseVersion>False</SynchReleaseVersion>
             <xsl:choose>
               <xsl:when test="$project/@Type = 'App' or $project/@Type = 'Console'">
@@ -1235,6 +1244,94 @@
             <xsl:with-param name="debug">false</xsl:with-param>
             <xsl:with-param name="config">AppStore</xsl:with-param>
             <xsl:with-param name="platform">iPhone</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'tvOS'">
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">iPhoneSimulator</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">iPhoneSimulator</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Ad-Hoc</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">AppStore</xsl:with-param>
+            <xsl:with-param name="platform">iPhone</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'WindowsPhone'">
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">AnyCPU</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">x86</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">x86</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">true</xsl:with-param>
+            <xsl:with-param name="config">Debug</xsl:with-param>
+            <xsl:with-param name="platform">ARM</xsl:with-param>
+            <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
+          </xsl:call-template>
+          <xsl:call-template name="configuration">
+            <xsl:with-param name="type"><xsl:value-of select="$project/@Type" /></xsl:with-param>
+            <xsl:with-param name="debug">false</xsl:with-param>
+            <xsl:with-param name="config">Release</xsl:with-param>
+            <xsl:with-param name="platform">ARM</xsl:with-param>
             <xsl:with-param name="projectname"><xsl:value-of select="$project/@Name" /></xsl:with-param>
           </xsl:call-template>
         </xsl:when>
@@ -1365,6 +1462,10 @@
               <Reference Include="Xamarin.iOS" />
             </xsl:otherwise>
           </xsl:choose>
+        </xsl:if>
+
+        <xsl:if test="/Input/Generation/Platform = 'tvOS'">
+            <Reference Include="Xamarin.TVOS" />
         </xsl:if>
 
         <xsl:if test="$root/Input/Generation/Platform = 'Android'">
@@ -1918,7 +2019,7 @@
                     </Link>
                   </AndroidAsset>
                 </xsl:when>
-                <xsl:when test="$root/Input/Generation/Platform = 'MacOS' or $root/Input/Generation/Platform = 'iOS'">
+                <xsl:when test="$root/Input/Generation/Platform = 'MacOS' or $root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
                   <Content>
                     <xsl:attribute name="Include">
                       <xsl:value-of
@@ -2020,6 +2121,9 @@
         </xsl:when>
         <xsl:when test="$root/Input/Generation/Platform = 'MacOS' and not(user:IsTrue($root/Input/Properties/UseLegacyMacAPI))">
           <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
+        </xsl:when>
+        <xsl:when test="/Input/Generation/Platform = 'tvOS'">
+          <Import Project="$(MSBuildExtensionsPath)\Xamarin\TVOS\Xamarin.TVOS.CSharp.targets" />
         </xsl:when>
         <xsl:otherwise>
           <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
