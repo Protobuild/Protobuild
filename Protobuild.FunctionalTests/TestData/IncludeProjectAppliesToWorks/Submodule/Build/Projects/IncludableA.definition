@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<IncludeProject Name="IncludableA" Path="IncludableA" AppliesTo="Console">
+  <Files>
+    <Compile Include="MyIncludableClass.cs" />
+  </Files>
+</IncludeProject>

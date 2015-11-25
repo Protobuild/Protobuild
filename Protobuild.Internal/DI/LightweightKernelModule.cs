@@ -32,6 +32,7 @@
             kernel.Bind<ISolutionGenerator, SolutionGenerator>();
             kernel.Bind<ISolutionInputGenerator, SolutionInputGenerator>();
             kernel.Bind<IPlatformResourcesGenerator, PlatformResourcesGenerator>();
+            kernel.Bind<IIncludeProjectAppliesToUpdater, IncludeProjectAppliesToUpdater>();
         }
 
         public static void BindJSIL(this LightweightKernel kernel)
