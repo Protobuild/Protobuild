@@ -29,6 +29,8 @@ namespace Protobuild
 
         private readonly IPlatformResourcesGenerator _mPlatformResourcesGenerator;
 
+        private readonly IIncludeProjectAppliesToUpdater _includeProjectAppliesToUpdater;
+
         public ProjectGenerator(
             IResourceProvider resourceProvider,
             INuGetConfigMover nuGetConfigMover,
@@ -36,7 +38,8 @@ namespace Protobuild
             IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
             IExternalProjectReferenceResolver externalProjectReferenceResolver,
             ILanguageStringProvider mLanguageStringProvider,
-            IPlatformResourcesGenerator platformResourcesGenerator)
+            IPlatformResourcesGenerator platformResourcesGenerator,
+            IIncludeProjectAppliesToUpdater includeProjectAppliesToUpdater)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
@@ -45,6 +48,7 @@ namespace Protobuild
             this.m_ExternalProjectReferenceResolver = externalProjectReferenceResolver;
             this.m_LanguageStringProvider = mLanguageStringProvider;
             this._mPlatformResourcesGenerator = platformResourcesGenerator;
+            this._includeProjectAppliesToUpdater = includeProjectAppliesToUpdater;
         }
 
         /// <summary>
@@ -137,6 +141,9 @@ namespace Protobuild
 
             // Generate Info.plist files if necessary (for Mac / iOS).
             this._mPlatformResourcesGenerator.GenerateInfoPListIfNeeded(current, projectDoc, platformName);
+
+            // Add include projects if they have an AppliesTo tag that matches this project's name.
+            this._includeProjectAppliesToUpdater.UpdateProjectReferences(documents, projectDoc);
 
             // Work out what path to save at.
             var path = Path.Combine(

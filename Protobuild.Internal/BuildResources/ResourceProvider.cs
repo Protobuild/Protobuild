@@ -120,14 +120,32 @@ namespace Protobuild
 
             Stream source = null;
 
-            foreach (var filename in onDiskNames)
+            var globalPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ".protobuild-xslt");
+            if (Directory.Exists(globalPath))
             {
-                var path = Path.Combine(this.m_WorkingDirectoryProvider.GetPath(), "Build", filename);
-
-                if (File.Exists(path))
+                foreach (var filename in onDiskNames)
                 {
-                    source = File.Open(path, FileMode.Open);
-                    break;
+                    var path = Path.Combine(globalPath, filename);
+
+                    if (File.Exists(path))
+                    {
+                        source = File.Open(path, FileMode.Open);
+                        break;
+                    }
+                }
+            }
+
+            if (source == null)
+            {
+                foreach (var filename in onDiskNames)
+                {
+                    var path = Path.Combine(this.m_WorkingDirectoryProvider.GetPath(), "Build", filename);
+
+                    if (File.Exists(path))
+                    {
+                        source = File.Open(path, FileMode.Open);
+                        break;
+                    }
                 }
             }
 

@@ -60,6 +60,7 @@
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="ForcePCLGenerationWorksTest.cs" />
     <Compile Include="HostPlatformGenerationWorksTest.cs" />
+    <Compile Include="IncludeProjectAppliesToWorksTest.cs" />
     <Compile Include="IncludeProjectViaExternalWorksTest.cs" />
     <Compile Include="IncludeProjectViaSubmoduleWorksTest.cs" />
     <Compile Include="IncludeProjectWorksTest.cs" />
@@ -229,6 +230,12 @@
     <None Include="TestData\HostPlatformGenerationWorks\Build\Module.xml" />
     <None Include="TestData\HostPlatformGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\HostPlatformGenerationWorks\Console\Program.cs" />
+    <None Include="TestData\IncludeProjectAppliesToWorks\Build\Module.xml" />
+    <None Include="TestData\IncludeProjectAppliesToWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\IncludeProjectAppliesToWorks\Console\Program.cs" />
+    <None Include="TestData\IncludeProjectAppliesToWorks\Submodule\Build\Module.xml" />
+    <None Include="TestData\IncludeProjectAppliesToWorks\Submodule\Build\Projects\IncludableA.definition" />
+    <None Include="TestData\IncludeProjectAppliesToWorks\Submodule\IncludableA\MyIncludableClass.cs" />
     <None Include="TestData\IncludeProjectViaExternalWorks\Build\Module.xml" />
     <None Include="TestData\IncludeProjectViaExternalWorks\Build\Projects\Console.definition" />
     <None Include="TestData\IncludeProjectViaExternalWorks\Build\Projects\External.definition" />
