@@ -42,6 +42,14 @@ namespace Protobuild
     /// </summary>
     public class ModuleInfo
     {
+        private DefinitionInfo[] _cachedDefinitions;
+
+        private string[] _cachedFeatures;
+
+        private readonly Dictionary<string, ModuleInfo[]> _cachedSubmodules;
+
+        private readonly Dictionary<string, DefinitionInfo[]> _cachedRecursivedDefinitions;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Protobuild.ModuleInfo"/> class.
         /// </summary>
@@ -49,6 +57,9 @@ namespace Protobuild
         {
             this.DefaultAction = "resync";
             this.GenerateNuGetRepositories = true;
+
+            _cachedSubmodules = new Dictionary<string, ModuleInfo[]>();
+            _cachedRecursivedDefinitions = new Dictionary<string, DefinitionInfo[]>();
         }
 
         /// <summary>
@@ -200,18 +211,23 @@ namespace Protobuild
         /// <returns>The loaded project definitions.</returns>
         public DefinitionInfo[] GetDefinitions()
         {
-            var result = new List<DefinitionInfo>();
-            var path = System.IO.Path.Combine(this.Path, "Build", "Projects");
-            if (!Directory.Exists(path))
+            if (_cachedDefinitions == null)
             {
-                return new DefinitionInfo[0];
-            }
-            foreach (var file in new DirectoryInfo(path).GetFiles("*.definition"))
-            {
-                result.Add(DefinitionInfo.Load(file.FullName));
+                var result = new List<DefinitionInfo>();
+                var path = System.IO.Path.Combine(this.Path, "Build", "Projects");
+                if (!Directory.Exists(path))
+                {
+                    return new DefinitionInfo[0];
+                }
+                foreach (var file in new DirectoryInfo(path).GetFiles("*.definition"))
+                {
+                    result.Add(DefinitionInfo.Load(file.FullName));
+                }
+
+                _cachedDefinitions = result.ToArray();
             }
 
-            return result.ToArray();
+            return _cachedDefinitions;
         }
 
         /// <summary>
@@ -221,30 +237,43 @@ namespace Protobuild
         /// <param name="relative">The current directory being scanned.</param>
         public IEnumerable<DefinitionInfo> GetDefinitionsRecursively(string platform = null, string relative = "")
         {
-            var definitions = new List<DefinitionInfo>();
-
-            foreach (var definition in this.GetDefinitions())
+            if (!_cachedRecursivedDefinitions.ContainsKey(platform ?? "<null>") || relative != "")
             {
-                definition.AbsolutePath = (this.Path + '\\' + definition.RelativePath).Trim('\\');
-                definition.RelativePath = (relative + '\\' + definition.RelativePath).Trim('\\');
-                definition.ModulePath = this.Path;
-                definitions.Add(definition);
-            }
+                var definitions = new List<DefinitionInfo>();
 
-            foreach (var submodule in this.GetSubmodules(platform))
-            {
-                var from = this.Path.Replace('\\', '/').TrimEnd('/') + "/";
-                var to = submodule.Path.Replace('\\', '/');
-                var subRelativePath = (new Uri(from).MakeRelativeUri(new Uri(to)))
-                    .ToString().Replace('/', '\\');
-
-                foreach (var definition in submodule.GetDefinitionsRecursively(platform, subRelativePath.Trim('\\')))
+                foreach (var definition in this.GetDefinitions())
                 {
+                    definition.AbsolutePath = (this.Path + '\\' + definition.RelativePath).Trim('\\');
+                    definition.RelativePath = (relative + '\\' + definition.RelativePath).Trim('\\');
+                    definition.ModulePath = this.Path;
                     definitions.Add(definition);
+                }
+
+                foreach (var submodule in this.GetSubmodules(platform))
+                {
+                    var from = this.Path.Replace('\\', '/').TrimEnd('/') + "/";
+                    var to = submodule.Path.Replace('\\', '/');
+                    var subRelativePath = (new Uri(from).MakeRelativeUri(new Uri(to)))
+                        .ToString().Replace('/', '\\');
+
+                    foreach (var definition in submodule.GetDefinitionsRecursively(platform, subRelativePath.Trim('\\'))
+                        )
+                    {
+                        definitions.Add(definition);
+                    }
+                }
+
+                if (relative == "")
+                {
+                    _cachedRecursivedDefinitions[platform ?? "<null>"] = definitions.Distinct(new DefinitionEqualityComparer()).ToArray();
+                }
+                else
+                {
+                    return definitions.Distinct(new DefinitionEqualityComparer());
                 }
             }
 
-            return definitions.Distinct(new DefinitionEqualityComparer());
+            return _cachedRecursivedDefinitions[platform ?? "<null>"];
         }
 
         private class DefinitionEqualityComparer : IEqualityComparer<DefinitionInfo>
@@ -267,39 +296,9 @@ namespace Protobuild
         /// <returns>The loaded submodules.</returns>
         public ModuleInfo[] GetSubmodules(string platform = null)
         {
-            var modules = new List<ModuleInfo>();
-            foreach (var directoryInit in new DirectoryInfo(this.Path).GetDirectories())
+            if (!_cachedSubmodules.ContainsKey(platform ?? "<null>"))
             {
-                var directory = directoryInit;
-
-                if (File.Exists(System.IO.Path.Combine(directory.FullName, ".redirect")))
-                {
-                    // This is a redirected submodule (due to package resolution).  Load the
-                    // module from it's actual path.
-                    using (var reader = new StreamReader(System.IO.Path.Combine(directory.FullName, ".redirect")))
-                    {
-                        var targetPath = reader.ReadToEnd().Trim();
-                        directory = new DirectoryInfo(targetPath);
-                    }
-                }
-
-                var build = directory.GetDirectories().FirstOrDefault(x => x.Name == "Build");
-                if (build == null)
-                {
-                    continue;
-                }
-
-                var module = build.GetFiles().FirstOrDefault(x => x.Name == "Module.xml");
-                if (module == null)
-                {
-                    continue;
-                }
-
-                modules.Add(ModuleInfo.Load(module.FullName));
-            }
-
-            if (platform != null)
-            {
+                var modules = new List<ModuleInfo>();
                 foreach (var directoryInit in new DirectoryInfo(this.Path).GetDirectories())
                 {
                     var directory = directoryInit;
@@ -315,14 +314,7 @@ namespace Protobuild
                         }
                     }
 
-                    var platformDirectory = new DirectoryInfo(System.IO.Path.Combine(directory.FullName, platform));
-
-                    if (!platformDirectory.Exists)
-                    {
-                        continue;
-                    }
-
-                    var build = platformDirectory.GetDirectories().FirstOrDefault(x => x.Name == "Build");
+                    var build = directory.GetDirectories().FirstOrDefault(x => x.Name == "Build");
                     if (build == null)
                     {
                         continue;
@@ -336,9 +328,52 @@ namespace Protobuild
 
                     modules.Add(ModuleInfo.Load(module.FullName));
                 }
+
+                if (platform != null)
+                {
+                    foreach (var directoryInit in new DirectoryInfo(this.Path).GetDirectories())
+                    {
+                        var directory = directoryInit;
+
+                        if (File.Exists(System.IO.Path.Combine(directory.FullName, ".redirect")))
+                        {
+                            // This is a redirected submodule (due to package resolution).  Load the
+                            // module from it's actual path.
+                            using (
+                                var reader = new StreamReader(System.IO.Path.Combine(directory.FullName, ".redirect")))
+                            {
+                                var targetPath = reader.ReadToEnd().Trim();
+                                directory = new DirectoryInfo(targetPath);
+                            }
+                        }
+
+                        var platformDirectory = new DirectoryInfo(System.IO.Path.Combine(directory.FullName, platform));
+
+                        if (!platformDirectory.Exists)
+                        {
+                            continue;
+                        }
+
+                        var build = platformDirectory.GetDirectories().FirstOrDefault(x => x.Name == "Build");
+                        if (build == null)
+                        {
+                            continue;
+                        }
+
+                        var module = build.GetFiles().FirstOrDefault(x => x.Name == "Module.xml");
+                        if (module == null)
+                        {
+                            continue;
+                        }
+
+                        modules.Add(ModuleInfo.Load(module.FullName));
+                    }
+                }
+
+                _cachedSubmodules[platform ?? "<null>"] = modules.ToArray();
             }
 
-            return modules.ToArray();
+            return _cachedSubmodules[platform ?? "<null>"];
         }
 
         /// <summary>
@@ -403,15 +438,13 @@ namespace Protobuild
             }
         }
 
-        private string[] featureCache;
-
         /// <summary>
         /// Determines whether the instance of Protobuild in this module
         /// has a specified feature.
         /// </summary>
         public bool HasProtobuildFeature(string feature)
         {
-            if (featureCache == null)
+            if (_cachedFeatures == null)
             {
                 var result = this.RunProtobuild("--query-features", true);
                 var exitCode = result.Item1;
@@ -419,13 +452,13 @@ namespace Protobuild
 
                 if (exitCode != 0 || stdout.Contains("Protobuild.exe [options]"))
                 {
-                    featureCache = new string[0];
+                    _cachedFeatures = new string[0];
                 }
 
-                featureCache = stdout.Split('\n');
+                _cachedFeatures = stdout.Split('\n');
             }
 
-            return featureCache.Contains(feature);
+            return _cachedFeatures.Contains(feature);
         }
 
         /// <summary>

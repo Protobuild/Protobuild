@@ -101,7 +101,12 @@ namespace Protobuild
         }
 
         public bool PostBuildHook { get; set; }
-    
+
+        public bool IsStandardProject
+        {
+            get { return Type != "External" && Type != "Content" && Type != "Include"; }
+        }
+
         /// <summary>
         /// Loads a project definition from the specified XML file.
         /// </summary>
