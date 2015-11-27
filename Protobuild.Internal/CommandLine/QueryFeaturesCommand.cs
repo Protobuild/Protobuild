@@ -14,6 +14,7 @@ namespace Protobuild
             Console.WriteLine("query-features");
             Console.WriteLine("no-resolve");
             Console.WriteLine("list-packages");
+            Console.WriteLine("skip-invocation-on-no-standard-projects");
             return 0;
         }
 

@@ -161,6 +161,17 @@ namespace Protobuild.Tasks
             // where it is present.
             foreach (var submodule in module.GetSubmodules(this.Platform))
             {
+                if (submodule.HasProtobuildFeature("skip-invocation-on-no-standard-projects"))
+                {
+                    if (submodule.GetDefinitionsRecursively(this.Platform).All(x => !x.IsStandardProject))
+                    {
+                        // Do not invoke this submodule.
+                        this.LogMessage(
+                            "Skipping submodule generation for " + submodule.Name + " (there are no projects to generate)");
+                        continue;
+                    }
+                }
+
                 this.LogMessage(
                     "Invoking submodule generation for " + submodule.Name);
                 var noResolve = submodule.HasProtobuildFeature("no-resolve") ? " -no-resolve" : string.Empty;

@@ -20,6 +20,7 @@
                 "query-features",
                 "no-resolve",
                 "list-packages",
+                "skip-invocation-on-no-standard-projects",
             };
 
             _assert.Equal(expectedFeatureList, featureList);
