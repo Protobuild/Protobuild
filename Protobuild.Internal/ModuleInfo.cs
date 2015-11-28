@@ -467,14 +467,26 @@ namespace Protobuild
         /// <param name="args">The arguments to pass to Protobuild.</param>
         public Tuple<int, string, string> RunProtobuild(string args, bool capture = false)
         {
-            if (ExecEnvironment.RunProtobuildInProcess && !capture)
+            var invokeInline = false;
+            var invokeIfIdenticalHash = Path == Environment.CurrentDirectory || (!capture && HasProtobuildFeature("inline-invocation-if-identical-hashed-executables"));
+            if (invokeIfIdenticalHash)
+            {
+                var myHash = ExecEnvironment.GetProgramHash();
+                var targetHash = ExecEnvironment.GetProgramHash(System.IO.Path.Combine(Path, "Protobuild.exe"));
+                if (myHash == targetHash)
+                {
+                    invokeInline = true;
+                }
+            }
+
+            if ((ExecEnvironment.RunProtobuildInProcess || invokeInline) && !capture)
             {
                 var old = Environment.CurrentDirectory;
                 try
                 {
                     Environment.CurrentDirectory = this.Path;
                     return new Tuple<int, string, string>(
-                        ExecEnvironment.InvokeSelf(args.Split(' ')),
+                        ExecEnvironment.InvokeSelf(args.SplitCommandLine().ToArray()),
                         string.Empty,
                         string.Empty);
                 }

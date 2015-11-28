@@ -21,6 +21,9 @@
                 "no-resolve",
                 "list-packages",
                 "skip-invocation-on-no-standard-projects",
+                "skip-synchronisation-on-no-standard-projects",
+                "skip-resolution-on-no-packages-or-submodules",
+                "inline-invocation-if-identical-hashed-executables",
             };
 
             _assert.Equal(expectedFeatureList, featureList);

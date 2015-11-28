@@ -1,4 +1,5 @@
 using System.IO;
+using System.Linq;
 
 namespace Protobuild
 {
@@ -40,8 +41,25 @@ namespace Protobuild
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
             foreach (var submodule in module.GetSubmodules(this.Platform))
+            {
+                if (submodule.HasProtobuildFeature("skip-synchronisation-on-no-standard-projects"))
+                {
+                    if (submodule.GetDefinitionsRecursively(this.Platform).All(x => !x.IsStandardProject))
+                    {
+                        // Do not invoke this submodule.
+                        this.LogMessage(
+                            "Skipping submodule synchronisation for " + submodule.Name + " (there are no projects to synchronise)");
+                        continue;
+                    }
+                }
+
+                this.LogMessage(
+                    "Invoking submodule synchronisation for " + submodule.Name);
                 submodule.RunProtobuild("-sync " + this.Platform);
-            
+                this.LogMessage(
+                    "Finished submodule synchronisation for " + submodule.Name);
+            }
+
             var definitions = module.GetDefinitions();
             foreach (var definition in definitions)
             {

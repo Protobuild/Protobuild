@@ -130,6 +130,7 @@
     <Compile Include="CommandLine\SyncCommand.cs" />
     <Compile Include="CommandLine\UpgradeAllPackagesCommand.cs" />
     <Compile Include="CommandLine\UpgradePackageCommand.cs" />
+    <Compile Include="CommandLineParser.cs" />
     <Compile Include="Core\ActionDispatch.cs" />
     <Compile Include="Core\HostPlatformDetector.cs" />
     <Compile Include="Core\IActionDispatch.cs" />
