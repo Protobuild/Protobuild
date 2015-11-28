@@ -62,6 +62,16 @@ namespace Protobuild
 
             foreach (var submodule in module.GetSubmodules(platform))
             {
+                if (submodule.Packages.Count == 0 && submodule.GetSubmodules(platform).Length == 0)
+                {
+                    if (submodule.HasProtobuildFeature("skip-resolution-on-no-packages-or-submodules"))
+                    {
+                        Console.WriteLine(
+                            "Skipping package resolution in submodule for " + submodule.Name + " (there are no submodule or packages)");
+                        continue;
+                    }
+                }
+
                 Console.WriteLine(
                     "Invoking package resolution in submodule for " + submodule.Name);
                 submodule.RunProtobuild("-resolve " + platform + " " + packageRedirector.GetRedirectionArguments());
@@ -77,7 +87,7 @@ namespace Protobuild
             if (module != null && reference.Folder != null)
             {
                 var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference, platform);
-                if (existingPath != null)
+                if (existingPath != null && Directory.Exists(existingPath))
                 {
                     Console.WriteLine("Found an existing working copy of this package at " + existingPath);
 

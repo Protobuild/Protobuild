@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Security.Cryptography;
 
 namespace Protobuild
 {
@@ -47,6 +50,20 @@ namespace Protobuild
             public SelfInvokeExitException(int exitCode)
             {
                 this.ExitCode = exitCode;
+            }
+        }
+
+        public static string GetProgramHash(string path = null)
+        {
+            if (path == null)
+            {
+                path = Assembly.GetEntryAssembly().Location;
+            }
+
+            using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                var sha1 = new SHA1Managed();
+                return BitConverter.ToString(sha1.ComputeHash(reader)).Replace("-", "").ToLowerInvariant();
             }
         }
     }

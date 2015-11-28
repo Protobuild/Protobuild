@@ -16,7 +16,7 @@ namespace Protobuild
 
         private readonly IGenerationFunctionsProvider _generationFunctionsProvider;
 
-        private static Dictionary<int, XslCompiledTransform> m_CachedTransforms = new Dictionary<int, XslCompiledTransform>(); 
+        private static Dictionary<string, Dictionary<int, XslCompiledTransform>> m_CachedTransforms = new Dictionary<string, Dictionary<int, XslCompiledTransform>>();
 
         public ResourceProvider(
             ILanguageStringProvider languageStringProvider,
@@ -195,6 +195,13 @@ namespace Protobuild
 
         public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform)
         {
+            var currentDir = m_WorkingDirectoryProvider.GetPath();
+            if (!m_CachedTransforms.ContainsKey(currentDir))
+            {
+                m_CachedTransforms[currentDir] = new Dictionary<int, XslCompiledTransform>();
+            }
+            var cache = m_CachedTransforms[currentDir];
+
             int hash;
             unchecked
             {
@@ -203,9 +210,9 @@ namespace Protobuild
                        language.GetHashCode() * 31 +
                        platform.GetHashCode() * 31;
             }
-            if (m_CachedTransforms.ContainsKey(hash))
+            if (cache.ContainsKey(hash))
             {
-                return m_CachedTransforms[hash];
+                return cache[hash];
             }
 
             var source = this.LoadOverriddableResource(resourceType, language, platform);
@@ -251,7 +258,7 @@ namespace Protobuild
                 }
             }
 
-            m_CachedTransforms[hash] = result;
+            cache[hash] = result;
             return result;
         }
 
