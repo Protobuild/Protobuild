@@ -11,8 +11,6 @@ if ($PSScriptRoot -ne $null) {
 }
 
 $PLATFORM="Windows"
-$msbuild = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSBuild\ToolsVersions\14.0" -Name MSBuildToolsPath).MSBuildToolsPath
-$msbuild = "$msbuild\MSBuild.exe"
 
 echo "Generating project and performing first-pass build..."
 if ($NoGen) {
@@ -20,52 +18,51 @@ if ($NoGen) {
 } else {
     .\Protobuild.exe --resync $PLATFORM
 }
-& $msbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
+.\Protobuild.exe --build $PLATFORM --build-target Rebuild --build-property Configuration Release
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
 echo "Compressing resources..."
-$PROTOBUILD_COMPRESS=".\Protobuild.Compress\bin\$PLATFORM\AnyCPU\Release\Protobuild.Compress.exe"
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerateSolution.xslt Protobuild.Internal\BuildResources\GenerateSolution.xslt.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateSolution.xslt Protobuild.Internal\BuildResources\GenerateSolution.xslt.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\SelectSolution.xslt Protobuild.Internal\BuildResources\SelectSolution.xslt.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\BuildResources\SelectSolution.xslt Protobuild.Internal\BuildResources\SelectSolution.xslt.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\JSILTemplate.htm Protobuild.Internal\BuildResources\JSILTemplate.htm.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\BuildResources\JSILTemplate.htm Protobuild.Internal\BuildResources\JSILTemplate.htm.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
-& $PROTOBUILD_COMPRESS Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs-msbuild-hack.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs-msbuild-hack.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
 echo "Performing second-pass build..."
-& $msbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
+.\Protobuild.exe --build $PLATFORM --build-target Rebuild --build-property Configuration Release
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
 echo "Compressing Protobuild.Internal..."
-& $PROTOBUILD_COMPRESS Protobuild.Internal\bin\$PLATFORM\AnyCPU\Release\Protobuild.Internal.dll Protobuild\Protobuild.Internal.dll.lzma
+.\Protobuild.exe --execute-configuration Release --execute Protobuild.Compress Protobuild.Internal\bin\$PLATFORM\AnyCPU\Release\Protobuild.Internal.dll Protobuild\Protobuild.Internal.dll.lzma
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
 echo "Performing final-pass build..."
-& $msbuild /p:Configuration=Release /t:Rebuild Protobuild.$PLATFORM.sln
+.\Protobuild.exe --build $PLATFORM --build-target Rebuild --build-property Configuration Release
 if ($LASTEXITCODE -ne 0) {
     exit 1
 }

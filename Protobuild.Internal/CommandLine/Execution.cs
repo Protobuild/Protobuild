@@ -9,6 +9,7 @@ namespace Protobuild
         {
             this.EnabledServices = new List<string>();
             this.DisabledServices = new List<string>();
+            this.BuildProperties = new Dictionary<string, string>();
         }
 
         public ICommand CommandToExecute { get; set; }
@@ -62,6 +63,10 @@ namespace Protobuild
         public bool DisablePackageResolution { get; set; }
 
         public string BuildModuleOrDefinitionName { get; set; }
+
+        public string BuildTarget { get; set; }
+
+        public Dictionary<string, string> BuildProperties { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
