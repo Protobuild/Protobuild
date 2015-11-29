@@ -61,6 +61,8 @@ namespace Protobuild
 
         public bool DisablePackageResolution { get; set; }
 
+        public string BuildModuleOrDefinitionName { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)
