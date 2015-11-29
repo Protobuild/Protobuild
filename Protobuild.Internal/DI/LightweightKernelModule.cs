@@ -69,5 +69,11 @@
             kernel.Bind<IKnownToolProvider, KnownToolProvider>();
             kernel.Bind<IPackageNameLookup, PackageNameLookup>();
         }
+
+        public static void BindAutomatedBuild(this LightweightKernel kernel)
+        {
+            kernel.Bind<IAutomatedBuildController, AutomatedBuildController>();
+            kernel.Bind<IAutomatedBuildRuntimeV1, AutomatedBuildRuntimeV1>();
+        }
     }
 }

@@ -90,6 +90,11 @@
     <Compile Include="..\ThirdParty\TAR\UsTarHeader.cs">
       <Link>TAR\UsTarHeader.cs</Link>
     </Compile>
+    <Compile Include="AutomatedBuild\AutomatedBuildController.cs" />
+    <Compile Include="AutomatedBuild\AutomatedBuildRuntimeV1.cs" />
+    <Compile Include="AutomatedBuild\IAutomatedBuildController.cs" />
+    <Compile Include="AutomatedBuild\IAutomatedBuildRuntime.cs" />
+    <Compile Include="AutomatedBuild\IAutomatedBuildRuntimeV1.cs" />
     <Compile Include="BuildResources\GenerationFunctions.cs" />
     <Compile Include="BuildResources\GenerationFunctionsProvider.cs" />
     <Compile Include="BuildResources\IGenerationFunctionsProvider.cs" />
@@ -98,6 +103,7 @@
     <Compile Include="BuildResources\ResourceProvider.cs" />
     <Compile Include="BuildResources\ResourceType.cs" />
     <Compile Include="CommandLine\AddPackageCommand.cs" />
+    <Compile Include="CommandLine\AutomatedBuildCommand.cs" />
     <Compile Include="CommandLine\BuildCommand.cs" />
     <Compile Include="CommandLine\BuildPropertyCommand.cs" />
     <Compile Include="CommandLine\BuildTargetCommand.cs" />

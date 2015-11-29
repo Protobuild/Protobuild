@@ -25,6 +25,7 @@ namespace Protobuild
             kernel.BindTargets();
             kernel.BindFileFilter();
             kernel.BindPackages();
+            kernel.BindAutomatedBuild();
 
             var commandMappings = new Dictionary<string, ICommand>
             {
@@ -35,6 +36,7 @@ namespace Protobuild
                 { "build-target", kernel.Get<BuildTargetCommand>() },
                 { "build-property", kernel.Get<BuildPropertyCommand>() },
                 { "clean", kernel.Get<CleanCommand>() },
+                { "automated-build", kernel.Get<AutomatedBuildCommand>() },
                 { "extract-xslt", kernel.Get<ExtractXSLTCommand>() },
                 { "enable", kernel.Get<EnableServiceCommand>() },
                 { "disable", kernel.Get<DisableServiceCommand>() },

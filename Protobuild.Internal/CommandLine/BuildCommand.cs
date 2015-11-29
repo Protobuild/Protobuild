@@ -110,22 +110,31 @@ namespace Protobuild
 
             Console.WriteLine("INFO: Using " + builderPath + " to perform this build.");
 
-            var targetPlatform = execution.Platform ?? hostPlatform;
+            var targetPlatforms = (execution.Platform ?? hostPlatform).Split(',');
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
 
-            var fileToBuild = module.Name + "." + targetPlatform + ".sln";
-
-            Console.WriteLine("INFO: Executing " + builderPath + " with arguments: " + extraArgs + fileToBuild);
-
-            var process = Process.Start(new ProcessStartInfo(builderPath, extraArgs + fileToBuild) { UseShellExecute = false });
-            if (process == null)
+            foreach (var platform in targetPlatforms)
             {
-                Console.Error.WriteLine("ERROR: Build process did not start successfully.");
-                return 1;
-            }
-            process.WaitForExit();
+                var fileToBuild = module.Name + "." + platform + ".sln";
 
-            return process.ExitCode;
+                Console.WriteLine("INFO: Executing " + builderPath + " with arguments: " + extraArgs + fileToBuild);
+
+                var process =
+                    Process.Start(new ProcessStartInfo(builderPath, extraArgs + fileToBuild) {UseShellExecute = false});
+                if (process == null)
+                {
+                    Console.Error.WriteLine("ERROR: Build process did not start successfully.");
+                    return 1;
+                }
+                process.WaitForExit();
+
+                if (process.ExitCode != 0)
+                {
+                    return process.ExitCode;
+                }
+            }
+
+            return 0;
         }
 
         public string GetDescription()

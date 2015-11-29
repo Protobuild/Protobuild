@@ -17,16 +17,20 @@ namespace Protobuild
 
         private readonly IPackageGlobalTool m_PackageGlobalTool;
 
+        private readonly IWorkingDirectoryProvider _workingDirectoryProvider;
+
         public ExecuteCommand(
             IActionDispatch actionDispatch,
             IHostPlatformDetector hostPlatformDetector,
             IProjectOutputPathCalculator projectOutputPathCalculator,
-            IPackageGlobalTool packageGlobalTool)
+            IPackageGlobalTool packageGlobalTool,
+            IWorkingDirectoryProvider workingDirectoryProvider)
         {
             this.m_ActionDispatch = actionDispatch;
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_ProjectOutputPathCalculator = projectOutputPathCalculator;
             this.m_PackageGlobalTool = packageGlobalTool;
+            _workingDirectoryProvider = workingDirectoryProvider;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -54,6 +58,11 @@ namespace Protobuild
                 Console.WriteLine(
                     "Unable to determine the location of Protobuild.");
                 return 1;
+            }
+
+            if (!File.Exists(Path.Combine(modulePath, "Build", "Module.xml")))
+            {
+                modulePath = _workingDirectoryProvider.GetPath();
             }
 
             string executablePath = null;
