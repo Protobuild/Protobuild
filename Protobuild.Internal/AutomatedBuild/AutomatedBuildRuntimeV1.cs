@@ -97,6 +97,9 @@ namespace Protobuild
                         case "build":
                         case "execute":
                         case "native-execute":
+                        case "pack":
+                        case "push":
+                        case "repush":
                             instructions.Add(new ParsedInstruction
                             {
                                 Command = instruction[0].ToLower(),
@@ -293,6 +296,11 @@ namespace Protobuild
                                     (current, prop) =>
                                         current + ("--build-property " + prop.Key + " " + prop.Value + " "));
                                 args += " " + inst.Arguments;
+                                break;
+                            case "pack":
+                            case "push":
+                            case "repush":
+                                args = "--" + inst.Command + " " + inst.Arguments;
                                 break;
                             default:
                                 args = "--" + inst.Command + " " + targets + " " + inst.Arguments;
