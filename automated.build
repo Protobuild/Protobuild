@@ -6,32 +6,42 @@ set execute-configuration Release
 
 resync
 build
-execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
-execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
-execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateSolution.xslt Protobuild.Internal\BuildResources\GenerateSolution.xslt.lzma
-execute Protobuild.Compress Protobuild.Internal\BuildResources\SelectSolution.xslt Protobuild.Internal\BuildResources\SelectSolution.xslt.lzma
-execute Protobuild.Compress Protobuild.Internal\BuildResources\JSILTemplate.htm Protobuild.Internal\BuildResources\JSILTemplate.htm.lzma
-execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs-msbuild-hack.lzma
+if host Windows
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateSolution.xslt Protobuild.Internal\BuildResources\GenerateSolution.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\SelectSolution.xslt Protobuild.Internal\BuildResources\SelectSolution.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\JSILTemplate.htm Protobuild.Internal\BuildResources\JSILTemplate.htm.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs-msbuild-hack.lzma
+endif
+if host-not Windows
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/SelectSolution.xslt Protobuild.Internal/BuildResources/SelectSolution.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/JSILTemplate.htm Protobuild.Internal/BuildResources/JSILTemplate.htm.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerationFunctions.cs Protobuild.Internal/BuildResources/GenerationFunctions.cs-msbuild-hack.lzma
+endif
 build
 if host Windows
-	execute Protobuild.Compress Protobuild.Internal\bin\Windows\AnyCPU\Release\Protobuild.Internal.dll Protobuild\Protobuild.Internal.dll.lzma
+  execute Protobuild.Compress Protobuild.Internal\bin\Windows\AnyCPU\Release\Protobuild.Internal.dll Protobuild\Protobuild.Internal.dll.lzma
 endif
 if host MacOS
-	execute Protobuild.Compress Protobuild.Internal\bin\MacOS\AnyCPU\Release\Protobuild.Internal.dll Protobuild\Protobuild.Internal.dll.lzma
+  execute Protobuild.Compress Protobuild.Internal/bin/MacOS/AnyCPU/Release/Protobuild.Internal.dll Protobuild/Protobuild.Internal.dll.lzma
 endif
 if host Linux
-	execute Protobuild.Compress Protobuild.Internal\bin\Linux\AnyCPU\Release\Protobuild.Internal.dll Protobuild\Protobuild.Internal.dll.lzma
+  execute Protobuild.Compress Protobuild.Internal/bin/Linux/AnyCPU/Release/Protobuild.Internal.dll Protobuild/Protobuild.Internal.dll.lzma
 endif
 build
 execute Protobuild.UnitTests
 execute Protobuild.FunctionalTests
 if host Windows
-	native-execute cmd /C "rename Protobuild.exe Protobuild.exe.old"
-	native-execute cmd /C "copy /Y Protobuild\bin\Windows\AnyCPU\Release\Protobuild.exe Protobuild.exe"
+  native-execute cmd /C "rename Protobuild.exe Protobuild.exe.old"
+  native-execute cmd /C "copy /Y Protobuild\bin\Windows\AnyCPU\Release\Protobuild.exe Protobuild.exe"
 endif
 if host MacOS
-	native-execute cp Protobuild/bin/MacOS/AnyCPU/Release/Protobuild.exe Protobuild.exe
+  native-execute cp Protobuild/bin/MacOS/AnyCPU/Release/Protobuild.exe Protobuild.exe
 endif
 if host Linux
-	native-execute cp Protobuild/bin/Linux/AnyCPU/Release/Protobuild.exe Protobuild.exe
+  native-execute cp Protobuild/bin/Linux/AnyCPU/Release/Protobuild.exe Protobuild.exe
 endif
