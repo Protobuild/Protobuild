@@ -31,6 +31,7 @@ namespace Protobuild
                 { "sync", kernel.Get<SyncCommand>() },
                 { "resync", kernel.Get<ResyncCommand>() },
                 { "generate", kernel.Get<GenerateCommand>() },
+                { "build", kernel.Get<BuildCommand>() },
                 { "clean", kernel.Get<CleanCommand>() },
                 { "extract-xslt", kernel.Get<ExtractXSLTCommand>() },
                 { "enable", kernel.Get<EnableServiceCommand>() },
@@ -145,6 +146,7 @@ namespace Protobuild
                 var wordBuffer = string.Empty;
                 var lineBuffer = string.Empty;
                 var count = 0;
+                var last = false;
                 for (var i = 0; i < description.Length || wordBuffer.Length > 0; i++)
                 {
                     if (i < description.Length)
@@ -168,6 +170,7 @@ namespace Protobuild
                     {
                         lineBuffer += wordBuffer + " ";
                         count++;
+                        last = true;
                     }
 
                     if (count >= 74)
@@ -175,6 +178,11 @@ namespace Protobuild
                         lines.Add(lineBuffer);
                         lineBuffer = string.Empty;
                         count = 0;
+                    }
+
+                    if (last)
+                    {
+                        break;
                     }
                 }
 

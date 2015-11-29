@@ -98,6 +98,7 @@
     <Compile Include="BuildResources\ResourceProvider.cs" />
     <Compile Include="BuildResources\ResourceType.cs" />
     <Compile Include="CommandLine\AddPackageCommand.cs" />
+    <Compile Include="CommandLine\BuildCommand.cs" />
     <Compile Include="CommandLine\CleanCommand.cs" />
     <Compile Include="CommandLine\DebugServiceResolutionCommand.cs" />
     <Compile Include="CommandLine\DefaultCommand.cs" />
