@@ -32,6 +32,8 @@ namespace Protobuild
                 { "resync", kernel.Get<ResyncCommand>() },
                 { "generate", kernel.Get<GenerateCommand>() },
                 { "build", kernel.Get<BuildCommand>() },
+                { "build-target", kernel.Get<BuildTargetCommand>() },
+                { "build-property", kernel.Get<BuildPropertyCommand>() },
                 { "clean", kernel.Get<CleanCommand>() },
                 { "extract-xslt", kernel.Get<ExtractXSLTCommand>() },
                 { "enable", kernel.Get<EnableServiceCommand>() },

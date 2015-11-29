@@ -102,13 +102,21 @@ namespace Protobuild
                 }
             }
 
+            extraArgs += "/t:\"" + execution.BuildTarget + "\" ";
+            foreach (var prop in execution.BuildProperties)
+            {
+                extraArgs += "/p:\"" + prop.Key.Replace("\"", "\\\"") + "\"=\"" + (prop.Value ?? string.Empty).Replace("\"", "\\\"") + "\" ";
+            }
+
             Console.WriteLine("INFO: Using " + builderPath + " to perform this build.");
 
             var targetPlatform = execution.Platform ?? hostPlatform;
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
 
             var fileToBuild = module.Name + "." + targetPlatform + ".sln";
-            
+
+            Console.WriteLine("INFO: Executing " + builderPath + " with arguments: " + extraArgs + fileToBuild);
+
             var process = Process.Start(new ProcessStartInfo(builderPath, extraArgs + fileToBuild) { UseShellExecute = false });
             if (process == null)
             {
