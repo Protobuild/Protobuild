@@ -192,8 +192,11 @@ EndGlobal
           <xsl:when test="$adhoc-mapping != ''">
             <xsl:value-of select="$adhoc-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Ad-Hoc|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -205,8 +208,11 @@ EndGlobal
           <xsl:when test="$adhoc-mapping != ''">
             <xsl:value-of select="$adhoc-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Ad-Hoc|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -218,8 +224,11 @@ EndGlobal
           <xsl:when test="$appstore-mapping != ''">
             <xsl:value-of select="$appstore-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>AppStore|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -231,8 +240,11 @@ EndGlobal
           <xsl:when test="$appstore-mapping != ''">
             <xsl:value-of select="$appstore-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>AppStore|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -244,8 +256,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Debug|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -257,8 +272,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Debug|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -270,8 +288,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Debug|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -283,8 +304,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Debug|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -296,8 +320,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Release|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -309,8 +336,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Release|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -322,8 +352,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Release|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -335,8 +368,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'iOS'">
             <xsl:text>Release|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -350,8 +386,11 @@ EndGlobal
           <xsl:when test="$adhoc-mapping != ''">
             <xsl:value-of select="$adhoc-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Ad-Hoc|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -363,8 +402,11 @@ EndGlobal
           <xsl:when test="$adhoc-mapping != ''">
             <xsl:value-of select="$adhoc-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Ad-Hoc|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -376,8 +418,11 @@ EndGlobal
           <xsl:when test="$appstore-mapping != ''">
             <xsl:value-of select="$appstore-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>AppStore|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -389,8 +434,11 @@ EndGlobal
           <xsl:when test="$appstore-mapping != ''">
             <xsl:value-of select="$appstore-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>AppStore|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -402,8 +450,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Debug|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -415,8 +466,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Debug|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -428,8 +482,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Debug|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -441,8 +498,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Debug|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -454,8 +514,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Release|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -467,8 +530,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Release|iPhone</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -480,8 +546,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Release|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -493,8 +562,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'tvOS'">
             <xsl:text>Release|iPhoneSimulator</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -508,8 +580,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Debug|x86</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -521,8 +596,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Debug|x86</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -534,8 +612,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Release|x86</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -547,8 +628,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Release|x86</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -560,8 +644,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Debug|ARM</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -573,8 +660,11 @@ EndGlobal
           <xsl:when test="$debug-mapping != ''">
             <xsl:value-of select="$debug-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Debug|ARM</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -586,8 +676,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Release|ARM</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
@@ -599,8 +692,11 @@ EndGlobal
           <xsl:when test="$release-mapping != ''">
             <xsl:value-of select="$release-mapping" />
           </xsl:when>
-          <xsl:otherwise>
+          <xsl:when test="$root/Platform = 'WindowsPhone'">
             <xsl:text>Release|ARM</xsl:text>
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:text>Debug|Any CPU</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
         <xsl:text>
