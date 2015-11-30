@@ -52,6 +52,7 @@ namespace Protobuild
                 { "pack", kernel.Get<PackPackageCommand>() },
                 { "format", kernel.Get<FormatPackageCommand>() },
                 { "push", kernel.Get<PushPackageCommand>() },
+                { "ignore-on-existing", kernel.Get<IgnoreOnExistingPackageCommand>() },
                 { "repush", kernel.Get<RepushPackageCommand>() },
                 { "resolve", kernel.Get<ResolveCommand>() },
                 { "no-resolve", kernel.Get<NoResolveCommand>() },

@@ -119,6 +119,7 @@
     <Compile Include="CommandLine\FormatPackageCommand.cs" />
     <Compile Include="CommandLine\GenerateCommand.cs" />
     <Compile Include="CommandLine\ICommand.cs" />
+    <Compile Include="CommandLine\IgnoreOnExistingPackageCommand.cs" />
     <Compile Include="CommandLine\InstallPackageCommand.cs" />
     <Compile Include="CommandLine\ListPackagesCommand.cs" />
     <Compile Include="CommandLine\NoResolveCommand.cs" />
