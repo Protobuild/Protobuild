@@ -102,7 +102,10 @@ namespace Protobuild
                 }
             }
 
-            extraArgs += "/t:\"" + execution.BuildTarget + "\" ";
+            if (!string.IsNullOrWhiteSpace(execution.BuildTarget))
+            {
+                extraArgs += "/t:\"" + execution.BuildTarget + "\" ";
+            }
             foreach (var prop in execution.BuildProperties)
             {
                 extraArgs += "/p:\"" + prop.Key.Replace("\"", "\\\"") + "\"=\"" + (prop.Value ?? string.Empty).Replace("\"", "\\\"") + "\" ";
