@@ -46,6 +46,8 @@ namespace Protobuild
 
         public string PackagePushBranchToUpdate { get; set; }
 
+        public bool PackagePushIgnoreOnExisting { get; set; }
+
         public string StartProjectTemplateURL { get; set; }
 
         public string StartProjectName { get; set; }

@@ -69,6 +69,13 @@ namespace Protobuild
                 if (json.has_error)
                 {
                     Console.WriteLine(json.error);
+
+                    if (execution.PackagePushIgnoreOnExisting &&
+                        ((string)json.error.ToString()).Contains("Another version already exists with this Git hash and platform"))
+                    {
+                        return 0;
+                    }
+
                     return 1;
                 }
 
