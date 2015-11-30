@@ -31,6 +31,9 @@
               <Type>
                 <xsl:value-of select="current()/@Type" />
               </Type>
+              <Platform>
+                <xsl:value-of select="$platform" />
+              </Platform>
               <RawName>
                 <xsl:value-of select="current()/@Name" />
               </RawName>
@@ -82,6 +85,9 @@
                               /Project">
           <Project>
             <Type>External</Type>
+            <Platform>
+              <xsl:value-of select="$platform" />
+            </Platform>
             <RawName>
               <xsl:value-of select="current()/@Name" />
             </RawName>
@@ -104,6 +110,9 @@
                               /Project">
           <Project>
             <Type>External</Type>
+            <Platform>
+              <xsl:value-of select="$platform" />
+            </Platform>
             <RawName>
               <xsl:value-of select="current()/@Name" />
             </RawName>
@@ -130,6 +139,9 @@
             <xsl:for-each select="./Project">
               <Project>
                 <Type>External</Type>
+                <Platform>
+                  <xsl:value-of select="$platform" />
+                </Platform>
                 <RawName>
                   <xsl:value-of select="current()/@Name" />
                 </RawName>
@@ -157,6 +169,9 @@
             <xsl:for-each select="./Project">
               <Project>
                 <Type>External</Type>
+                <Platform>
+                  <xsl:value-of select="$platform" />
+                </Platform>
                 <RawName>
                   <xsl:value-of select="current()/@Name" />
                 </RawName>
