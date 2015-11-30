@@ -205,45 +205,16 @@ namespace Protobuild
                 {
                     if (inst.Command == "native-execute")
                     {
-                        var search = _hostPlatformDetector.DetectPlatform() == "Windows"
-                            ? new[] {@"C:\Windows\System32\where.exe"}
-                            : new[] {"/usr/bin/which", "/bin/which"};
-                        string searchFound = null;
-                        foreach (var s in search)
-                        {
-                            if (File.Exists(s))
-                            {
-                                searchFound = s;
-                                break;
-                            }
-                        }
-
-                        if (searchFound == null)
-                        {
-                            Console.Error.WriteLine("ERROR: Could not find which or where on your system.");
-                            return 1;
-                        }
-
                         var components = inst.Arguments.Split(new[] {' '}, 2);
 
-                        Console.WriteLine("+ native-execute " + searchFound + " " + components[0]);
-                        var searchProcess =
-                            Process.Start(new ProcessStartInfo(searchFound, components[0])
-                            {
-                                UseShellExecute = false,
-                                RedirectStandardOutput = true
-                            });
-                        if (searchProcess == null)
+                        string path;
+                        try
                         {
-                            Console.Error.WriteLine("ERROR: Process did not start when searching for " + components[0]);
-                            return 1;
+                            path = FindNativeProgram(components[0]);
                         }
-                        var path = searchProcess.StandardOutput.ReadToEnd().Split('\r', '\n').First();
-
-                        if (!File.Exists(path))
+                        catch (ApplicationException ex)
                         {
-                            Console.Error.WriteLine("ERROR: Located file '" + path + "' for " + components[0] +
-                                                    " does not actually exist.");
+                            Console.Error.WriteLine(ex);
                             return 1;
                         }
 
@@ -317,18 +288,49 @@ namespace Protobuild
                             runSets.Add("");
                         }
 
+                        string runtime = null;
+                        var hostPlatform = _hostPlatformDetector.DetectPlatform();
+                        if (hostPlatform != "Windows")
+                        {
+                            try
+                            {
+                                runtime = FindNativeProgram("mono");
+                            }
+                            catch (ApplicationException ex)
+                            {
+                                Console.Error.WriteLine(ex);
+                                return 1;
+                            }
+                        }
+
                         foreach (var run in runSets)
                         {
                             var runArgs = args
                                 .Replace("$TARGET_PLATFORM", args);
 
-                            Console.WriteLine("+ " + protobuild + " " + runArgs);
-                            var process =
-                                Process.Start(new ProcessStartInfo(protobuild, runArgs)
-                                {
-                                    WorkingDirectory = workingDirectory,
-                                    UseShellExecute = false
-                                });
+                            Process process;
+
+                            if (hostPlatform != "Windows" && runtime != null)
+                            {
+                                Console.WriteLine("+ " + runtime + " \"" + protobuild + "\" " + runArgs);
+                                process =
+                                    Process.Start(new ProcessStartInfo(runtime, "\"" + protobuild + "\" " + runArgs)
+                                        {
+                                            WorkingDirectory = workingDirectory,
+                                            UseShellExecute = false
+                                        });
+                            }
+                            else
+                            {
+                                Console.WriteLine("+ " + protobuild + " " + runArgs);
+                                process =
+                                    Process.Start(new ProcessStartInfo(protobuild, runArgs)
+                                    {
+                                        WorkingDirectory = workingDirectory,
+                                        UseShellExecute = false
+                                    });
+                            }
+
                             if (process == null)
                             {
                                 Console.Error.WriteLine(
@@ -373,6 +375,48 @@ namespace Protobuild
 
             Console.WriteLine("Automated build script completed successfully.");
             return 0;
+        }
+
+        private string FindNativeProgram(string program)
+        {
+            var search = _hostPlatformDetector.DetectPlatform() == "Windows"
+                ? new[] {@"C:\Windows\System32\where.exe"}
+                : new[] {"/usr/bin/which", "/bin/which"};
+            string searchFound = null;
+            foreach (var s in search)
+            {
+                if (File.Exists(s))
+                {
+                    searchFound = s;
+                    break;
+                }
+            }
+
+            if (searchFound == null)
+            {
+                throw new ApplicationException("ERROR: Could not find which or where on your system.");
+            }
+
+            Console.WriteLine("+ native-execute " + searchFound + " " + program);
+            var searchProcess =
+                Process.Start(new ProcessStartInfo(searchFound, program)
+                    {
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true
+                    });
+            if (searchProcess == null)
+            {
+                throw new ApplicationException("ERROR: Process did not start when searching for " + program);
+            }
+            var path = searchProcess.StandardOutput.ReadToEnd().Split('\r', '\n').First();
+
+            if (!File.Exists(path))
+            {
+                throw new ApplicationException("ERROR: Located file '" + path + "' for " + program +
+                    " does not actually exist.");
+            }
+
+            return path;
         }
 
         private class ParsedInstruction

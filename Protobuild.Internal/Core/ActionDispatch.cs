@@ -54,52 +54,74 @@ namespace Protobuild
             }
 
             var originalPlatform = platform;
-            platform = module.NormalizePlatform(platform);
+            string primaryPlatform = null;
+            string multiplePlatforms = null;
 
-            if (platform == null && !platformSupplied)
+            if (platform.Contains(","))
             {
-                // The current host platform isn't supported, so we shouldn't try to
-                // operate on it.
-                string firstPlatform = null;
-                switch (this.m_HostPlatformDetector.DetectPlatform())
+                // The user requested multiple platforms; the first one
+                // is the primary platform.
+                var platforms = platform.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (platforms.Length == 0)
                 {
-                    case "Windows":
-                        firstPlatform = module.DefaultWindowsPlatforms.Split(',').FirstOrDefault();
-                        break;
-                    case "MacOS":
-                        firstPlatform = module.DefaultMacOSPlatforms.Split(',').FirstOrDefault();
-                        break;
-                    case "Linux":
-                        firstPlatform = module.DefaultLinuxPlatforms.Split(',').FirstOrDefault();
-                        break;
+                    Console.Error.WriteLine("You supplied only commas where a list of platforms was expected.");
+                    ExecEnvironment.Exit(1);
+                    return false;
                 }
-
-                if (firstPlatform != null)
+                else
                 {
-                    // This will end up null if the first platform isn't supported
-                    // either and hence throw the right message.
-                    platform = module.NormalizePlatform(firstPlatform);
+                    for (var i = 0; i < platforms.Length; i++)
+                    {
+                        platforms[i] = module.NormalizePlatform(platforms[i]);
+                        if (platforms[i] == null)
+                        {
+                            ShowSupportedPlatformsError(module, platforms[i]);
+                            return false;
+                        }
+                    }
+
+                    primaryPlatform = platforms[0];
+                    multiplePlatforms = platforms.Aggregate((a, b) => a + "," + b);
                 }
             }
-
-            if (platform == null)
+            else
             {
-                Console.Error.WriteLine("The platform '" + originalPlatform + "' is not supported.");
-                Console.Error.WriteLine("The following platforms are supported by this module:");
-                foreach (
-                    var supportedPlatform in
-                    module.SupportedPlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(x => x.Trim())
-                    .Where(x => !string.IsNullOrWhiteSpace(x)))
+                platform = module.NormalizePlatform(platform);
+
+                if (platform == null && !platformSupplied)
                 {
-                    Console.Error.WriteLine("  * " + supportedPlatform);
+                    // The current host platform isn't supported, so we shouldn't try to
+                    // operate on it.
+                    string firstPlatform = null;
+                    switch (this.m_HostPlatformDetector.DetectPlatform())
+                    {
+                        case "Windows":
+                            firstPlatform = module.DefaultWindowsPlatforms.Split(',').FirstOrDefault();
+                            break;
+                        case "MacOS":
+                            firstPlatform = module.DefaultMacOSPlatforms.Split(',').FirstOrDefault();
+                            break;
+                        case "Linux":
+                            firstPlatform = module.DefaultLinuxPlatforms.Split(',').FirstOrDefault();
+                            break;
+                    }
+
+                    if (firstPlatform != null)
+                    {
+                        // This will end up null if the first platform isn't supported
+                        // either and hence throw the right message.
+                        platform = module.NormalizePlatform(firstPlatform);
+                    }
                 }
 
-                ExecEnvironment.Exit(1);
-                return false;
-            }
+                if (platform == null)
+                {
+                    ShowSupportedPlatformsError(module, platform);
+                    return false;
+                }
 
-            var primaryPlatform = platform;
+                primaryPlatform = platform;
+            }
 
             // You can generate multiple targets by default by setting the <DefaultWindowsPlatforms>
             // <DefaultMacOSPlatforms> and <DefaultLinuxPlatforms> tags in Module.xml.  Note that
@@ -109,7 +131,6 @@ namespace Protobuild
             // We only trigger this behaviour when the platform is omitted; if you explicitly
             // specify "Windows" on the command line, we'll only generate / resync / sync
             // the Windows platform.
-            string multiplePlatforms = null;
             if (!platformSupplied)
             {
                 switch (platform)
@@ -216,7 +237,7 @@ namespace Protobuild
             }
 
             // Now iterate through the multiple platforms specified.
-            foreach (var platformIter in multiplePlatformsList)
+            foreach (var platformIter in multiplePlatformsList.Distinct())
             {
                 if (platformIter == primaryPlatform)
                 {
@@ -263,6 +284,22 @@ namespace Protobuild
 
             // All the steps succeeded, so return true.
             return true;
+        }
+
+        private void ShowSupportedPlatformsError(ModuleInfo module, string requestedPlatform)
+        {
+            Console.Error.WriteLine("The platform '" + requestedPlatform + "' is not supported.");
+            Console.Error.WriteLine("The following platforms are supported by this module:");
+            foreach (
+                var supportedPlatform in
+                module.SupportedPlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x)))
+            {
+                Console.Error.WriteLine("  * " + supportedPlatform);
+            }
+
+            ExecEnvironment.Exit(1);
         }
 
         /// <summary>
