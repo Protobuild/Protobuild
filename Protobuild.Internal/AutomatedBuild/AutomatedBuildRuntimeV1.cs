@@ -294,11 +294,19 @@ namespace Protobuild
                         var runSets = new List<string>();
                         if (args.Contains("$TARGET_PLATFORM"))
                         {
-                            runSets.AddRange(targets.Split(','));
+                            var targetsSplit = targets.Split(',');
+                            if (targetsSplit.Length < 1 || string.IsNullOrWhiteSpace(targetsSplit[0]))
+                            {
+                                runSets.Add(_hostPlatformDetector.DetectPlatform());
+                            }
+                            else
+                            {
+                                runSets.AddRange(targetsSplit);
+                            }
                         }
                         else
                         {
-                            runSets.Add("");
+                            runSets.Add(_hostPlatformDetector.DetectPlatform());
                         }
 
                         if (args.Contains("$GIT_COMMIT") || args.Contains("$GIT_BRANCH"))
