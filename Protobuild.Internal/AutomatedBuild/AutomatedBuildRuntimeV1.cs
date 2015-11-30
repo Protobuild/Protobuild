@@ -50,7 +50,7 @@ namespace Protobuild
                                     currentLine);
                             }
 
-                            var components = instruction[1].Split(' ');
+                            var components = instruction[1].Split(new[] { ' ' }, 2);
                             switch (components[0])
                             {
                                 case "host":
@@ -76,11 +76,24 @@ namespace Protobuild
                                     {
                                         Predicate = () => !components[1].Split(',').Contains(hostPlatform)
                                     });
+                                break;
+                                case "file-exists":
+                                    instructions.Add(new ParsedInstruction
+                                        {
+                                            Predicate = () => File.Exists(components[1])
+                                        });
+                                break;
+                                case "file-not-exists":
+                                    instructions.Add(new ParsedInstruction
+                                        {
+                                            Predicate = () => !File.Exists(components[1])
+                                        });
                                     break;
                                 default:
                                     throw new ParserErrorException(
-                                        "Unexpected if condition, expected 'host', 'host-not', 'host-in' or 'host-not-in', got '" +
-                                        components[0] + "' instead", currentLine);
+                                        "Unexpected if condition, expected 'host', 'host-not', 'host-in', 'host-not-in', " + 
+                                        "'file-exists' or 'file-not-exists', " +
+                                        "got '" + components[0] + "' instead", currentLine);
                             }
                             break;
                         }
@@ -288,6 +301,50 @@ namespace Protobuild
                             runSets.Add("");
                         }
 
+                        if (args.Contains("$GIT_COMMIT") || args.Contains("$GIT_BRANCH"))
+                        {
+                            string commit;
+                            string branch;
+
+                            try
+                            {
+                                Console.WriteLine("+ git rev-parse HEAD");
+                                commit = GitUtils.RunGitAndCapture(workingDirectory, "rev-parse HEAD").Trim();
+
+                                try
+                                {
+                                    Console.WriteLine("+ git show-ref --heads");
+                                    var branchesText = GitUtils.RunGitAndCapture(workingDirectory, "show-ref --heads");
+                                    var branches = branchesText.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                                    var branchRaw = branches.FirstOrDefault(x => x.StartsWith(commit, StringComparison.Ordinal));
+                                    branch = string.Empty;
+                                    if (branchRaw != null)
+                                    {
+                                        var branchComponents = branchRaw.Trim().Split(' ');
+                                        if (branchComponents.Length >= 2)
+                                        {
+                                            if (branchComponents[1].StartsWith("refs/heads/", StringComparison.Ordinal))
+                                            {
+                                                branch = branchComponents[1].Substring("refs/heads/".Length);
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (InvalidOperationException)
+                                {
+                                    branch = string.Empty;
+                                }
+                            }
+                            catch (InvalidOperationException)
+                            {
+                                commit = string.Empty;
+                                branch = string.Empty;
+                            }
+
+                            args = args.Replace("$GIT_COMMIT", commit);
+                            args = args.Replace("$GIT_BRANCH", branch);
+                        }
+
                         string runtime = null;
                         var hostPlatform = _hostPlatformDetector.DetectPlatform();
                         if (hostPlatform != "Windows")
@@ -306,7 +363,7 @@ namespace Protobuild
                         foreach (var run in runSets)
                         {
                             var runArgs = args
-                                .Replace("$TARGET_PLATFORM", args);
+                                .Replace("$TARGET_PLATFORM", run);
 
                             Process process;
 
