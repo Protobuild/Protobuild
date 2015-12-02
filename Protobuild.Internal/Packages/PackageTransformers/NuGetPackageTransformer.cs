@@ -45,51 +45,11 @@ namespace Protobuild
             var repoUrl = urlAndPackageName[0];
             var packageName = urlAndPackageName[1];
 
-            var packagesUrl = repoUrl.TrimEnd('/') + "/Packages(Id='" + packageName + "',Version='" + gitReference + "')";
-            var client = new WebClient();
-
-            Console.WriteLine("HTTP GET " + packagesUrl);
-            var xmlString = client.DownloadString(packagesUrl);
-            var xDocument = XDocument.Parse(xmlString);
-
-            Console.WriteLine("Retrieved package information");
-            var title = xDocument.Root.Elements().First(x => x.Name.LocalName == "title");
-            var content = xDocument.Root.Elements().First(x => x.Name.LocalName == "content");
-
-            Console.WriteLine("Found NuGet package '" + title.Value + "'");
-
-            var downloadUrl = content.Attributes().First(x => x.Name.LocalName == "src").Value;
-            var downloadedZipData = _progressiveWebOperation.Get(downloadUrl);
-
-            // Save the ZIP file onto disk.
-            var tempFile = Path.GetTempFileName();
-            using (var writer = new FileStream(tempFile, FileMode.Truncate, FileAccess.Write))
-            {
-                writer.Write(downloadedZipData, 0, downloadedZipData.Length);
-            }
-
-            // TODO: Add a hash of the package URL and version into this path.
-            var tempFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            Directory.CreateDirectory(tempFolder);
-
-            Console.WriteLine("Extracting package to " + tempFolder + "...");
-
-            var zip = ZipStorer.Open(tempFile, FileAccess.Read);
-            var files = zip.ReadCentralDir();
-
-            foreach (var file in files)
-            {
-                var targetPath = Path.Combine(tempFolder, file.FilenameInZip);
-                var directory = new FileInfo(targetPath).DirectoryName;
-                if (directory != null) Directory.CreateDirectory(directory);
-                zip.ExtractFile(file, targetPath);
-            }
-
-            Console.WriteLine("Extraction complete.");
-
+            var folder = DownloadOrUseExistingNuGetPackage(repoUrl.TrimEnd('/'), packageName, gitReference);
+            
             Console.WriteLine("Auto-detecting libraries to reference from NuGet package...");
 
-            var packagePath = new DirectoryInfo(tempFolder).GetFiles("*.nuspec").First().FullName;
+            var packagePath = new DirectoryInfo(folder).GetFiles("*.nuspec").First().FullName;
             var libraryReferences = new Dictionary<string, string>();
             var packageDependencies = new Dictionary<string, string>();
 
@@ -158,131 +118,147 @@ namespace Protobuild
                 "?MonoAndroid",
             };
 
-            // Determine the base path for all references; that is, the lib/ folder.
-            var referenceBasePath = Path.Combine(
-                tempFolder,
-                "lib");
-
-            // If we don't have a lib/ folder, then we aren't able to reference anything
-            // anyway (this might be a tools only package like xunit.runners).
-            if (!Directory.Exists(referenceBasePath))
+            if (platform == "WindowsUniversal")
             {
-                Console.WriteLine(
-                    "No lib/ folder found in downloaded NuGet " + 
-                    "package.  There is nothing to reference.");
-            }
-            else
-            {
-                // If no references are in nuspec, reference all of the libraries that
-                // are on disk.
-                if (references.Count == 0)
+                // This is the priority list for Windows Universal Apps.
+                clrNames = new[]
                 {
-                    // Search through all of the target frameworks until we find one that
-                    // has at least one file in it.
-                    foreach (var clrNameOriginal in clrNames)
+                    "=uap10.0",
+                    "=uap",
+                    "=netcore451",
+                    "=netcore",
+                    "=dotnet"
+                };
+            }
+
+            var referenceDirectories = new string[] {"ref", "lib"};
+
+            foreach (var directory in referenceDirectories)
+            {
+                // Determine the base path for all references; that is, the lib/ folder.
+                var referenceBasePath = Path.Combine(
+                    folder,
+                    directory);
+                
+                if (Directory.Exists(referenceBasePath))
+                {
+                    // If no references are in nuspec, reference all of the libraries that
+                    // are on disk.
+                    if (references.Count == 0)
                     {
-                        var clrName = clrNameOriginal;
-                        var foundClr = false;
-
-                        if (clrName[0] == '=')
+                        // Search through all of the target frameworks until we find one that
+                        // has at least one file in it.
+                        foreach (var clrNameOriginal in clrNames)
                         {
-                            // Exact match (strip the equals).
-                            clrName = clrName.Substring(1);
+                            var clrName = clrNameOriginal;
+                            var foundClr = false;
 
-                            // If this target framework doesn't exist for this library, skip it.
-                            var dirPath = Path.Combine(
-                                referenceBasePath,
-                                clrName);
-                            if (!Directory.Exists(dirPath))
+                            if (clrName[0] == '=')
                             {
-                                continue;
-                            }
-                        }
-                        else if (clrName[0] == '?')
-                        {
-                            // Substring, search the reference base path for any folders
-                            // with a matching substring.
-                            clrName = clrName.Substring(1);
+                                // Exact match (strip the equals).
+                                clrName = clrName.Substring(1);
 
-                            var baseDirPath = referenceBasePath;
-                            var found = false;
-                            foreach (var subdir in new DirectoryInfo(baseDirPath).GetDirectories())
-                            {
-                                if (subdir.Name.Contains(clrName))
+                                // If this target framework doesn't exist for this library, skip it.
+                                var dirPath = Path.Combine(
+                                    referenceBasePath,
+                                    clrName);
+                                if (!Directory.Exists(dirPath))
                                 {
-                                    clrName = subdir.Name;
-                                    found = true;
-                                    break;
+                                    continue;
+                                }
+                            }
+                            else if (clrName[0] == '?')
+                            {
+                                // Substring, search the reference base path for any folders
+                                // with a matching substring.
+                                clrName = clrName.Substring(1);
+
+                                var baseDirPath = referenceBasePath;
+                                var found = false;
+                                foreach (var subdir in new DirectoryInfo(baseDirPath).GetDirectories())
+                                {
+                                    if (subdir.Name.Contains(clrName))
+                                    {
+                                        clrName = subdir.Name;
+                                        found = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!found)
+                                {
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("Unknown CLR name match type with '" + clrName + "'");
+                            }
+
+                            // Otherwise enumerate through all of the libraries in this folder.
+                            foreach (var dll in Directory.EnumerateFiles(
+                                Path.Combine(
+                                    referenceBasePath, clrName),
+                                "*.dll"))
+                            {
+                                // Determine the relative path to the library.
+                                var packageDll = Path.Combine(
+                                    referenceBasePath,
+                                    clrName,
+                                    Path.GetFileName(dll));
+
+                                // Confirm again that the file actually exists on disk when
+                                // combined with the root path.
+                                if (File.Exists(
+                                    Path.Combine(
+                                        packageDll)))
+                                {
+                                    // Create the library reference.
+                                    if (!libraryReferences.ContainsKey(Path.GetFileNameWithoutExtension(dll)))
+                                    {
+                                        libraryReferences.Add(
+                                            Path.GetFileNameWithoutExtension(dll),
+                                            packageDll);
+                                    }
+
+                                    // Mark this target framework as having provided at least
+                                    // one reference.
+                                    foundClr = true;
                                 }
                             }
 
-                            if (!found)
-                            {
-                                continue;
-                            }
+                            // Break if we have found at least one reference.
+                            if (foundClr)
+                                break;
                         }
-                        else
-                        {
-                            throw new InvalidOperationException("Unknown CLR name match type with '" + clrName + "'");
-                        }
+                    }
 
-                        // Otherwise enumerate through all of the libraries in this folder.
-                        foreach (var dll in Directory.EnumerateFiles(
-                            Path.Combine(
-                                referenceBasePath, clrName),
-                            "*.dll"))
+                    // For all of the references that were found in the original nuspec file,
+                    // add those references.
+                    foreach (var reference in references)
+                    {
+                        // Search through all of the target frameworks until we find the one
+                        // that has the reference in it.
+                        foreach (var clrName in clrNames)
                         {
-                            // Determine the relative path to the library.
+                            // If this target framework doesn't exist for this library, skip it.
                             var packageDll = Path.Combine(
                                 referenceBasePath,
                                 clrName,
-                                Path.GetFileName(dll));
+                                reference);
 
-                            // Confirm again that the file actually exists on disk when
-                            // combined with the root path.
                             if (File.Exists(
                                 Path.Combine(
                                     packageDll)))
                             {
-                                // Create the library reference.
-                                libraryReferences.Add(
-                                    Path.GetFileNameWithoutExtension(dll),
-                                    packageDll);
-
-                                // Mark this target framework as having provided at least
-                                // one reference.
-                                foundClr = true;
+                                if (!libraryReferences.ContainsKey(Path.GetFileNameWithoutExtension(packageDll)))
+                                {
+                                    libraryReferences.Add(
+                                        Path.GetFileNameWithoutExtension(packageDll),
+                                        packageDll);
+                                }
+                                break;
                             }
-                        }
-
-                        // Break if we have found at least one reference.
-                        if (foundClr)
-                            break;
-                    }
-                }
-
-                // For all of the references that were found in the original nuspec file,
-                // add those references.
-                foreach (var reference in references)
-                {
-                    // Search through all of the target frameworks until we find the one
-                    // that has the reference in it.
-                    foreach (var clrName in clrNames)
-                    {
-                        // If this target framework doesn't exist for this library, skip it.
-                        var packageDll = Path.Combine(
-                            referenceBasePath,
-                            clrName,
-                            reference);
-
-                        if (File.Exists(
-                            Path.Combine(
-                                packageDll)))
-                        {
-                            libraryReferences.Add(
-                                Path.GetFileNameWithoutExtension(packageDll),
-                                packageDll);
-                            break;
                         }
                     }
                 }
@@ -302,7 +278,7 @@ namespace Protobuild
             {
                 var binaryReference = document.CreateElement("Binary");
                 binaryReference.SetAttribute("Name", kv.Key);
-                binaryReference.SetAttribute("Path", kv.Value.Substring(tempFolder.Length).TrimStart(new[] { '/', '\\' }).Replace("%2B", "-"));
+                binaryReference.SetAttribute("Path", kv.Value.Substring(folder.Length).TrimStart(new[] { '/', '\\' }).Replace("%2B", "-"));
                 externalProject.AppendChild(binaryReference);
             }
             foreach (var package in packageDependencies)
@@ -311,7 +287,7 @@ namespace Protobuild
                 externalReference.SetAttribute("Include", package.Key);
                 externalProject.AppendChild(externalReference);
             }
-            document.Save(Path.Combine(tempFolder, "_ProtobuildExternalProject.xml"));
+            document.Save(Path.Combine(folder, "_ProtobuildExternalProject.xml"));
 
             Console.WriteLine("Generating module...");
             var generatedModule = new ModuleInfo();
@@ -328,20 +304,20 @@ namespace Protobuild
                     });
             }
 
-            generatedModule.Save(Path.Combine(tempFolder, "_ProtobuildModule.xml"));
+            generatedModule.Save(Path.Combine(folder, "_ProtobuildModule.xml"));
 
             Console.WriteLine("Converting to a Protobuild package...");
 
             var target = new MemoryStream();
-            var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(tempFolder));
+            var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(folder));
 
             foreach (var kv in libraryReferences)
             {
                 filter.ApplyInclude(
-                    Regex.Escape(kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/')));
+                    Regex.Escape(kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/')));
                 filter.ApplyRewrite(
-                    Regex.Escape(kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/')),
-                    kv.Value.Substring(tempFolder.Length).Replace('\\', '/').TrimStart('/').Replace("%2B", "-"));
+                    Regex.Escape(kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/')),
+                    kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/').Replace("%2B", "-"));
             }
 
             filter.ApplyInclude("_ProtobuildExternalProject\\.xml");
@@ -354,12 +330,9 @@ namespace Protobuild
             _packageCreator.Create(
                 target,
                 filter,
-                tempFolder,
+                folder,
                 PackageManager.ARCHIVE_FORMAT_TAR_LZMA);
             format = PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
-
-            Console.WriteLine("Cleaning up temporary files...");
-            Directory.Delete(tempFolder, true);
 
             Console.WriteLine("Package conversion complete.");
             var bytes = new byte[target.Position];
@@ -367,6 +340,62 @@ namespace Protobuild
             target.Read(bytes, 0, bytes.Length);
 
             return bytes;
+        }
+
+        private string DownloadOrUseExistingNuGetPackage(string repoUrl, string packageName, string gitReference)
+        {
+            var nugetPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".nuget",
+                "packages",
+                packageName,
+                gitReference);
+            if (Directory.Exists(nugetPath))
+            {
+                return nugetPath;
+            }
+
+            var packagesUrl = repoUrl + "/Packages(Id='" + packageName + "',Version='" + gitReference + "')";
+            var client = new WebClient();
+
+            Console.WriteLine("HTTP GET " + packagesUrl);
+            var xmlString = client.DownloadString(packagesUrl);
+            var xDocument = XDocument.Parse(xmlString);
+
+            Console.WriteLine("Retrieved package information");
+            var title = xDocument.Root.Elements().First(x => x.Name.LocalName == "title");
+            var content = xDocument.Root.Elements().First(x => x.Name.LocalName == "content");
+
+            Console.WriteLine("Found NuGet package '" + title.Value + "'");
+
+            var downloadUrl = content.Attributes().First(x => x.Name.LocalName == "src").Value;
+            var downloadedZipData = _progressiveWebOperation.Get(downloadUrl);
+
+            // Save the ZIP file onto disk.
+            var tempFile = Path.GetTempFileName();
+            using (var writer = new FileStream(tempFile, FileMode.Truncate, FileAccess.Write))
+            {
+                writer.Write(downloadedZipData, 0, downloadedZipData.Length);
+            }
+            
+            Directory.CreateDirectory(nugetPath);
+
+            Console.WriteLine("Extracting package to " + nugetPath + "...");
+
+            var zip = ZipStorer.Open(tempFile, FileAccess.Read);
+            var files = zip.ReadCentralDir();
+
+            foreach (var file in files)
+            {
+                var targetPath = Path.Combine(nugetPath, file.FilenameInZip);
+                var directory = new FileInfo(targetPath).DirectoryName;
+                if (directory != null) Directory.CreateDirectory(directory);
+                zip.ExtractFile(file, targetPath);
+            }
+
+            Console.WriteLine("Extraction complete.");
+
+            return nugetPath;
         }
     }
 }
