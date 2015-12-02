@@ -237,6 +237,24 @@
             <xsl:for-each select="$root/Input/Properties/CustomDefinitions/Platform">
               <xsl:if test="$root/Input/Generation/Platform = ./@Name">
                 <xsl:value-of select="." />
+                <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
+                  <!--
+                    We always add PLATFORM_MACOS_LEGACY here because there is 
+                    no way to access this variant from the project definition
+                    configuration (intentionally because we don't see it as
+                    a different platform, but rather just different API versions).
+                  -->
+                  <xsl:choose>
+                    <xsl:when test="user:HasXamarinMac()">
+                      <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI)">
+                        <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
+                      </xsl:if>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:if>
               </xsl:if>
             </xsl:for-each>
           </xsl:when>
