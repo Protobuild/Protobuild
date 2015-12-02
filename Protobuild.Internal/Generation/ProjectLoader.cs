@@ -81,7 +81,12 @@ namespace Protobuild
             {
                 platforms = ModuleInfo.GetSupportedPlatformsDefault();
             }
-            foreach (var platform in platforms.Split(','))
+			var platformsList = platforms.Split(',').ToList();
+			if (!platformsList.Contains(targetPlatform))
+			{
+				platformsList.Add(targetPlatform);
+			}
+			foreach (var platform in platformsList)
             {
                 var existing = projectGuids.ChildNodes.OfType<XmlElement>().FirstOrDefault(x =>
                     x.Name == "Platform" && x.HasAttribute("Name") && x.GetAttribute("Name") == platform);

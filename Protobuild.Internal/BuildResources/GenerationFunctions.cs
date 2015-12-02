@@ -187,8 +187,19 @@ public class GenerationFunctions
 
     public bool HasXamarinMac()
     {
-        return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll");
+        return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll") ||
+			System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
     }
+
+	public bool HasXamarinMacUnifiedAPI()
+	{
+		return System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
+	}
+
+	public bool DoesNotHaveXamarinMacUnifiedAPI()
+	{
+		return !System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
+	}
 
     public bool CodesignKeyExists()
     {
