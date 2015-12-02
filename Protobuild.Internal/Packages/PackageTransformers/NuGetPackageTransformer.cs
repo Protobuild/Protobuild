@@ -34,6 +34,14 @@ namespace Protobuild
         {
             var urlAndPackageName = url.Split(new[] { '|' }, 2);
 
+            if (urlAndPackageName.Length != 2)
+            {
+                Console.Error.WriteLine(
+                    "ERROR: Malformed NuGet package reference '" + url +
+                    "'.  Make sure you split the NuGet server URL and the package name with a pipe character (|).");
+                ExecEnvironment.Exit(1);
+            }
+
             var repoUrl = urlAndPackageName[0];
             var packageName = urlAndPackageName[1];
 
