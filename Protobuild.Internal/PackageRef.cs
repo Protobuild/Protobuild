@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Protobuild
 {
@@ -9,6 +10,8 @@ namespace Protobuild
         public string GitRef { get; set; }
 
         public string Folder { get; set; }
+
+        public string[] Platforms { get; set; }
 
         public Uri UriObject
         {
@@ -59,6 +62,16 @@ namespace Protobuild
 
                 return System.Text.RegularExpressions.Regex.Match(this.GitRef, "^[0-9a-f]{40,40}$").Success;
             }
+        }
+
+        public bool IsActiveForPlatform(string platform)
+        {
+            if (Platforms == null || Platforms.Length == 0)
+            {
+                return true;
+            }
+
+            return Platforms.Select(x => x.ToLowerInvariant()).Contains(platform.ToLowerInvariant());
         }
     }
 }

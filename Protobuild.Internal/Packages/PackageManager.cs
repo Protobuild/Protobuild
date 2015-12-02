@@ -55,8 +55,15 @@ namespace Protobuild
             {
                 foreach (var submodule in module.Packages)
                 {
-                    Console.WriteLine("Resolving: " + submodule.Uri);
-                    this.Resolve(module, submodule, platform, null, null);
+                    if (submodule.IsActiveForPlatform(platform))
+                    {
+                        Console.WriteLine("Resolving: " + submodule.Uri);
+                        this.Resolve(module, submodule, platform, null, null);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Skipping resolution for " + submodule.Uri + " because it is not active for this target platform");
+                    }
                 }
             }
 
