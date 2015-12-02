@@ -76,6 +76,9 @@
             <xsl:value-of select="$root/Input/Properties/LangVersion"/>
           </LangVersion>
         </xsl:when>
+        <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'Windows8'">
+          <LangVersion>5</LangVersion>
+        </xsl:when>
         <xsl:otherwise>
           <LangVersion>6</LangVersion>
         </xsl:otherwise>
@@ -930,8 +933,8 @@
       <xsl:choose>
         <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
           <xsl:text>14.0</xsl:text>
-        </xsl:when>		
-        <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81'">
+        </xsl:when>
+        <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'Windows8'">
           <xsl:text>12.0</xsl:text>
         </xsl:when>
         <xsl:when test="$root/Input/Generation/Platform = 'PCL' or user:IsTrue($root/Input/Properties/ForcePCL)">
