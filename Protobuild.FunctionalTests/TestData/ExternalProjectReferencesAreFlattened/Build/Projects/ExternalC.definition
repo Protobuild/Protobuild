@@ -2,11 +2,7 @@
 <ExternalProject Name="ExternalC">
   <Reference Include="ExternalD" />
 
-  <Platform Name="Windows">
-    <!-- 
-      This should not work, external project
-      references are only supported at the top level
-    -->
+  <Platform Type="Windows">
     <Reference Include="ExternalE" />
   </Platform>
 </ExternalProject>

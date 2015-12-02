@@ -6,7 +6,7 @@ namespace Protobuild
 {
     public interface IExternalProjectReferenceResolver
     {
-        void ResolveExternalProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc);
+        void ResolveExternalProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc, string targetPlatform);
     }
 }
 

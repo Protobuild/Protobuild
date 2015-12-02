@@ -7,7 +7,7 @@ namespace Protobuild
 {
     public class ExternalProjectReferenceResolver : IExternalProjectReferenceResolver
     {
-        public void ResolveExternalProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc)
+        public void ResolveExternalProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc, string targetPlatform)
         {
             var documentsByName = documents.ToDictionarySafe(
                 k => k.DocumentElement.GetAttribute("Name"),
@@ -34,8 +34,9 @@ namespace Protobuild
                     if (referencedDocument.DocumentElement.LocalName == "ExternalProject")
                     {
                         // Find all top-level references in the external project.
-                        var externalDocumentReferences = referencedDocument.SelectNodes("/ExternalProject/Reference");
-                        foreach (var externalReference in externalDocumentReferences.OfType<XmlElement>())
+                        var externalDocumentReferences = referencedDocument.SelectNodes("/ExternalProject/Reference").OfType<XmlElement>().Concat(
+                            referencedDocument.SelectNodes("/ExternalProject/Platform[@Type='" + targetPlatform + "']/Reference").OfType<XmlElement>()).ToList();
+                        foreach (var externalReference in externalDocumentReferences)
                         {
                             var externalReferenceTarget = externalReference.GetAttribute("Include");
 

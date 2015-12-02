@@ -28,7 +28,7 @@
             _assert.DoesNotContain("ExternalD", consoleContents);
             _assert.DoesNotContain("ExternalE", consoleContents);
             _assert.Contains("ExpectedTargetMet", consoleContents);
-            _assert.DoesNotContain("UnexpectedTargetPresent", consoleContents);
+            _assert.Contains("ExpectedPlatformTargetMet", consoleContents);
         }
     }
 }
