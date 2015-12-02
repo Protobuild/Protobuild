@@ -192,12 +192,22 @@ namespace Protobuild
                     var packages = packagesElem.Elements();
                     foreach (var package in packages)
                     {
-                        def.Packages.Add(new PackageRef
+                        var packageRef = new PackageRef
                         {
                             Folder = package.Attribute(XName.Get("Folder")).Value,
                             GitRef = package.Attribute(XName.Get("GitRef")).Value,
                             Uri = package.Attribute(XName.Get("Uri")).Value,
-                        });
+                            Platforms = null,
+                        };
+                        
+                        var platforms = package.Attribute(XName.Get("Platforms"));
+                        var platformsArray = platforms?.Value.Split(',');
+                        if (platformsArray?.Length > 0)
+                        {
+                            packageRef.Platforms = platformsArray;
+                        }
+
+                        def.Packages.Add(packageRef);
                     }
                 }
             }
@@ -428,6 +438,12 @@ namespace Protobuild
                     packageElem.SetAttribute("Uri", package.Uri);
                     packageElem.SetAttribute("Folder", package.Folder);
                     packageElem.SetAttribute("GitRef", package.GitRef);
+
+                    if (package.Platforms != null && package.Platforms.Length > 0)
+                    {
+                        packageElem.SetAttribute("Platforms", package.Platforms.Aggregate((a, b) => a + "," + b));
+                    }
+
                     elem.AppendChild(packageElem);
                 }
             }
