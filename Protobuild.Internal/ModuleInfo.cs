@@ -609,7 +609,7 @@ namespace Protobuild
 
         public static string GetSupportedPlatformsDefault()
         {
-            return "Android,iOS,Linux,MacOS,Ouya,PCL,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81";
+            return "Android,iOS,tvOS,Linux,MacOS,Ouya,PCL,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81,WindowsUniversal";
         }
 
         /// <summary>

@@ -72,12 +72,13 @@ namespace Protobuild
                 {
                     for (var i = 0; i < platforms.Length; i++)
                     {
-                        platforms[i] = module.NormalizePlatform(platforms[i]);
-                        if (platforms[i] == null)
+						var newPlatform = module.NormalizePlatform(platforms[i]);
+						if (newPlatform == null)
                         {
                             ShowSupportedPlatformsError(module, platforms[i]);
                             return false;
                         }
+						platforms[i] = newPlatform;
                     }
 
                     primaryPlatform = platforms[0];
@@ -116,7 +117,7 @@ namespace Protobuild
 
                 if (platform == null)
                 {
-                    ShowSupportedPlatformsError(module, platform);
+					ShowSupportedPlatformsError(module, originalPlatform);
                     return false;
                 }
 
