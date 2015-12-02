@@ -12,5 +12,8 @@
     <Compile Include="PackageRefTests.cs" />
     <Compile Include="PathUtilsTests.cs" />
     <Compile Include="ServiceResolutionTests.cs" />
+    <None Include="Info.plist">
+      <Platforms>iOS,MacOS</Platforms>
+    </None>
   </Files>
 </Project>

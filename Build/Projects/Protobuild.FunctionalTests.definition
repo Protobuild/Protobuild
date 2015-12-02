@@ -121,6 +121,9 @@
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
+    <None Include="Info.plist">
+      <Platforms>iOS,MacOS</Platforms>
+    </None>
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />

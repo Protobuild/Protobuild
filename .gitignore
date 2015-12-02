@@ -72,3 +72,5 @@ Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Properties
 Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Resources/Resource.Designer.cs
 *.orig
 Protobuild.exe.old
+Info.plist
+.pkg
