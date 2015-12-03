@@ -36,7 +36,10 @@ namespace Protobuild
             {
                 // Find latest version of MSBuild.
                 var registryKey =
-                    Registry.LocalMachine.OpenSubKey("SOFTWARE")?
+                    RegistryKey.OpenBaseKey(
+                        RegistryHive.LocalMachine,
+                        execution.Platform == "WindowsPhone" ? RegistryView.Registry32 : RegistryView.Default)
+                        .OpenSubKey("SOFTWARE")?
                         .OpenSubKey("Microsoft")?
                         .OpenSubKey("MSBuild")?
                         .OpenSubKey("ToolsVersions");
