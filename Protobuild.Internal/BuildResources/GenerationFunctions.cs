@@ -270,7 +270,7 @@ public class GenerationFunctions
         return Environment.GetEnvironmentVariable("ProgramFiles");
     }
 
-    public string DetectPlatformToolsetVersion()
+    public string DetectWindowsCPlusPlusToolsetVersion()
     {
         // We can't just select a common low version here; we need to pick a
         // toolset version that's installed with Visual Studio.
@@ -286,15 +286,68 @@ public class GenerationFunctions
         return "10";
     }
 
-    public string DetectBuildToolsVersion()
+    public string DetectWindowsCPlusPlusBuildToolsVersion()
     {
-        var platformTools = DetectPlatformToolsetVersion();
+        var platformTools = DetectWindowsCPlusPlusToolsetVersion();
         switch (platformTools)
         {
             case "10":
                 return "4";
             default:
                 return platformTools;
+        }
+    }
+
+    public string GetLatestSupportedMSBuildToolsetVersionForPlatform(string hostPlatform, string targetPlatform)
+    {
+        // Welcome to hell.
+        if (hostPlatform == "Windows")
+        {
+            // Find latest version of MSBuild.
+            Microsoft.Win32.RegistryKey registryKey;
+            try
+            {
+                registryKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey("SOFTWARE")
+                    .OpenSubKey("Microsoft")
+                    .OpenSubKey("MSBuild")
+                    .OpenSubKey("ToolsVersions");
+            }
+            catch (NullReferenceException)
+            {
+                registryKey = null;
+            }
+            if (registryKey == null)
+            {
+                Console.Error.WriteLine(
+                    "WARNING: No versions of MSBuild were available " +
+                    "according to the registry (or they were not readable).  " +
+                    "Defaulting to ToolsVersion 4.0.");
+                return "4.0";
+            }
+
+            var subkeys = registryKey.GetSubKeyNames();
+            var orderedVersions = System.Linq.Enumerable.ToList(
+                System.Linq.Enumerable.OrderByDescending(subkeys,
+                    x => int.Parse(System.Linq.Enumerable.First(x.Split('.')), System.Globalization.CultureInfo.InvariantCulture)));
+
+            if (orderedVersions.Count == 0)
+            {
+                Console.Error.WriteLine(
+                    "WARNING: No versions of MSBuild were available " +
+                    "according to the registry (or they were not readable).  " +
+                    "Defaulting to ToolsVersion 4.0.");
+                return "4.0";
+            }
+
+            return System.Linq.Enumerable.First(orderedVersions);
+        }
+        else
+        {
+            // MacOS and Linux are always 12.0 in the latest xbuild.  We don't support older
+            // versions of xbuild because this implies an older version of the Mono runtime.
+            // Since even slightly out-of-date versions of Mono can contain critical bugs, we
+            // just tell users to upgrade their version of Mono.
+            return "12.0";
         }
     }
 

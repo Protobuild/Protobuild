@@ -504,7 +504,7 @@ Set-Content -Path $filename -Value $code;
   <xsl:template match="/">
 
     <xsl:variable name="ToolsVersion">
-      <xsl:value-of select="user:DetectBuildToolsVersion()"/>
+      <xsl:value-of select="user:DetectWindowsCPlusPlusBuildToolsVersion()"/>
       <xsl:text>.0</xsl:text>
     </xsl:variable>
     

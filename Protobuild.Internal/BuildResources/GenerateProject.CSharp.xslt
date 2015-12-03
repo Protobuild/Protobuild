@@ -908,66 +908,7 @@
       select="$root/Input/Projects/Project[@Name=$root/Input/Generation/ProjectName]" />
 
     <xsl:variable name="ToolsVersion">
-      <xsl:variable name="__FrameworkVersion">
-        <xsl:choose>
-          <xsl:when test="$root/Input/Properties/FrameworkVersions
-                          /Platform[@Name=$root/Input/Generation/Platform]
-                          /Version">
-            <TargetFrameworkVersion>
-              <xsl:value-of select="$root/Input/Properties/FrameworkVersions
-                                                          /Platform[@Name=$root/Input/Generation/Platform]
-                                                          /Version" />
-            </TargetFrameworkVersion>
-          </xsl:when>
-          <xsl:when test="$root/Input/Properties/FrameworkVersions/Version">
-            <TargetFrameworkVersion>
-              <xsl:value-of select="$root/Input/Properties/FrameworkVersions/Version" />
-            </TargetFrameworkVersion>
-          </xsl:when>
-          <xsl:otherwise>
-            <xsl:text>Unset</xsl:text>
-          </xsl:otherwise>
-        </xsl:choose>
-      </xsl:variable>
-
-      <xsl:choose>
-        <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
-          <xsl:text>14.0</xsl:text>
-        </xsl:when>
-        <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'Windows8'">
-          <xsl:text>12.0</xsl:text>
-        </xsl:when>
-        <xsl:when test="$root/Input/Generation/Platform = 'PCL' or user:IsTrue($root/Input/Properties/ForcePCL)">
-          <xsl:text>14.0</xsl:text>
-        </xsl:when>
-        <xsl:when test="$root/Input/Generation/Platform = 'Windows' or 
-          $root/Input/Generation/Platform = 'MacOS' or 
-          $root/Input/Generation/Platform = 'Linux'">
-          <!--
-            We have to choose the ToolsVersion based on the framework, since .NET 4.5
-            and later use a ToolsVersion that aligns with Visual Studio's version.
-          -->
-          <xsl:choose>
-            <xsl:when test="$__FrameworkVersion = 'v4.0'">
-              <xsl:text>4.0</xsl:text>
-            </xsl:when>
-            <xsl:when test="$root/Input/Generation/HostPlatform = 'Linux' or $root/Input/Generation/HostPlatform = 'MacOS'">
-              <!--
-                xbuild and mdtool do not support 14.0 yet, but their C# compiler
-                supports language level 6, even on older build tools (on Windows
-                you must be using MSBuild 14.0 to target C# 6).
-              -->
-              <xsl:text>12.0</xsl:text>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:text>14.0</xsl:text>
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:text>14.0</xsl:text>
-        </xsl:otherwise>
-      </xsl:choose>
+      <xsl:value-of select="user:GetLatestSupportedMSBuildToolsetVersionForPlatform(/Input/Generation/HostPlatform,/Input/Generation/Platform)" />
     </xsl:variable>
 
     <Project

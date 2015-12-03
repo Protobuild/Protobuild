@@ -231,14 +231,14 @@ namespace Protobuild
                         reader,
                         XsltSettings.TrustedXslt,
                         resolver
-                    );
+                        );
                 }
-                catch (XsltCompileException ex)
+                catch (XsltException ex)
                 {
-                    var lines = readerInspect.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+                    var lines = readerInspect.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
                     var line = ex.LineNumber;
-                    var minLine = Math.Max(line - 5, 0);
-                    var maxLine = Math.Min(line + 5, lines.Length - 1);
+                    var minLine = Math.Max(line - 10, 0);
+                    var maxLine = Math.Min(line + 10, lines.Length - 1);
                     var selectedLines = new List<string>();
                     for (var l = minLine; l <= maxLine; l++)
                     {
