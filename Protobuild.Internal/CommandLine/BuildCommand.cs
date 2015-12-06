@@ -29,47 +29,66 @@ namespace Protobuild
         public int Execute(Execution execution)
         {
             var hostPlatform = _hostPlatformDetector.DetectPlatform();
-            string builderPath = null;
-            var extraArgs = string.Empty;
+            string builderPathNativeArch = null;
+            string builderPath32 = null;
+            var extraArgsNativeArch = string.Empty;
+            var extraArgs32 = string.Empty;
+            var extraArgsGeneral = string.Empty;
 
             if (hostPlatform == "Windows")
             {
-                // Find latest version of MSBuild.
-                var registryKey =
-                    RegistryKey.OpenBaseKey(
-                        RegistryHive.LocalMachine,
-                        execution.Platform == "WindowsPhone" ? RegistryView.Registry32 : RegistryView.Default)
-                        .OpenSubKey("SOFTWARE")?
-                        .OpenSubKey("Microsoft")?
-                        .OpenSubKey("MSBuild")?
-                        .OpenSubKey("ToolsVersions");
-                if (registryKey == null)
+                foreach (var arch in new[] {RegistryView.Default, RegistryView.Registry32})
                 {
-                    Console.Error.WriteLine(
-                        "ERROR: No versions of MSBuild were available " +
-                        "according to the registry (or they were not readable).");
-                    return 1;
-                }
+                    // Find latest version of MSBuild.
+                    var registryKey =
+                        RegistryKey.OpenBaseKey(
+                            RegistryHive.LocalMachine,
+                            arch)
+                            .OpenSubKey("SOFTWARE")?
+                            .OpenSubKey("Microsoft")?
+                            .OpenSubKey("MSBuild")?
+                            .OpenSubKey("ToolsVersions");
+                    if (registryKey == null)
+                    {
+                        Console.Error.WriteLine(
+                            "ERROR: No versions of MSBuild were available " +
+                            "according to the registry (or they were not readable).");
+                        return 1;
+                    }
 
-                var subkeys = registryKey.GetSubKeyNames();
-                var orderedVersions =
-                    subkeys.OrderByDescending(x => int.Parse(x.Split('.').First(), CultureInfo.InvariantCulture));
-                builderPath = (from version in orderedVersions
-                    let path = (string) registryKey.OpenSubKey(version)?.GetValue("MSBuildToolsPath")
-                    where path != null && Directory.Exists(path)
-                    let msbuild = Path.Combine(path, "MSBuild.exe")
-                    where File.Exists(msbuild)
-                    select msbuild).FirstOrDefault();
+                    var subkeys = registryKey.GetSubKeyNames();
+                    var orderedVersions =
+                        subkeys.OrderByDescending(x => int.Parse(x.Split('.').First(), CultureInfo.InvariantCulture));
+                    var builderPath = (from version in orderedVersions
+                        let path = (string) registryKey.OpenSubKey(version)?.GetValue("MSBuildToolsPath")
+                        where path != null && Directory.Exists(path)
+                        let msbuild = Path.Combine(path, "MSBuild.exe")
+                        where File.Exists(msbuild)
+                        select msbuild).FirstOrDefault();
 
-                if (builderPath == null)
-                {
-                    Console.Error.WriteLine("ERROR: Unable to find installed MSBuild in any installed tools version.");
-                    return 1;
-                }
+                    if (builderPath == null)
+                    {
+                        Console.Error.WriteLine(
+                            "ERROR: Unable to find installed MSBuild in any installed tools version.");
+                        return 1;
+                    }
 
-                if (!builderPath.Contains("v2.0.50727"))
-                {
-                    extraArgs = "/m ";
+                    var extraArgs = string.Empty;
+                    if (!builderPath.Contains("v2.0.50727"))
+                    {
+                        extraArgs = "/m ";
+                    }
+
+                    if (arch == RegistryView.Default)
+                    {
+                        builderPathNativeArch = builderPath;
+                        extraArgsNativeArch = extraArgs;
+                    }
+                    else
+                    {
+                        builderPath32 = builderPath;
+                        extraArgs32 = extraArgs;
+                    }
                 }
             }
             else
@@ -92,35 +111,40 @@ namespace Protobuild
                         var result = whichProcess.StandardOutput.ReadToEnd().Trim();
                         if (!string.IsNullOrWhiteSpace(result) && File.Exists(result))
                         {
-                            builderPath = result;
+                            builderPathNativeArch = result;
                             break;
                         }
                     }
                 }
 
-                if (builderPath == null)
+                if (builderPathNativeArch == null)
                 {
                     Console.Error.WriteLine("ERROR: Unable to find xbuild on the current PATH.");
                     return 1;
                 }
+
+                builderPath32 = builderPathNativeArch;
             }
 
             if (!string.IsNullOrWhiteSpace(execution.BuildTarget))
             {
-                extraArgs += "/t:\"" + execution.BuildTarget + "\" ";
+                extraArgsGeneral += "/t:\"" + execution.BuildTarget + "\" ";
             }
             foreach (var prop in execution.BuildProperties)
             {
-                extraArgs += "/p:\"" + prop.Key.Replace("\"", "\\\"") + "\"=\"" + (prop.Value ?? string.Empty).Replace("\"", "\\\"") + "\" ";
+                extraArgsGeneral += "/p:\"" + prop.Key.Replace("\"", "\\\"") + "\"=\"" + (prop.Value ?? string.Empty).Replace("\"", "\\\"") + "\" ";
             }
 
-            Console.WriteLine("INFO: Using " + builderPath + " to perform this build.");
+            Console.WriteLine("INFO: Using " + builderPathNativeArch + " (32-bit: " + builderPath32 + ") to perform this build.");
 
             var targetPlatforms = (execution.Platform ?? hostPlatform).Split(',');
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
 
             foreach (var platform in targetPlatforms)
             {
+                var builderPath = platform == "WindowsPhone" ? builderPath32 : builderPathNativeArch;
+                var extraArgs = (platform == "WindowsPhone" ? extraArgs32 : extraArgsNativeArch) + extraArgsGeneral;
+
                 var fileToBuild = module.Name + "." + platform + ".sln";
 
                 Console.WriteLine("INFO: Executing " + builderPath + " with arguments: " + extraArgs + fileToBuild);
