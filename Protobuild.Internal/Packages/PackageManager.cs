@@ -234,16 +234,24 @@ namespace Protobuild
             {
                 throw new InvalidOperationException("Reference folder must be empty for template type.");
             }
-
-            if (Directory.Exists(".staging"))
-            {
-                PathUtils.AggressiveDirectoryDelete(".staging");
-            }
-
-            var package = m_PackageCache.GetSourcePackage(source, reference.GitRef);
-            package.ExtractTo(".staging");
             
-            this.ApplyProjectTemplateFromStaging(templateName, NormalizeTemplateName(templateName));
+            if (source.StartsWith("folder:"))
+            {
+                // The template is a raw folder on-disk.
+                ApplyProjectTemplateFromStaging(source.Substring(7), templateName, NormalizeTemplateName(templateName));
+            }
+            else
+            {
+                if (Directory.Exists(".staging"))
+                {
+                    PathUtils.AggressiveDirectoryDelete(".staging");
+                }
+
+                var package = m_PackageCache.GetSourcePackage(source, reference.GitRef);
+                package.ExtractTo(".staging");
+
+                this.ApplyProjectTemplateFromStaging(".staging", templateName, NormalizeTemplateName(templateName));
+            }
         }
 
         private string NormalizeTemplateName(string name)
@@ -355,7 +363,8 @@ namespace Protobuild
             {
                 throw new InvalidOperationException("Reference folder must be empty for template type.");
             }
-
+            
+            // The template is a reference to a Git repository.
             if (Directory.Exists(".staging"))
             {
                 PathUtils.AggressiveDirectoryDelete(".staging");
@@ -372,7 +381,7 @@ namespace Protobuild
 
             package.ExtractTo(".staging");
 
-            ApplyProjectTemplateFromStaging(templateName, NormalizeTemplateName(templateName));
+            ApplyProjectTemplateFromStaging(".staging", templateName, NormalizeTemplateName(templateName));
         }
 
         private void ResolveGlobalToolBinary(PackageRef reference, string toolFolder, string platform, bool forceUpgrade)
@@ -408,9 +417,9 @@ namespace Protobuild
             Console.WriteLine("Binary resolution complete");
         }
 
-        private void ApplyProjectTemplateFromStaging(string name, string normalizedTemplateName)
+        private void ApplyProjectTemplateFromStaging(string folder, string name, string normalizedTemplateName)
         {
-            foreach (var pathToFile in GetFilesFromStaging())
+            foreach (var pathToFile in GetFilesFromStaging(folder))
             {
                 var path = pathToFile.Key;
                 var file = pathToFile.Value;
@@ -455,11 +464,10 @@ namespace Protobuild
             PathUtils.AggressiveDirectoryDelete(".staging");
         }
 
-        private IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromStaging(string currentDirectory = null, string currentPrefix = null)
+        private IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromStaging(string currentDirectory, string currentPrefix = null)
         {
-            if (currentDirectory == null)
+            if (currentPrefix == null)
             {
-                currentDirectory = ".staging";
                 currentPrefix = string.Empty;
             }
 

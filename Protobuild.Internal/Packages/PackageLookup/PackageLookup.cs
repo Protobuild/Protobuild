@@ -43,6 +43,16 @@ namespace Protobuild
                 throw new InvalidOperationException("local-pointer:// URIs should never reach this section of code.");
             }
 
+            if (uri.StartsWith("local-template://", StringComparison.InvariantCultureIgnoreCase))
+            {
+                sourceUri = "folder:" + uri.Substring("local-template://".Length);
+                type = PackageManager.PACKAGE_TYPE_TEMPLATE;
+                downloadMap = new Dictionary<string, string>();
+                archiveTypeMap = new Dictionary<string, string>();
+                resolvedHash = new Dictionary<string, string>();
+                return;
+            }
+
             if (uri.StartsWith("local-git://", StringComparison.InvariantCultureIgnoreCase))
             {
                 sourceUri = uri.Substring("local-git://".Length);
