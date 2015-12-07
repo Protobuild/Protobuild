@@ -49,7 +49,7 @@ namespace Protobuild
 
         public void ResolveAll(ModuleInfo module, string platform)
         {
-            Console.WriteLine("Starting resolution of packages...");
+            Console.WriteLine("Starting resolution of packages for " + platform + "...");
 
             if (module.Packages != null && module.Packages.Count > 0)
             {
