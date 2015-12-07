@@ -18,6 +18,7 @@ namespace Protobuild
             Console.WriteLine("skip-synchronisation-on-no-standard-projects");
             Console.WriteLine("skip-resolution-on-no-packages-or-submodules");
             Console.WriteLine("inline-invocation-if-identical-hashed-executables");
+            Console.WriteLine("no-host-generate");
             return 0;
         }
 
