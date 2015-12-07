@@ -62,6 +62,12 @@ namespace Protobuild
             // yet exist.
             this.m_PackageManager.Resolve(null, packageRef, "Template", execution.StartProjectName, false);
 
+            if (execution.DisableProjectGeneration)
+            {
+                Console.WriteLine("Module has been initialized.");
+                return 0;
+            }
+
             Console.WriteLine("Module has been initialized.  Performing --generate to create projects.");
 
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));

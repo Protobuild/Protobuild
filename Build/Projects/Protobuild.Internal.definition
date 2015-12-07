@@ -122,6 +122,7 @@
     <Compile Include="CommandLine\IgnoreOnExistingPackageCommand.cs" />
     <Compile Include="CommandLine\InstallPackageCommand.cs" />
     <Compile Include="CommandLine\ListPackagesCommand.cs" />
+    <Compile Include="CommandLine\NoGenerateCommand.cs" />
     <Compile Include="CommandLine\NoResolveCommand.cs" />
     <Compile Include="CommandLine\Options.cs" />
     <Compile Include="CommandLine\PackageRootCommand.cs" />

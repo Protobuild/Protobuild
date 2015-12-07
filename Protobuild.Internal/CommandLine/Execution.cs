@@ -69,7 +69,10 @@ namespace Protobuild
         public string BuildTarget { get; set; }
 
         public Dictionary<string, string> BuildProperties { get; set; }
+
         public string AutomatedBuildScriptPath { get; set; }
+
+        public bool DisableProjectGeneration { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
