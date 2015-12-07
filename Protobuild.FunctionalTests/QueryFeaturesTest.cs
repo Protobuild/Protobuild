@@ -24,6 +24,7 @@
                 "skip-synchronisation-on-no-standard-projects",
                 "skip-resolution-on-no-packages-or-submodules",
                 "inline-invocation-if-identical-hashed-executables",
+                "no-host-generate",
             };
 
             _assert.Equal(expectedFeatureList, featureList);

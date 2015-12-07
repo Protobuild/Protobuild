@@ -3,22 +3,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Protobuild.Services;
 
 namespace Protobuild.Tasks
 {
-    using Protobuild.Services;
-
     public class GenerateProjectsTask : BaseTask
     {
-        private readonly IProjectLoader m_ProjectLoader;
-
-        private readonly IProjectGenerator m_ProjectGenerator;
-
-        private readonly ISolutionGenerator m_SolutionGenerator;
-
         private readonly IJSILProvider m_JSILProvider;
 
         private readonly IPackageRedirector m_PackageRedirector;
+
+        private readonly IProjectGenerator m_ProjectGenerator;
+        private readonly IProjectLoader m_ProjectLoader;
+
+        private readonly ISolutionGenerator m_SolutionGenerator;
 
         public GenerateProjectsTask(
             IProjectLoader projectLoader,
@@ -27,36 +25,20 @@ namespace Protobuild.Tasks
             IJSILProvider jsilProvider,
             IPackageRedirector packageRedirector)
         {
-            this.m_ProjectLoader = projectLoader;
-            this.m_ProjectGenerator = projectGenerator;
-            this.m_SolutionGenerator = solutionGenerator;
-            this.m_JSILProvider = jsilProvider;
-            this.m_PackageRedirector = packageRedirector;
+            m_ProjectLoader = projectLoader;
+            m_ProjectGenerator = projectGenerator;
+            m_SolutionGenerator = solutionGenerator;
+            m_JSILProvider = jsilProvider;
+            m_PackageRedirector = packageRedirector;
         }
 
-        public string SourcePath
-        {
-            get;
-            set;
-        }
+        public string SourcePath { get; set; }
 
-        public string RootPath
-        {
-            get;
-            set;
-        }
+        public string RootPath { get; set; }
 
-        public string Platform
-        {
-            get;
-            set;
-        }
+        public string Platform { get; set; }
 
-        public string ModuleName
-        {
-            get;
-            set;
-        }
+        public string ModuleName { get; set; }
 
         public string[] EnableServices { get; set; }
 
@@ -68,65 +50,67 @@ namespace Protobuild.Tasks
 
         public bool DisablePackageResolution { get; set; }
 
+        public bool DisableHostPlatformGeneration { get; set; }
+
         public override bool Execute()
         {
-            if (string.Compare(this.Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
+            if (string.Compare(Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
                 // Trigger JSIL provider download if needed.
                 string jsilDirectory, jsilCompilerFile;
-                if (!this.m_JSILProvider.GetJSIL(out jsilDirectory, out jsilCompilerFile))
+                if (!m_JSILProvider.GetJSIL(out jsilDirectory, out jsilCompilerFile))
                 {
                     return false;
                 }
             }
 
-            var module = ModuleInfo.Load(Path.Combine(this.RootPath, "Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(RootPath, "Build", "Module.xml"));
 
-            this.LogMessage(
-                "Starting generation of projects for " + this.Platform);
+            LogMessage(
+                "Starting generation of projects for " + Platform);
 
-            var definitions = module.GetDefinitionsRecursively(this.Platform).ToArray();
+            var definitions = module.GetDefinitionsRecursively(Platform).ToArray();
             var loadedProjects = new List<XmlDocument>();
 
             foreach (var definition in definitions)
             {
-                this.LogMessage("Loading: " + definition.Name);
+                LogMessage("Loading: " + definition.Name);
                 loadedProjects.Add(
-                    this.m_ProjectLoader.Load(
-                        this.Platform,
+                    m_ProjectLoader.Load(
+                        Platform,
                         module,
                         definition));
             }
 
-            var serviceManager = new ServiceManager(this.Platform);
+            var serviceManager = new ServiceManager(Platform);
             List<Service> services;
             string serviceSpecPath;
 
-            if (this.ServiceSpecPath == null)
+            if (ServiceSpecPath == null)
             {
                 serviceManager.SetRootDefinitions(module.GetDefinitions());
 
-                if (this.EnableServices == null)
+                if (EnableServices == null)
                 {
-                    this.EnableServices = new string[0];
+                    EnableServices = new string[0];
                 }
 
-                if (this.DisableServices == null)
+                if (DisableServices == null)
                 {
-                    this.DisableServices = new string[0];
+                    DisableServices = new string[0];
                 }
 
-                foreach (var service in this.EnableServices)
+                foreach (var service in EnableServices)
                 {
                     serviceManager.EnableService(service);
                 }
 
-                foreach (var service in this.DisableServices)
+                foreach (var service in DisableServices)
                 {
                     serviceManager.DisableService(service);
                 }
 
-                if (this.DebugServiceResolution)
+                if (DebugServiceResolution)
                 {
                     serviceManager.EnableDebugInformation();
                 }
@@ -147,40 +131,45 @@ namespace Protobuild.Tasks
                 {
                     if (service.ServiceName != null)
                     {
-                        this.LogMessage("Enabled service: " + service.FullName);
+                        LogMessage("Enabled service: " + service.FullName);
                     }
                 }
             }
             else
             {
-                services = serviceManager.LoadServiceSpec(this.ServiceSpecPath);
-                serviceSpecPath = this.ServiceSpecPath;
+                services = serviceManager.LoadServiceSpec(ServiceSpecPath);
+                serviceSpecPath = ServiceSpecPath;
             }
 
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
-            foreach (var submodule in module.GetSubmodules(this.Platform))
+            foreach (var submodule in module.GetSubmodules(Platform))
             {
                 if (submodule.HasProtobuildFeature("skip-invocation-on-no-standard-projects"))
                 {
-                    if (submodule.GetDefinitionsRecursively(this.Platform).All(x => !x.IsStandardProject))
+                    if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
                     {
                         // Do not invoke this submodule.
-                        this.LogMessage(
-                            "Skipping submodule generation for " + submodule.Name + " (there are no projects to generate)");
+                        LogMessage(
+                            "Skipping submodule generation for " + submodule.Name +
+                            " (there are no projects to generate)");
                         continue;
                     }
                 }
 
-                this.LogMessage(
+                LogMessage(
                     "Invoking submodule generation for " + submodule.Name);
                 var noResolve = submodule.HasProtobuildFeature("no-resolve") ? " -no-resolve" : string.Empty;
+                var noHostPlatform = DisableHostPlatformGeneration &&
+                                     submodule.HasProtobuildFeature("no-host-generate")
+                    ? " -no-host-generate"
+                    : string.Empty;
                 submodule.RunProtobuild(
-                    "-generate " + this.Platform + 
-                    " -spec " + serviceSpecPath + 
-                    " " + this.m_PackageRedirector.GetRedirectionArguments() + 
-                    noResolve);
-                this.LogMessage(
+                    "-generate " + Platform +
+                    " -spec " + serviceSpecPath +
+                    " " + m_PackageRedirector.GetRedirectionArguments() +
+                    noResolve + noHostPlatform);
+                LogMessage(
                     "Finished submodule generation for " + submodule.Name);
             }
 
@@ -190,15 +179,15 @@ namespace Protobuild.Tasks
             {
                 string repositoryPath;
                 var definitionCopy = definition;
-                this.m_ProjectGenerator.Generate(
+                m_ProjectGenerator.Generate(
                     definition,
                     loadedProjects,
-                    this.RootPath,
+                    RootPath,
                     definition.Name,
-                    this.Platform,
+                    Platform,
                     services,
                     out repositoryPath,
-                    () => this.LogMessage("Generating: " + definitionCopy.Name));
+                    () => LogMessage("Generating: " + definitionCopy.Name));
 
                 // Only add repository paths if they should be generated.
                 if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
@@ -208,30 +197,29 @@ namespace Protobuild.Tasks
             }
 
             var solution = Path.Combine(
-                this.RootPath,
-                this.ModuleName + "." + this.Platform + ".sln");
-            this.LogMessage("Generating: (solution)");
-            this.m_SolutionGenerator.Generate(
-                module, 
+                RootPath,
+                ModuleName + "." + Platform + ".sln");
+            LogMessage("Generating: (solution)");
+            m_SolutionGenerator.Generate(
+                module,
                 loadedProjects,
-                this.Platform,
-                solution, 
-                services, 
+                Platform,
+                solution,
+                services,
                 repositoryPaths);
 
             // Only save the specification cache if we allow synchronisation
             if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)
             {
-                var serviceCache = Path.Combine(this.RootPath, this.ModuleName + "." + this.Platform + ".speccache");
-                this.LogMessage("Saving service specification");
+                var serviceCache = Path.Combine(RootPath, ModuleName + "." + Platform + ".speccache");
+                LogMessage("Saving service specification");
                 File.Copy(serviceSpecPath, serviceCache, true);
             }
 
-            this.LogMessage(
+            LogMessage(
                 "Generation complete.");
-            
+
             return true;
         }
     }
 }
-
