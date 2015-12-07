@@ -12,7 +12,8 @@ namespace Protobuild
             string[] disabledServices = null, 
             string serviceSpecPath = null,
             bool debugServiceResolution = false,
-            bool disablePackageResolution = false);
+            bool disablePackageResolution = false,
+            bool disableHostPlatformGeneration = false);
 
         bool DefaultAction(
             ModuleInfo module, 
@@ -21,7 +22,8 @@ namespace Protobuild
             string[] disabledServices = null, 
             string serviceSpecPath = null,
             bool debugServiceResolution = false,
-            bool disablePackageResolution = false);
+            bool disablePackageResolution = false,
+            bool disableHostPlatformGeneration = false);
     }
 }
 

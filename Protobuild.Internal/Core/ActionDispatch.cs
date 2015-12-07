@@ -35,6 +35,7 @@ namespace Protobuild
         /// <param name="serviceSpecPath">The service specification path.</param>
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
+        /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
         public bool PerformAction(
             ModuleInfo module, 
             string action, 
@@ -43,7 +44,8 @@ namespace Protobuild
             string[] disabledServices = null, 
             string serviceSpecPath = null,
             bool debugServiceResolution = false,
-            bool disablePackageResolution = false)
+            bool disablePackageResolution = false,
+            bool disableHostPlatformGeneration = false)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
@@ -234,7 +236,10 @@ namespace Protobuild
             }
             else if (!multiplePlatformsList.Contains(hostPlatformNormalized))
             {
-                multiplePlatformsList.Add(hostPlatformNormalized);
+                if (!disableHostPlatformGeneration)
+                {
+                    multiplePlatformsList.Add(hostPlatformNormalized);
+                }
             }
 
             // Now iterate through the multiple platforms specified.
@@ -314,6 +319,7 @@ namespace Protobuild
         /// <param name="serviceSpecPath">The service specification path.</param>
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
+        /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
         public bool DefaultAction(
             ModuleInfo module, 
             string platform = null, 
@@ -321,7 +327,8 @@ namespace Protobuild
             string[] disabledServices = null, 
             string serviceSpecPath = null,
             bool debugServiceResolution = false,
-            bool disablePackageResolution = false)
+            bool disablePackageResolution = false,
+            bool disableHostPlatformGeneration = false)
         {
             return PerformAction(
                 module, 
@@ -331,7 +338,8 @@ namespace Protobuild
                 disabledServices, 
                 serviceSpecPath, 
                 debugServiceResolution,
-                disablePackageResolution);
+                disablePackageResolution,
+                disableHostPlatformGeneration);
         }
 
         /// <summary>
