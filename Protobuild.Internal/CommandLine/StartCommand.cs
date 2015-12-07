@@ -79,7 +79,8 @@ namespace Protobuild
                 execution.DisabledServices.ToArray(),
                 execution.ServiceSpecificationPath,
                 execution.DebugServiceResolution,
-                execution.DisablePackageResolution)
+                execution.DisablePackageResolution,
+                execution.DisableHostProjectGeneration)
                 ? 0 : 1;
         }
 

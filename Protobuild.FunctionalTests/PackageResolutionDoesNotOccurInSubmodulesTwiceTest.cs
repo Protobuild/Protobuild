@@ -44,7 +44,7 @@
             _assert.NotEqual(-1, idxSubmoduleGeneration);
 
             var substrStdout = stdout.Substring(idxSubmoduleGeneration);
-            var idxPackageResolution = substrStdout.IndexOf("Starting resolution of packages...", System.StringComparison.InvariantCulture);
+            var idxPackageResolution = substrStdout.IndexOf("Starting resolution of packages for " + platform + "...", System.StringComparison.InvariantCulture);
 
             // We should not see any package resolution we invoke submodule generation.
             _assert.Equal(-1, idxPackageResolution);

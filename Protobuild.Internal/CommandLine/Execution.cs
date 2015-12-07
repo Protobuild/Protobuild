@@ -74,6 +74,8 @@ namespace Protobuild
 
         public bool DisableProjectGeneration { get; set; }
 
+        public bool DisableHostProjectGeneration { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)
