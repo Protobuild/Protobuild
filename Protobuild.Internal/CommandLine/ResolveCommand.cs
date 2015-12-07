@@ -31,9 +31,12 @@ namespace Protobuild
                 throw new InvalidOperationException("No module present.");
             }
 
-            var platform = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
-            this.m_PackageManager.ResolveAll(module, platform);
+            var platforms = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
+            foreach (var platform in platforms.Split(','))
+            {
+                this.m_PackageManager.ResolveAll(module, platform);
+            }
             return 0;
         }
 
