@@ -852,53 +852,55 @@
     <xsl:param name="target_project" />
     <xsl:param name="item_type" />
 
-    <xsl:for-each select="$include_project/Files/*[name()=$item_type]">
-      <xsl:if test="user:ProjectAndServiceIsActive(
-                ./Platforms,
-                ./IncludePlatforms,
-                ./ExcludePlatforms,
-                ./Services,
-                ./IncludeServices,
-                ./ExcludeServices,
-                $root/Input/Generation/Platform,
-                $root/Input/Services/ActiveServicesNames)">
-        <xsl:element
-          name="{name()}"
-          namespace="http://schemas.microsoft.com/developer/msbuild/2003">
-          <xsl:attribute name="Include">
-            <xsl:value-of select="user:GetRelativePath(
-              concat(
-                $root/Input/Generation/RootPath,
-                $target_project/@Path,
-                '\',
-                $target_project/@Name,
-                '.',
-                $root/Input/Generation/Platform,
-                '.srcproj'),
-              concat(
-                $root/Input/Generation/RootPath,
-                $include_project/@Path,
-                '\',
-                current()/@Include))" />
-          </xsl:attribute>
-          <xsl:choose>
-            <xsl:when test="./Link">
-              <!-- The Link tag will be included by apply-templates -->
-            </xsl:when>
-            <xsl:otherwise>
-              <Link>
-                <xsl:text>Included Code\</xsl:text>
-                <xsl:value-of select="user:StripLeadingDotPaths($include_project/@Path)"/>
-                <xsl:text>\</xsl:text>
-                <xsl:value-of select="current()/@Include" />
-              </Link>
-            </xsl:otherwise>
-          </xsl:choose>
-          <xsl:apply-templates select="node()"/>
-          <FromIncludeProject>True</FromIncludeProject>
-        </xsl:element>
-      </xsl:if>
-    </xsl:for-each>
+    <xsl:if test="user:ProjectIsActive($include_project/@Platforms, $root/Input/Generation/Platform)">
+      <xsl:for-each select="$include_project/Files/*[name()=$item_type]">
+        <xsl:if test="user:ProjectAndServiceIsActive(
+                  ./Platforms,
+                  ./IncludePlatforms,
+                  ./ExcludePlatforms,
+                  ./Services,
+                  ./IncludeServices,
+                  ./ExcludeServices,
+                  $root/Input/Generation/Platform,
+                  $root/Input/Services/ActiveServicesNames)">
+          <xsl:element
+            name="{name()}"
+            namespace="http://schemas.microsoft.com/developer/msbuild/2003">
+            <xsl:attribute name="Include">
+              <xsl:value-of select="user:GetRelativePath(
+                concat(
+                  $root/Input/Generation/RootPath,
+                  $target_project/@Path,
+                  '\',
+                  $target_project/@Name,
+                  '.',
+                  $root/Input/Generation/Platform,
+                  '.srcproj'),
+                concat(
+                  $root/Input/Generation/RootPath,
+                  $include_project/@Path,
+                  '\',
+                  current()/@Include))" />
+            </xsl:attribute>
+            <xsl:choose>
+              <xsl:when test="./Link">
+                <!-- The Link tag will be included by apply-templates -->
+              </xsl:when>
+              <xsl:otherwise>
+                <Link>
+                  <xsl:text>Included Code\</xsl:text>
+                  <xsl:value-of select="user:StripLeadingDotPaths($include_project/@Path)"/>
+                  <xsl:text>\</xsl:text>
+                  <xsl:value-of select="current()/@Include" />
+                </Link>
+              </xsl:otherwise>
+            </xsl:choose>
+            <xsl:apply-templates select="node()"/>
+            <FromIncludeProject>True</FromIncludeProject>
+          </xsl:element>
+        </xsl:if>
+      </xsl:for-each>
+    </xsl:if>
   </xsl:template>
   
   <xsl:template match="/">
