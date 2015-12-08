@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<IncludeProject Name="Includable" Path="Includable" Platforms="Windows">
+  <Files>
+    <Compile Include="MyIncludableClass.cs" />
+  </Files>
+</IncludeProject>
