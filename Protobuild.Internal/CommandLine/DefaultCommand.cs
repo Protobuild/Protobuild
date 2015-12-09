@@ -7,9 +7,15 @@ namespace Protobuild
     {
         private readonly IActionDispatch m_ActionDispatch;
 
-        public DefaultCommand(IActionDispatch actionDispatch)
+        private readonly IKnownToolProvider _knownToolProvider;
+
+        private readonly ExecuteCommand _executeCommand;
+
+        public DefaultCommand(IActionDispatch actionDispatch, IKnownToolProvider knownToolProvider, ExecuteCommand executeCommand)
         {
             this.m_ActionDispatch = actionDispatch;
+            _knownToolProvider = knownToolProvider;
+            _executeCommand = executeCommand;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -21,10 +27,13 @@ namespace Protobuild
         {
             if (!File.Exists(Path.Combine("Build", "Module.xml")))
             {
-                Directory.CreateDirectory("Build");
-                ResourceExtractor.ExtractAll(Path.Combine(Environment.CurrentDirectory, "Build"), "MyProject");
-                Console.WriteLine("Build" + Path.DirectorySeparatorChar + "Module.xml has been created.");
-                ExecEnvironment.Exit(0);
+                _knownToolProvider.GetToolExecutablePath("Protobuild.Manager");
+
+                var subexecution = new Execution();
+                subexecution.ExecuteProjectName = "Protobuild.Manager";
+                subexecution.ExecuteProjectArguments = new string[0];
+
+                return _executeCommand.Execute(subexecution);
             }
 
             return this.m_ActionDispatch.DefaultAction(
