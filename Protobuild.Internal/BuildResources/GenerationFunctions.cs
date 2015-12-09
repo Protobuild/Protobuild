@@ -312,6 +312,10 @@ public class GenerationFunctions
                     .OpenSubKey("MSBuild")
                     .OpenSubKey("ToolsVersions");
             }
+            catch (System.Security.SecurityException)
+            {
+                registryKey = null;
+            }
             catch (NullReferenceException)
             {
                 registryKey = null;
