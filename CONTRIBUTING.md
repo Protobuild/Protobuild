@@ -1,0 +1,1 @@
+To contribute to this project, please make sure you've read the [contributor documentation](https://protobuild.readthedocs.org/en/latest/contributing.html) at Read the Docs.  Pull requests that don't meet the requirements stated on contributor documentation can not be accepted.
