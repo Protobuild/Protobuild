@@ -17,10 +17,10 @@ The goal of Protobuild is to enable developers to easily write cross-platform .N
 
 Protobuild offers the following features:
 
-  * Protobuild ships as a single executable in your repository; your users don't need to install any software to use it
-  * Generate C# and C++ solutions and projects for any platform that supports .NET
-  * Two-way project synchronisation; changes you make in your IDE (adding or removing files) are synchronised automatically back to the cross-platform definition files
-  * Full cross-platform package management, with packages seperated based on platform instead of frameworks
+  * **Protobuild ships as a single executable in your repository**; your users don't need to install any software to use it
+  * **Generate C# and C++ solutions and projects for any platform that supports .NET**
+  * **Two-way project synchronisation**; changes you make in your IDE (adding or removing files) are synchronised automatically back to the cross-platform definition files
+  * **Full cross-platform package management**, with packages seperated based on platform instead of frameworks
   * Support for content projects, which define assets for inclusion in cross-platform projects
   * Support for include projects, which define sets of files for inclusion in other cross-platform projects
   * A optional, separately-installed graphical interface which allows you to manage cross-platform projects: https://github.com/hach-que/Protobuild.Manager
@@ -114,5 +114,3 @@ Community Code of Conduct
 ------------------------------
 
 This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/) to clarify expected behavior in our community. For more information see the [.NET Foundation Code of Conduct](http://www.dotnetfoundation.org/code-of-conduct).
-
-Protobuild provides a standalone graphical interface which can be
