@@ -55,8 +55,5 @@
     <EmbeddedResource Include="Protobuild.Internal.dll.lzma">
       <LogicalName>Protobuild.Internal.dll.lzma</LogicalName>
     </EmbeddedResource>
-    <None Include="Info.plist">
-      <Platforms>iOS,MacOS</Platforms>
-    </None>
   </Files>
 </Project>
