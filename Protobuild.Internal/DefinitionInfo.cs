@@ -116,52 +116,64 @@ namespace Protobuild
         {
             var def = new DefinitionInfo();
             def.DefinitionPath = xmlFile;
-            var doc = XDocument.Load(xmlFile);
-            if (doc.Root.Attributes().Any(x => x.Name == "Name"))
-            {
-                def.Name = doc.Root.Attribute(XName.Get("Name")).Value;
-            }
 
-            if (doc.Root.Name == "Project")
+            try
             {
-                if (doc.Root.Attributes().Any(x => x.Name == "Path"))
+                var doc = XDocument.Load(xmlFile);
+                if (doc.Root.Attributes().Any(x => x.Name == "Name"))
                 {
-                    def.RelativePath = doc.Root.Attribute(XName.Get("Path")).Value;
+                    def.Name = doc.Root.Attribute(XName.Get("Name")).Value;
                 }
 
-                if (doc.Root.Attributes().Any(x => x.Name == "Type"))
+                if (doc.Root.Name == "Project")
                 {
-                    def.Type = doc.Root.Attribute(XName.Get("Type")).Value;
+                    if (doc.Root.Attributes().Any(x => x.Name == "Path"))
+                    {
+                        def.RelativePath = doc.Root.Attribute(XName.Get("Path")).Value;
+                    }
+
+                    if (doc.Root.Attributes().Any(x => x.Name == "Type"))
+                    {
+                        def.Type = doc.Root.Attribute(XName.Get("Type")).Value;
+                    }
                 }
-            }
-            else if (doc.Root.Name == "ExternalProject")
-            {
-                def.Type = "External";
-            }
-            else if (doc.Root.Name == "IncludeProject")
-            {
-                def.Type = "Include";
-            }
-            else if (doc.Root.Name == "ContentProject")
-            {
-                def.Type = "Content";
-            }
+                else if (doc.Root.Name == "ExternalProject")
+                {
+                    def.Type = "External";
+                }
+                else if (doc.Root.Name == "IncludeProject")
+                {
+                    def.Type = "Include";
+                }
+                else if (doc.Root.Name == "ContentProject")
+                {
+                    def.Type = "Content";
+                }
 
-            if (doc.Root.Attributes().Any(x => x.Name == "SkipAutopackage"))
-            {
-                var skipValue = 
-                    doc.Root.Attribute(XName.Get("SkipAutopackage")).Value.ToLowerInvariant();
-                def.SkipAutopackage = skipValue == "true";
-            }
+                if (doc.Root.Attributes().Any(x => x.Name == "SkipAutopackage"))
+                {
+                    var skipValue = 
+                        doc.Root.Attribute(XName.Get("SkipAutopackage")).Value.ToLowerInvariant();
+                    def.SkipAutopackage = skipValue == "true";
+                }
 
-            if (doc.Root.Attributes().Any(x => x.Name == "PostBuildHook"))
-            {
-                var skipValue =
-                    doc.Root.Attribute(XName.Get("PostBuildHook")).Value.ToLowerInvariant();
-                def.PostBuildHook = skipValue == "true";
-            }
+                if (doc.Root.Attributes().Any(x => x.Name == "PostBuildHook"))
+                {
+                    var skipValue =
+                        doc.Root.Attribute(XName.Get("PostBuildHook")).Value.ToLowerInvariant();
+                    def.PostBuildHook = skipValue == "true";
+                }
 
-            return def;
+                return def;
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                throw new InvalidOperationException(
+                    "Encountered an XML exception while loading " + 
+                    xmlFile + " as a project definition.  This indicates " +
+                    "that the project definition file is badly formed " +
+                    "XML, or otherwise has an incorrect structure.");
+            }
         }
     }
 }
