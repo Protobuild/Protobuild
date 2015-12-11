@@ -9,6 +9,13 @@ namespace Protobuild
 {
     public class PackageGlobalTool : IPackageGlobalTool
     {
+        private readonly IHostPlatformDetector _hostPlatformDetector;
+
+        public PackageGlobalTool(IHostPlatformDetector hostPlatformDetector)
+        {
+            _hostPlatformDetector = hostPlatformDetector;
+        }
+
         private string GetToolsPath()
         {
             var basePath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -70,7 +77,26 @@ namespace Protobuild
                     }
 
                     Console.WriteLine("Global tool '" + toolName + "' now points to '" + toolPath + "'");
+
+                    if (_hostPlatformDetector.DetectPlatform() == "Windows")
+                    {
+                        this.InstallToolIntoWindowsStartMenu(toolName, toolPath);
+                    }
                 }
+            }
+        }
+
+        private void InstallToolIntoWindowsStartMenu(string toolName, string toolPath)
+        {
+            var startMenuPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
+                toolName.Replace('.', ' ') + ".url");
+            using (var writer = new StreamWriter(startMenuPath, false))
+            {
+                writer.WriteLine("[InternetShortcut]");
+                writer.WriteLine("URL=file:///" + toolPath);
+                writer.WriteLine("IconIndex=0");
+                writer.WriteLine("IconFile=" + toolPath.Replace('\\', '/'));
+                writer.Flush();
             }
         }
 
