@@ -8,8 +8,5 @@
   </References>
   <Files>
     <Compile Include="Program.cs" />
-    <None Include="Info.plist">
-      <Platforms>iOS,MacOS</Platforms>
-    </None>
   </Files>
 </Project>
