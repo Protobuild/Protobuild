@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
+using System.Linq;
 
 namespace Protobuild
 {
@@ -82,6 +83,10 @@ namespace Protobuild
                     {
                         this.InstallToolIntoWindowsStartMenu(toolName, toolPath);
                     }
+                    else if (_hostPlatformDetector.DetectPlatform() == "Linux")
+                    {
+                        this.InstallToolIntoLinuxApplicationMenu(toolName, toolPath);
+                    }
                 }
             }
         }
@@ -98,6 +103,61 @@ namespace Protobuild
                 writer.WriteLine("IconFile=" + toolPath.Replace('\\', '/'));
                 writer.Flush();
             }
+        }
+
+        private void InstallToolIntoLinuxApplicationMenu(string toolName, string toolPath)
+        {
+            Console.WriteLine("Installing global tool '" + toolName + "' into the application menu...");
+
+            var menuPath = Path.Combine(GetToolsPath(), ".linux-menus");
+            Directory.CreateDirectory(menuPath);
+
+            // Extract the icon from the assembly.
+            string iconPath = null;
+            try
+            {
+                var asm = System.Reflection.Assembly.Load("System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a");
+                var iconType = asm.GetType("System.Drawing.Icon");
+                var extractMethod = iconType.GetMethod("ExtractAssociatedIcon", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+                dynamic iconObject = extractMethod.Invoke(null, new[] { toolPath });
+                using (var bmp = iconObject.ToBitmap())
+                {
+                    var iconPathTemp = Path.Combine(menuPath, toolName + ".png");
+                    var enumType = asm.GetType("System.Drawing.Imaging.ImageFormat");
+                    var saveMethod = ((Type)bmp.GetType()).GetMethods().First(x => x.Name == "Save" && x.GetParameters().Length == 2);
+                    saveMethod.Invoke(
+                        bmp,
+                        new object[] {
+                            iconPathTemp,
+                            enumType.GetProperty("Png").GetGetMethod().Invoke(null, null)
+                        });
+                    iconPath = iconPathTemp;
+                }
+            }
+            catch (Exception ex)
+            {
+                // No icon to extract.
+            }
+
+            var menuItemPath = Path.Combine(menuPath, "protobuild-" + toolName + ".desktop");
+
+            using (var writer = new StreamWriter(menuItemPath))
+            {
+                writer.WriteLine("[Desktop Entry]");
+                writer.WriteLine("Type=Application");
+                writer.WriteLine("Name=" + toolName);
+                if (iconPath != null)
+                {
+                    writer.WriteLine("Icon=" + iconPath);
+                }
+                writer.WriteLine("Exec=/usr/bin/mono " + toolPath);
+                writer.WriteLine("Categories=Development");
+            }
+
+            var install = System.Diagnostics.Process.Start("xdg-desktop-menu", "install '" + menuItemPath + "'");
+            install.WaitForExit();
+
+            Console.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
         }
 
         public string ResolveGlobalToolIfPresent(string toolName)
