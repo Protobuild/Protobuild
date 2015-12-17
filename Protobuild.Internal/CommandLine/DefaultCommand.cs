@@ -60,6 +60,21 @@ namespace Protobuild
         {
             throw new NotSupportedException();
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

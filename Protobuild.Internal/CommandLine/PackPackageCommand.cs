@@ -21,13 +21,16 @@ namespace Protobuild
 
         private readonly IGetRecursiveUtilitiesInPath _getRecursiveUtilitiesInPath;
 
+        private readonly IFeatureManager _featureManager;
+
         public PackPackageCommand(
             IAutomaticModulePackager automaticProjectPackager,
             IFileFilterParser fileFilterParser,
             IHostPlatformDetector hostPlatformDetector,
             IDeduplicator deduplicator,
             IPackageCreator packageCreator,
-            IGetRecursiveUtilitiesInPath getRecursiveUtilitiesInPath)
+            IGetRecursiveUtilitiesInPath getRecursiveUtilitiesInPath,
+            IFeatureManager featureManager)
         {
             this.m_AutomaticProjectPackager = automaticProjectPackager;
             this.m_HostPlatformDetector = hostPlatformDetector;
@@ -35,6 +38,7 @@ namespace Protobuild
             this.m_Deduplicator = deduplicator;
             _packageCreator = packageCreator;
             _getRecursiveUtilitiesInPath = getRecursiveUtilitiesInPath;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -312,6 +316,21 @@ If a filter file is specified, performs the steps in the filter file instead.
         public string[] GetArgNames()
         {
             return new[] { "module_path", "package_file", "platform", "filter?" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
 
         private void PrintFilterMappings(Dictionary<string, string> mappings)

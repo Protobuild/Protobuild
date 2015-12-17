@@ -35,6 +35,21 @@ Enables the specified service.
         {
             return new[] { "service_name" };
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

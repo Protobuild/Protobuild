@@ -31,6 +31,21 @@ taken during each pass of service resolution.
         {
             return new string[0];
         }
+
+        public bool IsInternal()
+        {
+            return true;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

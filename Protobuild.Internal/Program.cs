@@ -27,6 +27,9 @@ namespace Protobuild
             kernel.BindPackages();
             kernel.BindAutomatedBuild();
 
+            var featureManager = kernel.Get<IFeatureManager>();
+            featureManager.LoadFeaturesForCurrentDirectory();
+
             var commandMappings = new Dictionary<string, ICommand>
             {
                 { "sync", kernel.Get<SyncCommand>() },
@@ -44,6 +47,7 @@ namespace Protobuild
                 { "simulate-host-platform", kernel.Get<SimulateHostPlatformCommand>() },
                 { "spec", kernel.Get<ServiceSpecificationCommand>() },
                 { "query-features", kernel.Get<QueryFeaturesCommand>() },
+                { "features", kernel.Get<FeaturesCommand>() },
                 { "add", kernel.Get<AddPackageCommand>() },
                 { "list", kernel.Get<ListPackagesCommand>() },
                 { "install", kernel.Get<InstallPackageCommand>() },
@@ -75,13 +79,28 @@ namespace Protobuild
                 var key = kv.Key;
                 var value = kv.Value;
 
+                Action<string[]> handle = x =>
+                {
+                    if (value.IsRecognised())
+                    {
+                        value.Encounter(execution, x); 
+                    }
+                    else if (value.IsIgnored())
+                    {
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Unknown argument '" + key + "'");
+                    }
+                };
+
                 if (value.GetArgCount() == 0)
                 {
-                    options[key] = x => { value.Encounter(execution, x); };
+                    options[key] = handle;
                 }
                 else
                 {
-                    options[key + "@" + value.GetArgCount()] = x => { value.Encounter(execution, x); };
+                    options[key + "@" + value.GetArgCount()] = handle;
                 }
             }
 
@@ -110,6 +129,8 @@ namespace Protobuild
                     ExecEnvironment.Exit(1);
                 }
             }
+
+            featureManager.ValidateEnabledFeatures();
 
             if (ExecEnvironment.DoNotWrapExecutionInTry)
             {
@@ -145,6 +166,11 @@ namespace Protobuild
 
             foreach (var kv in commandMappings)
             {
+                if (kv.Value.IsInternal() || !kv.Value.IsRecognised() || kv.Value.IsIgnored())
+                {
+                    continue;
+                }
+
                 var description = kv.Value.GetDescription();
                 description = description.Replace("\n", " ");
                 description = description.Replace("\r", "");

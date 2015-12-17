@@ -7,11 +7,14 @@ namespace Protobuild
 {
     public class AddPackageCommand : ICommand
     {
+        private readonly IFeatureManager _featureManager;
+
         private readonly IPackageUrlParser _packageUrlParser;
 
-        public AddPackageCommand(IPackageUrlParser packageUrlParser)
+        public AddPackageCommand(IPackageUrlParser packageUrlParser, IFeatureManager featureManager)
         {
             _packageUrlParser = packageUrlParser;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -71,6 +74,21 @@ Add a package to the current module.
         public string[] GetArgNames()
         {
             return new[] { "package_url" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

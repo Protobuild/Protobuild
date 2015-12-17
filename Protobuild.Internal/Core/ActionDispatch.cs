@@ -13,14 +13,22 @@ namespace Protobuild
 
         private readonly IPackageManager m_PackageManager;
 
+        private readonly IModuleUtilities _moduleUtilities;
+
+        private readonly IFeatureManager _featureManager;
+
         public ActionDispatch(
             LightweightKernel lightweightKernel,
             IHostPlatformDetector hostPlatformDetector,
-            IPackageManager packageManager)
+            IPackageManager packageManager,
+            IModuleUtilities moduleUtilities,
+            IFeatureManager featureManager)
         {
             this.m_LightweightKernel = lightweightKernel;
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_PackageManager = packageManager;
+            _moduleUtilities = moduleUtilities;
+            _featureManager = featureManager;
         }
 
         /// <summary>
@@ -74,7 +82,7 @@ namespace Protobuild
                 {
                     for (var i = 0; i < platforms.Length; i++)
                     {
-						var newPlatform = module.NormalizePlatform(platforms[i]);
+                        var newPlatform = _moduleUtilities.NormalizePlatform(module, platforms[i]);
 						if (newPlatform == null)
                         {
                             ShowSupportedPlatformsError(module, platforms[i]);
@@ -89,7 +97,7 @@ namespace Protobuild
             }
             else
             {
-                platform = module.NormalizePlatform(platform);
+                platform = _moduleUtilities.NormalizePlatform(module, platform);
 
                 if (platform == null && !platformSupplied)
                 {
@@ -113,7 +121,7 @@ namespace Protobuild
                     {
                         // This will end up null if the first platform isn't supported
                         // either and hence throw the right message.
-                        platform = module.NormalizePlatform(firstPlatform);
+                        platform = _moduleUtilities.NormalizePlatform(module, firstPlatform);
                     }
                 }
 
@@ -176,6 +184,16 @@ namespace Protobuild
             if (platform == hostPlatform || multiplePlatformsList.Contains(hostPlatform))
             {
                 requiresHostPlatform = () => {};
+            }
+            else if (!_featureManager.IsFeatureEnabled(Feature.HostPlatformGeneration))
+            {
+                requiresHostPlatform = () =>
+                {
+                    Console.Error.WriteLine(
+                        "WARNING: One or more projects requires host platforms to be generated, " +
+                        "but the HostPlatformGeneration feature is not enabled.  Expect your " +
+                        "build to fail.");
+                };
             }
 
             // You can configure the default action for Protobuild in their project
@@ -295,7 +313,7 @@ namespace Protobuild
             if (implicitlyGenerateHostPlatform)
             {
                 // Check to see if the host platform is supported.
-                var hostPlatformNormalized = module.NormalizePlatform(hostPlatform);
+                var hostPlatformNormalized = _moduleUtilities.NormalizePlatform(module, hostPlatform);
                 if (hostPlatformNormalized == null)
                 {
                     Console.WriteLine(

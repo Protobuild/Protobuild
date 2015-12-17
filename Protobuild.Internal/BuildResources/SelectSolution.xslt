@@ -15,6 +15,9 @@
   <xsl:template match="/">
     <xsl:variable name="target_platforms">
       <xsl:choose>
+        <xsl:when test="not(/Input/Features/HostPlatformGeneration)">
+          <Platform><xsl:value-of select="$root/Input/Generation/Platform" /></Platform>
+        </xsl:when>
         <xsl:when test="$root/Input/Projects/Project[@PostBuildHook='True']">
           <Platform><xsl:value-of select="$root/Input/Generation/HostPlatform" /></Platform>
           <xsl:if test="$root/Input/Generation/HostPlatform != $root/Input/Generation/Platform">

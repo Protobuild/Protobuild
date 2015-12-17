@@ -8,6 +8,9 @@
             kernel.Bind<IHostPlatformDetector, HostPlatformDetector>();
             kernel.Bind<ILogger, Logger>();
             kernel.Bind<IWorkingDirectoryProvider, WorkingDirectoryProvider>();
+            kernel.BindAndKeepInstance<IModuleUtilities, ModuleUtilities>();
+            kernel.BindAndKeepInstance<IModuleExecution, ModuleExecution>();
+            kernel.BindAndKeepInstance<IFeatureManager, FeatureManager>();
         }
 
         public static void BindBuildResources(this LightweightKernel kernel)

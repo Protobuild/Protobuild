@@ -36,6 +36,21 @@ the property value, it is assumed to be an empty string.";
         {
             return new[] { "name", "value?" };
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

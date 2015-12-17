@@ -4,6 +4,13 @@ namespace Protobuild
 {
     public class IgnoreOnExistingPackageCommand : ICommand
     {
+        private readonly IFeatureManager _featureManager;
+
+        public IgnoreOnExistingPackageCommand(IFeatureManager featureManager)
+        {
+            _featureManager = featureManager;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.PackagePushIgnoreOnExisting = true;
@@ -32,6 +39,21 @@ in automated build scripts, where the push for one platform may be re-run.
         public string[] GetArgNames()
         {
             return new string[0];
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return !_featureManager.IsFeatureEnabled(Feature.PackageManagement);
         }
     }
 }

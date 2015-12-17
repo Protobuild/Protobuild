@@ -7,11 +7,13 @@ namespace Protobuild
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
         private readonly IPackageManager m_PackageManager;
+        private readonly IFeatureManager _featureManager;
 
-        public ResolveCommand(IHostPlatformDetector hostPlatformDetector, IPackageManager packageManager)
+        public ResolveCommand(IHostPlatformDetector hostPlatformDetector, IPackageManager packageManager, IFeatureManager featureManager)
         {
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_PackageManager = packageManager;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -55,6 +57,21 @@ Resolves packages for the current module.
         public string[] GetArgNames()
         {
             return new[] { "platform?" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return !_featureManager.IsFeatureEnabled(Feature.PackageManagement);
         }
     }
 }

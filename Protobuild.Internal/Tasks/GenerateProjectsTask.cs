@@ -18,18 +18,26 @@ namespace Protobuild.Tasks
 
         private readonly ISolutionGenerator m_SolutionGenerator;
 
+        private readonly IModuleExecution _moduleExecution;
+
+        private readonly IFeatureManager _featureManager;
+
         public GenerateProjectsTask(
             IProjectLoader projectLoader,
             IProjectGenerator projectGenerator,
             ISolutionGenerator solutionGenerator,
             IJSILProvider jsilProvider,
-            IPackageRedirector packageRedirector)
+            IPackageRedirector packageRedirector,
+            IModuleExecution moduleExecution,
+            IFeatureManager featureManager)
         {
             m_ProjectLoader = projectLoader;
             m_ProjectGenerator = projectGenerator;
             m_SolutionGenerator = solutionGenerator;
             m_JSILProvider = jsilProvider;
             m_PackageRedirector = packageRedirector;
+            _moduleExecution = moduleExecution;
+            _featureManager = featureManager;
         }
 
         public string SourcePath { get; set; }
@@ -147,7 +155,7 @@ namespace Protobuild.Tasks
             // where it is present.
             foreach (var submodule in module.GetSubmodules(Platform))
             {
-                if (submodule.HasProtobuildFeature("skip-invocation-on-no-standard-projects"))
+                if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.OptimizationSkipInvocationOnNoStandardProjects))
                 {
                     if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
                     {
@@ -161,12 +169,14 @@ namespace Protobuild.Tasks
 
                 LogMessage(
                     "Invoking submodule generation for " + submodule.Name);
-                var noResolve = submodule.HasProtobuildFeature("no-resolve") ? " -no-resolve" : string.Empty;
+                var noResolve = _featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.PackageManagementNoResolve) ? " -no-resolve" : string.Empty;
                 var noHostPlatform = DisableHostPlatformGeneration &&
-                                     submodule.HasProtobuildFeature("no-host-generate")
+                                     _featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.NoHostGenerate)
                     ? " -no-host-generate"
                     : string.Empty;
-                submodule.RunProtobuild(
+                _moduleExecution.RunProtobuild(
+                    submodule,
+                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
                     "-generate " + Platform +
                     " -spec " + serviceSpecPath +
                     " " + m_PackageRedirector.GetRedirectionArguments() +

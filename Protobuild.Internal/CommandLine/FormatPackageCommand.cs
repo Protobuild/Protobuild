@@ -5,6 +5,13 @@ namespace Protobuild
 {
     public class FormatPackageCommand : ICommand
     {
+        private readonly IFeatureManager _featureManager;
+
+        public FormatPackageCommand(IFeatureManager featureManager)
+        {
+            _featureManager = featureManager;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             if (args.Length < 1 || args[0] == null)
@@ -46,6 +53,21 @@ compression ratio (and thus smaller package files).
         public string[] GetArgNames()
         {
             return new[] { "format" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

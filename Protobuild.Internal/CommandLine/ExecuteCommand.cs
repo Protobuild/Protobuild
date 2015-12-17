@@ -247,6 +247,21 @@ by Protobuild).
         {
             return new[] { "name", "arg1", "arg2", "...", "argN" };
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

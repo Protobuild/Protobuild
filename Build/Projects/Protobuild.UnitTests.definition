@@ -9,8 +9,22 @@
     <Reference Include="Prototest" />
   </References>
   <Files>
+    <Compile Include="FeatureManagerTests.cs" />
+    <Compile Include="ModuleInfoLoadTests.cs" />
     <Compile Include="PackageRefTests.cs" />
     <Compile Include="PathUtilsTests.cs" />
     <Compile Include="ServiceResolutionTests.cs" />
+    <EmbeddedResource Include="ModuleInfos\FeatureSetIsEmpty.xml">
+      <LogicalName>FeatureSetIsEmpty.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModuleInfos\FeatureSetIsNull.xml">
+      <LogicalName>FeatureSetIsNull.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModuleInfos\FeatureSetIsPackageManagement.xml">
+      <LogicalName>FeatureSetIsPackageManagement.xml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ModuleInfos\FeatureSetIsPackageManagementAndHostPlatformGeneration.xml">
+      <LogicalName>FeatureSetIsPackageManagementAndHostPlatformGeneration.xml</LogicalName>
+    </EmbeddedResource>
   </Files>
 </Project>

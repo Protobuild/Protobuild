@@ -58,7 +58,9 @@
     <Compile Include="ExampleMonoGameTest.cs" />
     <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
+    <Compile Include="FeatureWarningIsShownWhenPreviousFeatureIsMissingTest.cs" />
     <Compile Include="ForcePCLGenerationWorksTest.cs" />
+    <Compile Include="HostPlatformGenerationNeverOccursIfFeatureDisabledTest.cs" />
     <Compile Include="HostPlatformGenerationOnlyOccursForPostBuildHooksTest.cs" />
     <Compile Include="HostPlatformGenerationWorksTest.cs" />
     <Compile Include="IncludeProjectAppliesToWorksTest.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="PackageRedirectionToLocalPointerTest.cs" />
     <Compile Include="PackageResolutionDoesNotOccurInFolderWithExistingDataTest.cs" />
     <Compile Include="PackageResolutionDoesNotOccurInSubmodulesTwiceTest.cs" />
+    <Compile Include="PackageResolutionDoesNotOccurWhenPackageManagementDisabledTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
@@ -222,11 +225,19 @@
     <None Include="TestData\ExtractXSLTWorks\Build\Module.xml" />
     <None Include="TestData\ExtractXSLTWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ExtractXSLTWorks\Console\Program.cs" />
+    <None Include="TestData\FeatureWarningIsShownWhenPreviousFeatureIsMissing\Build\Module.xml" />
+    <None Include="TestData\FeatureWarningIsShownWhenPreviousFeatureIsMissing\Build\Projects\Console.definition" />
+    <None Include="TestData\FeatureWarningIsShownWhenPreviousFeatureIsMissing\Console\Program.cs" />
     <None Include="TestData\ForcePCLGenerationWorks\Build\Module.xml" />
     <None Include="TestData\ForcePCLGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ForcePCLGenerationWorks\Build\Projects\Library.definition" />
     <None Include="TestData\ForcePCLGenerationWorks\Console\Program.cs" />
     <None Include="TestData\ForcePCLGenerationWorks\Library\MyClass.cs" />
+    <None Include="TestData\HostPlatformGenerationNeverOccursIfFeatureDisabled\Build\Module.xml" />
+    <None Include="TestData\HostPlatformGenerationNeverOccursIfFeatureDisabled\Build\Projects\Console.definition" />
+    <None Include="TestData\HostPlatformGenerationNeverOccursIfFeatureDisabled\Build\Projects\PostBuild.definition" />
+    <None Include="TestData\HostPlatformGenerationNeverOccursIfFeatureDisabled\Console\Program.cs" />
+    <None Include="TestData\HostPlatformGenerationNeverOccursIfFeatureDisabled\PostBuild\Program.cs" />
     <None Include="TestData\HostPlatformGenerationOnlyOccursForPostBuildHooks\Build\Module.xml" />
     <None Include="TestData\HostPlatformGenerationOnlyOccursForPostBuildHooks\Build\Projects\Console.definition" />
     <None Include="TestData\HostPlatformGenerationOnlyOccursForPostBuildHooks\Console\Program.cs" />
@@ -411,6 +422,9 @@
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Build\Module.xml" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Build\Projects\Library.definition" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Submodule\Library\Class.cs" />
+    <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Build\Module.xml" />
+    <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Console\Program.cs" />
     <None Include="TestData\PackageTemplateAppliesCorrectly\.gitkeep" />
     <None Include="TestData\PackageTemplateAppliesCorrectlyWithUnsafeName\.gitkeep" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />

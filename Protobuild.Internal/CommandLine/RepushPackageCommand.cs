@@ -15,12 +15,16 @@ namespace Protobuild
 
         private readonly IPackageUrlParser _packageUrlParser;
 
+        private readonly IFeatureManager _featureManager;
+
         public RepushPackageCommand(
             IPackageCache packageCache,
-            IPackageUrlParser packageUrlParser)
+            IPackageUrlParser packageUrlParser,
+            IFeatureManager featureManager)
         {
             _packageCache = packageCache;
             _packageUrlParser = packageUrlParser;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -164,6 +168,21 @@ import NuGet packages.
         public string[] GetArgNames()
         {
             return new[] { "api_key_or_key_file", "src_url", "dest_url", "version", "platform", "branch_to_update?" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
 
         private class AccurateWebClient : WebClient

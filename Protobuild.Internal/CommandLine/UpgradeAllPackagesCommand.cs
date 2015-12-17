@@ -6,11 +6,13 @@ namespace Protobuild
     {
         private readonly IPackageManager _packageManager;
         private readonly IHostPlatformDetector _hostPlatformDetector;
+        private readonly IFeatureManager _featureManager;
 
-        public UpgradeAllPackagesCommand(IPackageManager packageManager, IHostPlatformDetector hostPlatformDetector)
+        public UpgradeAllPackagesCommand(IPackageManager packageManager, IHostPlatformDetector hostPlatformDetector, IFeatureManager featureManager)
         {
             _packageManager = packageManager;
             _hostPlatformDetector = hostPlatformDetector;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -65,6 +67,21 @@ are in source format, and you have modified files.
         public string[] GetArgNames()
         {
             return new[] { "platform?" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

@@ -6,9 +6,12 @@ namespace Protobuild
     {
         private readonly IPackageRedirector m_PackageRedirector;
 
-        public RedirectPackageCommand(IPackageRedirector packageRedirector)
+        private readonly IFeatureManager _featureManager;
+
+        public RedirectPackageCommand(IPackageRedirector packageRedirector, IFeatureManager featureManager)
         {
             this.m_PackageRedirector = packageRedirector;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -41,6 +44,21 @@ Redirects any packages using the original URL to the target URL.
         public string[] GetArgNames()
         {
             return new[] { "original_url", "target_url" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

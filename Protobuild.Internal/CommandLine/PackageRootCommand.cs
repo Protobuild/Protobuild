@@ -4,6 +4,13 @@ namespace Protobuild
 {
     public class PackageRootCommand : ICommand
     {
+        private readonly IFeatureManager _featureManager;
+
+        public PackageRootCommand(IFeatureManager featureManager)
+        {
+            _featureManager = featureManager;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             if (args.Length == 0 || args[0] == null)
@@ -39,6 +46,21 @@ Internally used to pass the package root.
         public string[] GetArgNames()
         {
             return new[] { "path" };
+        }
+
+        public bool IsInternal()
+        {
+            return true;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return !_featureManager.IsFeatureEnabled(Feature.PackageManagement);
         }
     }
 }

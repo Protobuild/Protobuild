@@ -62,6 +62,21 @@ platform is specified, resynchronises for the current platform.
         {
             return new[] { "platform?" };
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

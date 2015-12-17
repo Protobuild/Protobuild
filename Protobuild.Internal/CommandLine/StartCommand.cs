@@ -102,6 +102,21 @@ in the current directory.
         {
             return new[] { "template_url", "name" };
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

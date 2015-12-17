@@ -13,6 +13,12 @@ namespace Protobuild
         int GetArgCount();
 
         string[] GetArgNames();
+
+        bool IsInternal();
+
+        bool IsRecognised();
+
+        bool IsIgnored();
     }
 }
 

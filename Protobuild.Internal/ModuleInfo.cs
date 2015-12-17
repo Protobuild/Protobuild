@@ -44,8 +44,6 @@ namespace Protobuild
     {
         private DefinitionInfo[] _cachedDefinitions;
 
-        private string[] _cachedFeatures;
-
         private readonly Dictionary<string, ModuleInfo[]> _cachedSubmodules;
 
         private readonly Dictionary<string, DefinitionInfo[]> _cachedRecursivedDefinitions;
@@ -128,32 +126,67 @@ namespace Protobuild
         public List<PackageRef> Packages { get; set; }
 
         /// <summary>
+        /// Gets or sets the feature set to use when Protobuild is executing for
+        /// this module.  If this value is null, use the full feature set.
+        /// </summary>
+        /// <value>The feature set.</value>
+        public List<Feature> FeatureSet { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of cached features.  You shouldn't access this
+        /// property directly, instead use the <see cref="IFeatureManager.IsFeatureEnabledInSubmodule"/>
+        /// method.
+        /// </summary>
+        /// <value>The cached features.</value>
+        public Feature[] CachedInternalFeatures { get; set; }
+
+        public static ModuleInfo Load(Stream xmlStream, string modulePath)
+        {
+            return LoadInternal(
+                XDocument.Load(xmlStream), 
+                modulePath,
+                () =>
+                {
+                    throw new NotSupportedException("Can't fallback with stream argument.");
+                });
+        }
+
+        /// <summary>
         /// Loads the Protobuild module from the Module.xml file.
         /// </summary>
         /// <param name="xmlFile">The path to a Module.xml file.</param>
         /// <returns>The loaded Protobuild module.</returns>
         public static ModuleInfo Load(string xmlFile)
         {
-            var def = new ModuleInfo();
-            var doc = XDocument.Load(xmlFile);
+            return LoadInternal(
+                XDocument.Load(xmlFile),
+                new FileInfo(xmlFile).Directory.Parent.FullName,
+                () =>
+                {
+                    // This is a previous module info format.
+                    var serializer = new XmlSerializer(typeof(ModuleInfo));
+                    var reader = new StreamReader(xmlFile);
+                    var module = (ModuleInfo)serializer.Deserialize(reader);
+                    module.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
+                    reader.Close();
 
+                    // Re-save in the new format.
+                    if (xmlFile == System.IO.Path.Combine("Build", "Module.xml"))
+                    {
+                        module.Save(xmlFile);
+                    }
+
+                    return module;
+                });
+        }
+
+        private static ModuleInfo LoadInternal(XDocument doc, string modulePath, Func<ModuleInfo> fallback)
+        {
+            var def = new ModuleInfo();
             var xsi = doc.Root == null ? null : doc.Root.Attribute(XName.Get("xsi", "http://www.w3.org/2000/xmlns/"));
             if (xsi != null && xsi.Value == "http://www.w3.org/2001/XMLSchema-instance")
             {
-                // This is a previous module info format.
-                var serializer = new XmlSerializer(typeof(ModuleInfo));
-                var reader = new StreamReader(xmlFile);
-                var module = (ModuleInfo)serializer.Deserialize(reader);
-                module.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
-                reader.Close();
-
-                // Re-save in the new format.
-                if (xmlFile == System.IO.Path.Combine("Build", "Module.xml"))
-                {
-                    module.Save(xmlFile);
-                }
-
-                return module;
+                return fallback();
             }
 
             Func<string, string> getStringValue = name =>
@@ -173,7 +206,7 @@ namespace Protobuild
             };
             
             def.Name = getStringValue("Name");
-            def.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
+            def.Path = modulePath;
             def.DefaultAction = getStringValue("DefaultAction");
             def.DefaultLinuxPlatforms = getStringValue("DefaultLinuxPlatforms");
             def.DefaultMacOSPlatforms = getStringValue("DefaultMacOSPlatforms");
@@ -209,6 +242,31 @@ namespace Protobuild
 
                         def.Packages.Add(packageRef);
                     }
+                }
+
+                var featureSetElem = doc.Root.Element(XName.Get("FeatureSet"));
+                if (featureSetElem != null)
+                {
+                    def.FeatureSet = new List<Feature>();
+
+                    var features = featureSetElem.Elements();
+                    foreach (var feature in features)
+                    {
+                        def.FeatureSet.Add((Feature)Enum.Parse(typeof(Feature), feature.Value));
+                    }
+                }
+                else
+                {
+                    def.FeatureSet = null;
+                }
+
+                // Check if the feature set is present and if it does not contain
+                // the PackageManagement feature.  If that feature isn't there, we
+                // ignore any of the data in Packages and just set the value to 
+                // an empty list.
+                if (def.FeatureSet != null && !def.FeatureSet.Contains(Feature.PackageManagement))
+                {
+                    def.Packages.Clear();
                 }
             }
 
@@ -454,224 +512,9 @@ namespace Protobuild
             }
         }
 
-        /// <summary>
-        /// Determines whether the instance of Protobuild in this module
-        /// has a specified feature.
-        /// </summary>
-        public bool HasProtobuildFeature(string feature)
-        {
-            if (_cachedFeatures == null)
-            {
-                var result = this.RunProtobuild("--query-features", true);
-                var exitCode = result.Item1;
-                var stdout = result.Item2;
-
-                if (exitCode != 0 || stdout.Contains("Protobuild.exe [options]"))
-                {
-                    _cachedFeatures = new string[0];
-                }
-
-                _cachedFeatures = stdout.Split('\n');
-            }
-
-            return _cachedFeatures.Contains(feature);
-        }
-
-        /// <summary>
-        /// Runs the instance of Protobuild.exe present in the module.
-        /// </summary>
-        /// <param name="args">The arguments to pass to Protobuild.</param>
-        public Tuple<int, string, string> RunProtobuild(string args, bool capture = false)
-        {
-            var invokeInline = false;
-            var invokeIfIdenticalHash = Path == Environment.CurrentDirectory || (!capture && HasProtobuildFeature("inline-invocation-if-identical-hashed-executables"));
-            if (invokeIfIdenticalHash)
-            {
-                var myHash = ExecEnvironment.GetProgramHash();
-                var targetHash = ExecEnvironment.GetProgramHash(System.IO.Path.Combine(Path, "Protobuild.exe"));
-                if (myHash == targetHash)
-                {
-                    invokeInline = true;
-                }
-            }
-
-            if ((ExecEnvironment.RunProtobuildInProcess || invokeInline) && !capture)
-            {
-                var old = Environment.CurrentDirectory;
-                try
-                {
-                    Environment.CurrentDirectory = this.Path;
-                    return new Tuple<int, string, string>(
-                        ExecEnvironment.InvokeSelf(args.SplitCommandLine().ToArray()),
-                        string.Empty,
-                        string.Empty);
-                }
-                finally
-                {
-                    Environment.CurrentDirectory = old;
-                }
-            }
-
-            var protobuildPath = System.IO.Path.Combine(this.Path, "Protobuild.exe");
-
-            try
-            {
-                var chmodStartInfo = new ProcessStartInfo
-                {
-                    FileName = "chmod",
-                    Arguments = "a+x Protobuild.exe",
-                    WorkingDirectory = this.Path,
-                    CreateNoWindow = capture,
-                    UseShellExecute = false
-                };
-                Process.Start(chmodStartInfo);
-            }
-            catch (ExecEnvironment.SelfInvokeExitException)
-            {
-                throw;
-            }
-            catch
-            {
-            }
-
-            var stdout = string.Empty;
-            var stderr = string.Empty;
-
-            for (var attempt = 0; attempt < 3; attempt++)
-            {
-                if (File.Exists(protobuildPath))
-                {
-                    var pi = new ProcessStartInfo
-                    {
-                        FileName = protobuildPath,
-                        Arguments = args,
-                        WorkingDirectory = this.Path,
-                        CreateNoWindow = capture,
-                        RedirectStandardError = capture,
-                        RedirectStandardInput = capture,
-                        RedirectStandardOutput = capture,
-                        UseShellExecute = false
-                    };
-                    var p = new Process { StartInfo = pi };
-                    if (capture)
-                    {
-                        p.OutputDataReceived += (sender, eventArgs) =>
-                        {
-                            if (!string.IsNullOrEmpty(eventArgs.Data))
-                            {
-                                if (capture)
-                                {
-                                    stdout += eventArgs.Data + "\n";
-                                }
-                                else
-                                {
-                                    Console.WriteLine(eventArgs.Data);
-                                }
-                            }
-                        };
-                        p.ErrorDataReceived += (sender, eventArgs) =>
-                        {
-                            if (!string.IsNullOrEmpty(eventArgs.Data))
-                            {
-                                if (capture)
-                                {
-                                    stderr += eventArgs.Data + "\n";
-                                }
-                                else
-                                {
-                                    Console.Error.WriteLine(eventArgs.Data);
-                                }
-                            }
-                        };
-                    }
-                    try
-                    {
-                        p.Start();
-                    }
-                    catch (System.ComponentModel.Win32Exception ex)
-                    {
-                        if (ex.Message.Contains("Cannot find the specified file"))
-                        {
-                            // Mono sometimes throws this error even though the
-                            // file does exist on disk.  The best guess is there's
-                            // a race condition between performing chmod on the
-                            // file and Mono actually seeing it as an executable file.
-                            // Show a warning and sleep for a bit before retrying.
-                            if (attempt != 2)
-                            {
-                                Console.WriteLine("WARNING: Unable to execute Protobuild.exe, will retry again...");
-                                System.Threading.Thread.Sleep(2000);
-                                continue;
-                            }
-                            else
-                            {
-                                Console.WriteLine("ERROR: Still unable to execute Protobuild.exe.");
-                                throw;
-                            }
-                        }
-                    }
-                    if (capture)
-                    {
-                        p.BeginOutputReadLine();
-                        p.BeginErrorReadLine();
-                    }
-                    p.WaitForExit();
-                    return new Tuple<int, string, string>(p.ExitCode, stdout, stderr);
-                }
-            }
-
-            return new Tuple<int, string, string>(1, string.Empty, string.Empty);
-        }
-
         public static string GetSupportedPlatformsDefault()
         {
             return "Android,iOS,tvOS,Linux,MacOS,Ouya,PCL,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81,WindowsUniversal";
-        }
-
-        /// <summary>
-        /// Normalizes the platform string from user input, automatically correcting case
-        /// and validating against a list of supported platforms.
-        /// </summary>
-        /// <returns>The platform string.</returns>
-        /// <param name="platform">The normalized platform string.</param>
-        public string NormalizePlatform(string platform)
-        {
-            var supportedPlatforms = GetSupportedPlatformsDefault();
-            var defaultPlatforms = true;
-
-            if (!string.IsNullOrEmpty(this.SupportedPlatforms))
-            {
-                supportedPlatforms = this.SupportedPlatforms;
-                defaultPlatforms = false;
-            }
-
-            var supportedPlatformsArray = supportedPlatforms.Split(new[] { ',' })
-                .Select(x => x.Trim())
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .ToArray();
-
-            // Search the array to find a platform that matches case insensitively
-            // to the specified platform.  If we are using the default list, then we allow
-            // other platforms to be specified (in case the developer has modified the XSLT to
-            // support others but is not using <SupportedPlatforms>).  If the developer has
-            // explicitly set the supported platforms, then we return null if the user passes
-            // an unknown platform (the caller is expected to exit at this point).
-            foreach (var supportedPlatform in supportedPlatformsArray)
-            {
-                if (string.Compare(supportedPlatform, platform, true) == 0)
-                {
-                    return supportedPlatform;
-                }
-            }
-
-            if (defaultPlatforms)
-            {
-                return platform;
-            }
-            else
-            {
-                return null;
-            }
         }
     }
 }

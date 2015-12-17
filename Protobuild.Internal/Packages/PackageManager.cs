@@ -23,6 +23,10 @@ namespace Protobuild
 
         private readonly IPackageRedirector packageRedirector;
 
+        private readonly IFeatureManager _featureManager;
+
+        private readonly IModuleExecution _moduleExecution;
+
         public const string ARCHIVE_FORMAT_TAR_LZMA = "tar/lzma";
 
         public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
@@ -38,17 +42,26 @@ namespace Protobuild
             IPackageLookup packageLookup,
             IPackageLocator packageLocator,
             IPackageGlobalTool packageGlobalTool,
-            IPackageRedirector packageRedirector)
+            IPackageRedirector packageRedirector,
+            IFeatureManager featureManager,
+            IModuleExecution moduleExecution)
         {
             this.packageRedirector = packageRedirector;
             this.m_PackageCache = packageCache;
             _packageLookup = packageLookup;
             this.m_PackageLocator = packageLocator;
             this.m_PackageGlobalTool = packageGlobalTool;
+            _featureManager = featureManager;
+            _moduleExecution = moduleExecution;
         }
 
         public void ResolveAll(ModuleInfo module, string platform)
         {
+            if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
+            {
+                return;
+            }
+
             Console.WriteLine("Starting resolution of packages for " + platform + "...");
 
             if (module.Packages != null && module.Packages.Count > 0)
@@ -71,7 +84,7 @@ namespace Protobuild
             {
                 if (submodule.Packages.Count == 0 && submodule.GetSubmodules(platform).Length == 0)
                 {
-                    if (submodule.HasProtobuildFeature("skip-resolution-on-no-packages-or-submodules"))
+                    if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.OptimizationSkipResolutionOnNoPackagesOrSubmodules))
                     {
                         Console.WriteLine(
                             "Skipping package resolution in submodule for " + submodule.Name + " (there are no submodule or packages)");
@@ -81,7 +94,10 @@ namespace Protobuild
 
                 Console.WriteLine(
                     "Invoking package resolution in submodule for " + submodule.Name);
-                submodule.RunProtobuild("-resolve " + platform + " " + packageRedirector.GetRedirectionArguments());
+                _moduleExecution.RunProtobuild(
+                    submodule, 
+                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
+                    "-resolve " + platform + " " + packageRedirector.GetRedirectionArguments());
                 Console.WriteLine(
                     "Finished submodule package resolution for " + submodule.Name);
             }
@@ -91,6 +107,11 @@ namespace Protobuild
 
         public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
         {
+            if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
+            {
+                return;
+            }
+
             if (module != null && reference.Folder != null)
             {
                 var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference, platform);
