@@ -59,6 +59,7 @@
     <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="ForcePCLGenerationWorksTest.cs" />
+    <Compile Include="HostPlatformGenerationOnlyOccursForPostBuildHooksTest.cs" />
     <Compile Include="HostPlatformGenerationWorksTest.cs" />
     <Compile Include="IncludeProjectAppliesToWorksTest.cs" />
     <Compile Include="IncludeProjectPlatformSpecificWorksTest.cs" />
@@ -226,9 +227,14 @@
     <None Include="TestData\ForcePCLGenerationWorks\Build\Projects\Library.definition" />
     <None Include="TestData\ForcePCLGenerationWorks\Console\Program.cs" />
     <None Include="TestData\ForcePCLGenerationWorks\Library\MyClass.cs" />
+    <None Include="TestData\HostPlatformGenerationOnlyOccursForPostBuildHooks\Build\Module.xml" />
+    <None Include="TestData\HostPlatformGenerationOnlyOccursForPostBuildHooks\Build\Projects\Console.definition" />
+    <None Include="TestData\HostPlatformGenerationOnlyOccursForPostBuildHooks\Console\Program.cs" />
     <None Include="TestData\HostPlatformGenerationWorks\Build\Module.xml" />
     <None Include="TestData\HostPlatformGenerationWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\HostPlatformGenerationWorks\Build\Projects\PostBuild.definition" />
     <None Include="TestData\HostPlatformGenerationWorks\Console\Program.cs" />
+    <None Include="TestData\HostPlatformGenerationWorks\PostBuild\Program.cs" />
     <None Include="TestData\IncludeProjectAppliesToWorks\Build\Module.xml" />
     <None Include="TestData\IncludeProjectAppliesToWorks\Build\Projects\Console.definition" />
     <None Include="TestData\IncludeProjectAppliesToWorks\Console\Program.cs" />

@@ -14,10 +14,17 @@
 
   <xsl:template match="/">
     <xsl:variable name="target_platforms">
-      <Platform><xsl:value-of select="$root/Input/Generation/HostPlatform" /></Platform>
-      <xsl:if test="$root/Input/Generation/HostPlatform != $root/Input/Generation/Platform">
-        <Platform><xsl:value-of select="$root/Input/Generation/Platform" /></Platform>
-      </xsl:if>
+      <xsl:choose>
+        <xsl:when test="$root/Input/Projects/Project[@PostBuildHook='True']">
+          <Platform><xsl:value-of select="$root/Input/Generation/HostPlatform" /></Platform>
+          <xsl:if test="$root/Input/Generation/HostPlatform != $root/Input/Generation/Platform">
+            <Platform><xsl:value-of select="$root/Input/Generation/Platform" /></Platform>
+          </xsl:if>
+        </xsl:when>
+        <xsl:otherwise>
+          <Platform><xsl:value-of select="$root/Input/Generation/Platform" /></Platform>
+        </xsl:otherwise>
+      </xsl:choose>
     </xsl:variable>
 
     <Projects>

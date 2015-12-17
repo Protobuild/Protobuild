@@ -162,6 +162,22 @@ namespace Protobuild
                 this.m_PackageManager.ResolveAll(module, primaryPlatform);
             }
 
+            // Create the list of multiple platforms.
+            var multiplePlatformsList =
+                multiplePlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
+
+            // Remember whether or not we need to implicitly generate the host
+            // platform.
+            var implicitlyGenerateHostPlatform = false;
+            Action requiresHostPlatform = () => implicitlyGenerateHostPlatform = true;
+
+            // If we are already generating the host platform, then requiring the
+            // host platform is already satisifed.
+            if (platform == hostPlatform || multiplePlatformsList.Contains(hostPlatform))
+            {
+                requiresHostPlatform = () => {};
+            }
+
             // You can configure the default action for Protobuild in their project
             // with the <DefaultAction> tag in Module.xml.  If omitted, default to a resync.
             // Valid options for this tag are either "Generate", "Resync" or "Sync".
@@ -179,7 +195,8 @@ namespace Protobuild
                         serviceSpecPath, 
                         debugServiceResolution,
                         disablePackageResolution,
-                        disableHostPlatformGeneration))
+                        disableHostPlatformGeneration,
+                        requiresHostPlatform))
                     {
                         return false;
                     }
@@ -194,7 +211,8 @@ namespace Protobuild
                         serviceSpecPath, 
                         debugServiceResolution,
                         disablePackageResolution,
-                        disableHostPlatformGeneration))
+                        disableHostPlatformGeneration,
+                        requiresHostPlatform))
                     {
                         return false;
                     }
@@ -219,30 +237,8 @@ namespace Protobuild
                         serviceSpecPath,
                         debugServiceResolution,
                         disablePackageResolution,
-                        disableHostPlatformGeneration);
-            }
-
-            // Create the list of multiple platforms.
-            var multiplePlatformsList =
-                multiplePlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToList();
-
-            // If the host platform is not in the list, add it.  We do this because even when we are targeting
-            // a mobile platform, we'll still want host projects like IDE editors and post-build hooks to
-            // be built for the host platform so that we can develop for the mobile platform.
-            var hostPlatformNormalized = module.NormalizePlatform(hostPlatform);
-            if (hostPlatformNormalized == null)
-            {
-                Console.WriteLine(
-                    "WARNING: The current host platform is not a supported platform for the solution.  IDE editor " +
-                    "projects and post-build hooks will not be available, and this may cause the project to be " +
-                    "built incorrectly!");
-            }
-            else if (!multiplePlatformsList.Contains(hostPlatformNormalized))
-            {
-                if (!disableHostPlatformGeneration)
-                {
-                    multiplePlatformsList.Add(hostPlatformNormalized);
-                }
+                        disableHostPlatformGeneration,
+                        requiresHostPlatform);
             }
 
             // Now iterate through the multiple platforms specified.
@@ -274,7 +270,8 @@ namespace Protobuild
                             serviceSpecPath,
                             debugServiceResolution,
                             disablePackageResolution,
-                            disableHostPlatformGeneration))
+                            disableHostPlatformGeneration,
+                            requiresHostPlatform))
                         {
                             return false;
                         }
@@ -289,6 +286,65 @@ namespace Protobuild
                         break;
                     default:
                         throw new InvalidOperationException("Code should never reach this point");
+                }
+            }
+
+            // If we implicitly require the host platform, generate that now (this variable can
+            // only ever be set to true if the host platform is not already in the list of
+            // platforms generated previously).
+            if (implicitlyGenerateHostPlatform)
+            {
+                // Check to see if the host platform is supported.
+                var hostPlatformNormalized = module.NormalizePlatform(hostPlatform);
+                if (hostPlatformNormalized == null)
+                {
+                    Console.WriteLine(
+                        "WARNING: The current host platform is not a supported platform for the solution.  IDE editor " +
+                        "projects and post-build hooks will not be available, and this may cause the project to be " +
+                        "built incorrectly!");
+                    return true;
+                }
+
+                Console.WriteLine(
+                    "One or more projects required the presence of host platform " +
+                    "projects, implicitly starting generation for " + hostPlatform + "...");
+
+                // Resolve submodules as needed.
+                if (!disablePackageResolution)
+                {
+                    this.m_PackageManager.ResolveAll(module, hostPlatform);
+                }
+
+                switch (action.ToLower())
+                {
+                case "generate":
+                case "resync":
+                    // We do a generate under resync mode since we only want the primary platform
+                    // to have synchronisation done (and it has had above).
+                    if (!this.GenerateProjectsForPlatform(
+                        module,
+                        hostPlatform,
+                        enabledServices,
+                        disabledServices,
+                        serviceSpecPath,
+                        debugServiceResolution,
+                        disablePackageResolution,
+                        disableHostPlatformGeneration,
+                        requiresHostPlatform))
+                    {
+                        return false;
+                    }
+
+                    break;
+                case "clean":
+                    if (!this.CleanProjectsForPlatform(module, hostPlatform))
+                    {
+                        return false;
+                    }
+
+                    break;
+                default:
+                    throw new InvalidOperationException("Code should never reach this point");
                 }
             }
 
@@ -358,6 +414,7 @@ namespace Protobuild
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
+        /// <param name="requiresHostPlatform">A callback which indicates the generation requires host platform projects in the same solution.</param> 
         private bool ResyncProjectsForPlatform(
             ModuleInfo module, 
             string platform, 
@@ -366,7 +423,8 @@ namespace Protobuild
             string serviceSpecPath,
             bool debugServiceResolution,
             bool disablePackageResolution,
-            bool disableHostPlatformGeneration)
+            bool disableHostPlatformGeneration,
+            Action requiresHostPlatform)
         {
             if (module.DisableSynchronisation ?? false)
             {
@@ -390,7 +448,8 @@ namespace Protobuild
                     serviceSpecPath,
                     debugServiceResolution,
                     disablePackageResolution,
-                    disableHostPlatformGeneration);
+                    disableHostPlatformGeneration,
+                    requiresHostPlatform);
             }
         }
 
@@ -433,6 +492,7 @@ namespace Protobuild
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
+        /// <param name="requiresHostPlatform">A callback which indicates the generation requires host platform projects in the same solution.</param> 
         private bool GenerateProjectsForPlatform(
             ModuleInfo module,
             string platform,
@@ -441,7 +501,8 @@ namespace Protobuild
             string serviceSpecPath,
             bool debugServiceResolution,
             bool disablePackageResolution,
-            bool disableHostPlatformGeneration)
+            bool disableHostPlatformGeneration,
+            Action requiresHostPlatform)
         {
             if (string.IsNullOrWhiteSpace(platform)) 
             {
@@ -459,6 +520,7 @@ namespace Protobuild
             task.DebugServiceResolution = debugServiceResolution;
             task.DisablePackageResolution = disablePackageResolution;
             task.DisableHostPlatformGeneration = disableHostPlatformGeneration;
+            task.RequiresHostPlatform = requiresHostPlatform;
             return task.Execute();
         }
 

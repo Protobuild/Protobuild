@@ -52,6 +52,8 @@ namespace Protobuild.Tasks
 
         public bool DisableHostPlatformGeneration { get; set; }
 
+        public Action RequiresHostPlatform { get; set; }
+
         public override bool Execute()
         {
             if (string.Compare(Platform, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
@@ -177,6 +179,12 @@ namespace Protobuild.Tasks
 
             foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
             {
+                if (definition.PostBuildHook && RequiresHostPlatform != null)
+                {
+                    // We require the host platform projects at this point.
+                    RequiresHostPlatform();
+                }
+
                 string repositoryPath;
                 var definitionCopy = definition;
                 m_ProjectGenerator.Generate(
