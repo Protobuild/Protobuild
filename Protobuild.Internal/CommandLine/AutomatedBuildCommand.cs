@@ -52,5 +52,20 @@ multiple Protobuild commands together for continuous integration
         {
             return new[] {"script_path?"};
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }

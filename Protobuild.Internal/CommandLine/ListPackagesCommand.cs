@@ -6,6 +6,13 @@ namespace Protobuild
 {
     public class ListPackagesCommand : ICommand
     {
+        private readonly IFeatureManager _featureManager;
+
+        public ListPackagesCommand(IFeatureManager featureManager)
+        {
+            _featureManager = featureManager;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -43,6 +50,21 @@ Lists the URLs of all packages in this module.
         public string[] GetArgNames()
         {
             return new string[0];
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

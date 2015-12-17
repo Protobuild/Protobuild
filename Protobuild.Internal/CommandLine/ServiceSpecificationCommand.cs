@@ -40,6 +40,21 @@ Internally used to pass the service specification.
         {
             return new[] { "spec_path" };
         }
+
+        public bool IsInternal()
+        {
+            return true;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

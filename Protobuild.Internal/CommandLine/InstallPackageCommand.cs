@@ -10,10 +10,16 @@ namespace Protobuild
         private readonly IHostPlatformDetector m_HostPlatformDetector;
         private readonly IPackageManager m_PackageManager;
 
-        public InstallPackageCommand(IHostPlatformDetector hostPlatformDetector, IPackageManager packageManager)
+        private readonly IFeatureManager _featureManager;
+
+        public InstallPackageCommand(
+            IHostPlatformDetector hostPlatformDetector,
+            IPackageManager packageManager,
+            IFeatureManager featureManager)
         {
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_PackageManager = packageManager;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -70,6 +76,21 @@ this global tool, use --add instead.
         public string[] GetArgNames()
         {
             return new[] { "package_url" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

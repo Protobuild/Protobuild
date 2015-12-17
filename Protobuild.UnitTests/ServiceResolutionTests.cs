@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Prototest.Library.Version1;
 
-namespace Protobuild.Tests
+namespace Protobuild.UnitTests
 {
     public class ServiceResolutionTests
     {

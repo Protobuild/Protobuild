@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <Name>MyProject</Name>
+  <DefaultAction>resync</DefaultAction>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <FeatureSet>
+    <Feature>PackageManagement</Feature>
+    <Feature>HostPlatformGeneration</Feature>
+  </FeatureSet>
+</Module>

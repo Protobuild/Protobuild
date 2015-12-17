@@ -10,12 +10,18 @@ namespace Protobuild
         private readonly IPackageManager _packageManager;
         private readonly IHostPlatformDetector _hostPlatformDetector;
         private readonly IPackageNameLookup _packageNameLookup;
+        private readonly IFeatureManager _featureManager;
 
-        public UpgradePackageCommand(IPackageManager packageManager, IHostPlatformDetector hostPlatformDetector, IPackageNameLookup packageNameLookup)
+        public UpgradePackageCommand(
+            IPackageManager packageManager,
+            IHostPlatformDetector hostPlatformDetector,
+            IPackageNameLookup packageNameLookup,
+            IFeatureManager featureManager)
         {
             _packageManager = packageManager;
             _hostPlatformDetector = hostPlatformDetector;
             _packageNameLookup = packageNameLookup;
+            _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -83,6 +89,21 @@ is in source format, and you have modified files.
         public string[] GetArgNames()
         {
             return new[] { "package_url", "platform?" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
     }
 }

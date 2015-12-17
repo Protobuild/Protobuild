@@ -49,6 +49,21 @@ under different platforms.
         {
             return new[] { "platform" };
         }
+
+        public bool IsInternal()
+        {
+            return true;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

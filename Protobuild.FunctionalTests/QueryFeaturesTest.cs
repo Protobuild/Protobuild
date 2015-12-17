@@ -25,6 +25,7 @@
                 "skip-resolution-on-no-packages-or-submodules",
                 "inline-invocation-if-identical-hashed-executables",
                 "no-host-generate",
+                "propagate-features",
             };
 
             _assert.Equal(expectedFeatureList, featureList);

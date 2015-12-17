@@ -34,6 +34,21 @@ option to explicitly set which configuration should be used.
         {
             return new[] { "configuration" };
         }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return true;
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
+        }
     }
 }
 

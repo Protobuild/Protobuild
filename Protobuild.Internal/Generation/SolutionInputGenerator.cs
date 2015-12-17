@@ -13,14 +13,18 @@ namespace Protobuild
 
         private readonly IHostPlatformDetector _hostPlatformDetector;
 
+        private readonly IFeatureManager _featureManager;
+
         public SolutionInputGenerator(
             IServiceInputGenerator serviceInputGenerator,
             IExcludedServiceAwareProjectDetector excludedServiceAwareProjectDetector,
-            IHostPlatformDetector hostPlatformDetector)
+            IHostPlatformDetector hostPlatformDetector,
+            IFeatureManager featureManager)
         {
             this.m_ServiceInputGenerator = serviceInputGenerator;
             this.m_ExcludedServiceAwareProjectDetector = excludedServiceAwareProjectDetector;
             _hostPlatformDetector = hostPlatformDetector;
+            _featureManager = featureManager;
         }
 
         public XmlDocument GenerateForSelectSolution(List<XmlDocument> definitions, string platform, List<Service> services)
@@ -40,6 +44,15 @@ namespace Protobuild
             generation.AppendChild(platformName);
             generation.AppendChild(hostPlatformName);
             input.AppendChild(generation);
+
+            var featuresNode = doc.CreateElement("Features");
+            foreach (var feature in _featureManager.GetAllEnabledFeatures())
+            {
+                var featureNode = doc.CreateElement(feature.ToString());
+                featureNode.AppendChild(doc.CreateTextNode("True"));
+                featuresNode.AppendChild(featureNode);
+            }
+            input.AppendChild(featuresNode);
 
             var projects = doc.CreateElement("Projects");
             input.AppendChild(projects);
@@ -75,6 +88,15 @@ namespace Protobuild
             generation.AppendChild(platformName);
             generation.AppendChild(hostPlatformName);
             input.AppendChild(generation);
+
+            var featuresNode = doc.CreateElement("Features");
+            foreach (var feature in _featureManager.GetAllEnabledFeatures())
+            {
+                var featureNode = doc.CreateElement(feature.ToString());
+                featureNode.AppendChild(doc.CreateTextNode("True"));
+                featuresNode.AppendChild(featureNode);
+            }
+            input.AppendChild(featuresNode);
 
             var projects = doc.CreateElement("Projects");
             input.AppendChild(projects);

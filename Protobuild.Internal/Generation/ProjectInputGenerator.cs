@@ -19,18 +19,22 @@ namespace Protobuild
 
         private readonly IJSILProvider m_JSILProvider;
 
+        private readonly IFeatureManager _featureManager;
+
         public ProjectInputGenerator(
             IHostPlatformDetector hostPlatformDetector,
             IServiceInputGenerator serviceInputGenerator,
             INuGetReferenceDetector nuGetReferenceDetector,
             IServiceReferenceTranslator serviceReferenceTranslator,
-            IJSILProvider jsilProvider)
+            IJSILProvider jsilProvider,
+            IFeatureManager featureManager)
         {
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_ServiceInputGenerator = serviceInputGenerator;
             this.m_NuGetReferenceDetector = nuGetReferenceDetector;
             this.m_ServiceReferenceTranslator = serviceReferenceTranslator;
             this.m_JSILProvider = jsilProvider;
+            _featureManager = featureManager;
         }
 
         public XmlDocument Generate(
@@ -153,6 +157,15 @@ namespace Protobuild
                         doc.ImportNode(property, true));
             }
             input.AppendChild(propertiesNode);
+
+            var featuresNode = doc.CreateElement("Features");
+            foreach (var feature in _featureManager.GetAllEnabledFeatures())
+            {
+                var featureNode = doc.CreateElement(feature.ToString());
+                featureNode.AppendChild(doc.CreateTextNode("True"));
+                featuresNode.AppendChild(featureNode);
+            }
+            input.AppendChild(featuresNode);
 
             var nuget = doc.CreateElement("NuGet");
             input.AppendChild(nuget);

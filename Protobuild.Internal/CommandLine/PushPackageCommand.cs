@@ -9,6 +9,13 @@ namespace Protobuild
 {
     public class PushPackageCommand : ICommand
     {
+        private readonly IFeatureManager _featureManager;
+
+        public PushPackageCommand(IFeatureManager featureManager)
+        {
+            _featureManager = featureManager;
+        }
+
         public void Encounter(Execution pendingExecution, string[] args)
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
@@ -155,6 +162,21 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
         public string[] GetArgNames()
         {
             return new[] { "api_key_or_key_file", "file", "url", "version", "platform", "branch_to_update?" };
+        }
+
+        public bool IsInternal()
+        {
+            return false;
+        }
+
+        public bool IsRecognised()
+        {
+            return _featureManager.IsFeatureEnabled(Feature.PackageManagement);
+        }
+
+        public bool IsIgnored()
+        {
+            return false;
         }
 
         private class AccurateWebClient : WebClient

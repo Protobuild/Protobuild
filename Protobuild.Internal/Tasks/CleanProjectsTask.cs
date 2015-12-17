@@ -6,6 +6,16 @@ namespace Protobuild.Tasks
 {
     public class CleanProjectsTask : BaseTask
     {
+        private readonly IModuleExecution _moduleExecution;
+
+        private readonly IFeatureManager _featureManager;
+
+        public CleanProjectsTask(IModuleExecution moduleExecution, IFeatureManager featureManager)
+        {
+            _moduleExecution = moduleExecution;
+            _featureManager = featureManager;
+        }
+
         public string SourcePath
         {
             get;
@@ -41,7 +51,12 @@ namespace Protobuild.Tasks
             // Run Protobuild in batch mode in each of the submodules
             // where it is present.
             foreach (var submodule in module.GetSubmodules(Platform))
-                submodule.RunProtobuild("-clean " + Platform);
+            {
+                _moduleExecution.RunProtobuild(
+                    submodule, 
+                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
+                    "-clean " + Platform);
+            }
                 
             foreach (var definition in definitions.Select(x => x.Name))
             {

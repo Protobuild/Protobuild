@@ -7,6 +7,18 @@ namespace Protobuild
 
     public class SyncProjectsTask : BaseTask
     {
+        private readonly IFeatureManager _featureManager;
+
+        private readonly IModuleExecution _moduleExecution;
+
+        public SyncProjectsTask(
+            IFeatureManager featureManager,
+            IModuleExecution moduleExecution)
+        {
+            _featureManager = featureManager;
+            _moduleExecution = moduleExecution;
+        }
+
         public string SourcePath
         {
             get;
@@ -42,7 +54,7 @@ namespace Protobuild
             // where it is present.
             foreach (var submodule in module.GetSubmodules(this.Platform))
             {
-                if (submodule.HasProtobuildFeature("skip-synchronisation-on-no-standard-projects"))
+                if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.OptimizationSkipSynchronisationOnNoStandardProjects))
                 {
                     if (submodule.GetDefinitionsRecursively(this.Platform).All(x => !x.IsStandardProject))
                     {
@@ -55,7 +67,10 @@ namespace Protobuild
 
                 this.LogMessage(
                     "Invoking submodule synchronisation for " + submodule.Name);
-                submodule.RunProtobuild("-sync " + this.Platform);
+                _moduleExecution.RunProtobuild(
+                    submodule, 
+                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
+                    "-sync " + this.Platform);
                 this.LogMessage(
                     "Finished submodule synchronisation for " + submodule.Name);
             }

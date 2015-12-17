@@ -1,6 +1,6 @@
 ﻿using Prototest.Library.Version1;
 
-namespace Protobuild.Tests
+namespace Protobuild.UnitTests
 {
     public class PathUtilsTests
     {
