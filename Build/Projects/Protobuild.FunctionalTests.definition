@@ -91,6 +91,7 @@
     <Compile Include="PackageLocationTwoSubmoduleSamePackageTest.cs" />
     <Compile Include="PackageRedirectionToLocalPathTest.cs" />
     <Compile Include="PackageRedirectionToLocalPointerTest.cs" />
+    <Compile Include="PackageResolutionDoesNotOccurInFolderWithExistingDataTest.cs" />
     <Compile Include="PackageResolutionDoesNotOccurInSubmodulesTwiceTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
@@ -394,6 +395,10 @@
     <None Include="TestData\PackageRedirectionToLocalPointer\Build\Module.xml" />
     <None Include="TestData\PackageRedirectionToLocalPointer\Build\Projects\Console.definition" />
     <None Include="TestData\PackageRedirectionToLocalPointer\Console\Program.cs" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInFolderWithExistingData\Build\Module.xml" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInFolderWithExistingData\Build\Projects\Console.definition" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInFolderWithExistingData\Console\Program.cs" />
+    <None Include="TestData\PackageResolutionDoesNotOccurInFolderWithExistingData\Package\empty.txt" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Build\Module.xml" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Build\Projects\Console.definition" />
     <None Include="TestData\PackageResolutionDoesNotOccurInSubmodulesTwice\Console\Program.cs" />

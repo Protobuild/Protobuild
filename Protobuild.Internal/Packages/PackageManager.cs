@@ -162,6 +162,23 @@ namespace Protobuild
             {
                 Directory.CreateDirectory(reference.Folder);
 
+                if (new DirectoryInfo(reference.Folder).GetFiles().Length > 0 || new DirectoryInfo(reference.Folder).GetDirectories().Length > 0)
+                {
+                    if (!File.Exists(Path.Combine(reference.Folder, ".git")) && !Directory.Exists(Path.Combine(reference.Folder, ".git")) &&
+                        !File.Exists(Path.Combine(reference.Folder, ".pkg")))
+                    {
+                        Console.Error.WriteLine(
+                            "WARNING: The package directory '" + reference.Folder + "' already exists and contains " +
+                            "files and/or subdirectories, but neither a .pkg file nor a .git file or subdirectory exists.  " +
+                            "This indicates the package directory contains data that is not been instantiated or managed " +
+                            "by Protobuild.  Since there is no safe way to initialize the package in this directory " +
+                            "without a potential loss of data, Protobuild will not modify the contents of this folder " +
+                            "during package resolution.  If the folder does not contains the required package " +
+                            "dependencies, the project generation or build may unexpectedly fail.");
+                        return;
+                    }
+                }
+
                 if (source == null)
                 {
                     if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
