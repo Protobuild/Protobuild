@@ -477,10 +477,13 @@ namespace Protobuild
 
             if (string.IsNullOrWhiteSpace(path) && _hostPlatformDetector.DetectPlatform() == "MacOS")
             {
-                // After upgrading to OSX El Capitan, the /usr/local/bin folder is no longer in
-                // the system PATH.  If we can't find Mono with the which tool, manually set the
-                // path here in an attempt to find it.
-                path = "/usr/local/bin/mono";
+                if (File.Exists("/usr/local/bin/" + program))
+                {
+                    // After upgrading to OSX El Capitan, the /usr/local/bin folder is no longer in
+                    // the system PATH.  If we can't find Mono with the which tool, manually set the
+                    // path here in an attempt to find it.
+                    path = "/usr/local/bin/" + program;
+                }
             }
 
             if (!File.Exists(path))
