@@ -206,8 +206,14 @@ namespace Protobuild
             ProcessStartInfo startInfo;
             if (Path.DirectorySeparatorChar == '/')
             {
+                var mono = "mono";
+                if (m_HostPlatformDetector.DetectPlatform() == "MacOS" && File.Exists("/usr/local/bin/mono"))
+                {
+                    mono = "/usr/local/bin/mono";
+                }
+
                 startInfo = new ProcessStartInfo(
-                    "mono",
+                    mono,
                     "--debug \"" + executablePath + "\" " + arguments);
             }
             else

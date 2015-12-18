@@ -475,6 +475,14 @@ namespace Protobuild
             }
             var path = searchProcess.StandardOutput.ReadToEnd().Split('\r', '\n').First();
 
+            if (string.IsNullOrWhiteSpace(path) && _hostPlatformDetector.DetectPlatform() == "MacOS")
+            {
+                // After upgrading to OSX El Capitan, the /usr/local/bin folder is no longer in
+                // the system PATH.  If we can't find Mono with the which tool, manually set the
+                // path here in an attempt to find it.
+                path = "/usr/local/bin/mono";
+            }
+
             if (!File.Exists(path))
             {
                 throw new ApplicationException("ERROR: Located file '" + path + "' for " + program +
