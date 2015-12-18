@@ -117,6 +117,14 @@ namespace Protobuild
                     }
                 }
 
+                if (builderPathNativeArch == null && _hostPlatformDetector.DetectPlatform() == "MacOS" && File.Exists("/usr/local/bin/xbuild"))
+                {
+                    // After upgrading to OSX El Capitan, the /usr/local/bin folder is no longer in
+                    // the system PATH.  If we can't find xbuild with the which tool, manually set the
+                    // path here in an attempt to find it.
+                    builderPathNativeArch = "/usr/local/bin/xbuild";
+                }
+
                 if (builderPathNativeArch == null)
                 {
                     Console.Error.WriteLine("ERROR: Unable to find xbuild on the current PATH.");

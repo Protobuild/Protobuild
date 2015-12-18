@@ -209,6 +209,9 @@ namespace Protobuild
                 var mono = "mono";
                 if (m_HostPlatformDetector.DetectPlatform() == "MacOS" && File.Exists("/usr/local/bin/mono"))
                 {
+                    // After upgrading to OSX El Capitan, the /usr/local/bin folder is no longer in
+                    // the system PATH.  If we can't find Mono with the which tool, manually set the
+                    // path here in an attempt to find it.
                     mono = "/usr/local/bin/mono";
                 }
 
