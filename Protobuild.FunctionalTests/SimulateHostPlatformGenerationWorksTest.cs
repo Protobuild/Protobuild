@@ -16,17 +16,16 @@
         {
             this.SetupTest("SimulateHostPlatformWorks");
 
+            var platform = Path.DirectorySeparatorChar == '/' ? "Linux" : "Windows";
             var hostPlatform = Path.DirectorySeparatorChar == '/' ? "Windows" : "Linux";
-            var hostPlatformPath = this.GetPath("Module." + hostPlatform + ".sln");
+            var platformPath = this.GetPath(Path.Combine("Console", "Console." + platform + ".csproj"));
 
-            if (File.Exists(hostPlatformPath))
-            {
-                File.Delete(hostPlatformPath);
-            }
+            this.Generate(platform: platform, hostPlatform: hostPlatform);
 
-            this.Generate(hostPlatform: hostPlatform);
+            _assert.True(File.Exists(platformPath));
 
-            _assert.True(File.Exists(hostPlatformPath));
+            var contents = ReadFile(platformPath);
+            _assert.Contains("HostPlatform:" + hostPlatform, contents);
         }
     }
 }

@@ -158,11 +158,11 @@ namespace Protobuild
         {
             if (submodule.CachedInternalFeatures == null)
             {
-                var result = _moduleExecution.RunProtobuild(submodule, "--query-features", true);
+                var result = _moduleExecution.RunProtobuild(submodule, "-query-features", true);
                 var exitCode = result.Item1;
-                var stdout = result.Item2;
+                var stdout = result.Item2 + result.Item3;
 
-                if (exitCode != 0 || stdout.Contains("Protobuild.exe [options]"))
+                if (exitCode != 0 || stdout.Contains("Protobuild.exe [options]") || stdout.Contains("Unknown argument"))
                 {
                     submodule.CachedInternalFeatures = new Feature[0];
                 }
@@ -173,11 +173,11 @@ namespace Protobuild
                 {
                     // If we have a limited feature set, we need to query again with
                     // only our features propagated.
-                    result = _moduleExecution.RunProtobuild(submodule, GetFeatureArgumentToPassToSubmodule(module, submodule) + "--query-features", true);
+                    result = _moduleExecution.RunProtobuild(submodule, GetFeatureArgumentToPassToSubmodule(module, submodule) + "-query-features", true);
                     exitCode = result.Item1;
-                    stdout = result.Item2;
+                    stdout = result.Item2 + result.Item3;
 
-                    if (!(exitCode != 0 || stdout.Contains("Protobuild.exe [options]")))
+                    if (!(exitCode != 0 || stdout.Contains("Protobuild.exe [options]") || stdout.Contains("Unknown argument")))
                     {
                         submodule.CachedInternalFeatures = ParseFeaturesFromStdout(stdout);
                     }
@@ -197,7 +197,7 @@ namespace Protobuild
             }
             else
             {
-                return entries.Select(x => LookupFeatureByID(x)).ToArray();
+                return entries.Select(LookupFeatureByID).Where(x => x != null).Select(x => x.Value).ToArray();
             }
         }
 
@@ -238,7 +238,7 @@ namespace Protobuild
             return internalFeatureIDs.ToArray();
         }
 
-        private Feature LookupFeatureByID(string str)
+        private Feature? LookupFeatureByID(string str)
         {
             foreach (var name in Enum.GetNames(typeof(Feature)))
             {
@@ -253,7 +253,8 @@ namespace Protobuild
                 }
             }
 
-            throw new InvalidOperationException("Unable to find feature based on ID '" + str + "'");
+            Console.Error.WriteLine("WARNING: Unable to find feature based on ID '" + str + "'");
+            return null;
         }
 
         private Feature[] GetAllNonInternalFeatures()

@@ -128,6 +128,7 @@
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
+    <None Include="TestData\SimulateHostPlatformWorks\Build\AdditionalProjectTransforms.xslt" />
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />
