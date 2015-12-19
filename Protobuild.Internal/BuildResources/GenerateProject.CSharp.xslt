@@ -800,6 +800,11 @@
               '.srcproj'),
             $binary/@Path)" />
       </HintPath>
+      <xsl:choose>
+        <xsl:when test="@LocalCopy">
+          <Private><xsl:value-of select="@LocalCopy" /></Private>
+        </xsl:when>
+      </xsl:choose>
     </Reference>
   </xsl:template>
   
