@@ -12,9 +12,16 @@
             _assert = assert;
         }
 
-        public void GenerationIsCorrect()
+        public void GenerationIsCorrect(string parent, string child)
         {
-            this.SetupTest("ExampleCocos2DXNA");
+            this.SetupTest("ExampleCocos2DXNA", parent: parent, child: child);
+
+            // Newer versions of Protobuild upgrade this file, but for regression testing we need the old
+            // format (it's expected that the old format will be used in conjunction with old versions of
+            // Protobuild, which are the version that we're regression testing with).  Copy across
+            // the old version before the start of every test here.
+            File.Copy(this.GetPath(@"Build\ModuleOldFormat.xml"), this.GetPath(@"Build\Module.xml"), true);
+            File.Copy(this.GetPath(@"MonoGame\Build\ModuleOldFormat.xml"), this.GetPath(@"MonoGame\Build\Module.xml"), true);
 
             this.Generate("Windows");
 

@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Protobuild.RegressionTestTool" Path="Protobuild.RegressionTestTool" Type="Console">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>

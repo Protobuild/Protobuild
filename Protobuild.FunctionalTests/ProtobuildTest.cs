@@ -25,7 +25,7 @@ namespace Protobuild.Tests
             _assert = assert;
         }
 
-        protected void SetupTest(string name, bool isPackTest = false)
+        protected void SetupTest(string name, bool isPackTest = false, string parent = null, string child = null)
         {
             // This is used to ensure Protobuild.exe is referenced.
             _protobuildName = typeof(Protobuild.Bootstrap.Program).FullName;
@@ -40,7 +40,7 @@ namespace Protobuild.Tests
 
             this.m_TestLocation = dataLocation;
 
-            this.DeployProtobuildToTestFolder(dataLocation, protobuildLocation, isPackTest);
+            this.DeployProtobuildToTestFolder(dataLocation, protobuildLocation, isPackTest, parent, child);
         }
 
         private void PurgeSolutionsAndProjects(string dataLocation)
@@ -63,9 +63,16 @@ namespace Protobuild.Tests
             }
         }
 
-        private void DeployProtobuildToTestFolder(string dataLocation, string protobuildLocation, bool isPackTest)
+        private void DeployProtobuildToTestFolder(string dataLocation, string protobuildLocation, bool isPackTest, string parent, string child)
         {
-            File.Copy(protobuildLocation, Path.Combine(dataLocation, "Protobuild.exe"), true);
+            if (parent == null)
+            {
+                File.Copy(protobuildLocation, Path.Combine(dataLocation, "Protobuild.exe"), true);
+            }
+            else
+            {
+                File.Copy(parent, Path.Combine(dataLocation, "Protobuild.exe"), true);
+            }
 
             if (!isPackTest)
             {
@@ -73,7 +80,7 @@ namespace Protobuild.Tests
                 {
                     if (dir.GetDirectories().Any(x => x.Name == "Build"))
                     {
-                        this.DeployProtobuildToTestFolder(dir.FullName, protobuildLocation, isPackTest);
+                        this.DeployProtobuildToTestFolder(dir.FullName, protobuildLocation, false, child, child);
                     }
                 }
             }

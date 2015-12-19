@@ -74,3 +74,11 @@ Protobuild.FunctionalTests/TestData/PostBuildHookHasHostPlatform/Hook/Resources/
 Protobuild.exe.old
 Protobuild.FunctionalTests/TestData/**/Info.plist
 .pkg
+RegressionResults.html
+Protobuild.FunctionalTests/PreviousVersions/
+Protobuild.FunctionalTests/TestData/ExampleCocos2DXNA/Cocos2DXNA/Cocos2DXNA.Windows.nuspec
+Protobuild.FunctionalTests/TestData/ExampleCocos2DXNA/MonoGame/MonoGame.Framework/MonoGame.Framework.Windows.nuspec
+Protobuild.FunctionalTests/TestData/ExampleCSTools/CSTools/Tool/Tool.Windows.nuspec
+Protobuild.FunctionalTests/TestData/ExampleCSTools/Game/Game.Windows.nuspec
+Protobuild.FunctionalTests/TestData/ExampleMonoGame/Game/Game.Windows.nuspec
+Protobuild.FunctionalTests/TestData/ExampleMonoGame/MonoGame/MonoGame.Framework/MonoGame.Framework.Windows.nuspec

@@ -107,6 +107,8 @@
     <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="QueryFeaturesTest.cs" />
+    <Compile Include="Regression\RegressionHtmlSummaryConsumer.cs" />
+    <Compile Include="Regression\RegressionTestSetProvider.cs" />
     <Compile Include="ResyncPreventedWhenSyncIsDisabledTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
     <Compile Include="ServicesDefaultForRootTest.cs" />

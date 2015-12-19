@@ -1,0 +1,13 @@
+#version 1
+
+if host Windows
+  if file-not-exists Protobuild.FunctionalTests\bin\Windows\AnyCPU\Debug\Protobuild.FunctionalTests.exe
+    set build-target Build
+    generate
+    build
+  endif
+  
+  execute Protobuild.RegressionTestTool prepare
+  execute Protobuild.FunctionalTests
+  execute Protobuild.RegressionTestTool upload
+endif
