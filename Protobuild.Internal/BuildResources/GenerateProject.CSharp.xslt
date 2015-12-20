@@ -2110,8 +2110,18 @@
                       select="$root/Input/Generation/JSILDirectory" />
                   </xsl:attribute>
                   <xsl:attribute name="Command">
-                    <xsl:if test="$root/Input/Generation/HostPlatform = 'Linux' or $root/Input/Generation/HostPlatform = 'MacOS'">
+                    <xsl:if test="$root/Input/Generation/HostPlatform = 'Linux'">
                       <xsl:text>mono </xsl:text>
+                    </xsl:if>
+                    <xsl:if test="$root/Input/Generation/HostPlatform = 'MacOS'">
+                      <xsl:choose>
+                        <xsl:when test="user:FileExists('/usr/local/bin/mono')">
+                          <xsl:text>/usr/local/bin/mono </xsl:text>
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:text>mono </xsl:text>
+                        </xsl:otherwise>
+                      </xsl:choose>
                     </xsl:if>
                     <xsl:value-of select="$root/Input/Generation/JSILCompilerFile" />
                     <xsl:text> "</xsl:text>
@@ -2307,8 +2317,18 @@
               <xsl:value-of select="$working_directory" />
             </xsl:attribute>
             <xsl:attribute name="Command">
-              <xsl:if test="$root/Input/Generation/HostPlatform = 'Linux' or $root/Input/Generation/HostPlatform = 'MacOS'">
+              <xsl:if test="$root/Input/Generation/HostPlatform = 'Linux'">
                 <xsl:text>mono </xsl:text>
+              </xsl:if>
+              <xsl:if test="$root/Input/Generation/HostPlatform = 'MacOS'">
+                <xsl:choose>
+                  <xsl:when test="user:FileExists('/usr/local/bin/mono')">
+                    <xsl:text>/usr/local/bin/mono </xsl:text>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:text>mono </xsl:text>
+                  </xsl:otherwise>
+                </xsl:choose>
               </xsl:if>
               <xsl:text>"</xsl:text>
               <xsl:value-of select="./@Path" />

@@ -128,7 +128,6 @@
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
-    <None Include="TestData\SimulateHostPlatformWorks\Build\AdditionalProjectTransforms.xslt" />
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />
@@ -541,6 +540,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="TestData\SimplifiedFileInclusionWorks\Test\Program.cs" />
+    <None Include="TestData\SimulateHostPlatformWorks\Build\AdditionalProjectTransforms.xslt" />
     <None Include="TestData\SimulateHostPlatformWorks\Build\Module.xml" />
     <None Include="TestData\SimulateHostPlatformWorks\Build\Projects\Console.definition" />
     <None Include="TestData\SimulateHostPlatformWorks\Console\Program.cs" />

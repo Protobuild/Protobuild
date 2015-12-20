@@ -199,7 +199,12 @@ public class GenerationFunctions
 	public bool DoesNotHaveXamarinMacUnifiedAPI()
 	{
 		return !System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
-	}
+    }
+
+    public bool FileExists(string path)
+    {
+        return System.IO.File.Exists(path);
+    }
 
     public bool CodesignKeyExists()
     {
