@@ -155,9 +155,16 @@ namespace Protobuild
             }
 
             var install = System.Diagnostics.Process.Start("xdg-desktop-menu", "install '" + menuItemPath + "'");
-            install.WaitForExit();
+            if (install != null)
+            {
+                install.WaitForExit();
 
-            Console.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
+                Console.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
+            }
+            else
+            {
+                Console.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (xdg-desktop-menu not found)");
+            }
         }
 
         public string ResolveGlobalToolIfPresent(string toolName)
