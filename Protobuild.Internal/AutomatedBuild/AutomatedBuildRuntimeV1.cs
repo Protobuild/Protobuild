@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 
 namespace Protobuild
@@ -113,6 +114,7 @@ namespace Protobuild
                         case "pack":
                         case "push":
                         case "repush":
+                        case "nuget":
                             instructions.Add(new ParsedInstruction
                             {
                                 Command = instruction[0].ToLower(),
@@ -242,6 +244,70 @@ namespace Protobuild
                         {
                             Console.Error.WriteLine("ERROR: Process did not start when running " + path + " " +
                                                     components[1]);
+                            return 1;
+                        }
+                        process.WaitForExit();
+                        if (process.ExitCode != 0)
+                        {
+                            Console.Error.WriteLine(
+                                "ERROR: Non-zero exit code " + process.ExitCode);
+                            return process.ExitCode;
+                        }
+                    }
+                    else if (inst.Command == "nuget")
+                    {
+                        // See if we have a copy of NuGet available for use.
+                        var cachedNuget =
+                            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                                "NuGet.exe");
+                        if (!File.Exists(cachedNuget))
+                        {
+                            var client = new WebClient();
+                            client.DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", cachedNuget);
+                        }
+
+                        string runtime = null;
+                        var hostPlatform = _hostPlatformDetector.DetectPlatform();
+                        if (hostPlatform != "Windows")
+                        {
+                            try
+                            {
+                                runtime = FindNativeProgram("mono");
+                            }
+                            catch (ApplicationException ex)
+                            {
+                                Console.Error.WriteLine(ex);
+                                return 1;
+                            }
+                        }
+                        
+                        Process process;
+
+                        if (hostPlatform != "Windows" && runtime != null)
+                        {
+                            Console.WriteLine("+ " + runtime + " \"" + cachedNuget + "\" " + inst.Arguments);
+                            process =
+                                Process.Start(new ProcessStartInfo(runtime, "\"" + cachedNuget + "\" " + inst.Arguments)
+                                {
+                                    WorkingDirectory = workingDirectory,
+                                    UseShellExecute = false
+                                });
+                        }
+                        else
+                        {
+                            Console.WriteLine("+ " + cachedNuget + " " + inst.Arguments);
+                            process =
+                                Process.Start(new ProcessStartInfo(cachedNuget, inst.Arguments)
+                                {
+                                    WorkingDirectory = workingDirectory,
+                                    UseShellExecute = false
+                                });
+                        }
+
+                        if (process == null)
+                        {
+                            Console.Error.WriteLine(
+                                "ERROR: Process did not start when running NuGet with arguments " + inst.Arguments);
                             return 1;
                         }
                         process.WaitForExit();
