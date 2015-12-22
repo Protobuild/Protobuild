@@ -233,9 +233,11 @@ namespace Protobuild
                             return 1;
                         }
 
-                        Console.WriteLine("+ native-execute " + path + " " + components[1]);
+                        var args = components.Length == 2 ? components[1] : string.Empty;
+
+                        Console.WriteLine("+ native-execute " + path + " " + args);
                         var process =
-                            Process.Start(new ProcessStartInfo(path, components[1])
+                            Process.Start(new ProcessStartInfo(path, args)
                             {
                                 WorkingDirectory = workingDirectory,
                                 UseShellExecute = false
@@ -243,7 +245,7 @@ namespace Protobuild
                         if (process == null)
                         {
                             Console.Error.WriteLine("ERROR: Process did not start when running " + path + " " +
-                                                    components[1]);
+                                args);
                             return 1;
                         }
                         process.WaitForExit();
