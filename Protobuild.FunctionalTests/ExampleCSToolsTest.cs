@@ -23,17 +23,26 @@
             File.Copy(this.GetPath(@"Build\ModuleOldFormat.xml"), this.GetPath(@"Build\Module.xml"), true);
             File.Copy(this.GetPath(@"CSTools\Build\ModuleOldFormat.xml"), this.GetPath(@"CSTools\Build\Module.xml"), true);
 
-            this.Generate();
+            try
+            {
+                this.Generate();
 
-            _assert.True(File.Exists(this.GetPath(@"Game\Game.Windows.csproj")));
-            _assert.True(File.Exists(this.GetPath(@"CSTools\Tool\Tool.Windows.csproj")));
+                _assert.True(File.Exists(this.GetPath(@"Game\Game.Windows.csproj")));
+                _assert.True(File.Exists(this.GetPath(@"CSTools\Tool\Tool.Windows.csproj")));
 
-            var gameContents = this.ReadFile(@"Game\Game.Windows.csproj");
-            var solutionContents = this.ReadFile(@"Game.Windows.sln");
+                var gameContents = this.ReadFile(@"Game\Game.Windows.csproj");
+                var solutionContents = this.ReadFile(@"Game.Windows.sln");
 
-            _assert.DoesNotContain("Tool.Windows.csproj", gameContents);
-            _assert.Contains("Game.Windows.csproj", solutionContents);
-            _assert.Contains("Tool.Windows.csproj", solutionContents);
+                _assert.DoesNotContain("Tool.Windows.csproj", gameContents);
+                _assert.Contains("Game.Windows.csproj", solutionContents);
+                _assert.Contains("Tool.Windows.csproj", solutionContents);
+            }
+            finally
+            {
+                // Reset the module info back to it's original state so we don't have a dirty working copy.
+                File.Copy(this.GetPath(@"Build\ModuleOldFormat.xml"), this.GetPath(@"Build\Module.xml"), true);
+                File.Copy(this.GetPath(@"CSTools\Build\ModuleOldFormat.xml"), this.GetPath(@"CSTools\Build\Module.xml"), true);
+            }
         }
     }
 }

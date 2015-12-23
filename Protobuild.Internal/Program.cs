@@ -38,6 +38,7 @@ namespace Protobuild
                 { "build", kernel.Get<BuildCommand>() },
                 { "build-target", kernel.Get<BuildTargetCommand>() },
                 { "build-property", kernel.Get<BuildPropertyCommand>() },
+                { "build-process-arch", kernel.Get<BuildProcessArchCommand>() },
                 { "clean", kernel.Get<CleanCommand>() },
                 { "automated-build", kernel.Get<AutomatedBuildCommand>() },
                 { "extract-xslt", kernel.Get<ExtractXSLTCommand>() },

@@ -105,6 +105,7 @@
     <Compile Include="CommandLine\AddPackageCommand.cs" />
     <Compile Include="CommandLine\AutomatedBuildCommand.cs" />
     <Compile Include="CommandLine\BuildCommand.cs" />
+    <Compile Include="CommandLine\BuildProcessArchCommand.cs" />
     <Compile Include="CommandLine\BuildPropertyCommand.cs" />
     <Compile Include="CommandLine\BuildTargetCommand.cs" />
     <Compile Include="CommandLine\CleanCommand.cs" />

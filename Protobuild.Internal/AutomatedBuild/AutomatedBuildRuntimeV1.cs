@@ -160,6 +160,13 @@ namespace Protobuild
                                         Values = components.Skip(1).ToArray()
                                     });
                                     break;
+                                case "build-process-arch":
+                                    instructions.Add(new ParsedInstruction
+                                    {
+                                        Key = "build-process-arch",
+                                        Values = components.Skip(1).ToArray()
+                                    });
+                                    break;
                                 case "execute-configuration":
                                     instructions.Add(new ParsedInstruction
                                     {
@@ -169,7 +176,8 @@ namespace Protobuild
                                     break;
                                 default:
                                     throw new ParserErrorException(
-                                        "Unexpected variable name, expected 'target-platforms', 'build-target', 'build-property' or 'execute-configuration', got '" +
+                                        "Unexpected variable name, expected 'target-platforms', 'build-target', 'build-property', " +
+                                        "'build-process-arch' or 'execute-configuration', got '" +
                                         components[0] + "' instead", currentLine);
                             }
                             break;
@@ -202,6 +210,7 @@ namespace Protobuild
 
             var targets = string.Empty;
             var buildTarget = string.Empty;
+            var buildProcessArch = string.Empty;
             var buildProperties = new Dictionary<string, string>();
             string executeConfiguration = null;
 
@@ -342,6 +351,11 @@ namespace Protobuild
                                 if (buildTarget != string.Empty)
                                 {
                                     args += "--build-target " + buildTarget + " ";
+                                }
+
+                                if (buildProcessArch != string.Empty)
+                                {
+                                    args += "--build-process-arch " + buildProcessArch + " ";
                                 }
 
                                 args = buildProperties.Aggregate(args,
@@ -489,6 +503,9 @@ namespace Protobuild
                                 break;
                             case "build-target":
                                 buildTarget = inst.Values.First();
+                                break;
+                            case "build-process-arch":
+                                buildProcessArch = inst.Values.First();
                                 break;
                             case "build-property":
                                 buildProperties.Add(inst.Values[0],

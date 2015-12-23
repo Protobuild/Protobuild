@@ -1,4 +1,6 @@
-﻿namespace Protobuild.Tests
+﻿using System;
+
+namespace Protobuild.Tests
 {
     using System.IO;
     using Prototest.Library.Version1;
@@ -23,31 +25,40 @@
             File.Copy(this.GetPath(@"Build\ModuleOldFormat.xml"), this.GetPath(@"Build\Module.xml"), true);
             File.Copy(this.GetPath(@"MonoGame\Build\ModuleOldFormat.xml"), this.GetPath(@"MonoGame\Build\Module.xml"), true);
 
-            this.Generate("Windows");
+            try
+            {
+                this.Generate("Windows");
 
-            _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA.Windows.sln")));
-            _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA\Cocos2DXNA.Windows.csproj")));
-            _assert.False(File.Exists(this.GetPath(@"MonoGame\MonoGame.Framework\MonoGame.Framework.Windows.csproj")));
+                _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA.Windows.sln")));
+                _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA\Cocos2DXNA.Windows.csproj")));
+                _assert.False(File.Exists(this.GetPath(@"MonoGame\MonoGame.Framework\MonoGame.Framework.Windows.csproj")));
 
-            var gameContents = this.ReadFile(@"Cocos2DXNA\Cocos2DXNA.Windows.csproj");
-            var solutionContents = this.ReadFile(@"Cocos2DXNA.Windows.sln");
+                var gameContents = this.ReadFile(@"Cocos2DXNA\Cocos2DXNA.Windows.csproj");
+                var solutionContents = this.ReadFile(@"Cocos2DXNA.Windows.sln");
 
-            _assert.Contains("Microsoft.Xna.Framework", gameContents);
-            _assert.DoesNotContain("MonoGame.Framework.Windows", gameContents);
-            _assert.DoesNotContain("MonoGame.Framework.Windows", solutionContents);
+                _assert.Contains("Microsoft.Xna.Framework", gameContents);
+                _assert.DoesNotContain("MonoGame.Framework.Windows", gameContents);
+                _assert.DoesNotContain("MonoGame.Framework.Windows", solutionContents);
 
-            this.Generate("Linux");
+                this.Generate("Linux");
 
-            _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA.Linux.sln")));
-            _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA\Cocos2DXNA.Linux.csproj")));
-            _assert.True(File.Exists(this.GetPath(@"MonoGame\MonoGame.Framework\MonoGame.Framework.Linux.csproj")));
+                _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA.Linux.sln")));
+                _assert.True(File.Exists(this.GetPath(@"Cocos2DXNA\Cocos2DXNA.Linux.csproj")));
+                _assert.True(File.Exists(this.GetPath(@"MonoGame\MonoGame.Framework\MonoGame.Framework.Linux.csproj")));
 
-            gameContents = this.ReadFile(@"Cocos2DXNA\Cocos2DXNA.Linux.csproj");
-            solutionContents = this.ReadFile(@"Cocos2DXNA.Linux.sln");
+                gameContents = this.ReadFile(@"Cocos2DXNA\Cocos2DXNA.Linux.csproj");
+                solutionContents = this.ReadFile(@"Cocos2DXNA.Linux.sln");
 
-            _assert.DoesNotContain("Microsoft.Xna.Framework", gameContents);
-            _assert.Contains("MonoGame.Framework.Linux", gameContents);
-            _assert.Contains("MonoGame.Framework.Linux", solutionContents);
+                _assert.DoesNotContain("Microsoft.Xna.Framework", gameContents);
+                _assert.Contains("MonoGame.Framework.Linux", gameContents);
+                _assert.Contains("MonoGame.Framework.Linux", solutionContents);
+            }
+            finally
+            {
+                // Reset the module info back to it's original state so we don't have a dirty working copy.
+                File.Copy(this.GetPath(@"Build\ModuleOldFormat.xml"), this.GetPath(@"Build\Module.xml"), true);
+                File.Copy(this.GetPath(@"MonoGame\Build\ModuleOldFormat.xml"), this.GetPath(@"MonoGame\Build\Module.xml"), true);
+            }
         }
     }
 }

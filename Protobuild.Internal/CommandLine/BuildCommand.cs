@@ -30,14 +30,16 @@ namespace Protobuild
         {
             var hostPlatform = _hostPlatformDetector.DetectPlatform();
             string builderPathNativeArch = null;
+            string builderPath64 = null;
             string builderPath32 = null;
             var extraArgsNativeArch = string.Empty;
+            var extraArgs64 = string.Empty;
             var extraArgs32 = string.Empty;
             var extraArgsGeneral = string.Empty;
 
             if (hostPlatform == "Windows")
             {
-                foreach (var arch in new[] {RegistryView.Default, RegistryView.Registry32})
+                foreach (var arch in new[] {RegistryView.Default, RegistryView.Registry32, RegistryView.Registry64})
                 {
                     // Find latest version of MSBuild.
                     var registryKey =
@@ -50,6 +52,11 @@ namespace Protobuild
                             .OpenSubKey("ToolsVersions");
                     if (registryKey == null)
                     {
+                        if (arch == RegistryView.Registry64)
+                        {
+                            continue;
+                        }
+
                         Console.Error.WriteLine(
                             "ERROR: No versions of MSBuild were available " +
                             "according to the registry (or they were not readable).");
@@ -68,6 +75,11 @@ namespace Protobuild
 
                     if (builderPath == null)
                     {
+                        if (arch == RegistryView.Registry64)
+                        {
+                            continue;
+                        }
+
                         Console.Error.WriteLine(
                             "ERROR: Unable to find installed MSBuild in any installed tools version.");
                         return 1;
@@ -79,15 +91,20 @@ namespace Protobuild
                         extraArgs = "/m ";
                     }
 
-                    if (arch == RegistryView.Default)
+                    switch (arch)
                     {
-                        builderPathNativeArch = builderPath;
-                        extraArgsNativeArch = extraArgs;
-                    }
-                    else
-                    {
-                        builderPath32 = builderPath;
-                        extraArgs32 = extraArgs;
+                        case RegistryView.Default:
+                            builderPathNativeArch = builderPath;
+                            extraArgsNativeArch = extraArgs;
+                            break;
+                        case RegistryView.Registry32:
+                            builderPath32 = builderPath;
+                            extraArgs32 = extraArgs;
+                            break;
+                        case RegistryView.Registry64:
+                            builderPath64 = builderPath;
+                            extraArgs64 = extraArgs;
+                            break;
                     }
                 }
             }
@@ -132,6 +149,7 @@ namespace Protobuild
                 }
 
                 builderPath32 = builderPathNativeArch;
+                builderPath64 = builderPathNativeArch;
             }
 
             if (!string.IsNullOrWhiteSpace(execution.BuildTarget))
@@ -143,15 +161,44 @@ namespace Protobuild
                 extraArgsGeneral += "/p:\"" + prop.Key.Replace("\"", "\\\"") + "\"=\"" + (prop.Value ?? string.Empty).Replace("\"", "\\\"") + "\" ";
             }
 
-            Console.WriteLine("INFO: Using " + builderPathNativeArch + " (32-bit: " + builderPath32 + ") to perform this build.");
+            switch (execution.BuildProcessArchitecture)
+            {
+                case "x86":
+                    Console.WriteLine("INFO: Using " + builderPath32 + " (forced 32-bit) to perform this build.");
+                    break;
+                case "x64":
+                    Console.WriteLine("INFO: Using " + builderPath64 + " (forced 64-bit) to perform this build.");
+                    break;
+                case "Default":
+                default:
+                    Console.WriteLine("INFO: Using " + builderPathNativeArch + " (32-bit: " + builderPath32 + ") to perform this build.");
+                    break;
+            }
 
             var targetPlatforms = (execution.Platform ?? hostPlatform).Split(',');
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
 
             foreach (var platform in targetPlatforms)
             {
-                var builderPath = platform == "WindowsPhone" ? builderPath32 : builderPathNativeArch;
-                var extraArgs = (platform == "WindowsPhone" ? extraArgs32 : extraArgsNativeArch) + extraArgsGeneral;
+                string builderPath;
+                string extraArgs;
+                
+                switch (execution.BuildProcessArchitecture)
+                {
+                    case "x86":
+                        builderPath = builderPath32;
+                        extraArgs = extraArgs32 + extraArgsGeneral;
+                        break;
+                    case "x64":
+                        builderPath = builderPath64;
+                        extraArgs = extraArgs64 + extraArgsGeneral;
+                        break;
+                    case "Default":
+                    default:
+                        builderPath = platform == "WindowsPhone" ? builderPath32 : builderPathNativeArch;
+                        extraArgs = (platform == "WindowsPhone" ? extraArgs32 : extraArgsNativeArch) + extraArgsGeneral;
+                        break;
+                }
 
                 var fileToBuild = module.Name + "." + platform + ".sln";
 
