@@ -11,6 +11,7 @@
   <Files>
     <Compile Include="FeatureManagerTests.cs" />
     <Compile Include="ModuleInfoLoadTests.cs" />
+    <Compile Include="PackageLookupTests.cs" />
     <Compile Include="PackageRefTests.cs" />
     <Compile Include="PathUtilsTests.cs" />
     <Compile Include="ServiceResolutionTests.cs" />

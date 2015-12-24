@@ -1,4 +1,6 @@
-﻿namespace Protobuild
+﻿using Protobuild.Internal;
+
+namespace Protobuild
 {
     public static class LightweightKernelModule
     {
@@ -72,6 +74,12 @@
             kernel.Bind<IPackageUrlParser, PackageUrlParser>();
             kernel.Bind<IKnownToolProvider, KnownToolProvider>();
             kernel.Bind<IPackageNameLookup, PackageNameLookup>();
+
+            kernel.Bind<IPackageProtocol, GitPackageProtocol>();
+            kernel.Bind<IPackageProtocol, LocalTemplatePackageProtocol>();
+            kernel.Bind<IPackageProtocol, LocalTemplateGitPackageProtocol>();
+            kernel.Bind<IPackageProtocol, NuGetPackageProtocol>();
+            kernel.Bind<IPackageProtocol, ProtobuildPackageProtocol>();
         }
 
         public static void BindAutomatedBuild(this LightweightKernel kernel)

@@ -37,6 +37,10 @@ namespace Protobuild
 
         public const string PACKAGE_TYPE_GLOBAL_TOOL = "global-tool";
 
+        public const string SOURCE_FORMAT_GIT = "git";
+
+        public const string SOURCE_FORMAT_DIRECTORY = "directory";
+
         public PackageManager(
             IPackageCache packageCache,
             IPackageLookup packageLookup,
@@ -147,14 +151,15 @@ namespace Protobuild
                 Console.WriteLine("Resolving package with null reference folder; this package must be a global tool.");
             }
 
-            string sourceUri, type;
+            string sourceUri, sourceFormat, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
             IPackageTransformer transformer;
             _packageLookup.Lookup(
                 reference.Uri,
                 platform,
                 !forceUpgrade && reference.IsCommitReference,
-                out sourceUri, 
+                out sourceUri,
+                out sourceFormat, 
                 out type,
                 out downloadMap,
                 out archiveTypeMap,
@@ -228,7 +233,7 @@ namespace Protobuild
                         this.ResolveLibrarySource(reference, sourceUri, forceUpgrade);
                         break;
                     case PackageManager.PACKAGE_TYPE_TEMPLATE:
-                        this.ResolveTemplateSource(reference, templateName, sourceUri);
+                        this.ResolveTemplateSource(reference, templateName, sourceUri, sourceFormat);
                         break;
                 }
             }
@@ -240,7 +245,7 @@ namespace Protobuild
                         this.ResolveLibraryBinary(reference, platform, sourceUri, forceUpgrade);
                         break;
                     case PackageManager.PACKAGE_TYPE_TEMPLATE:
-                        this.ResolveTemplateBinary(reference, templateName, platform, sourceUri);
+                        this.ResolveTemplateBinary(reference, templateName, platform, sourceUri, sourceFormat);
                         break;
                     case PackageManager.PACKAGE_TYPE_GLOBAL_TOOL:
                         this.ResolveGlobalToolBinary(reference, toolFolder, platform, forceUpgrade);
@@ -266,17 +271,17 @@ namespace Protobuild
             package.ExtractTo(reference.Folder);
         }
 
-        private void ResolveTemplateSource(PackageRef reference, string templateName, string source)
+        private void ResolveTemplateSource(PackageRef reference, string templateName, string source, string sourceFormat)
         {
             if (reference.Folder != string.Empty)
             {
                 throw new InvalidOperationException("Reference folder must be empty for template type.");
             }
             
-            if (source.StartsWith("folder:"))
+            if (sourceFormat == SOURCE_FORMAT_DIRECTORY)
             {
                 // The template is a raw folder on-disk.
-                ApplyProjectTemplateFromStaging(source.Substring(7), templateName, NormalizeTemplateName(templateName));
+                ApplyProjectTemplateFromStaging(source, templateName, NormalizeTemplateName(templateName));
             }
             else
             {
@@ -395,7 +400,7 @@ namespace Protobuild
             Console.WriteLine("Binary resolution complete");
         }
 
-        private void ResolveTemplateBinary(PackageRef reference, string templateName, string platform, string sourceUri)
+        private void ResolveTemplateBinary(PackageRef reference, string templateName, string platform, string sourceUri, string sourceType)
         {
             if (reference.Folder != string.Empty)
             {
@@ -413,7 +418,7 @@ namespace Protobuild
             var package = m_PackageCache.GetBinaryPackage(reference.Uri, reference.GitRef, platform);
             if (package == null)
             {
-                this.ResolveTemplateSource(reference, templateName, sourceUri);
+                this.ResolveTemplateSource(reference, templateName, sourceUri, sourceType);
                 return;
             }
 

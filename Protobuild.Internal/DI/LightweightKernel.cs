@@ -7,7 +7,7 @@ namespace Protobuild
 {
     public class LightweightKernel
     {
-        private Dictionary<Type, Type> m_Bindings = new Dictionary<Type, Type>();
+        private Dictionary<Type, List<Type>> m_Bindings = new Dictionary<Type, List<Type>>();
 
         private Dictionary<string, Type> m_NamedBindings = new Dictionary<string, Type>();
 
@@ -32,14 +32,22 @@ namespace Protobuild
 
         public void Bind<TInterface, TImplementation>() where TImplementation : TInterface
         {
-            this.m_Bindings.Add(typeof(TInterface), typeof(TImplementation));
-            this.m_KeepInstance.Add(typeof(TInterface), false);
+            if (!this.m_Bindings.ContainsKey(typeof (TInterface)))
+            {
+                this.m_Bindings.Add(typeof(TInterface), new List<Type>());
+            }
+            this.m_Bindings[typeof(TInterface)].Add(typeof(TImplementation));
+            this.m_KeepInstance[typeof(TInterface)] = false;
         }
 
         public void BindAndKeepInstance<TInterface, TImplementation>() where TImplementation : TInterface
         {
-            this.m_Bindings.Add(typeof(TInterface), typeof(TImplementation));
-            this.m_KeepInstance.Add(typeof(TInterface), true);
+            if (!this.m_Bindings.ContainsKey(typeof(TInterface)))
+            {
+                this.m_Bindings.Add(typeof(TInterface), new List<Type>());
+            }
+            this.m_Bindings[typeof(TInterface)].Add(typeof(TImplementation));
+            this.m_KeepInstance[typeof(TInterface)] = true;
         }
 
         public T Get<T>()
@@ -64,6 +72,13 @@ namespace Protobuild
                 return this;
             }
 
+            var isArray = false;
+            if (original.IsArray)
+            {
+                original = original.GetElementType();
+                isArray = true;
+            }
+
             if (seen.Contains(original))
             {
                 throw new InvalidOperationException(
@@ -74,7 +89,7 @@ namespace Protobuild
 
             seen.Add(original);
 
-            Type actual;
+            Type[] actuals;
 
             if (this.m_Bindings.ContainsKey(original))
             {
@@ -86,48 +101,73 @@ namespace Protobuild
                     }
                 }
 
-                actual = this.m_Bindings[original];
+                actuals = this.m_Bindings[original].ToArray();
             }
             else
             {
-                actual = original;
+                actuals = new [] { original };
             }
 
-            if (actual.IsInterface)
+            if (actuals.All(x => x.IsInterface))
             {
-                throw new InvalidOperationException("Resolved type " + actual.FullName + " was an interface; make sure there is a binding present!");
+                throw new InvalidOperationException("Resolved types " + actuals.Select(x => x.FullName).Aggregate((a, b) => a + ", " + b) + " were all interfaces; make sure there is a binding present!");
             }
 
-            var constructor = actual.GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
+            actuals = actuals.Where(x => !x.IsInterface).ToArray();
 
-            if (constructor == null)
+            var instances = new List<object>();
+            foreach (var actual in actuals)
             {
-                throw new InvalidOperationException("Type " + actual.FullName + " does not have a public constructor.");
-            }
+                var constructor = actual.GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault();
 
-            var parameters = constructor.GetParameters();
-
-            var resolved = new object[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                var parameterType = parameters[i].ParameterType;
-                resolved[i] = this.Get(parameterType, seen.ToList());
-            }
-
-            var instance = constructor.Invoke(resolved);
-
-            if (this.m_Bindings.ContainsKey(original))
-            {
-                if (this.m_KeepInstance[original])
+                if (constructor == null)
                 {
-                    if (!this.m_Instances.ContainsKey(original))
+                    throw new InvalidOperationException("Type " + actual.FullName + " does not have a public constructor.");
+                }
+
+                var parameters = constructor.GetParameters();
+
+                var resolved = new object[parameters.Length];
+                for (var i = 0; i < parameters.Length; i++)
+                {
+                    var parameterType = parameters[i].ParameterType;
+                    resolved[i] = this.Get(parameterType, seen.ToList());
+                }
+
+                var instance = constructor.Invoke(resolved);
+
+                if (this.m_Bindings.ContainsKey(original))
+                {
+                    if (this.m_KeepInstance[original])
                     {
-                        this.m_Instances[original] = instance;
+                        if (!this.m_Instances.ContainsKey(original))
+                        {
+                            this.m_Instances[original] = instance;
+                        }
                     }
                 }
+
+                instances.Add(instance);
             }
 
-            return instance;
+            if (isArray)
+            {
+                var arrayInstance = (Array)Activator.CreateInstance(original.MakeArrayType(), instances.Count);
+                for (var i = 0; i < instances.Count; i++)
+                {
+                    arrayInstance.SetValue(instances[i], i);
+                }
+                return arrayInstance;
+            }
+            else
+            {
+                if (instances.Count > 1)
+                {
+                    throw new InvalidOperationException("More than one binding for " + original.FullName + " and non-array requested.");
+                }
+
+                return instances.First();
+            }
         }
     }
 }

@@ -84,7 +84,7 @@ namespace Protobuild
         {
             format = null;
 
-            string sourceUri, type;
+            string sourceUri, sourceFormat, type;
             Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
             IPackageTransformer transformer;
             _packageLookup.Lookup(
@@ -92,6 +92,7 @@ namespace Protobuild
                 platform,
                 true,
                 out sourceUri, 
+                out sourceFormat, 
                 out type,
                 out downloadMap,
                 out archiveTypeMap,
