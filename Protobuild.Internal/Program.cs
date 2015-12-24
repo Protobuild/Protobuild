@@ -4,6 +4,9 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Threading;
 using System.Globalization;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Protobuild
 {
@@ -16,6 +19,17 @@ namespace Protobuild
         {
             // Ensure we always use the invariant culture in Protobuild.
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
+            // Set our SSL trust policy.  Because Mono doesn't ship with root certificates
+            // on most Linux distributions, we have to be a little more insecure here than
+            // I'd like.  For protobuild.org we always verify that the root of the certificate
+            // chain matches what we expect (so people can't forge a certificate from a
+            // *different CA*), but for other domains we just have to implicitly trust them
+            // on Linux since we have no root store.
+            if (Path.DirectorySeparatorChar == '/' && !Directory.Exists("/Library"))
+            {
+                ServicePointManager.ServerCertificateValidationCallback = SSLValidationForLinux;
+            }
 
             var kernel = new LightweightKernel();
             kernel.BindCore();
@@ -155,6 +169,61 @@ namespace Protobuild
                     ExecEnvironment.Exit(1);
                 }
             }
+        }
+
+        private static bool SSLValidationForLinux(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslpolicyerrors)
+        {
+            // If the Mono root CA store is initialized properly, then use that.
+            if (sslpolicyerrors == SslPolicyErrors.None)
+            {
+                // Good certificate.
+                return true;
+            }
+
+            // I'm not sure of the stability of the certificate thumbprint for protobuild.org
+            // itself, so instead just verify that it is Let's Encrypt that's providing the
+            // certificate.
+            if (sender is HttpWebRequest &&
+                (sender as HttpWebRequest).Host == "protobuild.org")
+            {
+                if (chain.ChainElements.Count > 2 &&
+                    chain.ChainElements[1].Certificate.Thumbprint == "3EAE91937EC85D74483FF4B77B07B43E2AF36BF4")
+                {
+                    // This is the Let's Encrypt certificate authority.  We can implicitly trust this without warning.
+                    return true;
+                }
+                else
+                {
+                    // The thumbprint differs!  Show a danger message to the user, but continue anyway
+                    // because if the thumbprint does legitimately change, we have no way of backporting
+                    // a new certificate thumbprint without issuing a new version of Protobuild.
+                    var givenThumbprint = chain.ChainElements.Count >= 2 ?
+                        chain.ChainElements[1].Certificate.Thumbprint :
+                        "<no thumbprint available>";
+                    Console.Error.WriteLine(
+                        "DANGER: The thumbprint of the issuer's SSL certificate for protobuild.org \"" +
+                        givenThumbprint + "\" does not match the expected thumbprint value \"" +
+                        chain.ChainElements[1].Certificate.Thumbprint +
+                        "\".  It's possible that Let's Encrypt " +
+                        "changed their certificate thumbprint, or someone is performing a MITM " +
+                        "attack on your connection.  Unfortunately Mono does not ship out-of-the-box " +
+                        "with appropriate root CA certificates on Linux, so we have no method of verifying " +
+                        "that the proposed thumbprint is correct.  You should verify that the given " +
+                        "thumbprint is correct either through your web browser (by visiting protobuild.org " +
+                        "and checking the certificate chain), or by performing the same operation on " +
+                        "Mac OS or Windows.  If the operation succeeds, or the thumbprint matches, please " +
+                        "file an issue at https://github.com/hach-que/Protobuild/issues/new so we can " +
+                        "update the embedded thumbprint.  We will now continue the operation regardless " +
+                        "as we can't update the thumbprint in previous versions if it has changed.");
+                    return true;
+                }
+            }
+
+            Console.WriteLine(
+                "WARNING: Implicitly trusting SSL certificate " + certificate.GetCertHashString() + " " +
+                "for " + certificate.Subject + " issued by " + certificate.Issuer + " on Linux, due " +
+                "to inconsistent root CA store policies of Mono.");
+            return true;
         }
 
         private static void PrintHelp(Dictionary<string, ICommand> commandMappings)
