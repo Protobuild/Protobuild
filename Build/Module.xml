@@ -5,6 +5,6 @@
   <DisableSynchronisation>false</DisableSynchronisation>
   <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
   <Packages>
-    <Package Uri="http://protobuild.org/hach-que/Prototest" Folder="Prototest" GitRef="master" />
+    <Package Uri="https://protobuild.org/hach-que/Prototest" Folder="Prototest" GitRef="master" />
   </Packages>
 </Module>
