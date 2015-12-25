@@ -1,9 +1,24 @@
-﻿namespace Protobuild.Internal
+﻿namespace Protobuild
 {
     public class FolderPackageMetadata : IPackageMetadata
     {
-        public string Folder { get; set; }
+        public FolderPackageMetadata(
+            string folder,
+            string packageType,
+            ResolveMetadataDelegate resolve)
+        {
+            Folder = folder;
+            PackageType = packageType;
+            Resolve = resolve;
+            GetProtobuildPackageBinary = null;
+        }
 
-        public string PackageType { get; set; }
+        public string Folder { get; }
+
+        public string PackageType { get; }
+
+        public ResolveMetadataDelegate Resolve { get; }
+
+        public GetProtobuildPackageBinaryDelegate GetProtobuildPackageBinary { get; }
     }
 }

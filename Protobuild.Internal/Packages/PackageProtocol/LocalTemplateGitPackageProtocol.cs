@@ -2,15 +2,22 @@
 {
     public class LocalTemplateGitPackageProtocol : IPackageProtocol
     {
+        private readonly SourcePackageResolve _sourcePackageResolve;
+
+        public LocalTemplateGitPackageProtocol(SourcePackageResolve sourcePackageResolve)
+        {
+            _sourcePackageResolve = sourcePackageResolve;
+        }
+
         public string[] Schemes => new[] { "local-template-git" };
 
-        public IPackageMetadata ResolveSource(string uri, bool preferCacheLookup, string platform)
+        public IPackageMetadata ResolveSource(PackageRequestRef request)
         {
-            return new GitPackageMetadata
-            {
-                CloneURI = uri.Substring("local-template-git://".Length),
-                PackageType = PackageManager.PACKAGE_TYPE_TEMPLATE,
-            };
+            return new GitPackageMetadata(
+                request.Uri.Substring("local-template-git://".Length),
+                request.GitRef,
+                PackageManager.PACKAGE_TYPE_TEMPLATE,
+                (metadata, folder, name, upgrade, source) => _sourcePackageResolve.Resolve(metadata, folder, name, upgrade));
         }
     }
 }

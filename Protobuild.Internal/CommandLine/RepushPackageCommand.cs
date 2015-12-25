@@ -11,18 +11,22 @@ namespace Protobuild
 {
     public class RepushPackageCommand : ICommand
     {
-        private readonly IPackageCache _packageCache;
+        private readonly IPackageLookup _packageLookup;
+
+        private readonly BinaryPackageResolve _binaryPackageResolve;
 
         private readonly IPackageUrlParser _packageUrlParser;
 
         private readonly IFeatureManager _featureManager;
 
         public RepushPackageCommand(
-            IPackageCache packageCache,
+            IPackageLookup packageLookup,
+            BinaryPackageResolve binaryPackageResolve,
             IPackageUrlParser packageUrlParser,
             IFeatureManager featureManager)
         {
-            _packageCache = packageCache;
+            _packageLookup = packageLookup;
+            _binaryPackageResolve = binaryPackageResolve;
             _packageUrlParser = packageUrlParser;
             _featureManager = featureManager;
         }
@@ -62,13 +66,30 @@ namespace Protobuild
                 var sourcePackage = _packageUrlParser.Parse(execution.PackageUrl);
 
                 Console.WriteLine("Retrieving source package...");
-                var packageInfo = (BinaryPackageContent)_packageCache.GetBinaryPackage(
-                    sourcePackage.Uri,
+                var metadata = _packageLookup.Lookup(new PackageRequestRef(
+                    sourcePackage.Uri, 
                     sourcePackage.GitRef,
-                    execution.PackagePushPlatform);
-                var archiveType = packageInfo.Format;
-                var archiveData = packageInfo.PackageData;
+                    execution.PackagePushPlatform,
+                    false));
 
+                if (metadata.GetProtobuildPackageBinary == null)
+                {
+                    Console.Error.WriteLine(
+                        "ERROR: URL resolved to a package metadata type '" + metadata.GetType().Name + "', " +
+                        "but this type doesn't provide a mechanism to convert to a Protobuild package.");
+                }
+
+                string archiveType;
+                byte[] archiveData;
+                metadata.GetProtobuildPackageBinary(metadata, out archiveType, out archiveData);
+
+                var protobuildPackageMetadata = metadata as ProtobuildPackageMetadata;
+                if (protobuildPackageMetadata == null)
+                {
+                    Console.Error.WriteLine("--repush requires that the source URL resolve to a Protobuild package");
+                    return 1;
+                }
+                
                 Console.WriteLine("Detected package type as " + archiveType + ".");
 
                 if (execution.PackagePushVersion.StartsWith("hash:", StringComparison.InvariantCulture))

@@ -5,7 +5,7 @@ namespace Protobuild
 {
     public interface IPackageLookup
     {
-        void Lookup(string uri, string platform, bool preferCacheLookup, out string sourceUri, out string sourceFormat, out string type, out Dictionary<string, string> downloadMap, out Dictionary<string, string> archiveTypeMap, out Dictionary<string, string> resolvedHash, out IPackageTransformer transformer);
+        IPackageMetadata Lookup(PackageRequestRef request);
     }
 }
 

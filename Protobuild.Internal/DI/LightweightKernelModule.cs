@@ -59,8 +59,6 @@ namespace Protobuild
         {
             kernel.Bind<IAutomaticModulePackager, AutomaticModulePackager>();
             kernel.Bind<IDeduplicator, Deduplicator>();
-            kernel.Bind<IPackageCache, PackageCache>();
-            kernel.Bind<IPackageRetrieval, PackageRetrieval>();
             kernel.Bind<IPackageManager, PackageManager>();
             kernel.Bind<IPackageLookup, PackageLookup>();
             kernel.Bind<IPackageCacheConfiguration, PackageCacheConfiguration>();
@@ -74,6 +72,7 @@ namespace Protobuild
             kernel.Bind<IPackageUrlParser, PackageUrlParser>();
             kernel.Bind<IKnownToolProvider, KnownToolProvider>();
             kernel.Bind<IPackageNameLookup, PackageNameLookup>();
+            kernel.Bind<IProjectTemplateApplier, ProjectTemplateApplier>();
 
             kernel.Bind<IPackageProtocol, GitPackageProtocol>();
             kernel.Bind<IPackageProtocol, LocalTemplatePackageProtocol>();

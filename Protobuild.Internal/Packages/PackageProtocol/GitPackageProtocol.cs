@@ -4,15 +4,22 @@ namespace Protobuild.Internal
 {
     public class GitPackageProtocol : IPackageProtocol
     {
+        private readonly SourcePackageResolve _sourcePackageResolve;
+
+        public GitPackageProtocol(SourcePackageResolve sourcePackageResolve)
+        {
+            _sourcePackageResolve = sourcePackageResolve;
+        }
+
         public string[] Schemes => new[] {"local-git","http-git","https-git"};
 
-        public IPackageMetadata ResolveSource(string uri, bool preferCacheLookup, string platform)
+        public IPackageMetadata ResolveSource(PackageRequestRef request)
         {
-            return new GitPackageMetadata
-            {
-                CloneURI = NormalizeScheme(uri),
-                PackageType = PackageManager.PACKAGE_TYPE_LIBRARY,
-            };
+            return new GitPackageMetadata(
+                NormalizeScheme(request.Uri),
+                request.GitRef,
+                PackageManager.PACKAGE_TYPE_LIBRARY,
+                (metadata, folder, name, upgrade, source) => _sourcePackageResolve.Resolve(metadata, folder, name, upgrade));
         }
 
         private string NormalizeScheme(string uri)

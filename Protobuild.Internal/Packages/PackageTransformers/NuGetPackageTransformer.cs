@@ -30,7 +30,7 @@ namespace Protobuild
             _getRecursiveUtilitiesInPath = getRecursiveUtilitiesInPath;
         }
 
-        public byte[] Transform(string url, string gitReference, string platform, out string format)
+        public byte[] Transform(string url, string gitReference, string platform, string format)
         {
             var urlAndPackageName = url.Split(new[] { '|' }, 2);
 
@@ -331,8 +331,7 @@ namespace Protobuild
                 target,
                 filter,
                 folder,
-                PackageManager.ARCHIVE_FORMAT_TAR_LZMA);
-            format = PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                format);
 
             Console.WriteLine("Package conversion complete.");
             var bytes = new byte[target.Position];

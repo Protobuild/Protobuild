@@ -30,12 +30,12 @@ namespace Protobuild
             return toolsPath;
         }
 
-        public string GetGlobalToolInstallationPath(PackageRef reference)
+        public string GetGlobalToolInstallationPath(string referenceURI)
         {
             var toolsPath = this.GetToolsPath();
 
             var sha1 = new SHA1Managed();
-            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(reference.Uri));
+            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(referenceURI));
             var urlHashString = BitConverter.ToString(urlHashBytes).Replace("-", "").ToLowerInvariant();
 
             var toolPath = Path.Combine(toolsPath, urlHashString);

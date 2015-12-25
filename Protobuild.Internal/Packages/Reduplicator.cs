@@ -34,45 +34,58 @@ namespace Protobuild
                     continue;
                 }
 
-                switch (reader.FileInfo.EntryType)
+                var target = Path.Combine(folder, reader.FileInfo.FileName);
+
+                try
                 {
-                    case tar_cs.EntryType.File:
-                    case tar_cs.EntryType.FileObsolete:
-                        using (var writer = new FileStream(Path.Combine(folder, reader.FileInfo.FileName), FileMode.Create, FileAccess.Write, FileShare.None))
-                        {
-                            reader.Read(writer);
-                        }
-                        break;
-                    case tar_cs.EntryType.HardLink:
-                        if (reader.FileInfo.LinkName.StartsWith(DedupPrefix))
-                        {
-                            // This file has been deduplicated; resolve the actual file
-                            // using the dictionary.
-                            var hash = reader.FileInfo.LinkName.Substring(DedupPrefix.Length);
-                            if (!hashesToStreams.ContainsKey(hash))
+                    switch (reader.FileInfo.EntryType)
+                    {
+                        case tar_cs.EntryType.File:
+                        case tar_cs.EntryType.FileObsolete:
+                            using (
+                                var writer = new FileStream(target, FileMode.Create, FileAccess.Write, FileShare.None))
                             {
-                                Console.WriteLine("WARNING: Unable to find deduplicated stream for file hash " + hash);
+                                reader.Read(writer);
+                            }
+                            break;
+                        case tar_cs.EntryType.HardLink:
+                            if (reader.FileInfo.LinkName.StartsWith(DedupPrefix))
+                            {
+                                // This file has been deduplicated; resolve the actual file
+                                // using the dictionary.
+                                var hash = reader.FileInfo.LinkName.Substring(DedupPrefix.Length);
+                                if (!hashesToStreams.ContainsKey(hash))
+                                {
+                                    Console.WriteLine("WARNING: Unable to find deduplicated stream for file hash " +
+                                                      hash);
+                                }
+                                else
+                                {
+                                    using (
+                                        var writer = new FileStream(target, FileMode.Create, FileAccess.Write,
+                                            FileShare.None))
+                                    {
+                                        hashesToStreams[hash].CopyTo(writer);
+                                        hashesToStreams[hash].Seek(0, SeekOrigin.Begin);
+                                    }
+                                }
                             }
                             else
                             {
-                                using (var writer = new FileStream(Path.Combine(folder, reader.FileInfo.FileName), FileMode.Create, FileAccess.Write, FileShare.None))
-                                {
-                                    hashesToStreams[hash].CopyTo(writer);
-                                    hashesToStreams[hash].Seek(0, SeekOrigin.Begin);
-                                }
+                                Console.WriteLine("WARNING: Unknown hard link present in TAR archive.");
                             }
-                        }
-                        else
-                        {
-                            Console.WriteLine("WARNING: Unknown hard link present in TAR archive.");
-                        }
-                        break;
-                    case tar_cs.EntryType.Directory:
-                        Directory.CreateDirectory(Path.Combine(folder, reader.FileInfo.FileName));
-                        break;
-                    default:
-                        Console.WriteLine("WARNING: Ignoring unknown entry type in TAR archive.");
-                        break;
+                            break;
+                        case tar_cs.EntryType.Directory:
+                            Directory.CreateDirectory(target);
+                            break;
+                        default:
+                            Console.WriteLine("WARNING: Ignoring unknown entry type in TAR archive.");
+                            break;
+                    }
+                }
+                catch (PathTooLongException ex)
+                {
+                    throw new PathTooLongException("The path '" + target + "' is too long to extract on this operating system.", ex);
                 }
             }
         }

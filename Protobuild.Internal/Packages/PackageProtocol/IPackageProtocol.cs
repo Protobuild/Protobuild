@@ -4,6 +4,6 @@
     {
         string[] Schemes { get; }
 
-        IPackageMetadata ResolveSource(string uri, bool preferCacheLookup, string platform);
+        IPackageMetadata ResolveSource(PackageRequestRef request);
     }
 }

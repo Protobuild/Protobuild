@@ -1,6 +1,7 @@
 ﻿using System;
 using Prototest.Library.Version1;
 using System.Collections.Generic;
+using Protobuild.Internal;
 
 namespace Protobuild.UnitTests
 {
@@ -24,144 +25,124 @@ namespace Protobuild.UnitTests
         {
             var packageLookup = GetPackageLookup();
 
-            string sourceUri, sourceFormat, type;
-            IPackageTransformer transformer;
-            Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            var metadata = packageLookup.Lookup(new PackageRequestRef("local-template://C:\\Some\\Path", "master", "Windows", false));
 
-            packageLookup.Lookup("local-template://C:\\Some\\Path", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
-            
-            _assert.Equal("C:\\Some\\Path", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_DIRECTORY, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_TEMPLATE, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            _assert.IsType<FolderPackageMetadata>(metadata);
+
+            var folderMetadata = (FolderPackageMetadata) metadata;
+
+            _assert.Equal("C:\\Some\\Path", folderMetadata.Folder);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_TEMPLATE, folderMetadata.PackageType);
         }
 
         public void LocalGitTemplateSchemeResolvesToCorrectProtocol()
         {
             var packageLookup = GetPackageLookup();
 
-            string sourceUri, sourceFormat, type;
-            IPackageTransformer transformer;
-            Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            var metadata = packageLookup.Lookup(new PackageRequestRef("local-template-git://C:\\Some\\Path", "master", "Windows", false));
 
-            packageLookup.Lookup("local-template-git://C:\\Some\\Path", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.IsType<GitPackageMetadata>(metadata);
 
-            _assert.Equal("C:\\Some\\Path", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_TEMPLATE, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            var gitMetadata = (GitPackageMetadata)metadata;
+
+            _assert.Equal("C:\\Some\\Path", gitMetadata.CloneURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_TEMPLATE, gitMetadata.PackageType);
+            _assert.Equal("master", gitMetadata.GitRef);
         }
 
         public void GitSchemeResolvesToCorrectProtocol()
         {
             var packageLookup = GetPackageLookup();
 
-            string sourceUri, sourceFormat, type;
-            IPackageTransformer transformer;
-            Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            var metadata = packageLookup.Lookup(new PackageRequestRef("local-git://C:\\Some\\Path", "master", "Windows", false));
 
-            packageLookup.Lookup("local-git://C:\\Some\\Path", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.IsType<GitPackageMetadata>(metadata);
 
-            _assert.Equal("C:\\Some\\Path", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            var gitMetadata = (GitPackageMetadata)metadata;
 
-            packageLookup.Lookup("http-git://domain.org/git", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.Equal("C:\\Some\\Path", gitMetadata.CloneURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, gitMetadata.PackageType);
+            _assert.Equal("master", gitMetadata.GitRef);
 
-            _assert.Equal("http://domain.org/git", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            metadata = packageLookup.Lookup(new PackageRequestRef("http-git://domain.org/git", "master", "Windows", false));
 
-            packageLookup.Lookup("https-git://domain.org/git", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.IsType<GitPackageMetadata>(metadata);
 
-            _assert.Equal("https://domain.org/git", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            gitMetadata = (GitPackageMetadata)metadata;
+
+            _assert.Equal("http://domain.org/git", gitMetadata.CloneURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, gitMetadata.PackageType);
+            _assert.Equal("master", gitMetadata.GitRef);
+
+            metadata = packageLookup.Lookup(new PackageRequestRef("https-git://domain.org/git", "master", "Windows", false));
+
+            _assert.IsType<GitPackageMetadata>(metadata);
+
+            gitMetadata = (GitPackageMetadata)metadata;
+
+            _assert.Equal("https://domain.org/git", gitMetadata.CloneURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, gitMetadata.PackageType);
+            _assert.Equal("master", gitMetadata.GitRef);
         }
 
         public void NuGetSchemeResolvesToCorrectProtocol()
         {
             var packageLookup = GetPackageLookup();
 
-            string sourceUri, sourceFormat, type;
-            IPackageTransformer transformer;
-            Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            var metadata = packageLookup.Lookup(new PackageRequestRef("http-nuget://domain.org/git", "master", "Windows", false));
 
-            packageLookup.Lookup("http-nuget://domain.org/git", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.IsType<NuGetPackageMetadata>(metadata);
 
-            _assert.Equal("http://domain.org/git", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.IsType<NuGetPackageTransformer>(transformer);
+            var nugetMetadata = (NuGetPackageMetadata)metadata;
 
-            packageLookup.Lookup("https-nuget://domain.org/git", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.Equal("http://domain.org/git", nugetMetadata.SourceURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, nugetMetadata.PackageType);
 
-            _assert.Equal("https://domain.org/git", sourceUri);
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.IsType<NuGetPackageTransformer>(transformer);
+            metadata = packageLookup.Lookup(new PackageRequestRef("https-nuget://domain.org/git", "master", "Windows", false));
+
+            _assert.IsType<NuGetPackageMetadata>(metadata);
+
+            nugetMetadata = (NuGetPackageMetadata)metadata;
+
+            _assert.Equal("https://domain.org/git", nugetMetadata.SourceURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, nugetMetadata.PackageType);
         }
 
         public void ProtobuildSchemeResolvesToCorrectProtocol()
         {
+            // TODO: Make these tests not depend on a network connection.
+
             var packageLookup = GetPackageLookup();
 
-            string sourceUri, sourceFormat, type;
-            IPackageTransformer transformer;
-            Dictionary<string, string> downloadMap, archiveTypeMap, resolvedHash;
+            var metadata = packageLookup.Lookup(new PackageRequestRef("http://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
 
-            packageLookup.Lookup("http://protobuild.org/hach-que/TestEmptyPackage", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.IsType<ProtobuildPackageMetadata>(metadata);
 
-            _assert.True(string.IsNullOrWhiteSpace(sourceUri));
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            var protobuildMetadata = (ProtobuildPackageMetadata)metadata;
 
-            packageLookup.Lookup("https://protobuild.org/hach-que/TestEmptyPackage", "Windows", true, out sourceUri,
-                out sourceFormat, out type, out downloadMap, out archiveTypeMap, out resolvedHash, out transformer);
+            _assert.Equal("http://protobuild.org/hach-que/TestEmptyPackage", protobuildMetadata.ReferenceURI);
+            _assert.Equal("50a2a4e9b12739b20932d152e211239db88cbb49", protobuildMetadata.GitCommit);
+            _assert.Equal(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, protobuildMetadata.BinaryFormat);
+            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryURI);
+            _assert.Null(protobuildMetadata.SourceURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
+            _assert.Equal("Windows", protobuildMetadata.Platform);
+            _assert.Null(protobuildMetadata.Transformer);
 
-            _assert.True(string.IsNullOrWhiteSpace(sourceUri));
-            _assert.Equal(PackageManager.SOURCE_FORMAT_GIT, sourceFormat);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, type);
-            _assert.Equal(0, downloadMap.Count);
-            _assert.Equal(0, archiveTypeMap.Count);
-            _assert.Equal(0, resolvedHash.Count);
-            _assert.Null(transformer);
+            metadata = packageLookup.Lookup(new PackageRequestRef("https://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
+
+            _assert.IsType<ProtobuildPackageMetadata>(metadata);
+
+            protobuildMetadata = (ProtobuildPackageMetadata)metadata;
+
+            _assert.Equal("https://protobuild.org/hach-que/TestEmptyPackage", protobuildMetadata.ReferenceURI);
+            _assert.Equal("50a2a4e9b12739b20932d152e211239db88cbb49", protobuildMetadata.GitCommit);
+            _assert.Equal(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, protobuildMetadata.BinaryFormat);
+            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryURI);
+            _assert.Null(protobuildMetadata.SourceURI);
+            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
+            _assert.Equal("Windows", protobuildMetadata.Platform);
+            _assert.Null(protobuildMetadata.Transformer);
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     public interface IPackageGlobalTool
     {
-        string GetGlobalToolInstallationPath(PackageRef reference);
+        string GetGlobalToolInstallationPath(string referenceURI);
 
         void ScanPackageForToolsAndInstall(string toolFolder);
 

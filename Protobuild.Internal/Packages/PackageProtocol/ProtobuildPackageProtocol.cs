@@ -11,31 +11,37 @@ namespace Protobuild.Internal
     public class ProtobuildPackageProtocol : IPackageProtocol
     {
         private readonly IPackageCacheConfiguration _packageCacheConfiguration;
+        private readonly BinaryPackageResolve _binaryPackageResolve;
+        private readonly SourcePackageResolve _sourcePackageResolve;
 
         public ProtobuildPackageProtocol(
-            IPackageCacheConfiguration packageCacheConfiguration)
+            IPackageCacheConfiguration packageCacheConfiguration,
+            BinaryPackageResolve binaryPackageResolve,
+            SourcePackageResolve sourcePackageResolve)
         {
             _packageCacheConfiguration = packageCacheConfiguration;
+            _binaryPackageResolve = binaryPackageResolve;
+            _sourcePackageResolve = sourcePackageResolve;
         }
 
         public string[] Schemes => new[] {"http", "https" };
 
-        public IPackageMetadata ResolveSource(string uri, bool preferCacheLookup, string platform)
+        public IPackageMetadata ResolveSource(PackageRequestRef request)
         {
-            var baseUri = new Uri(uri);
+            var baseUri = new Uri(request.Uri);
 
             var apiUri = new Uri(baseUri.ToString().TrimEnd('/') + "/api");
             dynamic apiData = null;
 
             var performOnlineLookup = true;
-            if (preferCacheLookup)
+            if (request.PreferCacheLookup)
             {
                 performOnlineLookup = false;
-                if (File.Exists(this.GetLookupCacheFilename(uri)))
+                if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
                 {
                     try
                     {
-                        using (var reader = new StreamReader(this.GetLookupCacheFilename(uri)))
+                        using (var reader = new StreamReader(this.GetLookupCacheFilename(request.Uri)))
                         {
                             apiData = JSON.ToDynamic(reader.ReadToEnd());
                         }
@@ -67,7 +73,7 @@ namespace Protobuild.Internal
                     }
                     try
                     {
-                        using (var writer = new StreamWriter(this.GetLookupCacheFilename(uri)))
+                        using (var writer = new StreamWriter(this.GetLookupCacheFilename(request.Uri)))
                         {
                             writer.Write(jsonString);
                         }
@@ -80,12 +86,12 @@ namespace Protobuild.Internal
                 catch (WebException)
                 {
                     // Attempt to retrieve it from the lookup cache.
-                    if (File.Exists(this.GetLookupCacheFilename(uri)))
+                    if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
                     {
                         var shouldThrow = false;
                         try
                         {
-                            using (var reader = new StreamReader(this.GetLookupCacheFilename(uri)))
+                            using (var reader = new StreamReader(this.GetLookupCacheFilename(request.Uri)))
                             {
                                 apiData = JSON.ToDynamic(reader.ReadToEnd());
                             }
@@ -111,12 +117,12 @@ namespace Protobuild.Internal
                 catch (InvalidOperationException)
                 {
                     // Attempt to retrieve it from the lookup cache.
-                    if (File.Exists(this.GetLookupCacheFilename(uri)))
+                    if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
                     {
                         var shouldThrow = false;
                         try
                         {
-                            using (var reader = new StreamReader(this.GetLookupCacheFilename(uri)))
+                            using (var reader = new StreamReader(this.GetLookupCacheFilename(request.Uri)))
                             {
                                 apiData = JSON.ToDynamic(reader.ReadToEnd());
                             }
@@ -175,7 +181,7 @@ namespace Protobuild.Internal
             var resolvedHash = new Dictionary<string, string>();
             foreach (var ver in apiData.result.versions)
             {
-                if (ver.platformName != platform)
+                if (ver.platformName != request.Platform)
                 {
                     continue;
                 }
@@ -200,14 +206,53 @@ namespace Protobuild.Internal
                 }
             }
 
-            return new ProtobuildPackageMetadata
+            // Resolve Git reference to Git commit hash.
+            var gitCommit = resolvedHash.ContainsKey(request.GitRef) ? resolvedHash[request.GitRef] : request.GitRef;
+
+            string fileUri, archiveType;
+            if (!downloadMap.ContainsKey(gitCommit))
             {
-                SourceURI = sourceUri,
-                PackageType = type,
-                DownloadMap = downloadMap,
-                ArchiveTypeMap = archiveTypeMap,
-                ResolvedHash = resolvedHash,
-            };
+                if (string.IsNullOrWhiteSpace(sourceUri))
+                {
+                    throw new InvalidOperationException("Unable to resolve binary package for version \"" +
+                                                        request.GitRef + "\" and platform \"" + request.Platform +
+                                                        "\" and this package does not have a source repository");
+                }
+                else
+                {
+                    Console.WriteLine("Unable to resolve binary package for version \"" + request.GitRef +
+                                      "\" and platform \"" + request.Platform + "\", falling back to source version");
+                    fileUri = null;
+                    archiveType = null;
+                }
+            }
+            else
+            {
+                fileUri = downloadMap[gitCommit];
+                archiveType = archiveTypeMap[gitCommit];
+            }
+
+            return new ProtobuildPackageMetadata(
+                request.Uri,
+                type,
+                sourceUri,
+                request.Platform,
+                gitCommit,
+                archiveType,
+                fileUri,
+                null,
+                (metadata, folder, name, upgrade, source) =>
+                {
+                    if (source == true)
+                    {
+                        _sourcePackageResolve.Resolve(metadata, folder, name, upgrade);
+                    }
+                    else
+                    {
+                        _binaryPackageResolve.Resolve(metadata, folder, name, upgrade);
+                    }
+                },
+                _binaryPackageResolve.GetProtobuildPackageBinary);
         }
 
         private dynamic GetJSON(Uri indexUri, out string str)

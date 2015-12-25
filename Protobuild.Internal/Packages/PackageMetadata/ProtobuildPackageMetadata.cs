@@ -1,17 +1,49 @@
-﻿using System.Collections.Generic;
-
-namespace Protobuild.Internal
+﻿namespace Protobuild
 {
     public class ProtobuildPackageMetadata : IPackageMetadata
     {
-        public string PackageType { get; set; }
+        public ProtobuildPackageMetadata(
+            string referenceUri,
+            string packageType,
+            string sourceURI,
+            string platform,
+            string gitCommit,
+            string binaryFormat,
+            string binaryUri,
+            IPackageTransformer transformer,
+            ResolveMetadataDelegate resolve,
+            GetProtobuildPackageBinaryDelegate getProtobuildPackageBinary)
+        {
+            ReferenceURI = referenceUri;
+            PackageType = packageType;
+            SourceURI = sourceURI;
+            Platform = platform;
+            GitCommit = gitCommit;
+            Transformer = transformer;
+            BinaryFormat = binaryFormat;
+            BinaryURI = binaryUri;
+            Resolve = resolve;
+            GetProtobuildPackageBinary = getProtobuildPackageBinary;
+        }
 
-        public string SourceURI { get; set; }
+        public string ReferenceURI { get; }
 
-        public Dictionary<string, string> DownloadMap { get; set; }
+        public string PackageType { get; }
 
-        public Dictionary<string, string> ArchiveTypeMap { get; set; }
+        public ResolveMetadataDelegate Resolve { get; }
 
-        public Dictionary<string, string> ResolvedHash { get; set; }
+        public GetProtobuildPackageBinaryDelegate GetProtobuildPackageBinary { get; }
+
+        public string SourceURI { get; }
+
+        public string Platform { get; }
+
+        public string GitCommit { get; }
+
+        public IPackageTransformer Transformer { get; }
+
+        public string BinaryFormat { get; }
+
+        public string BinaryURI { get; }
     }
 }
