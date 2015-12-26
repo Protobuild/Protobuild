@@ -56,8 +56,6 @@ namespace Protobuild
                     File.Copy(file.FullName, replacedPath, true);
                 }
             }
-
-            PathUtils.AggressiveDirectoryDelete(".staging");
         }
 
         private IEnumerable<KeyValuePair<string, FileInfo>> GetFilesFromStaging(string currentDirectory,

@@ -89,6 +89,7 @@ namespace Protobuild
                     ExtractGitSourceTo(packageTemplate, gitMetadata.GitRef, ".staging");
 
                     _projectTemplateApplier.Apply(".staging", templateName);
+                    PathUtils.AggressiveDirectoryDelete(".staging");
                     break;
                 default:
                     throw new InvalidOperationException("Unable to resolve source package with type '" + gitMetadata.PackageType + "' using Git-based package.");

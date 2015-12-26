@@ -30,6 +30,24 @@ namespace Protobuild
             _getRecursiveUtilitiesInPath = getRecursiveUtilitiesInPath;
         }
 
+        private void CopyFolder(DirectoryInfo source, DirectoryInfo destination)
+        {
+            foreach (var subfolder in source.GetDirectories())
+            {
+                Directory.CreateDirectory(Path.Combine(destination.FullName, subfolder.Name));
+                CopyFolder(
+                    new DirectoryInfo(Path.Combine(source.FullName, subfolder.Name)),
+                    new DirectoryInfo(Path.Combine(destination.FullName, subfolder.Name)));
+            }
+
+            foreach (var file in source.GetFiles())
+            {
+                File.Copy(
+                    file.FullName,
+                    Path.Combine(destination.FullName, file.Name));
+            }
+        }
+
         public byte[] Transform(string url, string gitReference, string platform, string format)
         {
             var urlAndPackageName = url.Split(new[] { '|' }, 2);
@@ -45,298 +63,320 @@ namespace Protobuild
             var repoUrl = urlAndPackageName[0];
             var packageName = urlAndPackageName[1];
 
-            var folder = DownloadOrUseExistingNuGetPackage(repoUrl.TrimEnd('/'), packageName, gitReference);
-            
-            Console.WriteLine("Auto-detecting libraries to reference from NuGet package...");
+            var originalFolder = DownloadOrUseExistingNuGetPackage(repoUrl.TrimEnd('/'), packageName, gitReference);
 
-            var packagePath = new DirectoryInfo(folder).GetFiles("*.nuspec").First().FullName;
-            var libraryReferences = new Dictionary<string, string>();
-            var packageDependencies = new Dictionary<string, string>();
+            var folder = Path.GetTempFileName();
+            File.Delete(folder);
+            Directory.CreateDirectory(folder);
 
-            // Use the nuspec file if it exists.
-            List<string> references = new List<string>();
-            if (File.Exists(packagePath))
+            byte[] bytes;
+            try
             {
-                var packageDoc = new XmlDocument();
-                packageDoc.Load(packagePath);
+                Console.WriteLine("Copying directory for package transformation...");
+                CopyFolder(new DirectoryInfo(originalFolder), new DirectoryInfo(folder));
 
-                // If the references are explicitly provided in the nuspec, use
-                // those as to what files should be referenced by the projects.
-                if (
-                    packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
-                    .Count(x => x.Name == "references") > 0)
+                Console.WriteLine("Auto-detecting libraries to reference from NuGet package...");
+
+                var packagePath = new DirectoryInfo(folder).GetFiles("*.nuspec").First().FullName;
+                var libraryReferences = new Dictionary<string, string>();
+                var packageDependencies = new Dictionary<string, string>();
+
+                // Use the nuspec file if it exists.
+                List<string> references = new List<string>();
+                if (File.Exists(packagePath))
                 {
-                    references =
+                    var packageDoc = new XmlDocument();
+                    packageDoc.Load(packagePath);
+
+                    // If the references are explicitly provided in the nuspec, use
+                    // those as to what files should be referenced by the projects.
+                    if (
                         packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
-                            .First(x => x.Name == "references")
-                            .ChildNodes.OfType<XmlElement>()
-                            .Where(x => x.Name == "reference")
-                            .Select(x => x.Attributes["file"].Value)
-                            .ToList();
-                }
-
-                // If there are dependencies specified, store them and convert them to
-                // Protobuild references, and reference them in the Module.xml file.
-                if (
-                    packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
-                    .Count(x => x.Name == "dependencies") > 0)
-                {
-                    packageDependencies =
-                        packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
-                            .First(x => x.Name == "dependencies")
-                            .ChildNodes.OfType<XmlElement>()
-                            .Where(x => x.Name == "dependency")
-                            .ToDictionarySafe(
-                                k => k.Attributes["id"].Value,
-                                v => v.Attributes["version"].Value,
-                                c => Console.WriteLine("WARNING: More than one dependency on " + c + " in NuGet package."));
-                }
-            }
-
-            // Determine the priority of the frameworks that we want to target
-            // out of the available versions.
-            string[] clrNames = new[]
-            {
-                // Exact matches
-                "=net40-client",
-                "=Net40-client",
-                "=net40",
-                "=Net40",
-                "=net35",
-                "=Net35",
-                "=net20",
-                "=Net20",
-                "=20",
-                "=11",
-                "=",
-                "=net45",
-                "=Net45",
-
-                // Substring matches
-                "?net4",
-                "?Net4",
-                "?MonoAndroid",
-            };
-
-            if (platform == "WindowsUniversal")
-            {
-                // This is the priority list for Windows Universal Apps.
-                clrNames = new[]
-                {
-                    "=uap10.0",
-                    "=uap",
-                    "=netcore451",
-                    "=netcore",
-                    "=dotnet"
-                };
-            }
-
-            var referenceDirectories = new string[] {"ref", "lib"};
-
-            foreach (var directory in referenceDirectories)
-            {
-                // Determine the base path for all references; that is, the lib/ folder.
-                var referenceBasePath = Path.Combine(
-                    folder,
-                    directory);
-                
-                if (Directory.Exists(referenceBasePath))
-                {
-                    // If no references are in nuspec, reference all of the libraries that
-                    // are on disk.
-                    if (references.Count == 0)
+                            .Count(x => x.Name == "references") > 0)
                     {
-                        // Search through all of the target frameworks until we find one that
-                        // has at least one file in it.
-                        foreach (var clrNameOriginal in clrNames)
+                        references =
+                            packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                                .First(x => x.Name == "references")
+                                .ChildNodes.OfType<XmlElement>()
+                                .Where(x => x.Name == "reference")
+                                .Select(x => x.Attributes["file"].Value)
+                                .ToList();
+                    }
+
+                    // If there are dependencies specified, store them and convert them to
+                    // Protobuild references, and reference them in the Module.xml file.
+                    if (
+                        packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                            .Count(x => x.Name == "dependencies") > 0)
+                    {
+                        packageDependencies =
+                            packageDoc.DocumentElement.FirstChild.ChildNodes.OfType<XmlElement>()
+                                .First(x => x.Name == "dependencies")
+                                .ChildNodes.OfType<XmlElement>()
+                                .Where(x => x.Name == "dependency")
+                                .ToDictionarySafe(
+                                    k => k.Attributes["id"].Value,
+                                    v => v.Attributes["version"].Value,
+                                    c =>
+                                        Console.WriteLine("WARNING: More than one dependency on " + c +
+                                                          " in NuGet package."));
+                    }
+                }
+
+                // Determine the priority of the frameworks that we want to target
+                // out of the available versions.
+                string[] clrNames = new[]
+                {
+                    // Exact matches
+                    "=net40-client",
+                    "=Net40-client",
+                    "=net40",
+                    "=Net40",
+                    "=net35",
+                    "=Net35",
+                    "=net20",
+                    "=Net20",
+                    "=20",
+                    "=11",
+                    "=",
+                    "=net45",
+                    "=Net45",
+
+                    // Substring matches
+                    "?net4",
+                    "?Net4",
+                    "?MonoAndroid",
+                };
+
+                if (platform == "WindowsUniversal")
+                {
+                    // This is the priority list for Windows Universal Apps.
+                    clrNames = new[]
+                    {
+                        "=uap10.0",
+                        "=uap",
+                        "=netcore451",
+                        "=netcore",
+                        "=dotnet"
+                    };
+                }
+
+                var referenceDirectories = new string[] {"ref", "lib"};
+
+                foreach (var directory in referenceDirectories)
+                {
+                    // Determine the base path for all references; that is, the lib/ folder.
+                    var referenceBasePath = Path.Combine(
+                        folder,
+                        directory);
+
+                    if (Directory.Exists(referenceBasePath))
+                    {
+                        // If no references are in nuspec, reference all of the libraries that
+                        // are on disk.
+                        if (references.Count == 0)
                         {
-                            var clrName = clrNameOriginal;
-                            var foundClr = false;
-
-                            if (clrName[0] == '=')
+                            // Search through all of the target frameworks until we find one that
+                            // has at least one file in it.
+                            foreach (var clrNameOriginal in clrNames)
                             {
-                                // Exact match (strip the equals).
-                                clrName = clrName.Substring(1);
+                                var clrName = clrNameOriginal;
+                                var foundClr = false;
 
-                                // If this target framework doesn't exist for this library, skip it.
-                                var dirPath = Path.Combine(
-                                    referenceBasePath,
-                                    clrName);
-                                if (!Directory.Exists(dirPath))
+                                if (clrName[0] == '=')
                                 {
-                                    continue;
-                                }
-                            }
-                            else if (clrName[0] == '?')
-                            {
-                                // Substring, search the reference base path for any folders
-                                // with a matching substring.
-                                clrName = clrName.Substring(1);
+                                    // Exact match (strip the equals).
+                                    clrName = clrName.Substring(1);
 
-                                var baseDirPath = referenceBasePath;
-                                var found = false;
-                                foreach (var subdir in new DirectoryInfo(baseDirPath).GetDirectories())
-                                {
-                                    if (subdir.Name.Contains(clrName))
+                                    // If this target framework doesn't exist for this library, skip it.
+                                    var dirPath = Path.Combine(
+                                        referenceBasePath,
+                                        clrName);
+                                    if (!Directory.Exists(dirPath))
                                     {
-                                        clrName = subdir.Name;
-                                        found = true;
-                                        break;
+                                        continue;
+                                    }
+                                }
+                                else if (clrName[0] == '?')
+                                {
+                                    // Substring, search the reference base path for any folders
+                                    // with a matching substring.
+                                    clrName = clrName.Substring(1);
+
+                                    var baseDirPath = referenceBasePath;
+                                    var found = false;
+                                    foreach (var subdir in new DirectoryInfo(baseDirPath).GetDirectories())
+                                    {
+                                        if (subdir.Name.Contains(clrName))
+                                        {
+                                            clrName = subdir.Name;
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!found)
+                                    {
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    throw new InvalidOperationException("Unknown CLR name match type with '" + clrName +
+                                                                        "'");
+                                }
+
+                                // Otherwise enumerate through all of the libraries in this folder.
+                                foreach (var dll in Directory.EnumerateFiles(
+                                    Path.Combine(
+                                        referenceBasePath, clrName),
+                                    "*.dll"))
+                                {
+                                    // Determine the relative path to the library.
+                                    var packageDll = Path.Combine(
+                                        referenceBasePath,
+                                        clrName,
+                                        Path.GetFileName(dll));
+
+                                    // Confirm again that the file actually exists on disk when
+                                    // combined with the root path.
+                                    if (File.Exists(
+                                        Path.Combine(
+                                            packageDll)))
+                                    {
+                                        // Create the library reference.
+                                        if (!libraryReferences.ContainsKey(Path.GetFileNameWithoutExtension(dll)))
+                                        {
+                                            libraryReferences.Add(
+                                                Path.GetFileNameWithoutExtension(dll),
+                                                packageDll);
+                                        }
+
+                                        // Mark this target framework as having provided at least
+                                        // one reference.
+                                        foundClr = true;
                                     }
                                 }
 
-                                if (!found)
-                                {
-                                    continue;
-                                }
+                                // Break if we have found at least one reference.
+                                if (foundClr)
+                                    break;
                             }
-                            else
-                            {
-                                throw new InvalidOperationException("Unknown CLR name match type with '" + clrName + "'");
-                            }
+                        }
 
-                            // Otherwise enumerate through all of the libraries in this folder.
-                            foreach (var dll in Directory.EnumerateFiles(
-                                Path.Combine(
-                                    referenceBasePath, clrName),
-                                "*.dll"))
+                        // For all of the references that were found in the original nuspec file,
+                        // add those references.
+                        foreach (var reference in references)
+                        {
+                            // Search through all of the target frameworks until we find the one
+                            // that has the reference in it.
+                            foreach (var clrName in clrNames)
                             {
-                                // Determine the relative path to the library.
+                                // If this target framework doesn't exist for this library, skip it.
                                 var packageDll = Path.Combine(
                                     referenceBasePath,
                                     clrName,
-                                    Path.GetFileName(dll));
+                                    reference);
 
-                                // Confirm again that the file actually exists on disk when
-                                // combined with the root path.
                                 if (File.Exists(
                                     Path.Combine(
                                         packageDll)))
                                 {
-                                    // Create the library reference.
-                                    if (!libraryReferences.ContainsKey(Path.GetFileNameWithoutExtension(dll)))
+                                    if (!libraryReferences.ContainsKey(Path.GetFileNameWithoutExtension(packageDll)))
                                     {
                                         libraryReferences.Add(
-                                            Path.GetFileNameWithoutExtension(dll),
+                                            Path.GetFileNameWithoutExtension(packageDll),
                                             packageDll);
                                     }
-
-                                    // Mark this target framework as having provided at least
-                                    // one reference.
-                                    foundClr = true;
+                                    break;
                                 }
-                            }
-
-                            // Break if we have found at least one reference.
-                            if (foundClr)
-                                break;
-                        }
-                    }
-
-                    // For all of the references that were found in the original nuspec file,
-                    // add those references.
-                    foreach (var reference in references)
-                    {
-                        // Search through all of the target frameworks until we find the one
-                        // that has the reference in it.
-                        foreach (var clrName in clrNames)
-                        {
-                            // If this target framework doesn't exist for this library, skip it.
-                            var packageDll = Path.Combine(
-                                referenceBasePath,
-                                clrName,
-                                reference);
-
-                            if (File.Exists(
-                                Path.Combine(
-                                    packageDll)))
-                            {
-                                if (!libraryReferences.ContainsKey(Path.GetFileNameWithoutExtension(packageDll)))
-                                {
-                                    libraryReferences.Add(
-                                        Path.GetFileNameWithoutExtension(packageDll),
-                                        packageDll);
-                                }
-                                break;
                             }
                         }
                     }
                 }
-            }
 
-            foreach (var kv in libraryReferences)
-            {
-                Console.WriteLine("Found library to reference: " + kv.Key + " (at " + kv.Value + ")");
-            }
+                foreach (var kv in libraryReferences)
+                {
+                    Console.WriteLine("Found library to reference: " + kv.Key + " (at " + kv.Value + ")");
+                }
 
-            Console.WriteLine("Generating external project reference...");
-            var document = new XmlDocument();
-            var externalProject = document.CreateElement("ExternalProject");
-            externalProject.SetAttribute("Name", packageName);
-            document.AppendChild(externalProject);
-            foreach (var kv in libraryReferences)
-            {
-                var binaryReference = document.CreateElement("Binary");
-                binaryReference.SetAttribute("Name", kv.Key);
-                binaryReference.SetAttribute("Path", kv.Value.Substring(folder.Length).TrimStart(new[] { '/', '\\' }).Replace("%2B", "-"));
-                externalProject.AppendChild(binaryReference);
-            }
-            foreach (var package in packageDependencies)
-            {
-                var externalReference = document.CreateElement("Reference");
-                externalReference.SetAttribute("Include", package.Key);
-                externalProject.AppendChild(externalReference);
-            }
-            document.Save(Path.Combine(folder, "_ProtobuildExternalProject.xml"));
+                Console.WriteLine("Generating external project reference...");
+                var document = new XmlDocument();
+                var externalProject = document.CreateElement("ExternalProject");
+                externalProject.SetAttribute("Name", packageName);
+                document.AppendChild(externalProject);
+                foreach (var kv in libraryReferences)
+                {
+                    var binaryReference = document.CreateElement("Binary");
+                    binaryReference.SetAttribute("Name", kv.Key);
+                    binaryReference.SetAttribute("Path",
+                        kv.Value.Substring(folder.Length).TrimStart(new[] {'/', '\\'}).Replace("%2B", "-"));
+                    externalProject.AppendChild(binaryReference);
+                }
+                foreach (var package in packageDependencies)
+                {
+                    var externalReference = document.CreateElement("Reference");
+                    externalReference.SetAttribute("Include", package.Key);
+                    externalProject.AppendChild(externalReference);
+                }
+                document.Save(Path.Combine(folder, "_ProtobuildExternalProject.xml"));
 
-            Console.WriteLine("Generating module...");
-            var generatedModule = new ModuleInfo();
-            generatedModule.Name = packageName;
-            generatedModule.Packages = new List<PackageRef>();
+                Console.WriteLine("Generating module...");
+                var generatedModule = new ModuleInfo();
+                generatedModule.Name = packageName;
+                generatedModule.Packages = new List<PackageRef>();
 
-            foreach (var package in packageDependencies)
-            {
-                generatedModule.Packages.Add(new PackageRef
+                foreach (var package in packageDependencies)
+                {
+                    generatedModule.Packages.Add(new PackageRef
                     {
-                        Uri = repoUrl.Replace("http://", "http-nuget://").Replace("https://", "https-nuget://") + "|" + package.Key,
+                        Uri =
+                            repoUrl.Replace("http://", "http-nuget://").Replace("https://", "https-nuget://") + "|" +
+                            package.Key,
                         GitRef = package.Value.TrimStart('[').TrimEnd(']'),
                         Folder = package.Key
                     });
+                }
+
+                generatedModule.Save(Path.Combine(folder, "_ProtobuildModule.xml"));
+
+                Console.WriteLine("Converting to a Protobuild package...");
+
+                var target = new MemoryStream();
+                var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(folder));
+
+                foreach (var kv in libraryReferences)
+                {
+                    filter.ApplyInclude(
+                        Regex.Escape(kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/')));
+                    filter.ApplyRewrite(
+                        Regex.Escape(kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/')),
+                        kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/').Replace("%2B", "-"));
+                }
+
+                filter.ApplyInclude("_ProtobuildExternalProject\\.xml");
+                filter.ApplyRewrite("_ProtobuildExternalProject\\.xml", "Build/Projects/" + packageName + ".definition");
+                filter.ApplyInclude("_ProtobuildModule\\.xml");
+                filter.ApplyRewrite("_ProtobuildModule\\.xml", "Build/Module.xml");
+
+                filter.ImplyDirectories();
+
+                _packageCreator.Create(
+                    target,
+                    filter,
+                    folder,
+                    format);
+
+                Console.WriteLine("Package conversion complete.");
+                bytes = new byte[target.Position];
+                target.Seek(0, SeekOrigin.Begin);
+                target.Read(bytes, 0, bytes.Length);
             }
-
-            generatedModule.Save(Path.Combine(folder, "_ProtobuildModule.xml"));
-
-            Console.WriteLine("Converting to a Protobuild package...");
-
-            var target = new MemoryStream();
-            var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(folder));
-
-            foreach (var kv in libraryReferences)
+            finally
             {
-                filter.ApplyInclude(
-                    Regex.Escape(kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/')));
-                filter.ApplyRewrite(
-                    Regex.Escape(kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/')),
-                    kv.Value.Substring(folder.Length).Replace('\\', '/').TrimStart('/').Replace("%2B", "-"));
+                Console.WriteLine("Cleaning up temporary data...");
+                PathUtils.AggressiveDirectoryDelete(folder);
             }
-
-            filter.ApplyInclude("_ProtobuildExternalProject\\.xml");
-            filter.ApplyRewrite("_ProtobuildExternalProject\\.xml", "Build/Projects/" + packageName + ".definition");
-            filter.ApplyInclude("_ProtobuildModule\\.xml");
-            filter.ApplyRewrite("_ProtobuildModule\\.xml", "Build/Module.xml");
-
-            filter.ImplyDirectories();
-
-            _packageCreator.Create(
-                target,
-                filter,
-                folder,
-                format);
-
-            Console.WriteLine("Package conversion complete.");
-            var bytes = new byte[target.Position];
-            target.Seek(0, SeekOrigin.Begin);
-            target.Read(bytes, 0, bytes.Length);
 
             return bytes;
         }

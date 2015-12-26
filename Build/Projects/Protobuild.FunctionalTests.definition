@@ -451,7 +451,9 @@
     <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Module.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Module.xml" />
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Projects\Console.definition" />
     <None Include="TestData\PackageRedirectionToLocalPath\Console\Program.cs" />

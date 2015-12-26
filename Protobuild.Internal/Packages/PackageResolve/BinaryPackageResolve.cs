@@ -55,7 +55,16 @@ namespace Protobuild
             switch (protobuildMetadata.PackageType)
             {
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
-                    ResolveLibraryBinary(protobuildMetadata, folder, forceUpgrade);
+                    ResolveLibraryBinary(protobuildMetadata, folder, forceUpgrade, () =>
+                    {
+                        var package = GetProtobuildBinaryPackage(protobuildMetadata);
+                        if (package == null)
+                        {
+                            _sourcePackageResolve.Resolve(protobuildMetadata, folder, null, forceUpgrade);
+                            return null;
+                        }
+                        return package;
+                    });
                     break;
                 case PackageManager.PACKAGE_TYPE_TEMPLATE:
                     ResolveTemplateBinary(protobuildMetadata, folder, templateName, forceUpgrade);
@@ -73,101 +82,22 @@ namespace Protobuild
             switch (transformedMetadata.PackageType)
             {
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
-                    ResolveLibraryBinary(transformedMetadata, folder, forceUpgrade);
+                    ResolveLibraryBinary(transformedMetadata, folder, forceUpgrade, () =>
+                    {
+                        var package = GetTransformedBinaryPackage(transformedMetadata);
+                        if (package == null)
+                        {
+                            throw new InvalidOperationException("Unable to transform " + transformedMetadata.SourceURI + " for usage as a Protobuild package.");
+                        }
+                        return package;
+                    });
                     break;
                 default:
                     throw new InvalidOperationException("Unable to resolve binary package with type '" + transformedMetadata.PackageType + "' using transformer-based package.");
             }
         }
-
-        private void ResolveLibraryBinary(TransformedPackageMetadata transformedMetadata, string folder, bool forceUpgrade)
-        {
-            var platformFolder = Path.Combine(folder, transformedMetadata.Platform);
-
-            if (File.Exists(Path.Combine(platformFolder, ".pkg")))
-            {
-                if (!forceUpgrade)
-                {
-                    Console.WriteLine("Protobuild binary package already present at " + platformFolder);
-                    return;
-                }
-            }
-
-            Console.WriteLine("Creating and emptying " + platformFolder);
-
-            if (File.Exists(Path.Combine(folder, ".pkg")))
-            {
-                if (Directory.Exists(platformFolder))
-                {
-                    // Only clear out the target's folder if the reference folder
-                    // already contains binary packages (for other platforms)
-                    PathUtils.AggressiveDirectoryDelete(platformFolder);
-                }
-            }
-            else
-            {
-                // The reference folder is holding source code, so clear it
-                // out entirely.
-                PathUtils.AggressiveDirectoryDelete(folder);
-            }
-
-            Directory.CreateDirectory(platformFolder);
-
-            Console.WriteLine("Marking " + folder + " as ignored for Git");
-            GitUtils.MarkIgnored(folder);
-
-            var package = transformedMetadata.Transformer.Transform(
-                transformedMetadata.SourceURI,
-                transformedMetadata.GitRef,
-                transformedMetadata.Platform,
-                PackageManager.ARCHIVE_FORMAT_TAR_LZMA);
-            if (package == null)
-            {
-                throw new InvalidOperationException("Unable to transform " + transformedMetadata.SourceURI + " for usage as a Protobuild package.");
-            }
-
-            ExtractTo(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, package, platformFolder);
-
-            // Only copy ourselves to the binary folder if both "Build/Module.xml" and
-            // "Build/Projects" exist in the binary package's folder.  This prevents us
-            // from triggering the "create new module?" logic if the package hasn't been
-            // setup correctly.
-            if (Directory.Exists(Path.Combine(platformFolder, "Build", "Projects")) &&
-                File.Exists(Path.Combine(platformFolder, "Build", "Module.xml")))
-            {
-                var sourceProtobuild = Assembly.GetEntryAssembly().Location;
-                File.Copy(sourceProtobuild, Path.Combine(platformFolder, "Protobuild.exe"), true);
-
-                try
-                {
-                    var chmodStartInfo = new ProcessStartInfo
-                    {
-                        FileName = "chmod",
-                        Arguments = "a+x Protobuild.exe",
-                        WorkingDirectory = platformFolder,
-                        UseShellExecute = false
-                    };
-                    Process.Start(chmodStartInfo);
-                }
-                catch (ExecEnvironment.SelfInvokeExitException)
-                {
-                    throw;
-                }
-                catch
-                {
-                }
-            }
-
-            var file = File.Create(Path.Combine(platformFolder, ".pkg"));
-            file.Close();
-
-            file = File.Create(Path.Combine(folder, ".pkg"));
-            file.Close();
-
-            Console.WriteLine("Binary resolution complete");
-        }
-
-        private void ResolveLibraryBinary(ProtobuildPackageMetadata protobuildMetadata, string folder, bool forceUpgrade)
+        
+        private void ResolveLibraryBinary(ICachableBinaryPackageMetadata protobuildMetadata, string folder, bool forceUpgrade, Func<byte[]> getBinaryPackage)
         {
             var platformFolder = Path.Combine(folder, protobuildMetadata.Platform);
 
@@ -203,10 +133,9 @@ namespace Protobuild
             Console.WriteLine("Marking " + folder + " as ignored for Git");
             GitUtils.MarkIgnored(folder);
 
-            var package = GetBinaryPackage(protobuildMetadata);
+            var package = getBinaryPackage();
             if (package == null)
             {
-                _sourcePackageResolve.Resolve(protobuildMetadata, folder, null, forceUpgrade);
                 return;
             }
 
@@ -266,7 +195,7 @@ namespace Protobuild
 
             Directory.CreateDirectory(".staging");
 
-            var package = GetBinaryPackage(protobuildMetadata);
+            var package = GetProtobuildBinaryPackage(protobuildMetadata);
             if (package == null)
             {
                 _sourcePackageResolve.Resolve(protobuildMetadata, folder, templateName, forceUpgrade);
@@ -276,6 +205,7 @@ namespace Protobuild
             ExtractTo(protobuildMetadata.BinaryFormat, package, ".staging");
 
             _projectTemplateApplier.Apply(".staging", templateName);
+            PathUtils.AggressiveDirectoryDelete(".staging");
         }
 
         private void ResolveGlobalToolBinary(ProtobuildPackageMetadata protobuildMetadata, bool forceUpgrade)
@@ -296,7 +226,7 @@ namespace Protobuild
             Directory.CreateDirectory(toolFolder);
 
             Console.WriteLine("Installing " + protobuildMetadata.ReferenceURI + " at version " + protobuildMetadata.GitCommit);
-            var package = GetBinaryPackage(protobuildMetadata);
+            var package = GetProtobuildBinaryPackage(protobuildMetadata);
             if (package == null)
             {
                 Console.WriteLine("The specified global tool package is not available for this platform.");
@@ -313,7 +243,7 @@ namespace Protobuild
             Console.WriteLine("Binary resolution complete");
         }
 
-        private byte[] GetBinaryPackage(ProtobuildPackageMetadata metadata)
+        private byte[] GetProtobuildBinaryPackage(ProtobuildPackageMetadata metadata)
         {
             if (metadata.BinaryFormat == null && metadata.BinaryURI == null)
             {
@@ -393,7 +323,61 @@ namespace Protobuild
             return saveData;
         }
 
-        private bool HasBinaryPackage(ProtobuildPackageMetadata metadata)
+        private byte[] GetTransformedBinaryPackage(TransformedPackageMetadata metadata)
+        {
+            if (this.HasBinaryPackage(metadata))
+            {
+                // We have it already downloaded in the cache.
+                var file = Path.Combine(
+                    _packageCacheConfiguration.GetCacheDirectory(),
+                    this.GetPackageName(metadata));
+                using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    var data = new byte[stream.Length];
+                    stream.Read(data, 0, data.Length);
+                    return data;
+                }
+            }
+
+            var packageData = metadata.Transformer.Transform(
+                metadata.SourceURI,
+                metadata.GitRef,
+                metadata.Platform,
+                PackageManager.ARCHIVE_FORMAT_TAR_LZMA);
+            if (packageData == null)
+            {
+                throw new InvalidOperationException("Unable to transform " + metadata.SourceURI + " for usage as a Protobuild package.");
+            }
+
+            var saveFile = Path.Combine(
+                _packageCacheConfiguration.GetCacheDirectory(),
+                this.GetPackageName(metadata));
+
+            var attempts = 10;
+            while (attempts > 0)
+            {
+                try
+                {
+                    using (var stream = new FileStream(saveFile, FileMode.Create, FileAccess.Write, FileShare.None))
+                    {
+                        stream.Write(packageData, 0, packageData.Length);
+                    }
+                    break;
+                }
+                catch (IOException ex)
+                {
+                    // On Windows, we can't write out the package file if another instance of Protobuild
+                    // is writing it out at the moment.  Just wait and retry in another second.
+                    Console.WriteLine("WARNING: Unable to write downloaded package file (attempt " + (11 - attempts) + " / 10)");
+                    System.Threading.Thread.Sleep(5000);
+                    attempts--;
+                }
+            }
+            
+            return packageData;
+        }
+
+        private bool HasBinaryPackage(ICachableBinaryPackageMetadata metadata)
         {
             var file = Path.Combine(
                 _packageCacheConfiguration.GetCacheDirectory(),
@@ -401,13 +385,13 @@ namespace Protobuild
             return File.Exists(file);
         }
 
-        private string GetPackageName(ProtobuildPackageMetadata metadata)
+        private string GetPackageName(ICachableBinaryPackageMetadata metadata)
         {
             var sha1 = new SHA1Managed();
 
-            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(metadata.ReferenceURI));
+            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(metadata.CanonicalURI));
             var urlHashString = BitConverter.ToString(urlHashBytes).Replace("-", "").ToLowerInvariant();
-            var gitHashString = metadata.GitCommit.ToLowerInvariant();
+            var gitHashString = metadata.GitCommitOrRef.ToLowerInvariant();
             var platformString = metadata.Platform.ToLowerInvariant();
 
             return urlHashString + "-" + gitHashString + "-" + platformString + TranslateToExtension(metadata.BinaryFormat);
@@ -540,7 +524,7 @@ namespace Protobuild
             }
 
             archiveType = protobuildPackageMetadata.BinaryFormat;
-            packageData = GetBinaryPackage(protobuildPackageMetadata);
+            packageData = GetProtobuildBinaryPackage(protobuildPackageMetadata);
         }
     }
 }

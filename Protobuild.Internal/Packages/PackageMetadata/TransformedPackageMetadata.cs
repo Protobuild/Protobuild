@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public class TransformedPackageMetadata : IPackageMetadata
+    public class TransformedPackageMetadata : ICachableBinaryPackageMetadata
     {
         public TransformedPackageMetadata(
             string sourceUri, 
@@ -23,6 +23,12 @@
         public string PackageType { get; }
 
         public string Platform { get; }
+
+        string ICachableBinaryPackageMetadata.CanonicalURI => SourceURI;
+
+        string ICachableBinaryPackageMetadata.GitCommitOrRef => GitRef;
+
+        string ICachableBinaryPackageMetadata.BinaryFormat => PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
 
         public string GitRef { get; }
 

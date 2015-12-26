@@ -235,6 +235,7 @@
     <Compile Include="Packages\PackageManager.cs" />
     <Compile Include="Packages\PackageMetadata\FolderPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\GitPackageMetadata.cs" />
+    <Compile Include="Packages\PackageMetadata\ICachableBinaryPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\IPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\ProtobuildPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\TransformedPackageMetadata.cs" />

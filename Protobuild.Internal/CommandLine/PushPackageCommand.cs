@@ -69,9 +69,37 @@ namespace Protobuild
                 };
 
                 Console.WriteLine("HTTP POST " + execution.PackagePushUrl + "/version/new/api");
+                byte[] versionData;
+                try
+                {
+                    versionData = client.UploadValues(execution.PackagePushUrl + "/version/new/api", uploadParameters);
+                }
+                catch (WebException ex)
+                {
+                    var responseData = string.Empty;
+
+                    // Try and get the full response from the server to display in the exception message.
+                    try
+                    {
+                        var stream = ex.Response.GetResponseStream();
+                        if (stream != null)
+                        {
+                            using (var reader = new StreamReader(stream, Encoding.Default, true, 4096, true))
+                            {
+                                responseData = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+
+                    throw new WebException(ex.Message + "  Content of response was: " + responseData);
+                }
+
                 var json = fastJSON.JSON.ToDynamic(
                     System.Text.Encoding.ASCII.GetString(
-                        client.UploadValues(execution.PackagePushUrl + "/version/new/api", uploadParameters)));
+                        versionData));
 
                 if (json.has_error)
                 {

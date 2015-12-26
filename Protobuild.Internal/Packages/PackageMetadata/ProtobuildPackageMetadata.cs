@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public class ProtobuildPackageMetadata : IPackageMetadata
+    public class ProtobuildPackageMetadata : ICachableBinaryPackageMetadata
     {
         public ProtobuildPackageMetadata(
             string referenceUri,
@@ -35,6 +35,10 @@
         public string SourceURI { get; }
 
         public string Platform { get; }
+
+        string ICachableBinaryPackageMetadata.CanonicalURI => ReferenceURI;
+
+        string ICachableBinaryPackageMetadata.GitCommitOrRef => GitCommit;
 
         public string GitCommit { get; }
 
