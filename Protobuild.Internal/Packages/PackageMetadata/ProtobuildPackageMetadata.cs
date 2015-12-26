@@ -10,7 +10,6 @@
             string gitCommit,
             string binaryFormat,
             string binaryUri,
-            IPackageTransformer transformer,
             ResolveMetadataDelegate resolve,
             GetProtobuildPackageBinaryDelegate getProtobuildPackageBinary)
         {
@@ -19,7 +18,6 @@
             SourceURI = sourceURI;
             Platform = platform;
             GitCommit = gitCommit;
-            Transformer = transformer;
             BinaryFormat = binaryFormat;
             BinaryURI = binaryUri;
             Resolve = resolve;
@@ -39,8 +37,6 @@
         public string Platform { get; }
 
         public string GitCommit { get; }
-
-        public IPackageTransformer Transformer { get; }
 
         public string BinaryFormat { get; }
 

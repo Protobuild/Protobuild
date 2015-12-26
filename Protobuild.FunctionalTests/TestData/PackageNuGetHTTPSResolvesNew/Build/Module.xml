@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name>Module</Name>
+  <DefaultAction>resync</DefaultAction>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <Packages>
+    <Package Folder="Package" GitRef="3.2.2.0" Uri="https-nuget://www.nuget.org/api/v2/|Ninject" />
+  </Packages>
+</Module>

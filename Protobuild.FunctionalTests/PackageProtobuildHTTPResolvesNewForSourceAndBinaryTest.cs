@@ -15,7 +15,18 @@
         public void GenerationIsCorrect()
         {
             this.SetupTest("PackageProtobuildHTTPResolvesNewForSourceAndBinary");
-            
+
+            if (Directory.Exists(this.GetPath("Package")))
+            {
+                try
+                {
+                    Directory.Delete(this.GetPath("Package"), true);
+                }
+                catch
+                {
+                }
+            }
+
             this.OtherMode("resolve", "Windows");
         }
     }

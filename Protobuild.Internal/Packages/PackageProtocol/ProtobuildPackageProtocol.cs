@@ -240,7 +240,6 @@ namespace Protobuild.Internal
                 gitCommit,
                 archiveType,
                 fileUri,
-                null,
                 (metadata, folder, name, upgrade, source) =>
                 {
                     if (source == true)

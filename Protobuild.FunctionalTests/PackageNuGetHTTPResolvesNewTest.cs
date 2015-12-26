@@ -1,20 +1,22 @@
-﻿namespace Protobuild.Tests
+﻿using System;
+
+namespace Protobuild.Tests
 {
     using System.IO;
     using Prototest.Library.Version1;
 
-    public class PackageProtobuildHTTPResolvesNewForSourceOnlyTest : ProtobuildTest
+    public class PackageNuGetHTTPResolvesNewTest : ProtobuildTest
     {
         private readonly IAssert _assert;
 
-        public PackageProtobuildHTTPResolvesNewForSourceOnlyTest(IAssert assert) : base(assert)
+        public PackageNuGetHTTPResolvesNewTest(IAssert assert) : base(assert)
         {
             _assert = assert;
         }
 
         public void GenerationIsCorrect()
         {
-            this.SetupTest("PackageProtobuildHTTPResolvesNewForSourceOnly");
+            this.SetupTest("PackageNuGetHTTPResolvesNew");
 
             if (Directory.Exists(this.GetPath("Package")))
             {

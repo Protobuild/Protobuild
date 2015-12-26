@@ -16,6 +16,17 @@
         {
             this.SetupTest("PackageProtobuildHTTPSResolvesNewForSourceOnly");
 
+            if (Directory.Exists(this.GetPath("Package")))
+            {
+                try
+                {
+                    Directory.Delete(this.GetPath("Package"), true);
+                }
+                catch
+                {
+                }
+            }
+
             this.OtherMode("resolve", "Windows");
         }
     }

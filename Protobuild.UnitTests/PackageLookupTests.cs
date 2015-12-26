@@ -91,21 +91,27 @@ namespace Protobuild.UnitTests
 
             var metadata = packageLookup.Lookup(new PackageRequestRef("http-nuget://domain.org/git", "master", "Windows", false));
 
-            _assert.IsType<NuGetPackageMetadata>(metadata);
+            _assert.IsType<TransformedPackageMetadata>(metadata);
 
-            var nugetMetadata = (NuGetPackageMetadata)metadata;
+            var nugetMetadata = (TransformedPackageMetadata)metadata;
 
             _assert.Equal("http://domain.org/git", nugetMetadata.SourceURI);
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, nugetMetadata.PackageType);
+            _assert.IsType<NuGetPackageTransformer>(nugetMetadata.Transformer);
+            _assert.Equal("master", nugetMetadata.GitRef);
+            _assert.Equal("Windows", nugetMetadata.Platform);
 
             metadata = packageLookup.Lookup(new PackageRequestRef("https-nuget://domain.org/git", "master", "Windows", false));
 
-            _assert.IsType<NuGetPackageMetadata>(metadata);
+            _assert.IsType<TransformedPackageMetadata>(metadata);
 
-            nugetMetadata = (NuGetPackageMetadata)metadata;
+            nugetMetadata = (TransformedPackageMetadata)metadata;
 
             _assert.Equal("https://domain.org/git", nugetMetadata.SourceURI);
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, nugetMetadata.PackageType);
+            _assert.IsType<NuGetPackageTransformer>(nugetMetadata.Transformer);
+            _assert.Equal("master", nugetMetadata.GitRef);
+            _assert.Equal("Windows", nugetMetadata.Platform);
         }
 
         public void ProtobuildSchemeResolvesToCorrectProtocol()
@@ -127,7 +133,6 @@ namespace Protobuild.UnitTests
             _assert.Null(protobuildMetadata.SourceURI);
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
             _assert.Equal("Windows", protobuildMetadata.Platform);
-            _assert.Null(protobuildMetadata.Transformer);
 
             metadata = packageLookup.Lookup(new PackageRequestRef("https://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
 
@@ -142,7 +147,6 @@ namespace Protobuild.UnitTests
             _assert.Null(protobuildMetadata.SourceURI);
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
             _assert.Equal("Windows", protobuildMetadata.Platform);
-            _assert.Null(protobuildMetadata.Transformer);
         }
     }
 }

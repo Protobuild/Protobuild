@@ -33,10 +33,17 @@ namespace Protobuild
         public void Resolve(IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
         {
             var protobuildMetadata = metadata as ProtobuildPackageMetadata;
+            var transformedMetadata = metadata as TransformedPackageMetadata;
 
             if (protobuildMetadata != null)
             {
                 ResolveProtobuild(protobuildMetadata, folder, templateName, forceUpgrade);
+                return;
+            }
+
+            if (transformedMetadata != null)
+            {
+                ResolveTransformed(transformedMetadata, folder, templateName, forceUpgrade);
                 return;
             }
 
@@ -59,6 +66,105 @@ namespace Protobuild
                 default:
                     throw new InvalidOperationException("Unable to resolve binary package with type '" + protobuildMetadata.PackageType + "' using Protobuild-based package.");
             }
+        }
+
+        private void ResolveTransformed(TransformedPackageMetadata transformedMetadata, string folder, string templateName, bool forceUpgrade)
+        {
+            switch (transformedMetadata.PackageType)
+            {
+                case PackageManager.PACKAGE_TYPE_LIBRARY:
+                    ResolveLibraryBinary(transformedMetadata, folder, forceUpgrade);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unable to resolve binary package with type '" + transformedMetadata.PackageType + "' using transformer-based package.");
+            }
+        }
+
+        private void ResolveLibraryBinary(TransformedPackageMetadata transformedMetadata, string folder, bool forceUpgrade)
+        {
+            var platformFolder = Path.Combine(folder, transformedMetadata.Platform);
+
+            if (File.Exists(Path.Combine(platformFolder, ".pkg")))
+            {
+                if (!forceUpgrade)
+                {
+                    Console.WriteLine("Protobuild binary package already present at " + platformFolder);
+                    return;
+                }
+            }
+
+            Console.WriteLine("Creating and emptying " + platformFolder);
+
+            if (File.Exists(Path.Combine(folder, ".pkg")))
+            {
+                if (Directory.Exists(platformFolder))
+                {
+                    // Only clear out the target's folder if the reference folder
+                    // already contains binary packages (for other platforms)
+                    PathUtils.AggressiveDirectoryDelete(platformFolder);
+                }
+            }
+            else
+            {
+                // The reference folder is holding source code, so clear it
+                // out entirely.
+                PathUtils.AggressiveDirectoryDelete(folder);
+            }
+
+            Directory.CreateDirectory(platformFolder);
+
+            Console.WriteLine("Marking " + folder + " as ignored for Git");
+            GitUtils.MarkIgnored(folder);
+
+            var package = transformedMetadata.Transformer.Transform(
+                transformedMetadata.SourceURI,
+                transformedMetadata.GitRef,
+                transformedMetadata.Platform,
+                PackageManager.ARCHIVE_FORMAT_TAR_LZMA);
+            if (package == null)
+            {
+                throw new InvalidOperationException("Unable to transform " + transformedMetadata.SourceURI + " for usage as a Protobuild package.");
+            }
+
+            ExtractTo(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, package, platformFolder);
+
+            // Only copy ourselves to the binary folder if both "Build/Module.xml" and
+            // "Build/Projects" exist in the binary package's folder.  This prevents us
+            // from triggering the "create new module?" logic if the package hasn't been
+            // setup correctly.
+            if (Directory.Exists(Path.Combine(platformFolder, "Build", "Projects")) &&
+                File.Exists(Path.Combine(platformFolder, "Build", "Module.xml")))
+            {
+                var sourceProtobuild = Assembly.GetEntryAssembly().Location;
+                File.Copy(sourceProtobuild, Path.Combine(platformFolder, "Protobuild.exe"), true);
+
+                try
+                {
+                    var chmodStartInfo = new ProcessStartInfo
+                    {
+                        FileName = "chmod",
+                        Arguments = "a+x Protobuild.exe",
+                        WorkingDirectory = platformFolder,
+                        UseShellExecute = false
+                    };
+                    Process.Start(chmodStartInfo);
+                }
+                catch (ExecEnvironment.SelfInvokeExitException)
+                {
+                    throw;
+                }
+                catch
+                {
+                }
+            }
+
+            var file = File.Create(Path.Combine(platformFolder, ".pkg"));
+            file.Close();
+
+            file = File.Create(Path.Combine(folder, ".pkg"));
+            file.Close();
+
+            Console.WriteLine("Binary resolution complete");
         }
 
         private void ResolveLibraryBinary(ProtobuildPackageMetadata protobuildMetadata, string folder, bool forceUpgrade)
@@ -349,11 +455,6 @@ namespace Protobuild
 
         private byte[] DownloadBinaryPackage(ProtobuildPackageMetadata metadata)
         {
-            if (metadata.Transformer != null)
-            {
-                return metadata.Transformer.Transform(metadata.ReferenceURI, metadata.GitCommit, metadata.Platform, metadata.BinaryFormat);
-            }
-            
             try
             {
                 return _progressiveWebOperation.Get(metadata.BinaryURI);

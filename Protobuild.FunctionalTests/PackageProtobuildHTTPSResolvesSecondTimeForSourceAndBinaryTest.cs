@@ -16,6 +16,17 @@
         {
             this.SetupTest("PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary");
 
+            if (Directory.Exists(this.GetPath("Package")))
+            {
+                try
+                {
+                    Directory.Delete(this.GetPath("Package"), true);
+                }
+                catch
+                {
+                }
+            }
+
             this.OtherMode("resolve", "Windows");
             this.OtherMode("resolve", "Windows");
         }

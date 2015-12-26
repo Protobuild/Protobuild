@@ -3,18 +3,18 @@
     using System.IO;
     using Prototest.Library.Version1;
 
-    public class PackageProtobuildHTTPResolvesNewForSourceOnlyTest : ProtobuildTest
+    public class PackageNuGetHTTPSResolvesNewTest : ProtobuildTest
     {
         private readonly IAssert _assert;
 
-        public PackageProtobuildHTTPResolvesNewForSourceOnlyTest(IAssert assert) : base(assert)
+        public PackageNuGetHTTPSResolvesNewTest(IAssert assert) : base(assert)
         {
             _assert = assert;
         }
 
         public void GenerationIsCorrect()
         {
-            this.SetupTest("PackageProtobuildHTTPResolvesNewForSourceOnly");
+            this.SetupTest("PackageNuGetHTTPSResolvesNew");
 
             if (Directory.Exists(this.GetPath("Package")))
             {

@@ -236,8 +236,8 @@
     <Compile Include="Packages\PackageMetadata\FolderPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\GitPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\IPackageMetadata.cs" />
-    <Compile Include="Packages\PackageMetadata\NuGetPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\ProtobuildPackageMetadata.cs" />
+    <Compile Include="Packages\PackageMetadata\TransformedPackageMetadata.cs" />
     <Compile Include="Packages\PackageNameLookup.cs" />
     <Compile Include="Packages\PackageProtocol\GitPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\IPackageProtocol.cs" />

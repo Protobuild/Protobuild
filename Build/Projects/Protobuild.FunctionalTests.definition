@@ -92,6 +92,10 @@
     <Compile Include="PackageLocationParentAndTwoSubmoduleSamePackageTest.cs" />
     <Compile Include="PackageLocationTwoNestedSubmoduleSamePackageTest.cs" />
     <Compile Include="PackageLocationTwoSubmoduleSamePackageTest.cs" />
+    <Compile Include="PackageNuGetHTTPResolvesNewTest.cs" />
+    <Compile Include="PackageNuGetHTTPResolvesSecondTimeTest.cs" />
+    <Compile Include="PackageNuGetHTTPSResolvesNewTest.cs" />
+    <Compile Include="PackageNuGetHTTPSResolvesSecondTimeTest.cs" />
     <Compile Include="PackageProtobuildHTTPResolvesNewForSourceAndBinaryTest.cs" />
     <Compile Include="PackageProtobuildHTTPResolvesNewForSourceOnlyTest.cs" />
     <Compile Include="PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinaryTest.cs" />
@@ -138,6 +142,10 @@
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
+    <Content Include="TestData\PackageNuGetHTTPResolvesNew\Build\Projects\empty.txt" />
+    <Content Include="TestData\PackageNuGetHTTPResolvesSecondTime\Build\Projects\empty.txt" />
+    <Content Include="TestData\PackageNuGetHTTPSResolvesNew\Build\Projects\empty.txt" />
+    <Content Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
@@ -424,6 +432,10 @@
     <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\Build\Module.xml" />
     <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\Build\Projects\LibraryB.definition" />
     <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\LibraryB\MyClass.cs" />
+    <None Include="TestData\PackageNuGetHTTPResolvesNew\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPResolvesSecondTime\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPSResolvesNew\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
