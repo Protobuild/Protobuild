@@ -321,6 +321,26 @@ namespace Protobuild
                 return null;
             }
 
+            var localFileExists = false;
+            try
+            {
+                localFileExists = File.Exists(metadata.BinaryURI);
+            }
+            catch
+            {
+            }
+
+            if (metadata.BinaryFormat != null && localFileExists)
+            {
+                // This is a local package file, read it directly.
+                using (var stream = new FileStream(metadata.BinaryURI, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    var data = new byte[stream.Length];
+                    stream.Read(data, 0, data.Length);
+                    return data;
+                }
+            }
+
             if (this.HasBinaryPackage(metadata))
             {
                 // We have it already downloaded in the cache.

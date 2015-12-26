@@ -104,6 +104,8 @@
     <Compile Include="PackageProtobuildHTTPSResolvesNewForSourceOnlyTest.cs" />
     <Compile Include="PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinaryTest.cs" />
     <Compile Include="PackageProtobuildHTTPSResolvesSecondTimeForSourceOnlyTest.cs" />
+    <Compile Include="PackageProtobuildLocalResolvesNewForBinaryOnlyTest.cs" />
+    <Compile Include="PackageProtobuildLocalResolvesSecondTimeForBinaryOnlyTest.cs" />
     <Compile Include="PackageRedirectionToLocalPathTest.cs" />
     <Compile Include="PackageRedirectionToLocalPointerTest.cs" />
     <Compile Include="PackageResolutionDoesNotOccurInFolderWithExistingDataTest.cs" />
@@ -154,6 +156,8 @@
     <Content Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
+    <Content Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Projects\empty.txt" />
+    <Content Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Projects\empty.txt" />
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />
@@ -435,7 +439,9 @@
     <None Include="TestData\PackageNuGetHTTPResolvesNew\Build\Module.xml" />
     <None Include="TestData\PackageNuGetHTTPResolvesSecondTime\Build\Module.xml" />
     <None Include="TestData\PackageNuGetHTTPSResolvesNew\Build\Module.xml" />
-    <None Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Module.xml">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
@@ -444,6 +450,8 @@
     <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Module.xml" />
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Module.xml" />
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Projects\Console.definition" />
     <None Include="TestData\PackageRedirectionToLocalPath\Console\Program.cs" />

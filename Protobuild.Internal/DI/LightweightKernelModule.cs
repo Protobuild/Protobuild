@@ -79,6 +79,7 @@ namespace Protobuild
             kernel.Bind<IPackageProtocol, LocalTemplateGitPackageProtocol>();
             kernel.Bind<IPackageProtocol, NuGetPackageProtocol>();
             kernel.Bind<IPackageProtocol, ProtobuildPackageProtocol>();
+            kernel.Bind<IPackageProtocol, LocalProtobuildPackageProtocol>();
         }
 
         public static void BindAutomatedBuild(this LightweightKernel kernel)

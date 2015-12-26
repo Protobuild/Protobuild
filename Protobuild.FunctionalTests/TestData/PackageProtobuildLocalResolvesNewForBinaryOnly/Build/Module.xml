@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name>Module</Name>
+  <DefaultAction>resync</DefaultAction>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <Packages>
+    <Package Folder="Package" GitRef="master" Uri="local-lzma://./8c45e8cf7b07b1a77bd18d82e883a6e3e8510a0d-4.0.0-windows.tar.lzma" />
+  </Packages>
+</Module>
