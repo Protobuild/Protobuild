@@ -9,7 +9,7 @@ namespace Protobuild
     {
         void Generate(
             DefinitionInfo current,
-            List<XmlDocument> definitions1,
+            List<LoadedDefinitionInfo> definitions,
             string rootPath,
             string projectName,
             string platformName,

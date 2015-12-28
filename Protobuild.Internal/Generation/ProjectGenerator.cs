@@ -63,7 +63,7 @@ namespace Protobuild
         /// <param name="onActualGeneration"></param>
         public void Generate(
             DefinitionInfo current,
-            List<XmlDocument> documents,
+            List<LoadedDefinitionInfo> definitions,
             string rootPath,
             string projectName,
             string platformName,
@@ -74,8 +74,8 @@ namespace Protobuild
             packagesFilePath = string.Empty;
 
             // Work out what document this is.
-            var projectDoc = documents.First(
-                x => x.DocumentElement.Attributes["Name"].Value == projectName);
+            var projectDoc = definitions.First(
+                x => x.Project.DocumentElement.Attributes["Name"].Value == projectName)?.Project;
 
             // Check to see if we have a Project node; if not
             // then this is an external or other type of project
@@ -137,13 +137,13 @@ namespace Protobuild
             // Imply external project references from other external projects.  We do
             // this so that external projects can reference other external projects (which
             // we can't reasonably handle at the XSLT level since it's recursive).
-            this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(documents, projectDoc, platformName);
+            this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(definitions, projectDoc, platformName);
 
             // Generate Info.plist files if necessary (for Mac / iOS).
             this._mPlatformResourcesGenerator.GenerateInfoPListIfNeeded(current, projectDoc, platformName);
 
             // Add include projects if they have an AppliesTo tag that matches this project's name.
-            this._includeProjectAppliesToUpdater.UpdateProjectReferences(documents, projectDoc);
+            this._includeProjectAppliesToUpdater.UpdateProjectReferences(definitions.Select(x => x.Project).ToList(), projectDoc);
 
             // Work out what path to save at.
             var path = Path.Combine(
@@ -176,7 +176,7 @@ namespace Protobuild
 
             // Generate the input document.
             var input = this.m_ProjectInputGenerator.Generate(
-                documents,
+                definitions.Select(x => x.Project).ToList(),
                 rootPath,
                 projectName,
                 platformName,

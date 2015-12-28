@@ -117,7 +117,7 @@ namespace Protobuild
                                 .ToDictionarySafe(
                                     k => k.Attributes["id"].Value,
                                     v => v.Attributes["version"].Value,
-                                    c =>
+                                    (dict, c) =>
                                         Console.WriteLine("WARNING: More than one dependency on " + c +
                                                           " in NuGet package."));
                     }

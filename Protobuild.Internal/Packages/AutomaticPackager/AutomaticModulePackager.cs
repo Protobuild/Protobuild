@@ -36,7 +36,7 @@ namespace Protobuild
             string platform)
         {
             var definitions = module.GetDefinitionsRecursively(platform).ToArray();
-            var loadedProjects = new List<XmlDocument>();
+            var loadedProjects = new List<LoadedDefinitionInfo>();
 
             foreach (var definition in definitions)
             {
@@ -71,7 +71,7 @@ namespace Protobuild
                 serviceManager.EnableDebugInformation();
             }
 
-            services = serviceManager.CalculateDependencyGraph(loadedProjects);
+            services = serviceManager.CalculateDependencyGraph(loadedProjects.Select(x => x.Project).ToList());
 
             foreach (var service in services)
             {
@@ -120,7 +120,7 @@ namespace Protobuild
             var filterDictionary = fileFilter.ToDictionarySafe(
                 k => k.Key, 
                 v => v.Value,
-                d => Console.WriteLine ("WARNING: More than one file maps to " + d.Key));
+                (dict, d) => Console.WriteLine ("WARNING: More than one file maps to " + d.Key));
             if (!filterDictionary.ContainsValue("Build/Module.xml"))
             {
                 fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "Build/Module.xml");
@@ -610,7 +610,15 @@ namespace Protobuild
             var definitionsByName = definitions.ToDictionarySafe(
                 k => k.Name,
                 v => v,
-                d => Console.WriteLine("WARNING: There is more than one definition with the name " + d.Name));
+                (dict, x) =>
+                {
+                    var existing = dict[x.Name];
+                    var tried = x;
+
+                    Console.WriteLine("WARNING: There is more than one project with the name " +
+                                      x.Name + " (first project loaded from " + tried.AbsolutePath + ", " +
+                                      "skipped loading second project from " + existing.AbsolutePath + ")");
+                });
             foreach (var reference in document.XPathSelectElements("/Project/References/Reference"))
             {
                 var includeAttribute = reference.Attribute(XName.Get("Include"));

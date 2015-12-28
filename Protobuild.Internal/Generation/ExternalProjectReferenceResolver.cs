@@ -7,12 +7,21 @@ namespace Protobuild
 {
     public class ExternalProjectReferenceResolver : IExternalProjectReferenceResolver
     {
-        public void ResolveExternalProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc, string targetPlatform)
+        public void ResolveExternalProjectReferences(List<LoadedDefinitionInfo> documents, XmlDocument projectDoc, string targetPlatform)
         {
             var documentsByName = documents.ToDictionarySafe(
-                k => k.DocumentElement.GetAttribute("Name"),
+                k => k.Definition.Name,
                 v => v,
-                x => Console.WriteLine("WARNING: There is more than one project with the name " + x.DocumentElement.GetAttribute("Name")));
+                (dict, x) =>
+                {
+                    var existing = dict[x.Definition.Name];
+                    var tried = x;
+
+                    Console.WriteLine("WARNING: There is more than one project with the name " +
+                                      x.Definition.Name + " (first project loaded from " + tried.Definition.AbsolutePath + ", " +
+                                      "skipped loading second project from " + existing.Definition.AbsolutePath + ")");
+                })
+                .ToDictionary(k => k.Key, v => v.Value.Project);
 
             var modified = true;
             while (modified)

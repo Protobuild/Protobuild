@@ -102,7 +102,7 @@
             var lookup = services.ToDictionarySafe(
                 k => k.FullName,
                 v => v,
-                d => Console.WriteLine("WARNING: There is more than one service with the full name " + d.FullName));
+                (dict, d) => Console.WriteLine("WARNING: There is more than one service with the full name " + d.FullName));
 
             var references = from definition in definitions
                              where definition.DocumentElement.Name == "Project"
@@ -207,7 +207,7 @@
             var lookup = services.ToDictionarySafe(
                 k => k.FullName,
                 v => v,
-                d => { /* We have already warned about this previously */ });
+                (dict, d) => { /* We have already warned about this previously */ });
             var modified = false;
 
             foreach (var service in services)

@@ -5,7 +5,7 @@ namespace Protobuild
 {
     public interface IProjectLoader
     {
-        XmlDocument Load(string targetPlatform, ModuleInfo module, DefinitionInfo definition);
+        LoadedDefinitionInfo Load(string targetPlatform, ModuleInfo module, DefinitionInfo definition);
     }
 }
 

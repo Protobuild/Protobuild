@@ -15,7 +15,7 @@ namespace Protobuild
             this.m_ContentProjectGenerator = contentProjectGenerator;
         }
 
-        public XmlDocument Load(string targetPlatform, ModuleInfo module, DefinitionInfo definition)
+        public LoadedDefinitionInfo Load(string targetPlatform, ModuleInfo module, DefinitionInfo definition)
         {
             var doc = new XmlDocument();
             doc.Load(definition.DefinitionPath);
@@ -142,7 +142,11 @@ namespace Protobuild
                 }
             }
 
-            return newDoc;
+            return new LoadedDefinitionInfo
+            {
+                Definition = definition,
+                Project = newDoc,
+            };
         }
     }
 }

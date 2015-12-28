@@ -80,7 +80,7 @@ namespace Protobuild.Tasks
                 "Starting generation of projects for " + Platform);
 
             var definitions = module.GetDefinitionsRecursively(Platform).ToArray();
-            var loadedProjects = new List<XmlDocument>();
+            var loadedProjects = new List<LoadedDefinitionInfo>();
 
             foreach (var definition in definitions)
             {
@@ -127,7 +127,7 @@ namespace Protobuild.Tasks
 
                 try
                 {
-                    services = serviceManager.CalculateDependencyGraph(loadedProjects);
+                    services = serviceManager.CalculateDependencyGraph(loadedProjects.Select(x => x.Project).ToList());
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -220,7 +220,7 @@ namespace Protobuild.Tasks
             LogMessage("Generating: (solution)");
             m_SolutionGenerator.Generate(
                 module,
-                loadedProjects,
+                loadedProjects.Select(x => x.Project).ToList(),
                 Platform,
                 solution,
                 services,

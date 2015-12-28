@@ -5,7 +5,11 @@ namespace Protobuild
 {
     public static class SafeToDictionaryExtension
     {
-        public static Dictionary<TKey, TValue> ToDictionarySafe<TSource, TKey, TValue>(this IEnumerable<TSource> enumerable, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector, Action<TSource> onDuplicate)
+        public static Dictionary<TKey, TValue> ToDictionarySafe<TSource, TKey, TValue>(
+            this IEnumerable<TSource> enumerable, 
+            Func<TSource, TKey> keySelector, 
+            Func<TSource, TValue> valueSelector,
+            Action<Dictionary<TKey, TValue>, TSource> onDuplicate)
         {
             var dictionary = new Dictionary<TKey, TValue>();
 
@@ -15,7 +19,7 @@ namespace Protobuild
 
                 if (dictionary.ContainsKey(key))
                 {
-                    onDuplicate(s);
+                    onDuplicate(dictionary, s);
                 }
                 else
                 {
