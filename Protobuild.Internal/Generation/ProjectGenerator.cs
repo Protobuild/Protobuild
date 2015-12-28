@@ -137,13 +137,13 @@ namespace Protobuild
             // Imply external project references from other external projects.  We do
             // this so that external projects can reference other external projects (which
             // we can't reasonably handle at the XSLT level since it's recursive).
-            this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(definitions, projectDoc, platformName);
+			this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(definitions, projectDoc, platformName);
+
+			// Add include projects if they have an AppliesTo tag that matches this project's name.
+			this._includeProjectAppliesToUpdater.UpdateProjectReferences(definitions.Select(x => x.Project).ToList(), projectDoc);
 
             // Generate Info.plist files if necessary (for Mac / iOS).
-            this._mPlatformResourcesGenerator.GenerateInfoPListIfNeeded(current, projectDoc, platformName);
-
-            // Add include projects if they have an AppliesTo tag that matches this project's name.
-            this._includeProjectAppliesToUpdater.UpdateProjectReferences(definitions.Select(x => x.Project).ToList(), projectDoc);
+            this._mPlatformResourcesGenerator.GenerateInfoPListIfNeeded(definitions, current, projectDoc, platformName);
 
             // Work out what path to save at.
             var path = Path.Combine(

@@ -69,6 +69,7 @@
     <Compile Include="IncludeProjectViaSubmoduleWorksTest.cs" />
     <Compile Include="IncludeProjectWorksTest.cs" />
     <Compile Include="InfoPListFileIsGeneratedTest.cs" />
+    <Compile Include="InfoPListFileIsNotGeneratedWhenIncludeProvidesItTest.cs" />
     <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
@@ -158,6 +159,9 @@
     <Content Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Projects\empty.txt" />
     <Content Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Projects\empty.txt" />
+    <None Include="Info.plist">
+      <Platforms>iOS,MacOS</Platforms>
+    </None>
     <None Include="TestData\BasicGenerationWorks\Build\Module.xml" />
     <None Include="TestData\BasicGenerationWorks\Build\Projects\Console.definition" />
     <None Include="TestData\BasicGenerationWorks\Console\Program.cs" />
@@ -310,6 +314,10 @@
     <None Include="TestData\InfoPListFileIsGenerated\Build\Module.xml" />
     <None Include="TestData\InfoPListFileIsGenerated\Build\Projects\Console.definition" />
     <None Include="TestData\InfoPListFileIsGenerated\Console\Program.cs" />
+    <None Include="TestData\InfoPListFileIsNotGeneratedWhenIncludeProvidesIt\Build\Module.xml" />
+    <None Include="TestData\InfoPListFileIsNotGeneratedWhenIncludeProvidesIt\Build\Projects\Console.definition" />
+    <None Include="TestData\InfoPListFileIsNotGeneratedWhenIncludeProvidesIt\Build\Projects\Include.definition" />
+    <None Include="TestData\InfoPListFileIsNotGeneratedWhenIncludeProvidesIt\Console\Program.cs" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Projects\App.definition" />

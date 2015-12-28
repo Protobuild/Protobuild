@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Xml;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Protobuild
 {
@@ -13,13 +15,28 @@ namespace Protobuild
             _hostPlatformDetector = hostPlatformDetector;
         }
 
-        public void GenerateInfoPListIfNeeded(DefinitionInfo definition, XmlDocument project, string platform)
+        public void GenerateInfoPListIfNeeded(List<LoadedDefinitionInfo> definitions, DefinitionInfo definition, XmlDocument project, string platform)
         {
             if (platform == "iOS" || platform == "MacOS")
             {
                 var type = project.DocumentElement.GetAttribute("Type");
                 if (type == "Console" || type == "App")
                 {
+					var references = project.DocumentElement.SelectNodes("References/*").OfType<XmlElement>();
+					foreach (var reference in references)
+					{
+						Console.WriteLine("ref " + reference.GetAttribute("Include"));
+
+						var lookup = definitions.FirstOrDefault(x => x.Definition.Name == reference.GetAttribute("Include"));
+						if (lookup != null && lookup.Definition.Type == "Include")
+						{
+							if (project.DocumentElement.SelectSingleNode("Files/*[@Include='Info.plist']") == null)
+							{
+								return;
+							}
+						}
+					}
+
                     if (project.DocumentElement.SelectSingleNode("Files/*[@Include='Info.plist']") == null)
                     {
                         // We need to generate an Info.plist file for iOS and Mac; we do this

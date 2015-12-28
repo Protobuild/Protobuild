@@ -27,5 +27,8 @@
     <EmbeddedResource Include="ModuleInfos\FeatureSetIsPackageManagementAndHostPlatformGeneration.xml">
       <LogicalName>FeatureSetIsPackageManagementAndHostPlatformGeneration.xml</LogicalName>
     </EmbeddedResource>
+    <None Include="Info.plist">
+      <Platforms>iOS,MacOS</Platforms>
+    </None>
   </Files>
 </Project>
