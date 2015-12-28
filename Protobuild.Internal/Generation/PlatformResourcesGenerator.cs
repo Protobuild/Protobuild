@@ -25,8 +25,6 @@ namespace Protobuild
 					var references = project.DocumentElement.SelectNodes("References/*").OfType<XmlElement>();
 					foreach (var reference in references)
 					{
-						Console.WriteLine("ref " + reference.GetAttribute("Include"));
-
 						var lookup = definitions.FirstOrDefault(x => x.Definition.Name == reference.GetAttribute("Include"));
 						if (lookup != null && lookup.Definition.Type == "Include")
 						{
