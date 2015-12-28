@@ -172,10 +172,22 @@ namespace Protobuild
         {
             var sha1 = new SHA1Managed();
 
-            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(url));
+            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(NormalizeURIForCache(url)));
             var urlHashString = BitConverter.ToString(urlHashBytes).Replace("-", "").ToLowerInvariant();
 
             return urlHashString + "--source";
+        }
+
+        private string NormalizeURIForCache(string canonicalUri)
+        {
+            var index = canonicalUri.IndexOf("://", StringComparison.InvariantCulture);
+
+            if (index != -1)
+            {
+                return canonicalUri.Substring(index + "://".Length);
+            }
+
+            return canonicalUri;
         }
 
         private void ExtractGitSourceTo(string sourcePath, string gitRef, string path)

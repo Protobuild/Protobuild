@@ -389,12 +389,24 @@ namespace Protobuild
         {
             var sha1 = new SHA1Managed();
 
-            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(metadata.CanonicalURI));
+            var urlHashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(NormalizeURIForCache(metadata.CanonicalURI)));
             var urlHashString = BitConverter.ToString(urlHashBytes).Replace("-", "").ToLowerInvariant();
             var gitHashString = metadata.GitCommitOrRef.ToLowerInvariant();
             var platformString = metadata.Platform.ToLowerInvariant();
 
             return urlHashString + "-" + gitHashString + "-" + platformString + TranslateToExtension(metadata.BinaryFormat);
+        }
+
+        private string NormalizeURIForCache(string canonicalUri)
+        {
+            var index = canonicalUri.IndexOf("://", StringComparison.InvariantCulture);
+
+            if (index != -1)
+            {
+                return canonicalUri.Substring(index + "://".Length);
+            }
+
+            return canonicalUri;
         }
 
         private string TranslateToExtension(string format)
