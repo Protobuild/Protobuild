@@ -10,7 +10,7 @@ namespace Protobuild.FunctionalTests.Regression
 {
     public class RegressionTestSetProvider : ITestSetProvider
     {
-        public List<TestSet> GetTestSets(List<TestInputEntry> classes)
+        public List<TestSet> GetTestSets(List<TestInputEntry> classes, Dictionary<Type, object> assertTypes)
         {
             var sets = new List<TestSet>();
 

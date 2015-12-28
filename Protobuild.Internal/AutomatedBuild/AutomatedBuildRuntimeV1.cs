@@ -37,6 +37,11 @@ namespace Protobuild
                     continue;
                 }
 
+                if (line.TrimStart().StartsWith("#"))
+                {
+                    continue;
+                }
+
                 try
                 {
                     var instruction = line.Trim().Split(new[] {' '}, 2);
