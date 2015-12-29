@@ -30,7 +30,7 @@ namespace Protobuild
                 }
             case OutputPathMode.BinPlatformArchConfiguration:
                 {
-                    // In this configuration, we ship binaries for AnyCPU, iPhone or all .NET architectures
+                    // In this configuration, we ship binaries for AnyCPU, iPhoneSimulator or all .NET architectures
                     // depending on whether or not the platform produces multiple architectures.  On Mono,
                     // we can't use $(Platform) within a reference's path, so we have to keep this path static
                     // for Mono platforms.
@@ -39,7 +39,7 @@ namespace Protobuild
                     {
                     case "ios":
                         {
-                            pathArchMatch = "iPhone";
+                            pathArchMatch = "iPhoneSimulator";
                             break;
                         }
                     case "windowsphone":
