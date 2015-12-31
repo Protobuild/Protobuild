@@ -268,6 +268,15 @@ import NuGet packages.
             }
             catch (WebException)
             {
+                if (targetUri.StartsWith("https://"))
+                {
+                    // Attempt fallback to HTTP.
+                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
+                    targetUri = "http" + targetUri.Substring("https".Length);
+                    PushBinary(targetUri, bytes);
+                    return;
+                }
+
                 Console.WriteLine("Web exception when sending to: " + targetUri);
                 throw;
             }

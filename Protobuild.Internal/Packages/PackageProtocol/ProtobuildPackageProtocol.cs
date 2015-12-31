@@ -265,8 +265,16 @@ namespace Protobuild.Internal
                     return JSON.ToDynamic(str);
                 }
             }
-            catch (WebException)
+            catch (WebException ex)
             {
+                if (indexUri.Scheme == "https")
+                {
+                    // Attempt fallback to HTTP.
+                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
+                    indexUri = new Uri("http" + indexUri.ToString().Substring("https".Length));
+                    return GetJSON(indexUri, out str);
+                }
+
                 Console.WriteLine("Web exception when retrieving: " + indexUri);
                 throw;
             }

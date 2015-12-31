@@ -276,6 +276,15 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
             }
             catch (WebException)
             {
+                if (targetUri.StartsWith("https://"))
+                {
+                    // Attempt fallback to HTTP.
+                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
+                    targetUri = "http" + targetUri.Substring("https".Length);
+                    PushBinary(targetUri, file);
+                    return;
+                }
+
                 Console.WriteLine("Web exception when sending to: " + targetUri);
                 throw;
             }

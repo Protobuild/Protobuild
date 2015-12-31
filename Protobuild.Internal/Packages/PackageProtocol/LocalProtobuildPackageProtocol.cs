@@ -18,20 +18,34 @@ namespace Protobuild.Internal
             _binaryPackageResolve = binaryPackageResolve;
         }
 
-        public string[] Schemes => new[] {"local-lzma","local-gzip" };
+        public string[] Schemes => new[] {"local-lzma","local-gzip","local-tool-lzma","local-tool-gzip" };
 
         public IPackageMetadata ResolveSource(PackageRequestRef request)
         {
-            string prefix, archiveType;
+            string prefix, archiveType, packageType;
             if (request.Uri.StartsWith("local-lzma://"))
             {
                 prefix = "local-lzma://";
                 archiveType = PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                packageType = PackageManager.PACKAGE_TYPE_LIBRARY;
             }
             else if (request.Uri.StartsWith("local-gzip://"))
             {
                 prefix = "local-gzip://";
                 archiveType = PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
+                packageType = PackageManager.PACKAGE_TYPE_LIBRARY;
+            }
+            else if (request.Uri.StartsWith("local-tool-lzma://"))
+            {
+                prefix = "local-tool-lzma://";
+                archiveType = PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                packageType = PackageManager.PACKAGE_TYPE_GLOBAL_TOOL;
+            }
+            else if (request.Uri.StartsWith("local-tool-gzip://"))
+            {
+                prefix = "local-tool-gzip://";
+                archiveType = PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
+                packageType = PackageManager.PACKAGE_TYPE_GLOBAL_TOOL;
             }
             else
             {
@@ -47,7 +61,7 @@ namespace Protobuild.Internal
 
             return new ProtobuildPackageMetadata(
                 null,
-                PackageManager.PACKAGE_TYPE_LIBRARY,
+                packageType,
                 null,
                 request.Platform,
                 request.GitRef,

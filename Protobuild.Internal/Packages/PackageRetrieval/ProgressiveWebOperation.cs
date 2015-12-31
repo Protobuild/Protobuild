@@ -62,6 +62,14 @@ namespace Protobuild
             }
             catch (WebException)
             {
+                if (uri.StartsWith("https://"))
+                {
+                    // Attempt fallback to HTTP.
+                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
+                    uri = "http" + uri.Substring("https".Length);
+                    return Get(uri);
+                }
+
                 Console.WriteLine("Web exception when retrieving: " + uri);
                 throw;
             }
