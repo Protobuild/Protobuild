@@ -8,11 +8,13 @@ namespace Protobuild
 {
     public static class GitUtils
     {
+        private static string _cachedGitPath;
+
         private static void RunGitInternal(string str, string workingDirectory, string consoleWriteLine)
         {
             var processStartInfo = new ProcessStartInfo
             {
-                FileName = "git",
+                FileName = GetCachedGitPath(),
                 Arguments = str,
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
@@ -48,7 +50,7 @@ namespace Protobuild
         {
             var processStartInfo = new ProcessStartInfo
                 {
-                    FileName = "git",
+                    FileName = GetCachedGitPath(),
                     Arguments = str,
                     WorkingDirectory = folder == null ? Environment.CurrentDirectory : Path.Combine(Environment.CurrentDirectory, folder),
                     RedirectStandardOutput = true,
@@ -75,7 +77,7 @@ namespace Protobuild
         {
             var processStartInfo = new ProcessStartInfo
                 {
-                    FileName = "git",
+                    FileName = GetCachedGitPath(),
                     Arguments = "status",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -121,6 +123,77 @@ namespace Protobuild
             var contents = GitUtils.GetFileStringList(excludePath).ToList();
             contents.Add(folder);
             GitUtils.SetFileStringList(excludePath, contents);
+        }
+
+        private static string GetCachedGitPath()
+        {
+            if (_cachedGitPath == null)
+            {
+                _cachedGitPath = FindGitOnSystemPath();
+            }
+
+            return _cachedGitPath;
+        }
+
+        private static string FindGitOnSystemPath()
+        {
+            if (Path.DirectorySeparatorChar != '/')
+            {
+                // We're on Windows.  We split the environment PATH to see if we
+                // can find Git, then we check standard directories (like
+                // C:\Program Files (x86)\Git) etc.
+                var pathEnv = Environment.GetEnvironmentVariable("PATH");
+                var paths = new string[0];
+                if (pathEnv != null)
+                {
+                    paths = pathEnv.Split(';');
+                }
+
+                var standardPaths = new List<string>
+                {
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Git", "cmd"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), "Git", "bin"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Git", "cmd"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "Git", "bin"),
+                };
+
+                // Add standard paths that GitHub for Windows uses.  Because the file
+                // contains a hash, or some other mutable component, we need to search for
+                // the PortableGit path.
+                var github = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "GitHub");
+                if (Directory.Exists(github))
+                {
+                    foreach (var subfolder in new DirectoryInfo(github).GetDirectories())
+                    {
+                        if (subfolder.Name.StartsWith("PortableGit_"))
+                        {
+                            standardPaths.Add(Path.Combine(subfolder.FullName, "cmd"));
+                        }
+                    }
+                }
+
+                var filenames = new[] {"git.exe", "git.bat", "git.cmd"};
+                foreach (var path in paths.Concat(standardPaths))
+                {
+                    foreach (var filename in filenames)
+                    {
+                        if (File.Exists(Path.Combine(path, filename)))
+                        {
+                            // We found Git.
+                            return Path.Combine(path, filename);
+                        }
+                    }
+                }
+
+                Console.Error.WriteLine(
+                    "WARNING: Unable to find Git on your PATH, or any standard " +
+                    "locations.  Have you installed Git on this system?");
+                return "git";
+            }
+
+            // For UNIX systems, Git should always be on the PATH.
+            return "git";
         }
 
         private static string GetGitExcludePath(string folder)
