@@ -29,14 +29,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 # Visual Studio 2013
 </xsl:text>
       </xsl:when>
-      <xsl:when test="$documentroot/Input/Generation/Platform = 'Windows8' or $documentroot/Input/Generation/Platform = 'WindowsPhone'">
+      <xsl:otherwise>
 <xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-<xsl:text>Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
 </xsl:text>
       </xsl:otherwise>
     </xsl:choose>
