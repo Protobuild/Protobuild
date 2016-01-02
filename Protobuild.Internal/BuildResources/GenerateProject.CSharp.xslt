@@ -129,7 +129,9 @@
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'WindowsUniversal'">
               <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-              <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
+              <TargetPlatformVersion>
+                <xsl:value-of select="user:DetectWindows10InstalledSDK()"/>
+              </TargetPlatformVersion>
               <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
               <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
           </xsl:when>		

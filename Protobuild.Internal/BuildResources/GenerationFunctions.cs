@@ -360,6 +360,50 @@ public class GenerationFunctions
         }
     }
 
+    public string DetectWindows10InstalledSDK()
+    {
+        Microsoft.Win32.RegistryKey registryKey;
+        try
+        {
+            registryKey = Microsoft.Win32.RegistryKey.OpenBaseKey(
+                    Microsoft.Win32.RegistryHive.LocalMachine,
+                    Microsoft.Win32.RegistryView.Registry32)
+                .OpenSubKey("SOFTWARE")
+                .OpenSubKey("Microsoft")
+                .OpenSubKey("Microsoft SDKs")
+                .OpenSubKey("Windows")
+                .OpenSubKey("v10.0");
+        }
+        catch (System.Security.SecurityException)
+        {
+            registryKey = null;
+        }
+        catch (NullReferenceException)
+        {
+            registryKey = null;
+        }
+        if (registryKey == null)
+        {
+            Console.Error.WriteLine(
+                "WARNING: No versions of the Windows 10 SDK were available " +
+                "according to the registry (or they were not readable).  " +
+                "Defaulting to ProductVersion 10.0.10240.");
+            return "10.0.10240";
+        }
+
+        var productVersion = registryKey.GetValue("ProductVersion") as string;
+        if (productVersion == null)
+        {
+            Console.Error.WriteLine(
+                "WARNING: No versions of the Windows 10 SDK were available " +
+                "according to the registry (or they were not readable).  " +
+                "Defaulting to ProductVersion 10.0.10240.");
+            return "10.0.10240";
+        }
+
+        return productVersion;
+    }
+
     public string GetKnownTool(string toolName)
     {
         if (_getKnownToolCached != null)
