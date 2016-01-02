@@ -114,6 +114,7 @@
     <Compile Include="PackageResolutionDoesNotOccurWhenPackageManagementDisabledTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
+    <Compile Include="PackageTemplateIgnoresTemplateOnlyFolderTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
@@ -483,6 +484,7 @@
     <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Console\Program.cs" />
     <None Include="TestData\PackageTemplateAppliesCorrectly\.gitkeep" />
     <None Include="TestData\PackageTemplateAppliesCorrectlyWithUnsafeName\.gitkeep" />
+    <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\.gitkeep" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputDefault\Test\Program.cs" />

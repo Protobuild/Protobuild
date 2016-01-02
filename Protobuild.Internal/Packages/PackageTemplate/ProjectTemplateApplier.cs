@@ -74,6 +74,11 @@ namespace Protobuild
                     continue;
                 }
 
+                if (subdir.Name == "_TemplateOnly")
+                {
+                    continue;
+                }
+
                 var nextDirectory = Path.Combine(currentDirectory, subdir.Name);
                 var nextPrefix = currentPrefix == string.Empty ? subdir.Name : Path.Combine(currentPrefix, subdir.Name);
 

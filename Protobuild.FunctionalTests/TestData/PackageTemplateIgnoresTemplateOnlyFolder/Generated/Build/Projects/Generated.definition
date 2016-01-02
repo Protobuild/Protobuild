@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Generated" Path="Generated" Type="App">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="protobuf-net" />
+    <Reference Include="Ninject" />
+    <Reference Include="MonoGame.Framework" />
+    <Reference Include="Protogame" />
+    <Reference Include="Protogame.ThirdParty" />
+    <Reference Include="Generated.Content" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+    <Compile Include="GeneratedGame.cs" />
+    <Compile Include="GeneratedWorld.cs" />
+    <Compile Include="GeneratedActivity.cs" />
+    <None Include="Properties/AndroidManifest.xml" />
+  </Files>
+</Project>
