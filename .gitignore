@@ -96,3 +96,4 @@ Protobuild.FunctionalTests/TestData/PackageNuGetHTTPSResolvesNew/Package/
 Protobuild.FunctionalTests/TestData/PackageNuGetHTTPSResolvesSecondTime/Package/
 Protobuild.FunctionalTests/TestData/PackageProtobuildLocalResolvesNewForBinaryOnly/Package/
 Protobuild.FunctionalTests/TestData/PackageProtobuildLocalResolvesSecondTimeForBinaryOnly/Package/
+Protobuild.FunctionalTests/TestData/PackageTemplateIgnoresTemplateOnlyFolder/Generated/Generated.Content/assets/.source

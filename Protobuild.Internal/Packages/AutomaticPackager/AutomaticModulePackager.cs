@@ -106,6 +106,10 @@ namespace Protobuild
                         Console.WriteLine("Packaging: " + definition.Name);
                         this.AutomaticallyPackageExternalProject(definitions, services, fileFilter, rootPath, platform, definition);
                         break;
+                    case "Include":
+                        Console.WriteLine("Packaging: " + definition.Name);
+                        this.AutomaticallyPackageIncludeProject(definitions, services, fileFilter, rootPath, platform, definition);
+                        break;
                     case "Content":
                         Console.WriteLine("Content project definition skipped: " + definition.Name);
                         break;
@@ -745,6 +749,21 @@ namespace Protobuild
                 externalProjectDocument.WriteTo(writer);
             }
             fileFilter.AddManualMapping(temp, "Build/Projects/" + definition.Name + ".definition");
+        }
+
+        private void AutomaticallyPackageIncludeProject(
+            DefinitionInfo[] definitions,
+            List<Service> services,
+            FileFilter fileFilter,
+            string rootPath,
+            string platform,
+            DefinitionInfo definition)
+        {
+            // Include the include project's definition.
+            fileFilter.ApplyInclude("^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$");
+
+            // Include everything underneath the include project's path.
+            fileFilter.ApplyInclude("^" + Regex.Escape(definition.RelativePath) + ".+$");
         }
     }
 }

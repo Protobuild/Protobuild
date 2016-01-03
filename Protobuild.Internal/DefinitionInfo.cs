@@ -144,6 +144,11 @@ namespace Protobuild
                 else if (doc.Root.Name == "IncludeProject")
                 {
                     def.Type = "Include";
+
+                    if (doc.Root.Attributes().Any(x => x.Name == "Path"))
+                    {
+                        def.RelativePath = doc.Root.Attribute(XName.Get("Path")).Value;
+                    }
                 }
                 else if (doc.Root.Name == "ContentProject")
                 {
