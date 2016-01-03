@@ -82,7 +82,11 @@ namespace Protobuild
                     if (_hostPlatformDetector.DetectPlatform() == "Windows")
                     {
                         this.InstallToolIntoWindowsStartMenu(toolName, toolPath);
-                    }
+					}
+					else if (_hostPlatformDetector.DetectPlatform() == "MacOS")
+					{
+						this.InstallToolIntoUserApplicationFolder(toolName, toolPath);
+					}
                     else if (_hostPlatformDetector.DetectPlatform() == "Linux")
                     {
                         this.InstallToolIntoLinuxApplicationMenu(toolName, toolPath);
@@ -103,7 +107,38 @@ namespace Protobuild
                 writer.WriteLine("IconFile=" + toolPath.Replace('\\', '/'));
                 writer.Flush();
             }
-        }
+		}
+
+		private void InstallToolIntoUserApplicationFolder(string toolName, string toolPath)
+		{
+			var appToolPath = toolPath.Replace(".exe", ".app");
+			if (!Directory.Exists(appToolPath))
+			{
+				return;
+			}
+
+			var basename = Path.GetFileName(appToolPath);
+			var installPath = Path.Combine(
+				Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+				"Applications",
+				basename);
+			if (File.Exists(installPath))
+			{
+				File.Delete(installPath);
+			}
+
+			var install = System.Diagnostics.Process.Start("ln", "-s '" + appToolPath + "' '" + installPath + "'");
+			if (install != null)
+			{
+				install.WaitForExit();
+
+				Console.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
+			}
+			else
+			{
+				Console.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (unable to create link)");
+			}
+		}
 
         private void InstallToolIntoLinuxApplicationMenu(string toolName, string toolPath)
         {
