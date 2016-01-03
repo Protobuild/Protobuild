@@ -1437,11 +1437,11 @@
           </xsl:choose>
         </xsl:if>
 
-        <xsl:if test="/Input/Generation/Platform = 'tvOS'">
-            <Reference Include="Xamarin.TVOS" />
+        <xsl:if test="$root/Input/Generation/Platform = 'tvOS'">
+          <Reference Include="Xamarin.TVOS" />
         </xsl:if>
 
-        <xsl:if test="$root/Input/Generation/Platform = 'Android'">
+        <xsl:if test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
           <Reference Include="Mono.Android" />
         </xsl:if>
 
