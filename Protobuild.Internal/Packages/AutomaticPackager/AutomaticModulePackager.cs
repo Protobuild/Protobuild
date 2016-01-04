@@ -436,6 +436,17 @@ namespace Protobuild
                 externalProjectServices.AppendChild(serviceElem);
             }
 
+            // Copy all existing references that the normal project makes to the external project.
+            var referencesDeclared = document.Root.Element(XName.Get("References"));
+            if (referencesDeclared != null)
+            {
+                foreach (var referenceElement in referencesDeclared.Elements().Where(x => x.Name.LocalName == "Reference"))
+                {
+                    var referenceElem = externalProjectDocument.CreateElement("Reference");
+                    referenceElem.SetAttribute("Include", referenceElement.Attribute(XName.Get("Include")).Value);
+                }
+            }
+
             var pathPrefix = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, definition, document, true);
             var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, definition, document);
             var outputMode = this.m_ProjectOutputPathCalculator.GetProjectOutputMode(document);
