@@ -2343,7 +2343,13 @@
             </xsl:attribute>
           </Exec>
         </xsl:for-each>
-        <Touch Files="$(_PostBuildHookTimestamp)" AlwaysCreate="True" />
+        <Touch Files="$(_PostBuildHookTimestamp)" AlwaysCreate="True">
+          <xsl:if test="($root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS') and $root/Input/Generation/HostPlatform = 'Windows'">
+            <xsl:attribute name="SessionId">
+              <xsl:text>$(BuildSessionId)</xsl:text>
+            </xsl:attribute> 
+          </xsl:if>
+        </Touch>
       </Target>
 
       <!-- {ADDITIONAL_TRANSFORMS} -->

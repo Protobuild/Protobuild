@@ -144,6 +144,7 @@
     <Compile Include="SubmoduleSynchronisationSkippedIfNoStandardProjectsTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentExtensiveTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
+    <Compile Include="TouchTaskGetsSessionIdForiOSOnWindowsTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
     <Content Include="TestData\PackageNuGetHTTPResolvesNew\Build\Projects\empty.txt" />
@@ -886,6 +887,9 @@
     <None Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\assets\testA.txt" />
     <None Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\compiled\testC.txt" />
     <None Include="TestData\SyncDoesNotIncludeContentWorks\Console\Program.cs" />
+    <None Include="TestData\TouchTaskGetsSessionIdForiOSOnWindows\Build\Module.xml" />
+    <None Include="TestData\TouchTaskGetsSessionIdForiOSOnWindows\Build\Projects\Console.definition" />
+    <None Include="TestData\TouchTaskGetsSessionIdForiOSOnWindows\Console\Program.cs" />
     <None Include="TestData\TreatWarningsAsErrorsProperty\Build\Module.xml" />
     <None Include="TestData\TreatWarningsAsErrorsProperty\Build\Projects\Test.definition" />
     <None Include="TestData\TreatWarningsAsErrorsProperty\Test\Program.cs" />
