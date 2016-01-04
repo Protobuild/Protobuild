@@ -3,18 +3,18 @@
     using System.IO;
     using Prototest.Library.Version1;
 
-    public class TouchTaskGetsSessionIdForiOSOnWindowsTest : ProtobuildTest
+    public class iOSOnWindowsHasAlternatePostBuildHookSystemTest : ProtobuildTest
     {
         private readonly IAssert _assert;
 
-        public TouchTaskGetsSessionIdForiOSOnWindowsTest(IAssert assert) : base(assert)
+        public iOSOnWindowsHasAlternatePostBuildHookSystemTest(IAssert assert) : base(assert)
         {
             _assert = assert;
         }
 
         public void GenerationIsCorrect()
         {
-            this.SetupTest("TouchTaskGetsSessionIdForiOSOnWindows");
+            this.SetupTest("iOSOnWindowsHasAlternatePostBuildHookSystem");
 
             this.Generate("iOS", hostPlatform: "Windows");
 
@@ -22,7 +22,7 @@
 
             var consoleContents = this.ReadFile(@"Console\Console.iOS.csproj");
 
-            _assert.Contains("SessionId=\"$(BuildSessionId)\"", consoleContents);
+            _assert.Contains("LocalTouch Path", consoleContents);
             
             this.Generate("tvOS", hostPlatform: "Windows");
 
@@ -30,7 +30,7 @@
 
             consoleContents = this.ReadFile(@"Console\Console.tvOS.csproj");
 
-            _assert.Contains("SessionId=\"$(BuildSessionId)\"", consoleContents);
+            _assert.Contains("LocalTouch Path", consoleContents);
 
             this.Generate("Windows", hostPlatform: "Windows");
 
@@ -38,7 +38,7 @@
 
             consoleContents = this.ReadFile(@"Console\Console.Windows.csproj");
 
-            _assert.DoesNotContain("SessionId=\"$(BuildSessionId)\"", consoleContents);
+            _assert.DoesNotContain("LocalTouch Path", consoleContents);
         }
     }
 }

@@ -26,8 +26,8 @@
             var hookContents = this.ReadFile(@"Hook\Hook.Android.csproj");
             var hookLibraryContents = this.ReadFile(@"Hook.Library\Hook.Library.Android.csproj");
 
-            _assert.Contains(@"bin\Windows\$(Platform)\$(Configuration)\Hook.exe", consoleContents);
-            _assert.DoesNotContain(@"bin\Android\$(Platform)\$(Configuration)\Hook.exe", consoleContents);
+            _assert.Contains(@"bin\Windows\$(_PostBuildHookHostPlatform)\$(Configuration)\Hook.exe", consoleContents);
+            _assert.DoesNotContain(@"bin\Android\$(_PostBuildHookHostPlatform)\$(Configuration)\Hook.exe", consoleContents);
         }
     }
 }

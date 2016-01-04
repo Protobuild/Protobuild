@@ -71,6 +71,7 @@
     <Compile Include="InfoPListFileIsGeneratedTest.cs" />
     <Compile Include="InfoPListFileIsNotGeneratedWhenIncludeProvidesItTest.cs" />
     <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
+    <Compile Include="iOSOnWindowsHasAlternatePostBuildHookSystemTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
@@ -144,7 +145,6 @@
     <Compile Include="SubmoduleSynchronisationSkippedIfNoStandardProjectsTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentExtensiveTest.cs" />
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
-    <Compile Include="TouchTaskGetsSessionIdForiOSOnWindowsTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
     <Content Include="TestData\PackageNuGetHTTPResolvesNew\Build\Projects\empty.txt" />
@@ -323,6 +323,9 @@
     <None Include="TestData\iOSLegacyAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Projects\App.definition" />
+    <None Include="TestData\iOSOnWindowsHasAlternatePostBuildHookSystem\Build\Module.xml" />
+    <None Include="TestData\iOSOnWindowsHasAlternatePostBuildHookSystem\Build\Projects\Console.definition" />
+    <None Include="TestData\iOSOnWindowsHasAlternatePostBuildHookSystem\Console\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
@@ -887,9 +890,6 @@
     <None Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\assets\testA.txt" />
     <None Include="TestData\SyncDoesNotIncludeContentWorks\Console.Content\compiled\testC.txt" />
     <None Include="TestData\SyncDoesNotIncludeContentWorks\Console\Program.cs" />
-    <None Include="TestData\TouchTaskGetsSessionIdForiOSOnWindows\Build\Module.xml" />
-    <None Include="TestData\TouchTaskGetsSessionIdForiOSOnWindows\Build\Projects\Console.definition" />
-    <None Include="TestData\TouchTaskGetsSessionIdForiOSOnWindows\Console\Program.cs" />
     <None Include="TestData\TreatWarningsAsErrorsProperty\Build\Module.xml" />
     <None Include="TestData\TreatWarningsAsErrorsProperty\Build\Projects\Test.definition" />
     <None Include="TestData\TreatWarningsAsErrorsProperty\Test\Program.cs" />

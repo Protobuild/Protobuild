@@ -2196,7 +2196,7 @@
                 <xsl:with-param name="type" select="./@Type" />
                 <xsl:with-param name="projectname" select="./@Name" />
                 <xsl:with-param name="protobuildplatform" select="$root/Input/Generation/HostPlatform" />
-                <xsl:with-param name="platform">$(Platform)</xsl:with-param>
+                <xsl:with-param name="platform">$(_PostBuildHookHostPlatform)</xsl:with-param>
                 <xsl:with-param name="config">$(Configuration)</xsl:with-param>
                 <xsl:with-param name="platform_specific_output_folder" select="./Properties/PlatformSpecificOutputFolder" />
                 <xsl:with-param name="project_specific_output_folder" select="./Properties/ProjectSpecificOutputFolder" />
@@ -2257,6 +2257,17 @@
       
       <PropertyGroup>
         <_PostBuildHookTimestamp>@(IntermediateAssembly->'%(FullPath).timestamp')</_PostBuildHookTimestamp>
+        <_PostBuildHookHostPlatform>
+          <xsl:choose>
+            <!-- We have to choose AnyCPU when targeting iOS on Windows, because Platform will be something like iPhone -->
+            <xsl:when test="($root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS') and $root/Input/Generation/HostPlatform = 'Windows'">
+              <xsl:text>AnyCPU</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>$(Platform)</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </_PostBuildHookHostPlatform>
       </PropertyGroup>
 
       <!-- 
@@ -2277,6 +2288,32 @@
             </xsl:otherwise>
           </xsl:choose>
         </xsl:if>
+      </xsl:if>
+
+      <!-- We need this custom task for Xamarin.iOS on Windows -->
+      <xsl:if test="($root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS') and $root/Input/Generation/HostPlatform = 'Windows'">
+        <UsingTask
+          TaskName="LocalTouch"
+          TaskFactory="CodeTaskFactory"
+          AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v12.0.dll">
+          <ParameterGroup>
+            <Path ParameterType="System.String" Required="true" />
+          </ParameterGroup>
+          <Task>
+            <Using Namespace="System" />
+            <Using Namespace="System.IO" />
+            <Code Type="Fragment" Language="cs">
+              <![CDATA[
+                  if (!File.Exists(Path))
+                  {
+                    var stream = File.Create(Path);
+                    stream.Dispose();
+                  }
+                  File.SetLastAccessTime(Path, DateTime.Now);
+                  ]]>
+            </Code>
+          </Task>
+        </UsingTask>
       </xsl:if>
       
       <Target Name="PostBuildHooks" Inputs="@(IntermediateAssembly);@(ReferencePath)" Outputs="@(IntermediateAssembly);$(_PostBuildHookTimestamp)" AfterTargets="CoreCompile" BeforeTargets="AfterCompile">
@@ -2343,13 +2380,15 @@
             </xsl:attribute>
           </Exec>
         </xsl:for-each>
-        <Touch Files="$(_PostBuildHookTimestamp)" AlwaysCreate="True">
-          <xsl:if test="($root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS') and $root/Input/Generation/HostPlatform = 'Windows'">
-            <xsl:attribute name="SessionId">
-              <xsl:text>$(BuildSessionId)</xsl:text>
-            </xsl:attribute> 
-          </xsl:if>
-        </Touch>
+        <xsl:choose>
+          <!-- We can't use the <Touch> task, because Xamarin iOS remaps it on Windows to be a remote command -->
+          <xsl:when test="($root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS') and $root/Input/Generation/HostPlatform = 'Windows'">
+            <LocalTouch Path="$(_PostBuildHookTimestamp)" />
+          </xsl:when>
+          <xsl:otherwise>
+            <Touch Files="$(_PostBuildHookTimestamp)" AlwaysCreate="True" />
+          </xsl:otherwise>
+        </xsl:choose>
       </Target>
 
       <!-- {ADDITIONAL_TRANSFORMS} -->
