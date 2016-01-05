@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<IncludeProject Name="Includable" Path="Includable">
+  <Properties>
+    <Property Name="NoWarn" Value="TEST" />
+  </Properties>
+  <Files>
+    <Compile Include="MyIncludableClass.cs" />
+  </Files>
+</IncludeProject>

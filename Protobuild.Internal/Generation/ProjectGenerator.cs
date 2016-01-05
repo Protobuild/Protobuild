@@ -31,6 +31,8 @@ namespace Protobuild
 
         private readonly IIncludeProjectAppliesToUpdater _includeProjectAppliesToUpdater;
 
+        private readonly IIncludeProjectMerger _includeProjectMerger;
+
         public ProjectGenerator(
             IResourceProvider resourceProvider,
             INuGetConfigMover nuGetConfigMover,
@@ -39,7 +41,8 @@ namespace Protobuild
             IExternalProjectReferenceResolver externalProjectReferenceResolver,
             ILanguageStringProvider mLanguageStringProvider,
             IPlatformResourcesGenerator platformResourcesGenerator,
-            IIncludeProjectAppliesToUpdater includeProjectAppliesToUpdater)
+            IIncludeProjectAppliesToUpdater includeProjectAppliesToUpdater,
+            IIncludeProjectMerger includeProjectMerger)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
@@ -49,6 +52,7 @@ namespace Protobuild
             this.m_LanguageStringProvider = mLanguageStringProvider;
             this._mPlatformResourcesGenerator = platformResourcesGenerator;
             this._includeProjectAppliesToUpdater = includeProjectAppliesToUpdater;
+            _includeProjectMerger = includeProjectMerger;
         }
 
         /// <summary>
@@ -134,13 +138,16 @@ namespace Protobuild
             // Inform the user we're generating this project.
             onActualGeneration();
 
+			// Add include projects if they have an AppliesTo tag that matches this project's name.
+            this._includeProjectAppliesToUpdater.UpdateProjectReferences(definitions.Select(x => x.Project).ToList(), projectDoc);
+
+            // Add references and properties from include projects.
+            _includeProjectMerger.MergeInReferencesAndPropertiesForIncludeProjects(definitions, projectDoc, platformName);
+
             // Imply external project references from other external projects.  We do
             // this so that external projects can reference other external projects (which
             // we can't reasonably handle at the XSLT level since it's recursive).
-			this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(definitions, projectDoc, platformName);
-
-			// Add include projects if they have an AppliesTo tag that matches this project's name.
-			this._includeProjectAppliesToUpdater.UpdateProjectReferences(definitions.Select(x => x.Project).ToList(), projectDoc);
+            this.m_ExternalProjectReferenceResolver.ResolveExternalProjectReferences(definitions, projectDoc, platformName);
 
             // Generate Info.plist files if necessary (for Mac / iOS).
             this._mPlatformResourcesGenerator.GenerateInfoPListIfNeeded(definitions, current, projectDoc, platformName);

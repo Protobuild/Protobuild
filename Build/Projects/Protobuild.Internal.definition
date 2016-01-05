@@ -179,7 +179,9 @@
     <Compile Include="Generation\IExcludedServiceAwareProjectDetector.cs" />
     <Compile Include="Generation\IExternalProjectReferenceResolver.cs" />
     <Compile Include="Generation\IIncludeProjectAppliesToUpdater.cs" />
+    <Compile Include="Generation\IIncludeProjectMerger.cs" />
     <Compile Include="Generation\IncludeProjectAppliesToUpdater.cs" />
+    <Compile Include="Generation\IncludeProjectMerger.cs" />
     <Compile Include="Generation\INuGetConfigMover.cs" />
     <Compile Include="Generation\INuGetReferenceDetector.cs" />
     <Compile Include="Generation\INuGetRepositoriesConfigGenerator.cs" />

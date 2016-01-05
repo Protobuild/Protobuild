@@ -38,6 +38,7 @@ namespace Protobuild
             kernel.Bind<ISolutionInputGenerator, SolutionInputGenerator>();
             kernel.Bind<IPlatformResourcesGenerator, PlatformResourcesGenerator>();
             kernel.Bind<IIncludeProjectAppliesToUpdater, IncludeProjectAppliesToUpdater>();
+            kernel.Bind<IIncludeProjectMerger, IncludeProjectMerger>();
         }
 
         public static void BindJSIL(this LightweightKernel kernel)
