@@ -16,7 +16,7 @@
         {
             this.SetupTest("ExternalCPlusPlusProjectReferencesAreCorrectInSolution");
 
-            this.Generate("Windows");
+            this.Generate("Windows", hostPlatform: "Windows");
 
             _assert.True(File.Exists(this.GetPath(@"Module.Windows.sln")));
 
