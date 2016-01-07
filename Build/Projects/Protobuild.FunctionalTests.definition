@@ -56,6 +56,7 @@
     <Compile Include="ExampleCocos2DXNATest.cs" />
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
+    <Compile Include="ExternalCPlusPlusProjectReferencesAreCorrectInSolutionTest.cs" />
     <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
     <Compile Include="FeatureWarningIsShownWhenPreviousFeatureIsMissingTest.cs" />
@@ -250,6 +251,10 @@
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.DirectX.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.OpenGL.cs" />
+    <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Build\Module.xml" />
+    <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Build\Projects\Console.definition" />
+    <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Build\Projects\ExternalCPlusPlus.definition" />
+    <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Console\Program.cs" />
     <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Module.xml" />
     <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\Console.definition" />
     <None Include="TestData\ExternalProjectReferencesAreFlattened\Build\Projects\ExternalA.definition" />
@@ -295,7 +300,9 @@
     <None Include="TestData\IncludeProjectPlatformSpecificWorks\Includable\MyIncludableClass.cs" />
     <None Include="TestData\IncludeProjectPropertiesWorks\Build\Module.xml" />
     <None Include="TestData\IncludeProjectPropertiesWorks\Build\Projects\Console.definition" />
-    <None Include="TestData\IncludeProjectPropertiesWorks\Build\Projects\Includable.definition" />
+    <None Include="TestData\IncludeProjectPropertiesWorks\Build\Projects\Includable.definition">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestData\IncludeProjectPropertiesWorks\Console\Program.cs" />
     <None Include="TestData\IncludeProjectPropertiesWorks\Includable\MyIncludableClass.cs" />
     <None Include="TestData\IncludeProjectReferencesWorks\Build\Module.xml" />

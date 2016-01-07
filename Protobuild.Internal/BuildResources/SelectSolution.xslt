@@ -110,7 +110,27 @@
             <Path>
               <xsl:value-of select="current()/@Path" />
             </Path>
-            <Priority>9999</Priority>
+            <Language>
+              <xsl:choose>
+                <xsl:when test="current()/@Language">
+                  <xsl:value-of select="current()/@Language" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>C#</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </Language>
+            <Priority>
+              <xsl:choose>
+                <xsl:when test="current()/@Language = 'C++'">
+                  <!-- C++ projects must come first because they need to build first under MonoDevelop -->
+                  <xsl:text>50</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>9999</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </Priority>
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>
@@ -135,7 +155,27 @@
             <Path>
               <xsl:value-of select="current()/@Path" />
             </Path>
-            <Priority>9999</Priority>
+            <Language>
+              <xsl:choose>
+                <xsl:when test="current()/@Language">
+                  <xsl:value-of select="current()/@Language" />
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>C#</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </Language>
+            <Priority>
+              <xsl:choose>
+                <xsl:when test="current()/@Language = 'C++'">
+                  <!-- C++ projects must come first because they need to build first under MonoDevelop -->
+                  <xsl:text>50</xsl:text>
+                </xsl:when>
+                <xsl:otherwise>
+                  <xsl:text>9999</xsl:text>
+                </xsl:otherwise>
+              </xsl:choose>
+            </Priority>
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>
@@ -164,7 +204,27 @@
                 <Path>
                   <xsl:value-of select="current()/@Path" />
                 </Path>
-                <Priority>9999</Priority>
+                <Language>
+                  <xsl:choose>
+                    <xsl:when test="current()/@Language">
+                      <xsl:value-of select="current()/@Language" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>C#</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </Language>
+                <Priority>
+                  <xsl:choose>
+                    <xsl:when test="current()/@Language = 'C++'">
+                      <!-- C++ projects must come first because they need to build first under MonoDevelop -->
+                      <xsl:text>50</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>9999</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </Priority>
                 <xsl:copy-of select="current()/ConfigurationMapping" />
                 <xsl:copy-of select="current()/PostProject" />
               </Project>
@@ -194,7 +254,27 @@
                 <Path>
                   <xsl:value-of select="current()/@Path" />
                 </Path>
-                <Priority>9999</Priority>
+                <Language>
+                  <xsl:choose>
+                    <xsl:when test="current()/@Language">
+                      <xsl:value-of select="current()/@Language" />
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>C#</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </Language>
+                <Priority>
+                  <xsl:choose>
+                    <xsl:when test="current()/@Language = 'C++'">
+                      <!-- C++ projects must come first because they need to build first under MonoDevelop -->
+                      <xsl:text>50</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>9999</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </Priority>
                 <xsl:copy-of select="current()/ConfigurationMapping" />
                 <xsl:copy-of select="current()/PostProject" />
               </Project>

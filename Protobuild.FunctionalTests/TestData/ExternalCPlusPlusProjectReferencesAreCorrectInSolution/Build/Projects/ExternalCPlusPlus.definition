@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="ExternalCPlusPlus">
+  <Platform Type="Windows">
+    <Project  Name="cppProjectName"
+              Language="C++"
+              Guid="1DBEF0FF-4EF7-4B4A-AF94-32A0CCB25547"
+              Path="cppProjectName.vcxproj">
+    </Project>
+  </Platform>
+</ExternalProject>
