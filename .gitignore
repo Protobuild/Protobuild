@@ -97,3 +97,4 @@ Protobuild.FunctionalTests/TestData/PackageNuGetHTTPSResolvesSecondTime/Package/
 Protobuild.FunctionalTests/TestData/PackageProtobuildLocalResolvesNewForBinaryOnly/Package/
 Protobuild.FunctionalTests/TestData/PackageProtobuildLocalResolvesSecondTimeForBinaryOnly/Package/
 Protobuild.FunctionalTests/TestData/PackageTemplateIgnoresTemplateOnlyFolder/Generated/Generated.Content/assets/.source
+Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/SelectSolution.xslt

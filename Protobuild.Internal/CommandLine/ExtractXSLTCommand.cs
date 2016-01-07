@@ -55,6 +55,14 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
+                using (var writer = new StreamWriter(Path.Combine("Build", "SelectSolution.xslt")))
+                {
+                    ResourceExtractor.GetTransparentDecompressionStream(
+                        Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("SelectSolution.xslt.lzma"))
+                        .CopyTo(writer.BaseStream);
+                    writer.Flush();
+                }
             }
 
             return 0;

@@ -16,22 +16,30 @@
         {
             this.SetupTest("ExtractXSLTWorks", isPackTest: true);
 
-            if (File.Exists(this.GetPath("Build\\GenerateProject.CSharp.xslt")))
+            var files = new[]
             {
-                File.Delete(this.GetPath("Build\\GenerateProject.CSharp.xslt"));
-            }
+                "GenerateProject.CSharp.xslt",
+                "GenerateProject.CPlusPlus.MonoDevelop.xslt",
+                "GenerateProject.CPlusPlus.VisualStudio.xslt",
+                "GenerateSolution.xslt",
+                "GenerationFunctions.cs",
+                "SelectSolution.xslt",
+            };
 
-            if (File.Exists(this.GetPath("Build\\SelectSolution.MSBuild.xslt")))
+            foreach (var file in files)
             {
-                File.Delete(this.GetPath("Build\\SelectSolution.MSBuild.xslt"));
-            }
-
-            if (File.Exists(this.GetPath("Build\\GenerateSolution.MSBuild.xslt")))
-            {
-                File.Delete(this.GetPath("Build\\GenerateSolution.MSBuild.xslt"));
+                if (File.Exists(this.GetPath("Build\\" + file)))
+                {
+                    File.Delete(this.GetPath("Build\\" + file));
+                }
             }
 
             this.OtherMode("extract-xslt");
+
+            foreach (var file in files)
+            {
+                _assert.True(File.Exists(this.GetPath("Build\\" + file)));
+            }
         }
     }
 }
