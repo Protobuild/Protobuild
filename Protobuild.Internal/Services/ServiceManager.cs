@@ -548,7 +548,30 @@
 
         public string SaveServiceSpec(List<Service> services)
         {
-            var path = Path.GetTempFileName();
+            string path;
+            try
+            {
+                path = Path.GetTempFileName();
+            }
+            catch (IOException)
+            {
+                // On Windows, if there's more than 65536 files in the
+                // temporary directory, then this throws an exception.
+                // Instead, create our own path in the temporary
+                // directory.
+                path = Path.Combine(Path.GetTempPath(), "service." + System.Diagnostics.Process.GetCurrentProcess().Id + ".spec");
+
+                try
+                {
+                    var stream = File.Create(path);
+                    stream.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Unable to save service specification to " + path + 
+                        ".  This is most likely caused by a full temporary directory.", ex);
+                }
+            }
 
             using (var writer = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
             {
