@@ -92,113 +92,130 @@ namespace Protobuild
                 rootModule = ModuleInfo.Load(moduleExpectedPath);
             }
 
-            var customDirectives = new Dictionary<string, Action<FileFilter>>()
+            var temporaryFiles = new List<string>();
+            try
             {
-                { 
-                    "autopackage",
-                    f => 
+                var customDirectives = new Dictionary<string, Action<FileFilter>>()
+                {
                     {
-                        if (allowAutopackage && rootModule != null)
+                        "autopackage",
+                        f =>
                         {
-                            this.m_AutomaticProjectPackager.Autopackage(
-                                f, 
-                                execution,
-                                rootModule,
-                                execution.PackageSourceFolder,
-                                execution.PackagePlatform);
+                            if (allowAutopackage && rootModule != null)
+                            {
+                                this.m_AutomaticProjectPackager.Autopackage(
+                                    f,
+                                    execution,
+                                    rootModule,
+                                    execution.PackageSourceFolder,
+                                    execution.PackagePlatform,
+                                    temporaryFiles);
+                            }
+                            else
+                            {
+                                Console.WriteLine(
+                                    "WARNING: There is no module in the path '" + execution.PackageSourceFolder +
+                                    "' (expected to " +
+                                    "find a Build\\Module.xml file within that directory).  Ignoring the 'autopackage' directive.");
+                            }
                         }
-                        else
+                    }
+                };
+
+                Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
+
+                var filter =
+                    new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(execution.PackageSourceFolder));
+                if (execution.PackageFilterFile != null)
+                {
+                    using (var reader = new StreamReader(execution.PackageFilterFile))
+                    {
+                        var contents = reader.ReadToEnd();
+                        contents = contents.Replace("%PLATFORM%", execution.PackagePlatform);
+
+                        using (var inputStream = new MemoryStream(Encoding.ASCII.GetBytes(contents)))
                         {
-                            Console.WriteLine(
-                                "WARNING: There is no module in the path '" + execution.PackageSourceFolder + "' (expected to " +
-                                "find a Build\\Module.xml file within that directory).  Ignoring the 'autopackage' directive.");
+                            this.m_FileFilterParser.ParseAndApply(filter, inputStream, customDirectives);
                         }
                     }
                 }
-            };
-
-            Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
-
-            var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(execution.PackageSourceFolder));
-            if (execution.PackageFilterFile != null)
-            {
-                using (var reader = new StreamReader(execution.PackageFilterFile))
+                else
                 {
-                    var contents = reader.ReadToEnd();
-                    contents = contents.Replace("%PLATFORM%", execution.PackagePlatform);
+                    customDirectives["autopackage"](filter);
+                }
 
-                    using (var inputStream = new MemoryStream(Encoding.ASCII.GetBytes(contents)))
+                if (File.Exists(execution.PackageDestinationFile))
+                {
+                    Console.WriteLine("The destination file " + execution.PackageDestinationFile +
+                                      " already exists; it will be overwritten.");
+                    File.Delete(execution.PackageDestinationFile);
+                }
+
+                filter.ImplyDirectories();
+
+                var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
+
+                if (!filterDictionary.ContainsValue("Build/"))
+                {
+                    Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                    if (execution.PackageFilterFile != null)
                     {
-                        this.m_FileFilterParser.ParseAndApply(filter, inputStream, customDirectives);
+                        this.PrintFilterMappings(filterDictionary);
                     }
+                    return 1;
                 }
-            }
-            else
-            {
-                customDirectives["autopackage"](filter);
-            }
 
-            if (File.Exists(execution.PackageDestinationFile))
-            {
-                Console.WriteLine("The destination file " + execution.PackageDestinationFile + " already exists; it will be overwritten.");
-                File.Delete(execution.PackageDestinationFile);
-            }
-
-            filter.ImplyDirectories();
-
-            var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
-
-            if (!filterDictionary.ContainsValue("Build/"))
-            {
-                Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
-                if (execution.PackageFilterFile != null)
+                if (!filterDictionary.ContainsValue("Build/Projects/"))
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                    if (execution.PackageFilterFile != null)
+                    {
+                        this.PrintFilterMappings(filterDictionary);
+                    }
+                    return 1;
                 }
-                return 1;
-            }
 
-            if (!filterDictionary.ContainsValue("Build/Projects/"))
-            {
-                Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
-                if (execution.PackageFilterFile != null)
+                if (!filterDictionary.ContainsValue("Build/Module.xml"))
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                    if (execution.PackageFilterFile != null)
+                    {
+                        this.PrintFilterMappings(filterDictionary);
+                    }
+                    return 1;
                 }
-                return 1;
-            }
 
-            if (!filterDictionary.ContainsValue("Build/Module.xml"))
-            {
-                Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
-                if (execution.PackageFilterFile != null)
+                if (filterDictionary.ContainsValue("Protobuild.exe"))
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
+                    if (execution.PackageFilterFile != null)
+                    {
+                        this.PrintFilterMappings(filterDictionary);
+                    }
+                    return 1;
                 }
-                return 1;
-            }
 
-            if (filterDictionary.ContainsValue("Protobuild.exe"))
-            {
-                Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
-                if (execution.PackageFilterFile != null)
+                using (
+                    var target = new FileStream(execution.PackageDestinationFile, FileMode.CreateNew, FileAccess.Write,
+                        FileShare.None))
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    _packageCreator.Create(
+                        target,
+                        filter,
+                        execution.PackageSourceFolder,
+                        execution.PackageFormat);
                 }
-                return 1;
-            }
 
-            using (var target = new FileStream(execution.PackageDestinationFile, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
+                return 0;
+            }
+            finally
             {
-                _packageCreator.Create(
-                    target,
-                    filter,
-                    execution.PackageSourceFolder,
-                    execution.PackageFormat);
+                foreach (var file in temporaryFiles)
+                {
+                    File.Delete(file);
+                }
             }
-
-            Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
-            return 0;
         }
 
         public int ExecuteForTemplate(Execution execution)

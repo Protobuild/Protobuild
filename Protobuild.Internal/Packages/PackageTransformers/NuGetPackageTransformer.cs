@@ -412,27 +412,36 @@ namespace Protobuild
 
             // Save the ZIP file onto disk.
             var tempFile = Path.GetTempFileName();
-            using (var writer = new FileStream(tempFile, FileMode.Truncate, FileAccess.Write))
+            try
             {
-                writer.Write(downloadedZipData, 0, downloadedZipData.Length);
+                using (var writer = new FileStream(tempFile, FileMode.Truncate, FileAccess.Write))
+                {
+                    writer.Write(downloadedZipData, 0, downloadedZipData.Length);
+                }
+
+                Directory.CreateDirectory(nugetPath);
+
+                Console.WriteLine("Extracting package to " + nugetPath + "...");
+
+                using (var zip = ZipStorer.Open(tempFile, FileAccess.Read))
+                {
+                    var files = zip.ReadCentralDir();
+
+                    foreach (var file in files)
+                    {
+                        var targetPath = Path.Combine(nugetPath, file.FilenameInZip);
+                        var directory = new FileInfo(targetPath).DirectoryName;
+                        if (directory != null) Directory.CreateDirectory(directory);
+                        zip.ExtractFile(file, targetPath);
+                    }
+                }
+
+                Console.WriteLine("Extraction complete.");
             }
-            
-            Directory.CreateDirectory(nugetPath);
-
-            Console.WriteLine("Extracting package to " + nugetPath + "...");
-
-            var zip = ZipStorer.Open(tempFile, FileAccess.Read);
-            var files = zip.ReadCentralDir();
-
-            foreach (var file in files)
+            finally
             {
-                var targetPath = Path.Combine(nugetPath, file.FilenameInZip);
-                var directory = new FileInfo(targetPath).DirectoryName;
-                if (directory != null) Directory.CreateDirectory(directory);
-                zip.ExtractFile(file, targetPath);
+                File.Delete(tempFile);
             }
-
-            Console.WriteLine("Extraction complete.");
 
             return nugetPath;
         }

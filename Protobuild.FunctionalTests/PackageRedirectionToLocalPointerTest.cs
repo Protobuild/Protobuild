@@ -17,18 +17,24 @@ namespace Protobuild.Tests
             this.SetupTest("PackageRedirectionToLocalPointer");
 
             var src = this.SetupSrcPackage();
-
-            // Make sure the Package directory is removed so we have a clean test every time.
-            if (Directory.Exists(this.GetPath("Package")))
+            try
             {
-                PathUtils.AggressiveDirectoryDelete(this.GetPath("Package"));
+                // Make sure the Package directory is removed so we have a clean test every time.
+                if (Directory.Exists(this.GetPath("Package")))
+                {
+                    PathUtils.AggressiveDirectoryDelete(this.GetPath("Package"));
+                }
+
+                this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-pointer://" + src);
+
+                // Pointers should create a .redirect file which Protobuild uses to then link
+                // across the folder hierarchy.
+                _assert.True(File.Exists(this.GetPath("Package\\.redirect")));
             }
-
-            this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-pointer://" + src);
-
-            // Pointers should create a .redirect file which Protobuild uses to then link
-            // across the folder hierarchy.
-            _assert.True(File.Exists(this.GetPath("Package\\.redirect")));
+            finally
+            {
+                PathUtils.AggressiveDirectoryDelete(src);
+            }
         }
     }
 }

@@ -33,7 +33,8 @@ namespace Protobuild
             Execution execution,
             ModuleInfo module, 
             string rootPath,
-            string platform)
+            string platform,
+            List<string> temporaryFiles)
         {
             var definitions = module.GetDefinitionsRecursively(platform).ToArray();
             var loadedProjects = new List<LoadedDefinitionInfo>();
@@ -84,7 +85,7 @@ namespace Protobuild
             var packagePaths = module.Packages
                 .Select(x => new DirectoryInfo(System.IO.Path.Combine(module.Path, x.Folder)).FullName)
                 .ToArray();
-
+            
             foreach (var definition in definitions)
             {
                 if (definition.SkipAutopackage)
@@ -104,7 +105,7 @@ namespace Protobuild
                 {
                     case "External":
                         Console.WriteLine("Packaging: " + definition.Name);
-                        this.AutomaticallyPackageExternalProject(definitions, services, fileFilter, rootPath, platform, definition);
+                        this.AutomaticallyPackageExternalProject(definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
                         break;
                     case "Include":
                         Console.WriteLine("Packaging: " + definition.Name);
@@ -115,7 +116,7 @@ namespace Protobuild
                         break;
                     default:
                         Console.WriteLine("Packaging: " + definition.Name);
-                        this.AutomaticallyPackageNormalProject(definitions, services, fileFilter, rootPath, platform, definition);
+                        this.AutomaticallyPackageNormalProject(definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
                         break;
                 }
             }
@@ -137,7 +138,8 @@ namespace Protobuild
             FileFilter fileFilter, 
             string rootPath,
             string platform, 
-            DefinitionInfo definition)
+            DefinitionInfo definition,
+            List<string> temporaryFiles)
         {
             var document = new XmlDocument();
             document.Load(definition.DefinitionPath);
@@ -163,6 +165,7 @@ namespace Protobuild
             // Write out the external project to a temporary file and include it.
             var name = Path.GetRandomFileName() + "_" + definition.Name + ".xml";
             var temp = Path.Combine(Path.GetTempPath(), name);
+            temporaryFiles.Add(temp);
             using (var writer = XmlWriter.Create(temp, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
             {
                 externalProjectDocument.WriteTo(writer);
@@ -392,7 +395,8 @@ namespace Protobuild
             FileFilter fileFilter, 
             string rootPath,
             string platform,
-            DefinitionInfo definition)
+            DefinitionInfo definition,
+            List<string> temporaryFiles)
         {
             var document = XDocument.Load(definition.DefinitionPath);
 
@@ -755,6 +759,7 @@ namespace Protobuild
             // Write out the external project to a temporary file and include it.
             var name = Path.GetRandomFileName() + "_" + definition.Name + ".xml";
             var temp = Path.Combine(Path.GetTempPath(), name);
+            temporaryFiles.Add(temp);
             using (var writer = XmlWriter.Create(temp, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
             {
                 externalProjectDocument.WriteTo(writer);

@@ -546,7 +546,7 @@
             return list;
         }
 
-        public string SaveServiceSpec(List<Service> services)
+        public TemporaryServiceSpec SaveServiceSpec(List<Service> services)
         {
             string path;
             try
@@ -573,32 +573,40 @@
                 }
             }
 
-            using (var writer = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
+            try
             {
-                writer.Write(SERIALIZATION_VERSION);
-
-                writer.Write(services.Count);
-
-                foreach (var service in services)
+                using (var writer = new BinaryWriter(new FileStream(path, FileMode.Create, FileAccess.Write)))
                 {
-                    writer.Write(service.ProjectName);
-                    writer.Write(service.ServiceName != null);
-                    if (service.ServiceName != null)
-                    {
-                        writer.Write(service.ServiceName);
-                    }
-                    this.WriteList(writer, service.AddDefines);
-                    this.WriteList(writer, service.RemoveDefines);
-                    this.WriteList(writer, service.AddReferences);
-                    writer.Write(service.DefaultForRoot);
-                    this.WriteList(writer, service.Requires);
-                    this.WriteList(writer, service.Recommends);
-                    this.WriteList(writer, service.Conflicts);
-                    writer.Write(service.InfersReference);
-                }
-            }
+                    writer.Write(SERIALIZATION_VERSION);
 
-            return path;
+                    writer.Write(services.Count);
+
+                    foreach (var service in services)
+                    {
+                        writer.Write(service.ProjectName);
+                        writer.Write(service.ServiceName != null);
+                        if (service.ServiceName != null)
+                        {
+                            writer.Write(service.ServiceName);
+                        }
+                        this.WriteList(writer, service.AddDefines);
+                        this.WriteList(writer, service.RemoveDefines);
+                        this.WriteList(writer, service.AddReferences);
+                        writer.Write(service.DefaultForRoot);
+                        this.WriteList(writer, service.Requires);
+                        this.WriteList(writer, service.Recommends);
+                        this.WriteList(writer, service.Conflicts);
+                        writer.Write(service.InfersReference);
+                    }
+                }
+
+                return new TemporaryServiceSpec(path);
+            }
+            catch
+            {
+                File.Delete(path);
+                throw;
+            }
         }
 
         private void WriteList(BinaryWriter writer, List<string> list)

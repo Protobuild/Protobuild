@@ -94,7 +94,7 @@ namespace Protobuild.Tasks
 
             var serviceManager = new ServiceManager(Platform);
             List<Service> services;
-            string serviceSpecPath;
+            TemporaryServiceSpec serviceSpecPath;
 
             if (ServiceSpecPath == null)
             {
@@ -148,94 +148,102 @@ namespace Protobuild.Tasks
             else
             {
                 services = serviceManager.LoadServiceSpec(ServiceSpecPath);
-                serviceSpecPath = ServiceSpecPath;
+                serviceSpecPath = new TemporaryServiceSpec(ServiceSpecPath, true);
             }
 
-            // Run Protobuild in batch mode in each of the submodules
-            // where it is present.
-            foreach (var submodule in module.GetSubmodules(Platform))
+            using (serviceSpecPath)
             {
-                if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.OptimizationSkipInvocationOnNoStandardProjects))
+                // Run Protobuild in batch mode in each of the submodules
+                // where it is present.
+                foreach (var submodule in module.GetSubmodules(Platform))
                 {
-                    if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
+                    if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule,
+                        Feature.OptimizationSkipInvocationOnNoStandardProjects))
                     {
-                        // Do not invoke this submodule.
-                        LogMessage(
-                            "Skipping submodule generation for " + submodule.Name +
-                            " (there are no projects to generate)");
-                        continue;
+                        if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
+                        {
+                            // Do not invoke this submodule.
+                            LogMessage(
+                                "Skipping submodule generation for " + submodule.Name +
+                                " (there are no projects to generate)");
+                            continue;
+                        }
+                    }
+
+                    LogMessage(
+                        "Invoking submodule generation for " + submodule.Name);
+                    var noResolve = _featureManager.IsFeatureEnabledInSubmodule(module, submodule,
+                        Feature.PackageManagementNoResolve)
+                        ? " -no-resolve"
+                        : string.Empty;
+                    var noHostPlatform = DisableHostPlatformGeneration &&
+                                         _featureManager.IsFeatureEnabledInSubmodule(module, submodule,
+                                             Feature.NoHostGenerate)
+                        ? " -no-host-generate"
+                        : string.Empty;
+                    _moduleExecution.RunProtobuild(
+                        submodule,
+                        _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) +
+                        "-generate " + Platform +
+                        " -spec " + serviceSpecPath +
+                        " " + m_PackageRedirector.GetRedirectionArguments() +
+                        noResolve + noHostPlatform);
+                    LogMessage(
+                        "Finished submodule generation for " + submodule.Name);
+                }
+
+                var repositoryPaths = new List<string>();
+
+                foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
+                {
+                    if (definition.PostBuildHook && RequiresHostPlatform != null)
+                    {
+                        // We require the host platform projects at this point.
+                        RequiresHostPlatform();
+                    }
+
+                    string repositoryPath;
+                    var definitionCopy = definition;
+                    m_ProjectGenerator.Generate(
+                        definition,
+                        loadedProjects,
+                        RootPath,
+                        definition.Name,
+                        Platform,
+                        services,
+                        out repositoryPath,
+                        () => LogMessage("Generating: " + definitionCopy.Name));
+
+                    // Only add repository paths if they should be generated.
+                    if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
+                    {
+                        repositoryPaths.Add(repositoryPath);
                     }
                 }
 
-                LogMessage(
-                    "Invoking submodule generation for " + submodule.Name);
-                var noResolve = _featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.PackageManagementNoResolve) ? " -no-resolve" : string.Empty;
-                var noHostPlatform = DisableHostPlatformGeneration &&
-                                     _featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.NoHostGenerate)
-                    ? " -no-host-generate"
-                    : string.Empty;
-                _moduleExecution.RunProtobuild(
-                    submodule,
-                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
-                    "-generate " + Platform +
-                    " -spec " + serviceSpecPath +
-                    " " + m_PackageRedirector.GetRedirectionArguments() +
-                    noResolve + noHostPlatform);
-                LogMessage(
-                    "Finished submodule generation for " + submodule.Name);
-            }
-
-            var repositoryPaths = new List<string>();
-
-            foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
-            {
-                if (definition.PostBuildHook && RequiresHostPlatform != null)
-                {
-                    // We require the host platform projects at this point.
-                    RequiresHostPlatform();
-                }
-
-                string repositoryPath;
-                var definitionCopy = definition;
-                m_ProjectGenerator.Generate(
-                    definition,
-                    loadedProjects,
+                var solution = Path.Combine(
                     RootPath,
-                    definition.Name,
+                    ModuleName + "." + Platform + ".sln");
+                LogMessage("Generating: (solution)");
+                m_SolutionGenerator.Generate(
+                    module,
+                    loadedProjects.Select(x => x.Project).ToList(),
                     Platform,
+                    solution,
                     services,
-                    out repositoryPath,
-                    () => LogMessage("Generating: " + definitionCopy.Name));
+                    repositoryPaths);
 
-                // Only add repository paths if they should be generated.
-                if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
+                // Only save the specification cache if we allow synchronisation
+                if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)
                 {
-                    repositoryPaths.Add(repositoryPath);
+                    var serviceCache = Path.Combine(RootPath, ModuleName + "." + Platform + ".speccache");
+                    LogMessage("Saving service specification");
+                    File.Copy(serviceSpecPath.Path, serviceCache, true);
                 }
+
+                LogMessage(
+                    "Generation complete.");
             }
-
-            var solution = Path.Combine(
-                RootPath,
-                ModuleName + "." + Platform + ".sln");
-            LogMessage("Generating: (solution)");
-            m_SolutionGenerator.Generate(
-                module,
-                loadedProjects.Select(x => x.Project).ToList(),
-                Platform,
-                solution,
-                services,
-                repositoryPaths);
-
-            // Only save the specification cache if we allow synchronisation
-            if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)
-            {
-                var serviceCache = Path.Combine(RootPath, ModuleName + "." + Platform + ".speccache");
-                LogMessage("Saving service specification");
-                File.Copy(serviceSpecPath, serviceCache, true);
-            }
-
-            LogMessage(
-                "Generation complete.");
 
             return true;
         }

@@ -25,20 +25,30 @@ namespace Protobuild.Tests
             Directory.CreateDirectory(GetPath("Generated"));
 
             var templateFolder = this.SetupSrcTemplate();
+            try
+            {
+                this.OtherMode(
+                    "start", "local-template-git://" + templateFolder + " Generated.WithDot",
+                    workingSubdirectory: "Generated");
 
-            this.OtherMode(
-                "start", "local-template-git://" + templateFolder + " Generated.WithDot", workingSubdirectory: "Generated");
+                _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot"))));
+                _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot.Content"))));
+                _assert.True(
+                    File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotActivity.cs"))));
+                _assert.True(
+                    File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotGame.cs"))));
+                _assert.True(
+                    File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"))));
 
-            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot"))));
-            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot.Content"))));
-            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotActivity.cs"))));
-            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotGame.cs"))));
-            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"))));
+                var worldFile = ReadFile(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"));
 
-            var worldFile = ReadFile(Path.Combine("Generated", "Generated.WithDot", "GeneratedWithDotWorld.cs"));
-
-            _assert.Contains("public class GeneratedWithDotWorld", worldFile);
-            _assert.Contains("Hello Generated.WithDot!", worldFile);
+                _assert.Contains("public class GeneratedWithDotWorld", worldFile);
+                _assert.Contains("Hello Generated.WithDot!", worldFile);
+            }
+            finally
+            {
+                PathUtils.AggressiveDirectoryDelete(templateFolder);
+            }
         }
     }
 }

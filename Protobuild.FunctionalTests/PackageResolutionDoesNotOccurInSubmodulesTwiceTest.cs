@@ -17,37 +17,46 @@
             this.SetupTest("PackageResolutionDoesNotOccurInSubmodulesTwice");
 
             var src = this.SetupSrcPackage();
-
-            // Make sure the Package directory is removed so we have a clean test every time.
-            if (Directory.Exists(this.GetPath("Package")))
+            try
             {
-                PathUtils.AggressiveDirectoryDelete(this.GetPath("Package"));
-            }
-
-            var platform = "Windows";
-            if (Path.DirectorySeparatorChar == '/')
-            {
-                platform = "Linux";
-
-                if (Directory.Exists("/Library"))
+                // Make sure the Package directory is removed so we have a clean test every time.
+                if (Directory.Exists(this.GetPath("Package")))
                 {
-                    platform = "MacOS";
+                    PathUtils.AggressiveDirectoryDelete(this.GetPath("Package"));
                 }
+
+                var platform = "Windows";
+                if (Path.DirectorySeparatorChar == '/')
+                {
+                    platform = "Linux";
+
+                    if (Directory.Exists("/Library"))
+                    {
+                        platform = "MacOS";
+                    }
+                }
+
+                var stdout = this.Generate(
+                    platform: platform,
+                    args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src,
+                    capture: true).Item1;
+
+                var idxSubmoduleGeneration = stdout.IndexOf("Invoking submodule generation for Submodule",
+                    System.StringComparison.InvariantCulture);
+                _assert.NotEqual(-1, idxSubmoduleGeneration);
+
+                var substrStdout = stdout.Substring(idxSubmoduleGeneration);
+                var idxPackageResolution =
+                    substrStdout.IndexOf("Starting resolution of packages for " + platform + "...",
+                        System.StringComparison.InvariantCulture);
+
+                // We should not see any package resolution we invoke submodule generation.
+                _assert.Equal(-1, idxPackageResolution);
             }
-
-            var stdout = this.Generate(
-                platform: platform,
-                args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src,
-                capture: true).Item1;
-
-            var idxSubmoduleGeneration = stdout.IndexOf("Invoking submodule generation for Submodule", System.StringComparison.InvariantCulture);
-            _assert.NotEqual(-1, idxSubmoduleGeneration);
-
-            var substrStdout = stdout.Substring(idxSubmoduleGeneration);
-            var idxPackageResolution = substrStdout.IndexOf("Starting resolution of packages for " + platform + "...", System.StringComparison.InvariantCulture);
-
-            // We should not see any package resolution we invoke submodule generation.
-            _assert.Equal(-1, idxPackageResolution);
+            finally
+            {
+                PathUtils.AggressiveDirectoryDelete(src);
+            }
         }
     }
 }

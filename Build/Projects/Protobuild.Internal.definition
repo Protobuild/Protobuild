@@ -283,6 +283,7 @@
     <Compile Include="Services\Service.cs" />
     <Compile Include="Services\ServiceDesiredLevel.cs" />
     <Compile Include="Services\ServiceManager.cs" />
+    <Compile Include="Services\TemporaryServiceSpec.cs" />
     <Compile Include="Targets\ILanguageStringProvider.cs" />
     <Compile Include="Targets\Language.cs" />
     <Compile Include="Targets\LanguageStringProvider.cs" />

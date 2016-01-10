@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Protobuild
 {
@@ -9,7 +10,8 @@ namespace Protobuild
             Execution execution, 
             ModuleInfo rootModule, 
             string rootPath,
-            string platform);
+            string platform,
+            List<string> temporaryFiles);
     }
 }
 

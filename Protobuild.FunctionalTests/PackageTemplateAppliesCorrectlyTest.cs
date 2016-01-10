@@ -25,20 +25,26 @@ namespace Protobuild.Tests
             Directory.CreateDirectory(GetPath("Generated"));
 
             var templateFolder = this.SetupSrcTemplate();
-            
-            this.OtherMode(
-                "start", "local-template-git://" + templateFolder, workingSubdirectory: "Generated");
+            try
+            {
+                this.OtherMode(
+                    "start", "local-template-git://" + templateFolder, workingSubdirectory: "Generated");
 
-            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated"))));
-            _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.Content"))));
-            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedActivity.cs"))));
-            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedGame.cs"))));
-            _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"))));
+                _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated"))));
+                _assert.True(Directory.Exists(GetPath(Path.Combine("Generated", "Generated.Content"))));
+                _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedActivity.cs"))));
+                _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedGame.cs"))));
+                _assert.True(File.Exists(GetPath(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"))));
 
-            var worldFile = ReadFile(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"));
+                var worldFile = ReadFile(Path.Combine("Generated", "Generated", "GeneratedWorld.cs"));
 
-            _assert.Contains("public class GeneratedWorld", worldFile);
-            _assert.Contains("Hello Generated!", worldFile);
+                _assert.Contains("public class GeneratedWorld", worldFile);
+                _assert.Contains("Hello Generated!", worldFile);
+            }
+            finally
+            {
+                PathUtils.AggressiveDirectoryDelete(templateFolder);
+            }
         }
     }
 }

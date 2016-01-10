@@ -148,20 +148,6 @@
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
-    <Content Include="TestData\PackageNuGetHTTPResolvesNew\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageNuGetHTTPResolvesSecondTime\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageNuGetHTTPSResolvesNew\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Projects\empty.txt" />
-    <Content Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Projects\empty.txt" />
     <None Include="Info.plist">
       <Platforms>iOS,MacOS</Platforms>
     </None>
@@ -342,10 +328,16 @@
     <None Include="TestData\iOSLegacyAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSLegacyAPIGenerationWorks\Build\Projects\App.definition" />
+    <None Include="TestData\iOSOnWindowsHasAlternatePostBuildHookSystem\Build\Module.xml" />
+    <None Include="TestData\iOSOnWindowsHasAlternatePostBuildHookSystem\Build\Projects\Console.definition" />
+    <None Include="TestData\iOSOnWindowsHasAlternatePostBuildHookSystem\Console\Program.cs" />
+    <None Include="TestData\iOSSolutionHasCorrectProjectMappings\App\Program.cs" />
+    <None Include="TestData\iOSSolutionHasCorrectProjectMappings\Build\Module.xml" />
+    <None Include="TestData\iOSSolutionHasCorrectProjectMappings\Build\Projects\App.definition" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
-    <None Include="TestData\ModuleInfoGetsUpgraded\Build\Module.xml" />
+    <None Include="TestData\ModuleInfoGetsUpgraded\Build\ModuleUnconverted.xml" />
     <None Include="TestData\ModuleInfoGetsUpgraded\Build\Projects\.gitkeep" />
     <None Include="TestData\NativeBinaryPresent\Build\Module.xml" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
@@ -466,23 +458,37 @@
     <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\Build\Projects\LibraryB.definition" />
     <None Include="TestData\PackageLocationTwoSubmoduleSamePackage\SubmoduleB\LibraryB\MyClass.cs" />
     <None Include="TestData\PackageNuGetHTTPResolvesNew\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPResolvesNew\Build\Projects\empty.txt" />
     <None Include="TestData\PackageNuGetHTTPResolvesSecondTime\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPResolvesSecondTime\Build\Projects\empty.txt" />
     <None Include="TestData\PackageNuGetHTTPSResolvesNew\Build\Module.xml" />
+    <None Include="TestData\PackageNuGetHTTPSResolvesNew\Build\Projects\empty.txt" />
     <None Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Module.xml">
       <SubType>Designer</SubType>
     </None>
+    <None Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceAndBinary\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Module.xml" />
+    <None Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Module.xml">
       <SubType>Designer</SubType>
     </None>
+    <None Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Module.xml" />
     <None Include="TestData\PackageRedirectionToLocalPath\Build\Projects\Console.definition" />
     <None Include="TestData\PackageRedirectionToLocalPath\Console\Program.cs" />
@@ -504,6 +510,10 @@
     <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Console\Program.cs" />
     <None Include="TestData\PackageTemplateAppliesCorrectly\.gitkeep" />
     <None Include="TestData\PackageTemplateAppliesCorrectlyWithUnsafeName\.gitkeep" />
+    <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\.gitkeep" />
+    <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated.Content\assets\AssetReadme.txt" />
+    <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated.Content\compiled\CompiledReadme.txt" />
+    <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated\Properties\AndroidManifest.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputDefault\Test\Program.cs" />
