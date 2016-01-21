@@ -69,7 +69,7 @@
   
   <xsl:template name="AllowLangVersion"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <xsl:if test="not($root/Input/Generation/Platform = 'MacOS') or (user:HasXamarinMacUnifiedAPI() and not(user:IsTrue($root/Input/Properties/UseLegacyMacAPI)))">
+    <xsl:if test="not($root/Input/Generation/Platform = 'MacOS') or (user:HasXamarinMacUnifiedAPI() and not(user:IsTrue($root/Input/Properties/UseLegacyMacAPI)) and not(user:IsTrue($root/Input/Properties/UseMonoMac)))">
       <xsl:choose>
         <xsl:when test="$root/Input/Properties/LangVersion">
           <LangVersion>
@@ -252,7 +252,7 @@
                     a different platform, but rather just different API versions).
                   -->
                   <xsl:choose>
-                    <xsl:when test="user:HasXamarinMac()">
+                    <xsl:when test="user:HasXamarinMac() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
                       <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI()">
                         <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
                       </xsl:if>
@@ -279,7 +279,7 @@
               <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
                 <xsl:text>PLATFORM_MACOS</xsl:text>
                 <xsl:choose>
-                  <xsl:when test="user:HasXamarinMac()">
+                  <xsl:when test="user:HasXamarinMac() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
                     <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI()">
                       <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
                     </xsl:if>
@@ -447,7 +447,7 @@
         <CreatePackage>False</CreatePackage>
         <EnablePackageSigning>False</EnablePackageSigning>
         <xsl:choose>
-          <xsl:when test="user:HasXamarinMac()">
+          <xsl:when test="user:HasXamarinMac() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
             <xsl:choose>
               <xsl:when test="$root/Input/Properties/IncludeMonoRuntimeOnMac">
                 <IncludeMonoRuntime><xsl:value-of select="$root/Input/Properties/IncludeMonoRuntimeOnMac" /></IncludeMonoRuntime>
@@ -994,7 +994,7 @@
           <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
             <ProjectTypeGuids>
               <xsl:choose>
-                <xsl:when test="user:HasXamarinMac()">
+                <xsl:when test="user:HasXamarinMac() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
                   <xsl:choose>
                     <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI()">
                       <xsl:text>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};</xsl:text>
@@ -1139,7 +1139,7 @@
             </xsl:choose>
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
-            <xsl:if test="user:HasXamarinMac() = false()">
+            <xsl:if test="user:HasXamarinMac() = false() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
               <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
             </xsl:if>
           </xsl:when>
@@ -1410,7 +1410,7 @@
       <ItemGroup>
         <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
           <xsl:choose>
-            <xsl:when test="user:HasXamarinMac()">
+            <xsl:when test="user:HasXamarinMac() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
               <xsl:choose>
                 <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI()">
                   <Reference Include="XamMac" />
@@ -2278,7 +2278,7 @@
       <xsl:if test="msxsl:node-set($post_build_hooks)/PostBuildHook">
         <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
           <xsl:choose>
-            <xsl:when test="user:HasXamarinMac()">
+            <xsl:when test="user:HasXamarinMac() and not(user:IsTrue($root/Input/Properties/UseMonoMac))">
               <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI()">
                 <xsl:value-of select="user:WarnForPostBuildHooksOnOldMacPlatform()" />
               </xsl:if>
