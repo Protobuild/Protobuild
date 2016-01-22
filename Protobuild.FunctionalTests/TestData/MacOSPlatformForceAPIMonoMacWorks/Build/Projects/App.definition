@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="App" Path="App" Type="App">
+  <Properties>
+    <Property Name="ForceMacAPI" Value="MonoMac" />
+  </Properties>
+  <References>
+    <Reference Include="System" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>

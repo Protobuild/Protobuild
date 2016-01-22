@@ -74,7 +74,12 @@
     <Compile Include="InfoPListFileIsGeneratedTest.cs" />
     <Compile Include="InfoPListFileIsNotGeneratedWhenIncludeProvidesItTest.cs" />
     <Compile Include="iOSLegacyAPIGenerationWorksTest.cs" />
+    <Compile Include="iOSOnWindowsHasAlternatePostBuildHookSystemTest.cs" />
+    <Compile Include="iOSSolutionHasCorrectProjectMappingsTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
+    <Compile Include="MacOSPlatformForceAPIMonoMacWorksTest.cs" />
+    <Compile Include="MacOSPlatformForceAPIXamarinMacWorksTest.cs" />
+    <Compile Include="MacOSPlatformForceAPIXamMacWorksTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="NuGetAndroidDoesNotCrashTest.cs" />
@@ -117,6 +122,7 @@
     <Compile Include="PackageResolutionDoesNotOccurWhenPackageManagementDisabledTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
+    <Compile Include="PackageTemplateIgnoresTemplateOnlyFolderTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
@@ -337,6 +343,17 @@
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
+    <None Include="TestData\MacOSPlatformForceAPIMonoMacWorks\App\Program.cs" />
+    <None Include="TestData\MacOSPlatformForceAPIMonoMacWorks\Build\Module.xml" />
+    <None Include="TestData\MacOSPlatformForceAPIMonoMacWorks\Build\Projects\App.definition" />
+    <None Include="TestData\MacOSPlatformForceAPIXamarinMacWorks\App\Program.cs" />
+    <None Include="TestData\MacOSPlatformForceAPIXamarinMacWorks\Build\Module.xml" />
+    <None Include="TestData\MacOSPlatformForceAPIXamarinMacWorks\Build\Projects\App.definition" />
+    <None Include="TestData\MacOSPlatformForceAPIXamMacWorks\App\Program.cs" />
+    <None Include="TestData\MacOSPlatformForceAPIXamMacWorks\Build\Module.xml" />
+    <None Include="TestData\MacOSPlatformForceAPIXamMacWorks\Build\Projects\App.definition">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="TestData\ModuleInfoGetsUpgraded\Build\ModuleUnconverted.xml" />
     <None Include="TestData\ModuleInfoGetsUpgraded\Build\Projects\.gitkeep" />
     <None Include="TestData\NativeBinaryPresent\Build\Module.xml" />
