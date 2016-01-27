@@ -206,7 +206,9 @@ namespace Protobuild
             }
             else 
             {
-                return Path.Combine(root, ".git", "info", "exclude");
+				var path = Path.Combine(root, ".git", "info", "exclude");
+				Directory.CreateDirectory(Path.GetDirectoryName(path));
+				return path;
             }
         }
 
