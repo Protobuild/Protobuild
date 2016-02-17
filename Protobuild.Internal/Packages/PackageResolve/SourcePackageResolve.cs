@@ -163,7 +163,7 @@ namespace Protobuild
             }
 
             Directory.CreateDirectory(sourcePath);
-            GitUtils.RunGit(null, "clone --progress --bare " + url + " " + sourcePath);
+            GitUtils.RunGit(null, "clone --progress --bare " + url + " \"" + sourcePath + "\"");
 
             return sourcePath;
         }
@@ -199,7 +199,7 @@ namespace Protobuild
                 GitUtils.UnmarkIgnored(path);
             }
 
-            GitUtils.RunGit(null, "clone --progress " + sourcePath + " " + path);
+            GitUtils.RunGit(null, "clone --progress " + sourcePath + " \"" + path + "\"");
             GitUtils.RunGit(path, "checkout -f " + gitRef);
             this.InitializeSubmodulesFromCache(path);
 
