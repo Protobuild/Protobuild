@@ -245,7 +245,7 @@ namespace Protobuild
 
         private byte[] GetProtobuildBinaryPackage(ProtobuildPackageMetadata metadata)
         {
-            if (metadata.BinaryFormat == null && metadata.BinaryURI == null)
+            if (metadata.BinaryFormat == null || metadata.BinaryURI == null)
             {
                 // There is no binary format for this package.
                 return null;
