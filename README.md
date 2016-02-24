@@ -70,6 +70,11 @@ How to Contribute
 
 To contribute to Protobuild, refer to the [contributor documentation](https://protobuild.readthedocs.org/en/latest/contributing.html).
 
+The developer chat is hosted on [Gitter](https://gitter.im/Protobuild/Protobuild)
+
+[![Gitter](https://badges.gitter.im/Protobuild/Protobuild.svg)](https://gitter.im/Protobuild/Protobuild?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+
 Providing Feedback / Obtaining Support
 -----------------------------------------
 
