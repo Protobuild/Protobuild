@@ -61,7 +61,7 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            using (var client = new WebClient())
+            using (var client = new RetryableWebClient())
             {
                 var sourcePackage = _packageUrlParser.Parse(execution.PackageUrl);
 
@@ -107,8 +107,7 @@ namespace Protobuild
                     { "version", execution.PackagePushVersion },
                     { "platform", execution.PackagePushPlatform },
                 };
-
-                Console.WriteLine("HTTP POST " + execution.PackagePushUrl + "/version/new/api");
+                
                 var json = fastJSON.JSON.ToDynamic(
                     System.Text.Encoding.ASCII.GetString(
                         client.UploadValues(execution.PackagePushUrl + "/version/new/api", uploadParameters)));
@@ -206,31 +205,12 @@ import NuGet packages.
             return false;
         }
 
-        private class AccurateWebClient : WebClient
-        {
-            private readonly int m_ContentLength;
-
-            public AccurateWebClient(int length)
-            {
-                this.m_ContentLength = length;
-            }
-
-            protected override WebRequest GetWebRequest(Uri address)
-            {
-                var req = base.GetWebRequest(address) as HttpWebRequest;
-                req.AllowWriteStreamBuffering = false;
-                req.ContentLength = this.m_ContentLength;
-                return req;
-            }
-        }
-
         private void PushBinary(string targetUri, byte[] bytes)
         {
             try 
             {
-                using (var client = new AccurateWebClient(bytes.Length))
+                using (var client = new RetryableWebClient())
                 {
-                    Console.WriteLine("HTTP PUT " + targetUri);
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;

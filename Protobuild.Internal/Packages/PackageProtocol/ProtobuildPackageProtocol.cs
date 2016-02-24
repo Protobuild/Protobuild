@@ -258,9 +258,8 @@ namespace Protobuild.Internal
         {
             try
             {
-                using (var client = new WebClient())
+                using (var client = new RetryableWebClient())
                 {
-                    Console.WriteLine("HTTP GET " + indexUri);
                     str = client.DownloadString(indexUri);
                     return JSON.ToDynamic(str);
                 }

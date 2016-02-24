@@ -278,7 +278,7 @@ namespace Protobuild
                                 "NuGet.exe");
                         if (!File.Exists(cachedNuget))
                         {
-                            var client = new WebClient();
+                            var client = new RetryableWebClient();
                             client.DownloadFile("https://dist.nuget.org/win-x86-commandline/latest/nuget.exe", cachedNuget);
                         }
 

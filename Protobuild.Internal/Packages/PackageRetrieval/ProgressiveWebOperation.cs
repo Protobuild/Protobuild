@@ -9,9 +9,8 @@ namespace Protobuild
         {
             try 
             {
-                using (var client = new WebClient())
+                using (var client = new RetryableWebClient())
                 {
-                    Console.WriteLine("HTTP GET " + uri);
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;

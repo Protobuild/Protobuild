@@ -46,7 +46,7 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            using (var client = new WebClient())
+            using (var client = new RetryableWebClient())
             {
                 var archiveType = this.DetectPackageType(execution.PackagePushFile);
 
@@ -68,7 +68,6 @@ namespace Protobuild
                     { "platform", execution.PackagePushPlatform },
                 };
 
-                Console.WriteLine("HTTP POST " + execution.PackagePushUrl + "/version/new/api");
                 byte[] versionData;
                 try
                 {
@@ -207,24 +206,6 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
             return false;
         }
 
-        private class AccurateWebClient : WebClient
-        {
-            private readonly int m_ContentLength;
-
-            public AccurateWebClient(int length)
-            {
-                this.m_ContentLength = length;
-            }
-
-            protected override WebRequest GetWebRequest(Uri address)
-            {
-                var req = base.GetWebRequest(address) as HttpWebRequest;
-                req.AllowWriteStreamBuffering = false;
-                req.ContentLength = this.m_ContentLength;
-                return req;
-            }
-        }
-
         private void PushBinary(string targetUri, string file)
         {
             byte[] bytes;
@@ -236,9 +217,8 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
             try 
             {
-                using (var client = new AccurateWebClient(bytes.Length))
+                using (var client = new RetryableWebClient())
                 {
-                    Console.WriteLine("HTTP PUT " + targetUri);
                     var done = false;
                     byte[] result = null;
                     Exception ex = null;

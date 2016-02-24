@@ -395,9 +395,8 @@ namespace Protobuild
             }
 
             var packagesUrl = repoUrl + "/Packages(Id='" + packageName + "',Version='" + gitReference + "')";
-            var client = new WebClient();
-
-            Console.WriteLine("HTTP GET " + packagesUrl);
+            var client = new RetryableWebClient();
+            
             var xmlString = client.DownloadString(packagesUrl);
             var xDocument = XDocument.Parse(xmlString);
 
