@@ -76,6 +76,7 @@ namespace Protobuild
         private T PerformRetryableRequest<T>(string message, Uri baseUri, Func<Uri, T> func)
         {
             var exceptions = new List<Exception>();
+            var backoff = 100;
 
             for (var i = 0; i < MaxRequests; i++)
             {
@@ -104,6 +105,14 @@ namespace Protobuild
                     Console.Error.WriteLine("Exception during web request: ");
                     Console.Error.WriteLine(ex);
                     exceptions.Add(ex);
+
+                    Console.WriteLine("Backing off web requests for " + backoff + "ms...");
+                    System.Threading.Thread.Sleep(backoff);
+                    backoff *= 2;
+                    if (backoff > 20000)
+                    {
+                        backoff = 20000;
+                    }
                 }
             }
 
@@ -113,6 +122,7 @@ namespace Protobuild
         private void PerformRetryableRequest(string message, Uri baseUri, Action<Uri> func)
         {
             var exceptions = new List<Exception>();
+            var backoff = 100;
 
             for (var i = 0; i < MaxRequests; i++)
             {
@@ -143,6 +153,14 @@ namespace Protobuild
                     Console.Error.WriteLine("Exception during web request: ");
                     Console.Error.WriteLine(ex);
                     exceptions.Add(ex);
+
+                    Console.WriteLine("Backing off web requests for " + backoff + "ms...");
+                    System.Threading.Thread.Sleep(backoff);
+                    backoff *= 2;
+                    if (backoff > 20000)
+                    {
+                        backoff = 20000;
+                    }
                 }
             }
 
