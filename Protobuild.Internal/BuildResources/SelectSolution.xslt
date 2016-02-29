@@ -86,6 +86,9 @@
                   </xsl:otherwise>
                 </xsl:choose>
               </Priority>
+              <Folder>
+                <xsl:value-of select="current()/Properties/IDEFolder"/>
+              </Folder>
               <xsl:copy-of select="current()/ConfigurationMapping" />
               <xsl:copy-of select="current()/PostProject" />
             </Project>
@@ -131,6 +134,9 @@
                 </xsl:otherwise>
               </xsl:choose>
             </Priority>
+            <Folder>
+              <xsl:value-of select="current()/@IDEFolder"/>
+            </Folder>
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>
@@ -176,6 +182,10 @@
                 </xsl:otherwise>
               </xsl:choose>
             </Priority>
+            <Folder>
+              <xsl:value-of select="current()/@IDEFolder"/>
+            </Folder>
+            
             <xsl:copy-of select="current()/ConfigurationMapping" />
             <xsl:copy-of select="current()/PostProject" />
           </Project>
@@ -225,6 +235,9 @@
                     </xsl:otherwise>
                   </xsl:choose>
                 </Priority>
+                <Folder>
+                  <xsl:value-of select="current()/@IDEFolder"/>
+                </Folder>
                 <xsl:copy-of select="current()/ConfigurationMapping" />
                 <xsl:copy-of select="current()/PostProject" />
               </Project>
@@ -275,6 +288,9 @@
                     </xsl:otherwise>
                   </xsl:choose>
                 </Priority>
+                <Folder>
+                  <xsl:value-of select="current()/@IDEFolder"/>
+                </Folder>
                 <xsl:copy-of select="current()/ConfigurationMapping" />
                 <xsl:copy-of select="current()/PostProject" />
               </Project>

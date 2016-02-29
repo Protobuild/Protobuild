@@ -48,6 +48,7 @@ namespace Protobuild
 
                 var defaultProject = (XmlElement)null;
                 var existingGuids = new List<string>();
+                var existingFolders = new List<string>();
                 foreach (var element in document.DocumentElement.SelectNodes("/Projects/Project").OfType<XmlElement>().ToList())
                 {
                     var f = element.SelectNodes("ProjectGuids/Platform[@Name='" + platformName + "']").OfType<XmlElement>().FirstOrDefault();
@@ -80,6 +81,16 @@ namespace Protobuild
                         }
                     }
 
+                    var d = element.SelectNodes("Folder").OfType<XmlElement>().FirstOrDefault();
+
+                    if (d != null)
+                    {
+                        if (!existingFolders.Contains(s.InnerText.Trim()))
+                        {
+                            existingFolders.Add(s.InnerText.Trim());
+                        }
+                    }
+
                     var n = element.SelectNodes("RawName").OfType<XmlElement>().FirstOrDefault();
 
                     if (n != null)
@@ -99,6 +110,13 @@ namespace Protobuild
                     parent.RemoveChild(defaultProject);
                     parent.InsertBefore(defaultProject, parent.FirstChild);
                 }
+
+                //foreach (var folder in existingFolders)
+                //{
+                //    //var FolderProject = new 
+                //    document.CreateElement()
+                //    document.SelectSingleNode("/Projects")
+                //}
 
                 var documentInput = this.m_SolutionInputGenerator.GenerateForGenerateSolution(
                     platformName,
