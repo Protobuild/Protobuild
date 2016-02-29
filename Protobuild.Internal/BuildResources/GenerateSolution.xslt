@@ -16,25 +16,11 @@
   <!-- {ADDITIONAL_GENERATION_FUNCTIONS} -->
 
   <xsl:template match="/">
-    <xsl:choose>
-      <xsl:when test="$documentroot/Input/Generation/Platform = 'WindowsUniversal'">
-			<xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
+		<xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 </xsl:text>
-		</xsl:when>		
-      <xsl:when test="$documentroot/Input/Generation/Platform = 'WindowsPhone81'">
-<xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-</xsl:text>
-      </xsl:when>
-      <xsl:otherwise>
-<xsl:text>Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-</xsl:text>
-      </xsl:otherwise>
-    </xsl:choose>
     <xsl:for-each select="$documentroot/Input/Projects/Project">
       <xsl:sort select="current()/Priority" />
       <xsl:call-template name="project-definition">
@@ -46,6 +32,20 @@ MinimumVisualStudioVersion = 10.0.40219.1
         <xsl:with-param name="deps" select="current()/PostProject" />
       </xsl:call-template>
     </xsl:for-each>
+    <xsl:for-each select="$documentroot/Input/Projects/Project/Folder[not(.=preceding::*)]">
+      <xsl:sort select="current()/Priority" />
+      <xsl:if test="text()">
+        <xsl:call-template name="project-definition">
+          <xsl:with-param name="type" select="'IDEFolder'" />
+          <xsl:with-param name="name" select="text()" />
+          <xsl:with-param name="guid" select="user:GenerateGuid(text())" />
+          <xsl:with-param name="path" select="text()" />
+          <xsl:with-param name="language" select="current()/Language" />
+          <xsl:with-param name="deps" select="current()/PostProject" />
+        </xsl:call-template>
+      </xsl:if>
+    </xsl:for-each>
+    
     <xsl:choose>
       <xsl:when test="$documentroot/Input/Generation/Platform = 'iOS'">
         <xsl:text>Global
@@ -112,6 +112,20 @@ MinimumVisualStudioVersion = 10.0.40219.1
       </xsl:call-template>
     </xsl:for-each>
     <xsl:text>	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+</xsl:text>
+<!-- HERE -->
+    <xsl:for-each select="$documentroot/Input/Projects/Project">
+      <xsl:if test="current()/Folder/text()">
+        <xsl:text>		{</xsl:text>
+        <xsl:value-of select="current()/Guid" />
+        <xsl:text>} = {</xsl:text>
+        <xsl:value-of select="user:GenerateGuid(current()/Folder)" />
+        <xsl:text>}
+</xsl:text>
+      </xsl:if>
+    </xsl:for-each>
+    <xsl:text>	EndGlobalSection
 EndGlobal
 </xsl:text>
   </xsl:template>
@@ -127,6 +141,9 @@ EndGlobal
     <xsl:choose>
       <xsl:when test="$type = 'Content'">
         <xsl:text>9344BDBB-3E7F-41FC-A0DD-8665D75EE146</xsl:text>
+      </xsl:when>
+      <xsl:when test="$type = 'IDEFolder'">
+        <xsl:text>2150E333-8FDC-42A3-9474-1A3956D46DE8</xsl:text>
       </xsl:when>
       <xsl:when test="$language = 'C++'">
         <xsl:choose>

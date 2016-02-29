@@ -6,6 +6,7 @@
 // using System
 
 using System;
+using System.Text;
 
 public class GenerationFunctions
 {
@@ -32,6 +33,25 @@ public class GenerationFunctions
         {
             return ex.Message;
         }
+    }
+
+    public string GenerateGuid(string source)
+    {
+        if (String.IsNullOrEmpty(source))
+            return Guid.Empty.ToString();
+        var guidBytes = new byte[16];
+        for (var i = 0; i < guidBytes.Length; i++)
+            guidBytes[i] = (byte)0;
+        var nameBytes = Encoding.ASCII.GetBytes(source);
+        unchecked
+        {
+            for (var i = 0; i < nameBytes.Length; i++)
+                guidBytes[i % 16] += nameBytes[i];
+            for (var i = nameBytes.Length; i < 16; i++)
+                guidBytes[i] += nameBytes[i % nameBytes.Length];
+        }
+        var guid = new Guid(guidBytes);
+        return guid.ToString();
     }
 
     public string StripLeadingDotPaths(string path)
