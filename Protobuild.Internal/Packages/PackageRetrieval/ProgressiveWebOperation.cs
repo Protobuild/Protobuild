@@ -7,70 +7,54 @@ namespace Protobuild
     {
         public byte[] Get(string uri)
         {
-            try 
+            using (var client = new RetryableWebClient())
             {
-                using (var client = new RetryableWebClient())
-                {
-                    var done = false;
-                    byte[] result = null;
-                    Exception ex = null;
-                    var downloadProgressRenderer = new DownloadProgressRenderer();
-                    client.DownloadDataCompleted += (sender, e) => {
-                        if (e.Error != null)
-                        {
-                            ex = e.Error;
-                        }
-
-                        try
-                        {
-                            if (e.Result != null)
-                            {
-                                downloadProgressRenderer.Update(100, e.Result.Length / 1024);
-                            }
-                            result = e.Result;
-                        }
-                        catch (System.Reflection.TargetInvocationException)
-                        {
-                            // This is sometimes thrown when an error occurs.  It is
-                            // thrown when reporting that the result is invalid.
-                        }
-
-                        done = true;
-                    };
-                    client.DownloadProgressChanged += (sender, e) => {
-                        if (!done)
-                        {
-                            downloadProgressRenderer.Update(e.ProgressPercentage, e.BytesReceived / 1024);
-                        }
-                    };
-                    client.DownloadDataAsync(new Uri(uri));
-                    while (!done)
+                var done = false;
+                byte[] result = null;
+                Exception ex = null;
+                var downloadProgressRenderer = new DownloadProgressRenderer();
+                client.DownloadDataCompleted += (sender, e) => {
+                    if (e.Error != null)
                     {
-                        System.Threading.Thread.Sleep(0);
+                        ex = e.Error;
                     }
 
-                    downloadProgressRenderer.Finalize();
-
-                    if (ex != null)
+                    try
                     {
-                        throw new InvalidOperationException("Download error", ex);
+                        if (e.Result != null)
+                        {
+                            downloadProgressRenderer.Update(100, e.Result.Length / 1024);
+                        }
+                        result = e.Result;
+                    }
+                    catch (System.Reflection.TargetInvocationException)
+                    {
+                        // This is sometimes thrown when an error occurs.  It is
+                        // thrown when reporting that the result is invalid.
                     }
 
-                    return result;
-                }
-            }
-            catch (WebException)
-            {
-                if (uri.StartsWith("https://"))
+                    done = true;
+                };
+                client.DownloadProgressChanged += (sender, e) => {
+                    if (!done)
+                    {
+                        downloadProgressRenderer.Update(e.ProgressPercentage, e.BytesReceived / 1024);
+                    }
+                };
+                client.DownloadDataAsync(new Uri(uri));
+                while (!done)
                 {
-                    // Attempt fallback to HTTP.
-                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
-                    uri = "http" + uri.Substring("https".Length);
-                    return Get(uri);
+                    System.Threading.Thread.Sleep(0);
                 }
 
-                Console.WriteLine("Web exception when retrieving: " + uri);
-                throw;
+                downloadProgressRenderer.Finalize();
+
+                if (ex != null)
+                {
+                    throw new InvalidOperationException("Download error", ex);
+                }
+
+                return result;
             }
         }
     }

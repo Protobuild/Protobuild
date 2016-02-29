@@ -22,7 +22,7 @@ namespace Protobuild
             var client = new WebClient();
             SetupClient(client);
 
-            return PerformRetryableRequest("HTTP POST " + url, new Uri(url), u => client.UploadValues(u, uploadParameters));
+            return PerformRetryableRequest(ProtocolOf(url) + " POST " + url, new Uri(url), u => client.UploadValues(u, uploadParameters));
         }
 
         public void DownloadFile(string url, string filename)
@@ -30,7 +30,7 @@ namespace Protobuild
             var client = new WebClient();
             SetupClient(client);
 
-            PerformRetryableRequest("HTTP GET " + url, new Uri(url), u => client.DownloadFile(u, filename));
+            PerformRetryableRequest(ProtocolOf(url) + " GET " + url, new Uri(url), u => client.DownloadFile(u, filename));
         }
 
         public void UploadDataAsync(Uri uri, string method, byte[] bytes)
@@ -38,7 +38,7 @@ namespace Protobuild
             var client = new AccurateWebClient(bytes.Length);
             SetupClient(client);
 
-            PerformRetryableRequest("HTTP " + method + " " + uri, uri, u => client.UploadDataAsync(u, method, bytes));
+            PerformRetryableRequest(ProtocolOf(uri) + " " + method + " " + uri, uri, u => client.UploadDataAsync(u, method, bytes));
         }
 
         public string DownloadString(Uri uri)
@@ -46,7 +46,7 @@ namespace Protobuild
             var client = new WebClient();
             SetupClient(client);
 
-            return PerformRetryableRequest("HTTP GET " + uri, uri, u => client.DownloadString(u));
+            return PerformRetryableRequest(ProtocolOf(uri) + " GET " + uri, uri, u => client.DownloadString(u));
         }
 
         public void DownloadDataAsync(Uri uri)
@@ -54,7 +54,7 @@ namespace Protobuild
             var client = new WebClient();
             SetupClient(client);
 
-            PerformRetryableRequest("HTTP GET " + uri, uri, u => client.DownloadDataAsync(u));
+            PerformRetryableRequest(ProtocolOf(uri) + " GET " + uri, uri, u => client.DownloadDataAsync(u));
         }
 
         public string DownloadString(string uri)
@@ -62,7 +62,7 @@ namespace Protobuild
             var client = new WebClient();
             SetupClient(client);
 
-            return PerformRetryableRequest("HTTP GET " + uri, new Uri(uri), u => client.DownloadString(u));
+            return PerformRetryableRequest(ProtocolOf(uri) + " GET " + uri, new Uri(uri), u => client.DownloadString(u));
         }
 
         public void Dispose()
@@ -70,6 +70,30 @@ namespace Protobuild
             foreach (var client in _clientsToDispose)
             {
                 client.Dispose();
+            }
+        }
+
+        private string ProtocolOf(Uri uri)
+        {
+            if (uri.Scheme == "https")
+            {
+                return "HTTPS";
+            }
+            else
+            {
+                return "HTTP";
+            }
+        }
+
+        private string ProtocolOf(string uri)
+        {
+            if (new Uri(uri).Scheme == "https")
+            {
+                return "HTTPS";
+            }
+            else
+            {
+                return "HTTP";
             }
         }
 
@@ -83,22 +107,7 @@ namespace Protobuild
                 try
                 {
                     Console.WriteLine("(" + (i + 1) + "/" + MaxRequests + ") " + message);
-                    try
-                    {
-                        return func(baseUri);
-                    }
-                    catch (WebException)
-                    {
-                        if (baseUri.Scheme == "https")
-                        {
-                            // Attempt fallback to HTTP.
-                            Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
-                            var httpBaseUri = new Uri("http" + baseUri.ToString().Substring("https".Length));
-                            return func(httpBaseUri);
-                        }
-
-                        throw;
-                    }
+                    return func(baseUri);
                 }
                 catch (Exception ex)
                 {
@@ -129,24 +138,8 @@ namespace Protobuild
                 try
                 {
                     Console.WriteLine("(" + (i + 1) + "/" + MaxRequests + ") " + message);
-                    try
-                    {
-                        func(baseUri);
-                        return;
-                    }
-                    catch (WebException)
-                    {
-                        if (baseUri.Scheme == "https")
-                        {
-                            // Attempt fallback to HTTP.
-                            Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
-                            var httpBaseUri = new Uri("http" + baseUri.ToString().Substring("https".Length));
-                            func(httpBaseUri);
-                            return;
-                        }
-
-                        throw;
-                    }
+                    func(baseUri);
+                    return;
                 }
                 catch (Exception ex)
                 {

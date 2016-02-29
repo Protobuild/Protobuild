@@ -207,58 +207,41 @@ import NuGet packages.
 
         private void PushBinary(string targetUri, byte[] bytes)
         {
-            try 
+            using (var client = new RetryableWebClient())
             {
-                using (var client = new RetryableWebClient())
-                {
-                    var done = false;
-                    byte[] result = null;
-                    Exception ex = null;
-                    var uploadProgressRenderer = new UploadProgressRenderer();
-                    client.UploadDataCompleted += (sender, e) => {
-                        if (e.Error != null)
-                        {
-                            ex = e.Error;
-                        }
-
-                        result = e.Result;
-                        done = true;
-                    };
-                    client.UploadProgressChanged += (sender, e) => {
-                        if (!done)
-                        {
-                            uploadProgressRenderer.Update(e.ProgressPercentage, e.BytesSent / 1024);
-                        }
-                    };
-                    client.UploadDataAsync(new Uri(targetUri), "PUT", bytes);
-                    while (!done)
+                var done = false;
+                byte[] result = null;
+                Exception ex = null;
+                var uploadProgressRenderer = new UploadProgressRenderer();
+                client.UploadDataCompleted += (sender, e) => {
+                    if (e.Error != null)
                     {
-                        System.Threading.Thread.Sleep(0);
+                        ex = e.Error;
                     }
 
-                    uploadProgressRenderer.Finalize();
-
-                    if (ex != null)
+                    result = e.Result;
+                    done = true;
+                };
+                client.UploadProgressChanged += (sender, e) => {
+                    if (!done)
                     {
-                        throw new InvalidOperationException("Upload error", ex);
+                        uploadProgressRenderer.Update(e.ProgressPercentage, e.BytesSent / 1024);
                     }
-
-                    return;
-                }
-            }
-            catch (WebException)
-            {
-                if (targetUri.StartsWith("https://"))
+                };
+                client.UploadDataAsync(new Uri(targetUri), "PUT", bytes);
+                while (!done)
                 {
-                    // Attempt fallback to HTTP.
-                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
-                    targetUri = "http" + targetUri.Substring("https".Length);
-                    PushBinary(targetUri, bytes);
-                    return;
+                    System.Threading.Thread.Sleep(0);
                 }
 
-                Console.WriteLine("Web exception when sending to: " + targetUri);
-                throw;
+                uploadProgressRenderer.Finalize();
+
+                if (ex != null)
+                {
+                    throw new InvalidOperationException("Upload error", ex);
+                }
+
+                return;
             }
         }
     }

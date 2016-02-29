@@ -256,26 +256,10 @@ namespace Protobuild.Internal
 
         private dynamic GetJSON(Uri indexUri, out string str)
         {
-            try
+            using (var client = new RetryableWebClient())
             {
-                using (var client = new RetryableWebClient())
-                {
-                    str = client.DownloadString(indexUri);
-                    return JSON.ToDynamic(str);
-                }
-            }
-            catch (WebException ex)
-            {
-                if (indexUri.Scheme == "https")
-                {
-                    // Attempt fallback to HTTP.
-                    Console.Error.WriteLine("Web exception while using HTTPS; attempting HTTP fallback...");
-                    indexUri = new Uri("http" + indexUri.ToString().Substring("https".Length));
-                    return GetJSON(indexUri, out str);
-                }
-
-                Console.WriteLine("Web exception when retrieving: " + indexUri);
-                throw;
+                str = client.DownloadString(indexUri);
+                return JSON.ToDynamic(str);
             }
         }
 
