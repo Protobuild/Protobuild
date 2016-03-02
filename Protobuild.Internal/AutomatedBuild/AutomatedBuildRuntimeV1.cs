@@ -396,48 +396,28 @@ namespace Protobuild
                             runSets.Add(_hostPlatformDetector.DetectPlatform());
                         }
 
-                        if (args.Contains("$GIT_COMMIT") || args.Contains("$GIT_BRANCH"))
+                        if (args.Contains("$GIT_BRANCH"))
+                        {
+                            Console.Error.WriteLine(
+                                "ERROR: Support for $GIT_BRANCH has been dropped, because it almost never behaved as intended (due to no guarentees that the desired refs would exist in the repository being operated on).");
+                            return 1;
+                        }
+
+                        if (args.Contains("$GIT_COMMIT"))
                         {
                             string commit;
-                            string branch;
 
                             try
                             {
                                 Console.WriteLine("+ git rev-parse HEAD");
                                 commit = GitUtils.RunGitAndCapture(workingDirectory, "rev-parse HEAD").Trim();
-
-                                try
-                                {
-                                    Console.WriteLine("+ git show-ref --heads");
-                                    var branchesText = GitUtils.RunGitAndCapture(workingDirectory, "show-ref --heads");
-                                    var branches = branchesText.Split(new[] { Environment.NewLine, "\n" }, StringSplitOptions.RemoveEmptyEntries);
-                                    var branchRaw = branches.FirstOrDefault(x => x.StartsWith(commit, StringComparison.Ordinal));
-                                    branch = string.Empty;
-                                    if (branchRaw != null)
-                                    {
-                                        var branchComponents = branchRaw.Trim().Split(' ');
-                                        if (branchComponents.Length >= 2)
-                                        {
-                                            if (branchComponents[1].StartsWith("refs/heads/", StringComparison.Ordinal))
-                                            {
-                                                branch = branchComponents[1].Substring("refs/heads/".Length);
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (InvalidOperationException)
-                                {
-                                    branch = string.Empty;
-                                }
                             }
                             catch (InvalidOperationException)
                             {
                                 commit = string.Empty;
-                                branch = string.Empty;
                             }
 
                             args = args.Replace("$GIT_COMMIT", commit);
-                            args = args.Replace("$GIT_BRANCH", branch);
                         }
 
                         string runtime = null;
