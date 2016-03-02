@@ -440,17 +440,6 @@ namespace Protobuild
                 externalProjectServices.AppendChild(serviceElem);
             }
 
-            // Copy all existing references that the normal project makes to the external project.
-            var referencesDeclared = document.Root.Element(XName.Get("References"));
-            if (referencesDeclared != null)
-            {
-                foreach (var referenceElement in referencesDeclared.Elements().Where(x => x.Name.LocalName == "Reference"))
-                {
-                    var referenceElem = externalProjectDocument.CreateElement("Reference");
-                    referenceElem.SetAttribute("Include", referenceElement.Attribute(XName.Get("Include")).Value);
-                }
-            }
-
             var pathPrefix = this.m_ProjectOutputPathCalculator.GetProjectOutputPathPrefix(platform, definition, document, true);
             var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, definition, document);
             var outputMode = this.m_ProjectOutputPathCalculator.GetProjectOutputMode(document);
@@ -645,12 +634,18 @@ namespace Protobuild
                 {
                     if (definitionsByName.ContainsKey(includeAttribute.Value))
                     {
-                        // This reference will be converted to an external project,
-                        // so add a reference to it (in case it contains native binaries
-                        // which need to be copied out).
-                        var referenceEntry = externalProjectDocument.CreateElement("Reference");
-                        referenceEntry.SetAttribute("Include", includeAttribute.Value);
-                        externalProject.AppendChild(referenceEntry);
+                        var targetDefinition = definitionsByName[includeAttribute.Value];
+
+                        // If the targeted reference is an include project, skip it.
+                        if (targetDefinition == null || targetDefinition.Type != "Include")
+                        {
+                            // This reference will be converted to an external project,
+                            // so add a reference to it (in case it contains native binaries
+                            // which need to be copied out).
+                            var referenceEntry = externalProjectDocument.CreateElement("Reference");
+                            referenceEntry.SetAttribute("Include", includeAttribute.Value);
+                            externalProject.AppendChild(referenceEntry);
+                        }
                     }
                 }
             }

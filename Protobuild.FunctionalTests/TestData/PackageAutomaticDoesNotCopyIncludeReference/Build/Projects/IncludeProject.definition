@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<IncludeProject Name="IncludeProject" Path="IncludeProject">
+  <Files>
+    <Compile Include="Include.cs" />
+  </Files>
+</IncludeProject>

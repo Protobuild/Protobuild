@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project Name="StandardProject" Path="StandardProject" Type="Library">
+  <References>
+    <Reference Include="ExternalProject" />
+    <Reference Include="IncludeProject" />
+  </References>
+  <Files>
+    <Compile Include="Class.cs" />
+  </Files>
+</Project>

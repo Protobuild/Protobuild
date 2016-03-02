@@ -98,3 +98,4 @@ Protobuild.FunctionalTests/TestData/PackageProtobuildLocalResolvesNewForBinaryOn
 Protobuild.FunctionalTests/TestData/PackageProtobuildLocalResolvesSecondTimeForBinaryOnly/Package/
 Protobuild.FunctionalTests/TestData/PackageTemplateIgnoresTemplateOnlyFolder/Generated/Generated.Content/assets/.source
 Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/SelectSolution.xslt
+Protobuild.FunctionalTests/TestData/PackageAutomaticDoesNotCopyIncludeReference/Windows.tar.lzma

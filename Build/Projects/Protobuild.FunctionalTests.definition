@@ -89,6 +89,7 @@
     <Compile Include="NuGetPortableLibraryDetectedTest.cs" />
     <Compile Include="NuGetPortableLibraryDetectedWithRootPathDotSlashTest.cs" />
     <Compile Include="NuGetPortableLibraryDetectedWithRootPathDotTest.cs" />
+    <Compile Include="PackageAutomaticDoesNotCopyIncludeReferenceTest.cs" />
     <Compile Include="PackageEverythingCorrectGZipTest.cs" />
     <Compile Include="PackageEverythingCorrectLZMATest.cs" />
     <Compile Include="PackageEverythingFailWhenBuildModuleXmlNotPresent.cs" />
@@ -404,6 +405,12 @@
     <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\packages.config" />
     <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\packages\Zlib.Portable.1.10.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Test.dll" />
     <None Include="TestData\NuGetPortableLibraryDetectedWithRootPathDotSlash\Program.cs" />
+    <None Include="TestData\PackageAutomaticDoesNotCopyIncludeReference\Build\Module.xml" />
+    <None Include="TestData\PackageAutomaticDoesNotCopyIncludeReference\Build\Projects\ExternalProject.definition" />
+    <None Include="TestData\PackageAutomaticDoesNotCopyIncludeReference\Build\Projects\IncludeProject.definition" />
+    <None Include="TestData\PackageAutomaticDoesNotCopyIncludeReference\Build\Projects\StandardProject.definition" />
+    <None Include="TestData\PackageAutomaticDoesNotCopyIncludeReference\IncludeProject\Include.cs" />
+    <None Include="TestData\PackageAutomaticDoesNotCopyIncludeReference\StandardProject\Class.cs" />
     <None Include="TestData\PackageEverythingCorrectGZip\Filter.txt" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Module.xml" />
     <None Include="TestData\PackageEverythingCorrectGZip\Publish\Build\Projects\Console.definition" />
