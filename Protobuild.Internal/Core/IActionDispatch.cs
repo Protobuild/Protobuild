@@ -13,7 +13,8 @@ namespace Protobuild
             string serviceSpecPath = null,
             bool debugServiceResolution = false,
             bool disablePackageResolution = false,
-            bool disableHostPlatformGeneration = false);
+            bool disableHostPlatformGeneration = false,
+            bool? taskParallelisation = null);
 
         bool DefaultAction(
             ModuleInfo module, 
@@ -23,7 +24,8 @@ namespace Protobuild
             string serviceSpecPath = null,
             bool debugServiceResolution = false,
             bool disablePackageResolution = false,
-            bool disableHostPlatformGeneration = false);
+            bool disableHostPlatformGeneration = false,
+            bool? taskParallelisation = null);
     }
 }
 

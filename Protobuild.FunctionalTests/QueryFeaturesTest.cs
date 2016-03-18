@@ -26,7 +26,8 @@
                 "inline-invocation-if-identical-hashed-executables",
                 "no-host-generate",
                 "propagate-features",
-            };
+                "task-parallelisation",
+        };
 
             _assert.Equal(expectedFeatureList, featureList);
         }

@@ -34,6 +34,9 @@ namespace Protobuild
         [FeatureInternal("propagate-features")]
         PropagateFeatures,
 
+        [FeatureInternal("task-parallelisation")]
+        TaskParallelisation,
+
         [FeatureDescription(
             "The package management features of Protobuild.",
             new[]

@@ -212,13 +212,14 @@ namespace Protobuild.UnitTests
 
             var features = featureManager.GetEnabledInternalFeatureIDs();
 
-            _assert.Equal(6, features.Length);
+            _assert.Equal(7, features.Length);
             _assert.Contains("query-features", features);
             _assert.Contains("skip-invocation-on-no-standard-projects", features);
             _assert.Contains("skip-synchronisation-on-no-standard-projects", features);
             _assert.Contains("skip-resolution-on-no-packages-or-submodules", features);
             _assert.Contains("inline-invocation-if-identical-hashed-executables", features);
             _assert.Contains("propagate-features", features);
+            _assert.Contains("task-parallelisation", features);
         }
 
         public void QueryFeaturesWithOnlyPackageManagementFeatureEnabledReturnsCorrectValue()
@@ -237,7 +238,7 @@ namespace Protobuild.UnitTests
 
             var features = featureManager.GetEnabledInternalFeatureIDs();
 
-            _assert.Equal(8, features.Length);
+            _assert.Equal(9, features.Length);
             _assert.Contains("query-features", features);
             _assert.Contains("no-resolve", features);
             _assert.Contains("list-packages", features);
@@ -246,6 +247,7 @@ namespace Protobuild.UnitTests
             _assert.Contains("skip-resolution-on-no-packages-or-submodules", features);
             _assert.Contains("inline-invocation-if-identical-hashed-executables", features);
             _assert.Contains("propagate-features", features);
+            _assert.Contains("task-parallelisation", features);
         }
 
         public void QueryFeaturesWithAllFeaturesEnabledReturnsCorrectValue()
@@ -261,7 +263,7 @@ namespace Protobuild.UnitTests
 
             var features = featureManager.GetEnabledInternalFeatureIDs();
 
-            _assert.Equal(9, features.Length);
+            _assert.Equal(10, features.Length);
             _assert.Contains("query-features", features);
             _assert.Contains("no-resolve", features);
             _assert.Contains("list-packages", features);
@@ -271,6 +273,7 @@ namespace Protobuild.UnitTests
             _assert.Contains("inline-invocation-if-identical-hashed-executables", features);
             _assert.Contains("no-host-generate", features);
             _assert.Contains("propagate-features", features);
+            _assert.Contains("task-parallelisation", features);
         }
     }
 }

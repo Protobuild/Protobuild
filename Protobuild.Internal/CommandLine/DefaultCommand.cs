@@ -43,7 +43,8 @@ namespace Protobuild
                 serviceSpecPath: execution.ServiceSpecificationPath,
                 debugServiceResolution: execution.DebugServiceResolution,
                 disablePackageResolution: execution.DisablePackageResolution,
-                disableHostPlatformGeneration: execution.DisableHostProjectGeneration) ? 0 : 1;
+                disableHostPlatformGeneration: execution.DisableHostProjectGeneration,
+                taskParallelisation: execution.UseTaskParallelisation) ? 0 : 1;
         }
 
         public string GetDescription()

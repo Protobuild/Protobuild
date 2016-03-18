@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using Protobuild.Tasks;
 using fastJSON;
 
@@ -24,6 +25,7 @@ namespace Protobuild
         private readonly IFeatureManager _featureManager;
 
         private readonly IModuleExecution _moduleExecution;
+        private readonly IHostPlatformDetector _hostPlatformDetector;
 
         public const string ARCHIVE_FORMAT_TAR_LZMA = "tar/lzma";
 
@@ -45,7 +47,8 @@ namespace Protobuild
             IPackageGlobalTool packageGlobalTool,
             IPackageRedirector packageRedirector,
             IFeatureManager featureManager,
-            IModuleExecution moduleExecution)
+            IModuleExecution moduleExecution,
+            IHostPlatformDetector hostPlatformDetector)
         {
             this.packageRedirector = packageRedirector;
             _packageLookup = packageLookup;
@@ -53,9 +56,10 @@ namespace Protobuild
             this.m_PackageGlobalTool = packageGlobalTool;
             _featureManager = featureManager;
             _moduleExecution = moduleExecution;
+            _hostPlatformDetector = hostPlatformDetector;
         }
 
-        public void ResolveAll(ModuleInfo module, string platform)
+        public void ResolveAll(ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade = false)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
             {
@@ -64,18 +68,66 @@ namespace Protobuild
 
             Console.WriteLine("Starting resolution of packages for " + platform + "...");
 
+            var parallelisation = enableParallelisation ?? _hostPlatformDetector.DetectPlatform() == "Windows";
+            if (parallelisation)
+            {
+                Console.WriteLine("Enabled parallelisation; use --no-parallel to disable...");
+            }
+
             if (module.Packages != null && module.Packages.Count > 0)
             {
+                var taskList = new List<Task<Tuple<string, Action>>>();
+                var resultList = new List<Tuple<string, Action>>();
                 foreach (var submodule in module.Packages)
                 {
                     if (submodule.IsActiveForPlatform(platform))
                     {
-                        Console.WriteLine("Resolving: " + submodule.Uri);
-                        this.Resolve(module, submodule, platform, null, null);
+                        Console.WriteLine("Querying: " + submodule.Uri);
+                        var submodule1 = submodule;
+                        if (parallelisation)
+                        {
+                            var task = new Func<Task<Tuple<string, Action>>>(async () =>
+                            {
+                                var metadata = await Task.Run(() =>
+                                    Lookup(module, submodule1, platform, null, null, forceUpgrade));
+                                if (metadata == null)
+                                {
+                                    return new Tuple<string, Action>(submodule1.Uri, () => { });
+                                }
+                                return new Tuple<string, Action>(submodule1.Uri,
+                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade); });
+                            });
+                            taskList.Add(task());
+                        }
+                        else
+                        {
+                            var metadata = Lookup(module, submodule1, platform, null, null, forceUpgrade);
+                            resultList.Add(new Tuple<string, Action>(submodule1.Uri,
+                                () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade); }));;
+                        }
                     }
                     else
                     {
                         Console.WriteLine("Skipping resolution for " + submodule.Uri + " because it is not active for this target platform");
+                    }
+                }
+
+                if (parallelisation)
+                {
+                    var taskArray = taskList.ToArray();
+                    Task.WaitAll(taskArray);
+                    foreach (var tuple in taskArray)
+                    {
+                        Console.WriteLine("Resolving: " + tuple.Result.Item1);
+                        tuple.Result.Item2();
+                    }
+                }
+                else
+                {
+                    foreach (var tuple in resultList)
+                    {
+                        Console.WriteLine("Resolving: " + tuple.Item1);
+                        tuple.Item2();
                     }
                 }
             }
@@ -94,9 +146,21 @@ namespace Protobuild
 
                 Console.WriteLine(
                     "Invoking package resolution in submodule for " + submodule.Name);
+                string parallelMode = null;
+                if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.TaskParallelisation))
+                {
+                    if (parallelisation)
+                    {
+                        parallelMode += "-parallel ";
+                    }
+                    else
+                    {
+                        parallelMode += "-no-parallel ";
+                    }
+                }
                 _moduleExecution.RunProtobuild(
                     submodule, 
-                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
+                    _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + parallelMode +
                     "-resolve " + platform + " " + packageRedirector.GetRedirectionArguments());
                 Console.WriteLine(
                     "Finished submodule package resolution for " + submodule.Name);
@@ -105,11 +169,19 @@ namespace Protobuild
             Console.WriteLine("Package resolution complete.");
         }
 
-        public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source, bool forceUpgrade = false)
+        public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
+            bool forceUpgrade = false)
+        {
+            var metadata = Lookup(module, reference, platform, templateName, source, forceUpgrade);
+            Resolve(metadata, reference, templateName, source, forceUpgrade);
+        }
+
+        public IPackageMetadata Lookup(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
+            bool forceUpgrade = false)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
             {
-                return;
+                return null;
             }
 
             if (module != null && reference.Folder != null)
@@ -125,7 +197,7 @@ namespace Protobuild
                         writer.WriteLine(existingPath);
                     }
 
-                    return;
+                    return null;
                 }
                 else
                 {
@@ -147,9 +219,13 @@ namespace Protobuild
                 reference.GitRef,
                 platform,
                 !forceUpgrade && reference.IsCommitReference);
-            
-            var metadata = _packageLookup.Lookup(request);
-            
+
+            return _packageLookup.Lookup(request);
+        }
+
+        public void Resolve(IPackageMetadata metadata, PackageRef reference, string templateName, bool? source,
+            bool forceUpgrade = false)
+        { 
             string toolFolder = null;
             if (reference.Folder == null)
             {

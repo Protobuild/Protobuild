@@ -76,6 +76,7 @@ namespace Protobuild
 
         public bool DisableHostProjectGeneration { get; set; }
         public string BuildProcessArchitecture { get; set; }
+        public bool? UseTaskParallelisation { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
