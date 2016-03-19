@@ -10,7 +10,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public class AutomaticModulePackager : IAutomaticModulePackager
+    internal class AutomaticModulePackager : IAutomaticModulePackager
     {
         private readonly IProjectLoader m_ProjectLoader;
 

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class PackPackageCommand : ICommand
+    internal class PackPackageCommand : ICommand
     {
         private readonly IAutomaticModulePackager m_AutomaticProjectPackager;
 

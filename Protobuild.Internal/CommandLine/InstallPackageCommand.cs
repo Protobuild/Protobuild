@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class InstallPackageCommand : ICommand
+    internal class InstallPackageCommand : ICommand
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
         private readonly IPackageManager m_PackageManager;

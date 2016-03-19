@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class RedirectPackageCommand : ICommand
+    internal class RedirectPackageCommand : ICommand
     {
         private readonly IPackageRedirector m_PackageRedirector;
 

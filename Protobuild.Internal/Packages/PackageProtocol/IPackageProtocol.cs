@@ -1,6 +1,6 @@
 ﻿namespace Protobuild.Internal
 {
-    public interface IPackageProtocol
+    internal interface IPackageProtocol
     {
         string[] Schemes { get; }
 

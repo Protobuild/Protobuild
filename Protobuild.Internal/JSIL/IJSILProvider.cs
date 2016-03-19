@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public interface IJSILProvider
+    internal interface IJSILProvider
     {
         bool GetJSIL(out string jsilDirectory, out string jsilCompilerFile);
 

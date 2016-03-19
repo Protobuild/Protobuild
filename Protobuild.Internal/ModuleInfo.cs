@@ -1,29 +1,3 @@
-//-----------------------------------------------------------------------
-// <copyright file="ModuleInfo.cs" company="Protobuild Project">
-// The MIT License (MIT)
-// 
-// Copyright (c) Various Authors
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-//     The above copyright notice and this permission notice shall be included in
-//     all copies or substantial portions of the Software.
-// 
-//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//     AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//     LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-//     THE SOFTWARE.
-// </copyright>
-//-----------------------------------------------------------------------
-
 using System.Xml;
 using System.Xml.Linq;
 
@@ -140,6 +114,12 @@ namespace Protobuild
         /// <value>The cached features.</value>
         public Feature[] CachedInternalFeatures { get; set; }
 
+        /// <summary>
+        /// Loads the module information from an XML stream.
+        /// </summary>
+        /// <param name="xmlStream">The XML stream.</param>
+        /// <param name="modulePath">The virtual path to the module on disk.</param>
+        /// <returns>The loaded module.</returns>
         public static ModuleInfo Load(Stream xmlStream, string modulePath)
         {
             return LoadInternal(
@@ -302,6 +282,7 @@ namespace Protobuild
         /// Loads all of the project definitions present in the current module and all submodules.
         /// </summary>
         /// <returns>The loaded project definitions.</returns>
+        /// <param name="platform">The target platform.</param>
         /// <param name="relative">The current directory being scanned.</param>
         public IEnumerable<DefinitionInfo> GetDefinitionsRecursively(string platform = null, string relative = "")
         {
@@ -512,6 +493,10 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Returns the default list of supported platforms in Protobuild.
+        /// </summary>
+        /// <returns>The default list of supported platforms in Protobuild.</returns>
         public static string GetSupportedPlatformsDefault()
         {
             return "Android,iOS,tvOS,Linux,MacOS,Ouya,PCL,PSMobile,Windows,Windows8,WindowsGL,WindowsPhone,WindowsPhone81,WindowsUniversal";

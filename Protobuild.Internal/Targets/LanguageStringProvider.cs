@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class LanguageStringProvider : ILanguageStringProvider
+    internal class LanguageStringProvider : ILanguageStringProvider
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
 

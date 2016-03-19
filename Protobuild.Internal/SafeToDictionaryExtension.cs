@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public static class SafeToDictionaryExtension
+    internal static class SafeToDictionaryExtension
     {
         public static Dictionary<TKey, TValue> ToDictionarySafe<TSource, TKey, TValue>(
             this IEnumerable<TSource> enumerable, 

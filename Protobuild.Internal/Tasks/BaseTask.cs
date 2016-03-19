@@ -2,7 +2,7 @@ using System;
 
 namespace Protobuild
 {
-    public abstract class BaseTask
+    internal abstract class BaseTask
     {
         public Action<string> LogMessage
         {

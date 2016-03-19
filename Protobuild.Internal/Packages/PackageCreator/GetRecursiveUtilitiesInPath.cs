@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class GetRecursiveUtilitiesInPath : IGetRecursiveUtilitiesInPath
+    internal class GetRecursiveUtilitiesInPath : IGetRecursiveUtilitiesInPath
     {
         public IEnumerable<string> GetRecursiveFilesInPath(string path)
         {

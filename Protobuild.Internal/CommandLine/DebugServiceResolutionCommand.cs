@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class DebugServiceResolutionCommand : ICommand
+    internal class DebugServiceResolutionCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

@@ -21,6 +21,9 @@ namespace LZMA
 		public InvalidParamException(): base("Invalid Parameter") { }
 	}
 
+    /// <summary>
+    /// An interface which represents progress of an LZMA operation.
+    /// </summary>
 	public interface ICodeProgress
 	{
 		/// <summary>
@@ -35,7 +38,7 @@ namespace LZMA
 		void SetProgress(Int64 inSize, Int64 outSize);
 	};
 
-	public interface ICoder
+    internal interface ICoder
 	{
 		/// <summary>
 		/// Codes streams.
@@ -55,14 +58,11 @@ namespace LZMA
 		/// <param name="progress">
 		/// callback progress reference.
 		/// </param>
-		/// <exception cref="SevenZip.DataErrorException">
-		/// if input stream is not valid
-		/// </exception>
 		void Code(System.IO.Stream inStream, System.IO.Stream outStream,
 			Int64 inSize, Int64 outSize, ICodeProgress progress);
 	};
 
-	/*
+    /*
 	public interface ICoder2
 	{
 		 void Code(ISequentialInStream []inStreams,
@@ -73,10 +73,10 @@ namespace LZMA
 	};
   */
 
-	/// <summary>
-	/// Provides the fields that represent properties idenitifiers for compressing.
-	/// </summary>
-	public enum CoderPropID
+    /// <summary>
+    /// Provides the fields that represent properties idenitifiers for compressing.
+    /// </summary>
+    internal enum CoderPropID
 	{
 		/// <summary>
 		/// Specifies default property.
@@ -98,18 +98,18 @@ namespace LZMA
 		/// Specifies Block Size.
 		/// </summary>
 		BlockSize,
-		/// <summary>
-		/// Specifies number of postion state bits for LZMA (0 <= x <= 4).
-		/// </summary>
-		PosStateBits,
-		/// <summary>
-		/// Specifies number of literal context bits for LZMA (0 <= x <= 8).
-		/// </summary>
-		LitContextBits,
-		/// <summary>
-		/// Specifies number of literal position bits for LZMA (0 <= x <= 4).
-		/// </summary>
-		LitPosBits,
+        /// <summary>
+        /// Specifies number of postion state bits for LZMA (0 &lt;= x &lt;= 4).
+        /// </summary>
+        PosStateBits,
+        /// <summary>
+        /// Specifies number of literal context bits for LZMA (0 &lt;= x &lt;= 8).
+        /// </summary>
+        LitContextBits,
+        /// <summary>
+        /// Specifies number of literal position bits for LZMA (0 &lt;= x &lt;= 4).
+        /// </summary>
+        LitPosBits,
 		/// <summary>
 		/// Specifies number of fast bytes for LZ*.
 		/// </summary>
@@ -141,17 +141,17 @@ namespace LZMA
 	};
 
 
-	public interface ISetCoderProperties
+    internal interface ISetCoderProperties
 	{
 		void SetCoderProperties(CoderPropID[] propIDs, object[] properties);
 	};
 
-	public interface IWriteCoderProperties
+    internal interface IWriteCoderProperties
 	{
 		void WriteCoderProperties(System.IO.Stream outStream);
 	}
 
-	public interface ISetDecoderProperties
+    internal interface ISetDecoderProperties
 	{
 		void SetDecoderProperties(byte[] properties);
 	}

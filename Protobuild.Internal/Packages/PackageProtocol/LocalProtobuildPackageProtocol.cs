@@ -8,7 +8,7 @@ using fastJSON;
 
 namespace Protobuild.Internal
 {
-    public class LocalProtobuildPackageProtocol : IPackageProtocol
+    internal class LocalProtobuildPackageProtocol : IPackageProtocol
     {
         private readonly BinaryPackageResolve _binaryPackageResolve;
 

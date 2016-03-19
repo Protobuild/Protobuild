@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public interface ISolutionGenerator
+    internal interface ISolutionGenerator
     {
         void Generate(
             ModuleInfo moduleInfo,

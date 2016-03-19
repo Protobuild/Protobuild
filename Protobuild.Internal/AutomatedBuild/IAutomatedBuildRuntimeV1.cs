@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IAutomatedBuildRuntimeV1 : IAutomatedBuildRuntime
+    internal interface IAutomatedBuildRuntimeV1 : IAutomatedBuildRuntime
     {
     }
 }

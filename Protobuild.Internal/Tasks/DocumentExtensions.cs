@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace Protobuild.Tasks
 {
-    public static class DocumentExtensions
+    internal static class DocumentExtensions
     {
         public static XmlDocument ToXmlDocument(this XNode xDocument)
         {

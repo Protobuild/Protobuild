@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IProgressiveWebOperation
+    internal interface IProgressiveWebOperation
     {
         byte[] Get(string uri);
     }

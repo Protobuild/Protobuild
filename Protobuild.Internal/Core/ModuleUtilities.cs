@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class ModuleUtilities : IModuleUtilities
+    internal class ModuleUtilities : IModuleUtilities
     {
         private readonly IFeatureManager _featureManager;
 
@@ -17,6 +17,7 @@ namespace Protobuild
         /// and validating against a list of supported platforms.
         /// </summary>
         /// <returns>The platform string.</returns>
+        /// <param name="module">The module to normalize the platform string for.</param>
         /// <param name="platform">The normalized platform string.</param>
         public string NormalizePlatform(ModuleInfo module, string platform)
         {

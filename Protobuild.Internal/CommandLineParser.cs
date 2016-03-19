@@ -9,7 +9,7 @@ namespace Protobuild
     /// <remarks>
     /// Sourced from https://stackoverflow.com/questions/298830/split-string-containing-command-line-parameters-into-string-in-c-sharp/298990#298990
     /// </remarks>
-    public static class CommandLineParser
+    internal static class CommandLineParser
     {
         public static IEnumerable<string> SplitCommandLine(this string commandLine)
         {

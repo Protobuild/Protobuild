@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class LoadedDefinitionInfo
+    internal class LoadedDefinitionInfo
     {
         public XmlDocument Project { get; set; }
 

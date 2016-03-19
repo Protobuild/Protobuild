@@ -8,7 +8,7 @@ using System.Xml.Xsl;
 
 namespace Protobuild
 {
-    public class CSharpProject
+    internal class CSharpProject
     {
         public string Name { get; set; }
         public string Guid { get; set; }

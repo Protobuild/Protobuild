@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-	public interface IPlatformResourcesGenerator
+    internal interface IPlatformResourcesGenerator
 	{
 		void GenerateInfoPListIfNeeded(List<LoadedDefinitionInfo> definitions, DefinitionInfo definition, XmlDocument project, string platform);
 	}

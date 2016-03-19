@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace Protobuild.RegressionTestTool
 {
+    /// <summary>
+    /// A small utility which sets up the regression test data.
+    /// </summary>
     public static class Program
     {
         private static string ModuleRoot;
@@ -59,6 +62,10 @@ namespace Protobuild.RegressionTestTool
             return found;
         }
 
+        /// <summary>
+        /// The main entry point for the regression test utility.
+        /// </summary>
+        /// <param name="args">The arguments passed in on the command line.</param>
         public static void Main(string[] args)
         {
             ModuleRoot = new FileInfo(typeof(Program).Assembly.Location).Directory?.Parent?.Parent?.Parent?.Parent?.Parent?.FullName;

@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageRedirector
+    internal interface IPackageRedirector
     {
         string RedirectPackageUrl(string url);
 

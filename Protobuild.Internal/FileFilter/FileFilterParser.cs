@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class FileFilterParser : IFileFilterParser
+    internal class FileFilterParser : IFileFilterParser
     {
         public void ParseAndApply(FileFilter result, Stream inputFilterFile, Dictionary<string, Action<FileFilter>> customDirectives)
         {

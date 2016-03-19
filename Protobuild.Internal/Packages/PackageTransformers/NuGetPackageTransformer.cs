@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
-    public class NuGetPackageTransformer : IPackageTransformer
+    internal class NuGetPackageTransformer : IPackageTransformer
     {
         private readonly IProgressiveWebOperation _progressiveWebOperation;
 

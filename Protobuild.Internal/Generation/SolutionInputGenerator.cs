@@ -5,7 +5,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-    public class SolutionInputGenerator : ISolutionInputGenerator
+    internal class SolutionInputGenerator : ISolutionInputGenerator
     {
         private readonly IServiceInputGenerator m_ServiceInputGenerator;
 

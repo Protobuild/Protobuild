@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class DedupProgressRenderer : BaseProgressRenderer
+    internal class DedupProgressRenderer : BaseProgressRenderer
     {
         private readonly long m_Total;
 

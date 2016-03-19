@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public enum Language
+    internal enum Language
     {
         CSharp,
         CPlusPlus

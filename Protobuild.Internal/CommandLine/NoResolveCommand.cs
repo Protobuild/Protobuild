@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class NoResolveCommand : ICommand
+    internal class NoResolveCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 

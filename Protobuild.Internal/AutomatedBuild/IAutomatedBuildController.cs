@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IAutomatedBuildController
+    internal interface IAutomatedBuildController
     {
         int Execute(string path);
     }

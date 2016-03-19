@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class CompressProgressRenderer : BaseProgressRenderer, LZMA.ICodeProgress
+    internal class CompressProgressRenderer : BaseProgressRenderer, LZMA.ICodeProgress
     {
         private readonly long m_InLength;
 

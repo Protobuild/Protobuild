@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public enum ResourceType
+    internal enum ResourceType
     {
         GenerateProject,
 

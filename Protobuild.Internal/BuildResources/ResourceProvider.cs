@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class ResourceProvider : IResourceProvider
+    internal class ResourceProvider : IResourceProvider
     {
         private readonly ILanguageStringProvider m_LanguageStringProvider;
 

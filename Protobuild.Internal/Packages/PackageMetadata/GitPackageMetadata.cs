@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class GitPackageMetadata : IPackageMetadata
+    internal class GitPackageMetadata : IPackageMetadata
     {
         public GitPackageMetadata(
             string cloneURI,

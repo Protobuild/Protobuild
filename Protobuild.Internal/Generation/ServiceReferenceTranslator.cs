@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class ServiceReferenceTranslator : IServiceReferenceTranslator
+    internal class ServiceReferenceTranslator : IServiceReferenceTranslator
     {
         public XmlNode TranslateProjectWithServiceReferences(XmlNode importNode, List<Service> services)
         {

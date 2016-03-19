@@ -3,7 +3,7 @@ using Protobuild.Internal;
 
 namespace Protobuild
 {
-    public class PackageLookup : IPackageLookup
+    internal class PackageLookup : IPackageLookup
     {
         private readonly IPackageProtocol[] _packageProtocols;
         private readonly IPackageRedirector _packageRedirector;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class Execution
+    internal class Execution
     {
         public Execution()
         {

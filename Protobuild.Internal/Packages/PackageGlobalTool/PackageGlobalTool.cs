@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PackageGlobalTool : IPackageGlobalTool
+    internal class PackageGlobalTool : IPackageGlobalTool
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
 
@@ -169,7 +169,7 @@ namespace Protobuild
                     iconPath = iconPathTemp;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // No icon to extract.
             }

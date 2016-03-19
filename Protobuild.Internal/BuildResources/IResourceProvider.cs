@@ -3,7 +3,7 @@ using System.Xml.Xsl;
 
 namespace Protobuild
 {
-    public interface IResourceProvider
+    internal interface IResourceProvider
     {
         XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform);
     }

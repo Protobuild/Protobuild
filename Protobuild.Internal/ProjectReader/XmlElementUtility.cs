@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace Protobuild
 {
-    public static class XmlElementUtility
+    internal static class XmlElementUtility
     {
         public static XmlElement ToXmlElement(this XElement el)
         {

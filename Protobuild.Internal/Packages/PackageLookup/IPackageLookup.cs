@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public interface IPackageLookup
+    internal interface IPackageLookup
     {
         IPackageMetadata Lookup(PackageRequestRef request);
     }

@@ -7,7 +7,7 @@ namespace LZMA
 {
     using RangeCoder;
 
-	public class LzmaDecoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
+    internal class LzmaDecoder : ICoder, ISetDecoderProperties // ,System.IO.Stream
 	{
 		class LenDecoder
 		{

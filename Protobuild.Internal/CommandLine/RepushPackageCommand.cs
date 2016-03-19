@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class RepushPackageCommand : ICommand
+    internal class RepushPackageCommand : ICommand
     {
         private readonly IPackageLookup _packageLookup;
 
@@ -234,7 +234,7 @@ import NuGet packages.
                     System.Threading.Thread.Sleep(0);
                 }
 
-                uploadProgressRenderer.Finalize();
+                uploadProgressRenderer.FinalizeRendering();
 
                 if (ex != null)
                 {

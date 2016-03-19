@@ -2,7 +2,7 @@
 
 namespace Protobuild.Internal
 {
-    public class GitPackageProtocol : IPackageProtocol
+    internal class GitPackageProtocol : IPackageProtocol
     {
         private readonly SourcePackageResolve _sourcePackageResolve;
 

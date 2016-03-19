@@ -4,7 +4,7 @@ using System.Security;
 
 namespace Protobuild
 {
-    public class ProjectTemplateApplier : IProjectTemplateApplier
+    internal class ProjectTemplateApplier : IProjectTemplateApplier
     {
         public void Apply(string stagingFolder, string templateName)
         {

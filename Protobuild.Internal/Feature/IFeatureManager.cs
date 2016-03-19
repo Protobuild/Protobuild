@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IFeatureManager
+    internal interface IFeatureManager
     {
         void LoadFeaturesFromCommandLine(string commandArguments);
 

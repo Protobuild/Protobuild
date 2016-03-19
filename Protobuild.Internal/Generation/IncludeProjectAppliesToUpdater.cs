@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class IncludeProjectAppliesToUpdater : IIncludeProjectAppliesToUpdater
+    internal class IncludeProjectAppliesToUpdater : IIncludeProjectAppliesToUpdater
     {
         public void UpdateProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc)
         {

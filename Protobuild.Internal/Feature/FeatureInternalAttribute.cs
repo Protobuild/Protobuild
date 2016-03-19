@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class FeatureInternalAttribute : Attribute
+    internal class FeatureInternalAttribute : Attribute
     {
         public FeatureInternalAttribute(string internalId)
         {

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IPackageCreator
+    internal interface IPackageCreator
     {
         void Create(Stream target, FileFilter filter, string basePath, string packageFormat);
     }

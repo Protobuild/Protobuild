@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PackageCreator : IPackageCreator
+    internal class PackageCreator : IPackageCreator
     {
         private readonly IDeduplicator _deduplicator;
         
@@ -70,7 +70,7 @@ namespace Protobuild
                                 progressHelper.SetProgress(current);
                             }
 
-                            progressHelper.Finalize();
+                            progressHelper.FinalizeRendering();
                             Console.WriteLine("Adding files to package...");
 
                             try
@@ -80,7 +80,7 @@ namespace Protobuild
                                     _deduplicator.PushToTar(state, writer);
                                 }
                             }
-                            catch (OutOfMemoryException ex)
+                            catch (OutOfMemoryException)
                             {
                                 // It's possible the archive is too large to store in memory.  Fall
                                 // back to using a temporary file on disk.
@@ -125,7 +125,7 @@ namespace Protobuild
 
                             LZMA.LzmaHelper.Compress(archive, target, progressHelper);
 
-                            progressHelper.Finalize();
+                            progressHelper.FinalizeRendering();
 
                             break;
                         }

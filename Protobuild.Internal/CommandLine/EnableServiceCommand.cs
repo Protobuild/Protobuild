@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class EnableServiceCommand : ICommand
+    internal class EnableServiceCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

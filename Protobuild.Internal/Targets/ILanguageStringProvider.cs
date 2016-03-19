@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface ILanguageStringProvider
+    internal interface ILanguageStringProvider
     {
         string GetFileSuffix(Language language);
 

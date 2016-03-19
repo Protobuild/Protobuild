@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace Protobuild
 {
-    public class AutomatedBuildRuntimeV1 : IAutomatedBuildRuntimeV1
+    internal class AutomatedBuildRuntimeV1 : IAutomatedBuildRuntimeV1
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
         private readonly IWorkingDirectoryProvider _workingDirectoryProvider;

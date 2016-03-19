@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IGetRecursiveUtilitiesInPath
+    internal interface IGetRecursiveUtilitiesInPath
     {
         IEnumerable<string> GetRecursiveFilesInPath(string path);
     }

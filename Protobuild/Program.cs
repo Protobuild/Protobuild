@@ -6,8 +6,15 @@ using LZMA;
 
 namespace Protobuild.Bootstrap
 {
+    /// <summary>
+    /// The bootstrapping program.
+    /// </summary>
     public static class Program
     {
+        /// <summary>
+        /// The entry point for the bootstrapping program.
+        /// </summary>
+        /// <param name="args">The arguments passed in on the command line.</param>
         public static void Main(string[] args)
         {
             // This is a small, bootstrapping application that extracts

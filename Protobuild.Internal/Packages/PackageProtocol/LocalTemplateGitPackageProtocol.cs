@@ -1,6 +1,6 @@
 ﻿namespace Protobuild.Internal
 {
-    public class LocalTemplateGitPackageProtocol : IPackageProtocol
+    internal class LocalTemplateGitPackageProtocol : IPackageProtocol
     {
         private readonly SourcePackageResolve _sourcePackageResolve;
 

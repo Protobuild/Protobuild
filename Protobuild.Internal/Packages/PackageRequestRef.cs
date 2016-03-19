@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public class PackageRequestRef
+    internal class PackageRequestRef
     {
         public PackageRequestRef(
             string uri,

@@ -13,7 +13,7 @@ namespace Protobuild
     using System.Runtime.Remoting.Messaging;
     using Protobuild.Services;
 
-    public class DefinitionSynchroniser
+    internal class DefinitionSynchroniser
     {
         private readonly ModuleInfo m_ModuleInfo;
 

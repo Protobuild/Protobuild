@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public interface IAutomaticModulePackager
+    internal interface IAutomaticModulePackager
     {
         void Autopackage(
             FileFilter fileFilter,

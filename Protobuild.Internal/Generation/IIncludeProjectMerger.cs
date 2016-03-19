@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-    public interface IIncludeProjectMerger
+    internal interface IIncludeProjectMerger
     {
         void MergeInReferencesAndPropertiesForIncludeProjects(List<LoadedDefinitionInfo> documents, XmlDocument projectDoc, string targetPlatform);
     }

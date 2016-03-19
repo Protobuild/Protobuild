@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageTransformer
+    internal interface IPackageTransformer
     {
         byte[] Transform(string url, string gitReference, string platform, string format);
     }

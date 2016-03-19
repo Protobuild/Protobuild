@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class NuGetReferenceDetector : INuGetReferenceDetector
+    internal class NuGetReferenceDetector : INuGetReferenceDetector
     {
         public void ApplyNuGetReferences(
             string rootPath,

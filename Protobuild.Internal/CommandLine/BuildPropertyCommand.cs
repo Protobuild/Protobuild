@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class BuildPropertyCommand : ICommand
+    internal class BuildPropertyCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

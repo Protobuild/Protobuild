@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
-    public class GenerationFunctionsProvider : IGenerationFunctionsProvider
+    internal class GenerationFunctionsProvider : IGenerationFunctionsProvider
     {
         public string ConvertGenerationFunctionsToXSLT(string prefix, string input)
         {

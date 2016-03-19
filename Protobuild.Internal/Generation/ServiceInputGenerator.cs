@@ -5,7 +5,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public class ServiceInputGenerator : IServiceInputGenerator
+    internal class ServiceInputGenerator : IServiceInputGenerator
     {
         public XmlNode Generate(XmlDocument doc, string projectName, IEnumerable<Service> services)
         {

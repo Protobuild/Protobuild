@@ -5,7 +5,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public interface IProjectInputGenerator
+    internal interface IProjectInputGenerator
     {
         XmlDocument Generate(
             List<XmlDocument> definitions,

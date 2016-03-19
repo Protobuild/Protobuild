@@ -2,7 +2,7 @@ using System;
 
 namespace tar_cs
 {
-    public enum EntryType : byte
+    internal enum EntryType : byte
     {
         File = 0,
         FileObsolete = 0x30,
@@ -14,7 +14,7 @@ namespace tar_cs
         Fifo = 0x36,
     }
 
-    public interface ITarHeader
+    internal interface ITarHeader
     {
         string FileName { get; set; }
         string LinkName { get; set; }

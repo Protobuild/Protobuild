@@ -4,7 +4,7 @@ using System.Xml.XPath;
 
 namespace Protobuild
 {
-    public class ProjectOutputPathCalculator : IProjectOutputPathCalculator
+    internal class ProjectOutputPathCalculator : IProjectOutputPathCalculator
     {
         public string GetProjectOutputPathPrefix(string platform, DefinitionInfo definition, XDocument document, bool asRegex)
         {

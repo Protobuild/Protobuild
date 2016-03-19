@@ -12,7 +12,7 @@ using fastJSON;
 
 namespace Protobuild
 {
-    public class PackageManager : IPackageManager
+    internal class PackageManager : IPackageManager
     {
         private readonly IPackageLookup _packageLookup;
 
@@ -236,8 +236,7 @@ namespace Protobuild
 
         public void Resolve(IPackageMetadata metadata, PackageRef reference, string templateName, bool? source,
             bool forceUpgrade = false)
-        { 
-            string toolFolder = null;
+        {
             if (reference.Folder == null)
             {
                 if (metadata.PackageType == PACKAGE_TYPE_GLOBAL_TOOL)

@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class FeatureManager : IFeatureManager
+    internal class FeatureManager : IFeatureManager
     {
         private readonly IModuleExecution _moduleExecution;
 

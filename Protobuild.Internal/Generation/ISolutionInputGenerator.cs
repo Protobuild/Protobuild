@@ -5,7 +5,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public interface ISolutionInputGenerator
+    internal interface ISolutionInputGenerator
     {
         XmlDocument GenerateForSelectSolution(List<XmlDocument> definitions, string platform, List<Service> services);
 

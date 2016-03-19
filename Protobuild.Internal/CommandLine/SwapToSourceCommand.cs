@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class SwapToSourceCommand : ICommand
+    internal class SwapToSourceCommand : ICommand
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
         private readonly IPackageManager m_PackageManager;

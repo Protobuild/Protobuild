@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class SwapToBinaryCommand : ICommand
+    internal class SwapToBinaryCommand : ICommand
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
         private readonly IPackageManager m_PackageManager;

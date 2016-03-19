@@ -9,10 +9,10 @@ using System.Collections.Specialized;
 
 namespace fastJSON
 {
-    public delegate string Serialize(object data);
-    public delegate object Deserialize(string data);
+    internal delegate string Serialize(object data);
+    internal delegate object Deserialize(string data);
 
-    public sealed class JSONParameters
+    internal sealed class JSONParameters
     {
         /// <summary>
         /// Use the optimized fast Dataset Schema format (default = True)
@@ -86,7 +86,7 @@ namespace fastJSON
         }
     }
 
-    public static class JSON
+    internal static class JSON
     {
         /// <summary>
         /// Globally set-able parameters for controlling the serializer

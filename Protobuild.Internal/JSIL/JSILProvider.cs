@@ -11,7 +11,7 @@
     /// This is used by Protobuild to automatically download and build JSIL when the user
     /// first targets the Web platform.
     /// </remarks>
-    public class JSILProvider : IJSILProvider
+    internal class JSILProvider : IJSILProvider
     {
         private readonly IKnownToolProvider _knownToolProvider;
 

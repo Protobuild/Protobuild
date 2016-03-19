@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PlatformResourcesGenerator : IPlatformResourcesGenerator
+    internal class PlatformResourcesGenerator : IPlatformResourcesGenerator
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
 

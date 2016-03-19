@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Protobuild
 {
-    public class ExecuteCommand : ICommand
+    internal class ExecuteCommand : ICommand
     {
         private readonly IActionDispatch m_ActionDispatch;
 

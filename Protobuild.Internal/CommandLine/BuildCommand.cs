@@ -7,7 +7,7 @@ using Microsoft.Win32;
 
 namespace Protobuild
 {
-    public class BuildCommand : ICommand
+    internal class BuildCommand : ICommand
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
 

@@ -2,7 +2,7 @@
 
 namespace Protobuild.Internal
 {
-    public class NuGetPackageProtocol : IPackageProtocol
+    internal class NuGetPackageProtocol : IPackageProtocol
     {
         private readonly NuGetPackageTransformer _transformer;
         private readonly BinaryPackageResolve _binaryPackageResolve;

@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageUrlParser
+    internal interface IPackageUrlParser
     {
         PackageRef Parse(string url);
     }

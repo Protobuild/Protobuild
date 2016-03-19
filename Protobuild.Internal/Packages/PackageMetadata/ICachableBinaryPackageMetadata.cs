@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface ICachableBinaryPackageMetadata : IPackageMetadata
+    internal interface ICachableBinaryPackageMetadata : IPackageMetadata
     {
         string Platform { get; }
 

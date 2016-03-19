@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class IncludeProjectMerger : IIncludeProjectMerger
+    internal class IncludeProjectMerger : IIncludeProjectMerger
     {
         public void MergeInReferencesAndPropertiesForIncludeProjects(List<LoadedDefinitionInfo> documents, XmlDocument projectDoc, string targetPlatform)
         {

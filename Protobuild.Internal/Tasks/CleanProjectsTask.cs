@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace Protobuild.Tasks
 {
-    public class CleanProjectsTask : BaseTask
+    internal class CleanProjectsTask : BaseTask
     {
         private readonly IModuleExecution _moduleExecution;
 

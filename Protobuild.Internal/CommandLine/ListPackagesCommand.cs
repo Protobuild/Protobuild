@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class ListPackagesCommand : ICommand
+    internal class ListPackagesCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 

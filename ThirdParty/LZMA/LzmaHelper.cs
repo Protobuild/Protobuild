@@ -6,6 +6,9 @@ using System.IO;
 
 namespace LZMA
 {
+    /// <summary>
+    /// An LZMA helper class that provides access to LZMA compression and decompression.
+    /// </summary>
     public static class LzmaHelper
     {
         static int dictionary = 1 << 23;
@@ -45,6 +48,12 @@ namespace LZMA
 
         private static object m_DecoderLock = new object();
 
+        /// <summary>
+        /// Compresses the given stream and writes to the output stream.
+        /// </summary>
+        /// <param name="inStream">The input stream.</param>
+        /// <param name="outStream">The output stream.</param>
+        /// <param name="progress">The progress callback, if desired.</param>
         public static void Compress(Stream inStream, Stream outStream, ICodeProgress progress = null)
         {
             lock (m_EncoderLock)
@@ -62,6 +71,12 @@ namespace LZMA
             }
         }
 
+        /// <summary>
+        /// Decompresses the given stream and writes to the output stream.
+        /// </summary>
+        /// <param name="newInStream">The input stream.</param>
+        /// <param name="newOutStream">The output stream.</param>
+        /// <param name="progress">The progress callback, if desired.</param>
         public static void Decompress(Stream newInStream, Stream newOutStream, ICodeProgress progress = null)
         {
             lock (m_DecoderLock)

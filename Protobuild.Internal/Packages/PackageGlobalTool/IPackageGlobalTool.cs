@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageGlobalTool
+    internal interface IPackageGlobalTool
     {
         string GetGlobalToolInstallationPath(string referenceURI);
 

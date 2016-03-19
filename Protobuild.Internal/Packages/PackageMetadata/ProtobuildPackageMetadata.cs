@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public class ProtobuildPackageMetadata : ICachableBinaryPackageMetadata
+    internal class ProtobuildPackageMetadata : ICachableBinaryPackageMetadata
     {
         public ProtobuildPackageMetadata(
             string referenceUri,

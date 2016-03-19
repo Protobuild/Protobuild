@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class FormatPackageCommand : ICommand
+    internal class FormatPackageCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 

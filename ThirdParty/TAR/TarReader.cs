@@ -7,7 +7,7 @@ namespace tar_cs
     /// <summary>
     /// Extract contents of a tar file represented by a stream for the TarReader constructor
     /// </summary>
-    public class TarReader
+    internal class TarReader
     {
         private readonly byte[] dataBuffer = new byte[512];
         private readonly UsTarHeader header;

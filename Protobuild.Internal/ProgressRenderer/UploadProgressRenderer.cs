@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class UploadProgressRenderer : BaseProgressRenderer
+    internal class UploadProgressRenderer : BaseProgressRenderer
     {
         public void Update(int percentage, long kbUploaded)
         {

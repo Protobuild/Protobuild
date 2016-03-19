@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class NoGenerateCommand : ICommand
+    internal class NoGenerateCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

@@ -13,7 +13,7 @@ namespace Protobuild
     using System.Runtime.InteropServices.ComTypes;
     using Protobuild.Services;
 
-    public class ProjectGenerator : IProjectGenerator
+    internal class ProjectGenerator : IProjectGenerator
     {
         private readonly IResourceProvider m_ResourceProvider;
 
@@ -58,13 +58,17 @@ namespace Protobuild
         /// <summary>
         /// Generates a project at the target path.
         /// </summary>
-        /// <param name="project">The name of the project to generate.</param>
-        /// <param name="services"></param>
+        /// <param name="platformName">The platform name.</param>
+        /// <param name="services">A list of services.</param>
         /// <param name="packagesFilePath">
         /// Either the full path to the packages.config for the
         /// generated project if it exists, or an empty string.
         /// </param>
         /// <param name="onActualGeneration"></param>
+        /// <param name="current">The current project to generate.</param>
+        /// <param name="definitions">A list of all loaded project definitions.</param>
+        /// <param name="rootPath">The module root path, with directory seperator appended.</param>
+        /// <param name="projectName">The project name.</param>
         public void Generate(
             DefinitionInfo current,
             List<LoadedDefinitionInfo> definitions,

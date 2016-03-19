@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public class FolderPackageMetadata : IPackageMetadata
+    internal class FolderPackageMetadata : IPackageMetadata
     {
         public FolderPackageMetadata(
             string folder,

@@ -7,7 +7,7 @@ using Protobuild.Services;
 
 namespace Protobuild.Tasks
 {
-    public class GenerateProjectsTask : BaseTask
+    internal class GenerateProjectsTask : BaseTask
     {
         private readonly IJSILProvider m_JSILProvider;
 

@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class ProjectInputGenerator : IProjectInputGenerator
+    internal class ProjectInputGenerator : IProjectInputGenerator
     {
         private readonly IHostPlatformDetector m_HostPlatformDetector;
 

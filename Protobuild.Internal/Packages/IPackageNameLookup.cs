@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageNameLookup
+    internal interface IPackageNameLookup
     {
         PackageRef LookupPackageByName(ModuleInfo module, string url);
     }

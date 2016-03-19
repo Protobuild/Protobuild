@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class StartCommand : ICommand
+    internal class StartCommand : ICommand
     {
         private readonly IActionDispatch m_ActionDispatch;
         private readonly IPackageManager m_PackageManager;

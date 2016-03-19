@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-    public interface IProjectLoader
+    internal interface IProjectLoader
     {
         LoadedDefinitionInfo Load(string targetPlatform, ModuleInfo module, DefinitionInfo definition);
     }

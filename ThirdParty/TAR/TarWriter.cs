@@ -3,7 +3,7 @@ using System.IO;
 
 namespace tar_cs
 {
-    public class TarWriter : LegacyTarWriter
+    internal class TarWriter : LegacyTarWriter
     {
         public TarWriter(Stream writeStream) : base(writeStream)
         {

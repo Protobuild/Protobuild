@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class Deduplicator : IDeduplicator
+    internal class Deduplicator : IDeduplicator
     {
         public DeduplicatorState CreateState()
         {

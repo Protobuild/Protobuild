@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-    public interface IIncludeProjectAppliesToUpdater
+    internal interface IIncludeProjectAppliesToUpdater
     {
         void UpdateProjectReferences(List<XmlDocument> documents, XmlDocument projectDoc);
     }

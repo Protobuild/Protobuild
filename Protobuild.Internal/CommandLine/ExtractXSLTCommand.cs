@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Protobuild
 {
-    public class ExtractXSLTCommand : ICommand
+    internal class ExtractXSLTCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

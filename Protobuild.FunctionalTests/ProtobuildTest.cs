@@ -179,8 +179,6 @@ namespace Protobuild.Tests
 
         protected Dictionary<string, byte[]> LoadPackage(string path)
         {
-            var results = new Dictionary<string, byte[]>();
-
             if (path.EndsWith(".tar.lzma"))
             {
                 using (var lzma = new FileStream(Path.Combine(m_TestLocation, path), FileMode.Open, FileAccess.Read, FileShare.None))
@@ -212,8 +210,6 @@ namespace Protobuild.Tests
             {
                 throw new NotSupportedException();
             }
-
-            return results;
         }
 
         protected string SetupSrcPackage()

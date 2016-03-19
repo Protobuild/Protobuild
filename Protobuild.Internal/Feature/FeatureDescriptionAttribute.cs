@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class FeatureDescriptionAttribute : Attribute
+    internal class FeatureDescriptionAttribute : Attribute
     {
         public FeatureDescriptionAttribute(string description, string[] functionalityDisabledIfNotPresent)
         {

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IActionDispatch
+    internal interface IActionDispatch
     {
         bool PerformAction(
             ModuleInfo module, 

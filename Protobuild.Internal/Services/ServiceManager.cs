@@ -10,7 +10,7 @@
     /// <summary>
     /// The service manager.
     /// </summary>
-    public class ServiceManager
+    internal class ServiceManager
     {
         private const int SERIALIZATION_VERSION = 3;
 

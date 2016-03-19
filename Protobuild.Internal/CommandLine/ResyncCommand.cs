@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class ResyncCommand : ICommand
+    internal class ResyncCommand : ICommand
     {
         private readonly IActionDispatch m_ActionDispatch;
 

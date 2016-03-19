@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IPackageLocator
+    internal interface IPackageLocator
     {
         string DiscoverExistingPackagePath(string moduleRoot, PackageRef package, string platform);
     }

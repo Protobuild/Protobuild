@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-    public interface INuGetConfigMover
+    internal interface INuGetConfigMover
     {
         void Move(string rootPath, string platformName, System.Xml.XmlDocument projectDoc);
     }

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class UpgradeAllPackagesCommand : ICommand
+    internal class UpgradeAllPackagesCommand : ICommand
     {
         private readonly IPackageManager _packageManager;
         private readonly IHostPlatformDetector _hostPlatformDetector;

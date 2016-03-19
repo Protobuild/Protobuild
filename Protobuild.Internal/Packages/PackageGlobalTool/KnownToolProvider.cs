@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class KnownToolProvider : IKnownToolProvider
+    internal class KnownToolProvider : IKnownToolProvider
     {
         private readonly IPackageGlobalTool _packageGlobalTool;
 

@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class SyncCommand : ICommand
+    internal class SyncCommand : ICommand
     {
         private readonly IActionDispatch m_ActionDispatch;
 

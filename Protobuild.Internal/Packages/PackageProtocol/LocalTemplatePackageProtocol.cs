@@ -1,6 +1,6 @@
 ﻿namespace Protobuild.Internal
 {
-    public class LocalTemplatePackageProtocol : IPackageProtocol
+    internal class LocalTemplatePackageProtocol : IPackageProtocol
     {
         private readonly SourcePackageResolve _sourcePackageResolve;
 

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class IgnoreOnExistingPackageCommand : ICommand
+    internal class IgnoreOnExistingPackageCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 

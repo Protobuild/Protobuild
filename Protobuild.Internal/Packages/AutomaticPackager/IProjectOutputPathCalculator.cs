@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace Protobuild
 {
-    public interface IProjectOutputPathCalculator
+    internal interface IProjectOutputPathCalculator
     {
         string GetProjectOutputPathPrefix(string platform, DefinitionInfo definition, XDocument document, bool asRegex);
 

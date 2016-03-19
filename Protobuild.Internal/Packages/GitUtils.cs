@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public static class GitUtils
+    internal static class GitUtils
     {
         private static string _cachedGitPath;
 

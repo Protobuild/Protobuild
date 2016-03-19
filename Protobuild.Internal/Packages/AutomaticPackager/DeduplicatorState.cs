@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class DeduplicatorState
+    internal class DeduplicatorState
     {
         public Dictionary<string, string> DestinationToFileHash { get; set; }
 

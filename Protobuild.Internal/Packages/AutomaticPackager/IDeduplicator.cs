@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public interface IDeduplicator
+    internal interface IDeduplicator
     {
         DeduplicatorState CreateState();
 

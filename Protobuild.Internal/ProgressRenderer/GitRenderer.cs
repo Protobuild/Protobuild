@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class GitRenderer : BaseProgressRenderer
+    internal class GitRenderer : BaseProgressRenderer
     {
         private string _lastLine;
 

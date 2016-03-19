@@ -2,8 +2,15 @@
 
 namespace Protobuild.Bootstrap
 {
+    /// <summary>
+    /// The debug version of the bootstrapping program.
+    /// </summary>
     public static class Program
     {
+        /// <summary>
+        /// The entry point for the bootstrapping program.
+        /// </summary>
+        /// <param name="args">The arguments passed in on the command line.</param>
         public static void Main(string[] args)
         {
             // This is an alternative version of the standard Protobuild.exe

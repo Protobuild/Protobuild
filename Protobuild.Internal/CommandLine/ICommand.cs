@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface ICommand
+    internal interface ICommand
     {
         void Encounter(Execution pendingExecution, string[] args);
 

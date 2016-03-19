@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public static class PathUtils
+    internal static class PathUtils
     {
         public static string GetRelativePath(string absoluteFrom, string absoluteTo)
         {

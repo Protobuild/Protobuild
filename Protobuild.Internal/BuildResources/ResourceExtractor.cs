@@ -7,7 +7,7 @@ namespace Protobuild
 {
     using System.IO.Compression;
 
-    public static class ResourceExtractor
+    internal static class ResourceExtractor
     {
         public static Stream GetTransparentDecompressionStream(Stream input)
         {

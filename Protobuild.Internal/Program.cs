@@ -13,8 +13,17 @@ namespace Protobuild
     using System.Collections.Generic;
     using System.IO.Compression;
 
+    /// <summary>
+    /// The main entry point for Protobuild.  This class resides in a library, not an executable, so
+    /// another assembly such as Protobuild or Protobuild.Debug needs to invoke the main method on this
+    /// class.
+    /// </summary>
     public static class MainClass
     {
+        /// <summary>
+        /// The entry point for Protobuild.
+        /// </summary>
+        /// <param name="args">The arguments passed in on the command line.</param>
         public static void Main(string[] args)
         {
             // Ensure we always use the invariant culture in Protobuild.

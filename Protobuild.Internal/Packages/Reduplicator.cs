@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class Reduplicator
+    internal class Reduplicator
     {
         public void UnpackTarToFolder(tar_cs.TarReader reader, string folder)
         {

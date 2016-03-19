@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public static class LightweightKernelModule
+    internal static class LightweightKernelModule
     {
         public static void BindCore(this LightweightKernel kernel)
         {

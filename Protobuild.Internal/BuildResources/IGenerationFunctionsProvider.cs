@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IGenerationFunctionsProvider
+    internal interface IGenerationFunctionsProvider
     {
         string ConvertGenerationFunctionsToXSLT(string prefix, string input);
     }

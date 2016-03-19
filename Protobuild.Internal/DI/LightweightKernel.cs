@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Protobuild
 {
-    public class LightweightKernel
+    internal class LightweightKernel
     {
         private Dictionary<Type, List<Type>> m_Bindings = new Dictionary<Type, List<Type>>();
 

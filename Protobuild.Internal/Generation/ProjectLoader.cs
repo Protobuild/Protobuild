@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class ProjectLoader : IProjectLoader
+    internal class ProjectLoader : IProjectLoader
     {
         private readonly IContentProjectGenerator m_ContentProjectGenerator;
 

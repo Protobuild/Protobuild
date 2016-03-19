@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class SimulateHostPlatformCommand : ICommand
+    internal class SimulateHostPlatformCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

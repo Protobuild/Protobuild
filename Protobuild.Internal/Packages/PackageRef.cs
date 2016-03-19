@@ -3,16 +3,34 @@ using System.Linq;
 
 namespace Protobuild
 {
+    /// <summary>
+    /// A reference to a Protobuild package.
+    /// </summary>
     public struct PackageRef
     {
+        /// <summary>
+        /// The unique URI to the package.
+        /// </summary>
         public string Uri { get; set; }
 
+        /// <summary>
+        /// The Git reference or version number for the package.
+        /// </summary>
         public string GitRef { get; set; }
 
+        /// <summary>
+        /// The folder that the package is extracted to under this module.
+        /// </summary>
         public string Folder { get; set; }
 
+        /// <summary>
+        /// The platforms that this package is active for.
+        /// </summary>
         public string[] Platforms { get; set; }
 
+        /// <summary>
+        /// The unique URI as a <see cref="Uri"/> object.
+        /// </summary>
         public Uri UriObject
         {
             get
@@ -21,6 +39,9 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Whether or not the package reference is correctly formed.
+        /// </summary>
         public bool Valid
         {
             get
@@ -51,6 +72,9 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Whether or not the version reference is a commit hash.
+        /// </summary>
         public bool IsCommitReference 
         {
             get
@@ -64,6 +88,11 @@ namespace Protobuild
             }
         }
 
+        /// <summary>
+        /// Whether or not this package reference is active for the target platform.
+        /// </summary>
+        /// <param name="platform">The target platform.</param>
+        /// <returns>Whether or not this package reference is active for the target platform.</returns>
         public bool IsActiveForPlatform(string platform)
         {
             if (Platforms == null || Platforms.Length == 0)

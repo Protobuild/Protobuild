@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class WorkingDirectoryProvider : IWorkingDirectoryProvider
+    internal class WorkingDirectoryProvider : IWorkingDirectoryProvider
     {
         public string GetPath()
         {

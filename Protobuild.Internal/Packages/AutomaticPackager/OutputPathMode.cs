@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public enum OutputPathMode
+    internal enum OutputPathMode
     {
         BinConfiguration,
         BinPlatformArchConfiguration,

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class PlatformAndServiceActiveDetection
+    internal class PlatformAndServiceActiveDetection
     {
         // TODO: Find some way of merging this class with the C# XSLT generator.
 

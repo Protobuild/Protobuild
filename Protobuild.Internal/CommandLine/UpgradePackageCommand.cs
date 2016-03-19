@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public class UpgradePackageCommand : ICommand
+    internal class UpgradePackageCommand : ICommand
     {
         private readonly IPackageManager _packageManager;
         private readonly IHostPlatformDetector _hostPlatformDetector;

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class FeatureDependsOnAttribute : Attribute
+    internal class FeatureDependsOnAttribute : Attribute
     {
         public FeatureDependsOnAttribute(params Feature[] dependsOn)
         {

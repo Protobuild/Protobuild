@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class DownloadProgressRenderer : BaseProgressRenderer
+    internal class DownloadProgressRenderer : BaseProgressRenderer
     {
         public void Update(int percentage, long kbReceived)
         {

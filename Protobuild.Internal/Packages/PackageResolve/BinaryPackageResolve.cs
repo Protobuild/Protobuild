@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class BinaryPackageResolve : IPackageResolve
+    internal class BinaryPackageResolve : IPackageResolve
     {
         private readonly SourcePackageResolve _sourcePackageResolve;
         private readonly IProjectTemplateApplier _projectTemplateApplier;
@@ -364,7 +364,7 @@ namespace Protobuild
                     }
                     break;
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     // On Windows, we can't write out the package file if another instance of Protobuild
                     // is writing it out at the moment.  Just wait and retry in another second.
@@ -449,7 +449,7 @@ namespace Protobuild
                     }
                     break;
                 }
-                catch (IOException ex)
+                catch (IOException)
                 {
                     // On Windows, we can't write out the package file if another instance of Protobuild
                     // is writing it out at the moment.  Just wait and retry in another second.
@@ -475,7 +475,7 @@ namespace Protobuild
             {
                 return _progressiveWebOperation.Get(metadata.BinaryURI);
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 Console.WriteLine("Unable to download binary package for version \"" + metadata.GitCommit + "\" and platform \"" + metadata.Platform + "\", falling back to source version");
                 return null;

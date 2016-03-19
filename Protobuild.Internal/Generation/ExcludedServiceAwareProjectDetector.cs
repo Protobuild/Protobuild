@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class ExcludedServiceAwareProjectDetector : IExcludedServiceAwareProjectDetector
+    internal class ExcludedServiceAwareProjectDetector : IExcludedServiceAwareProjectDetector
     {
         public bool IsExcludedServiceAwareProject(string name, XmlDocument projectDoc, List<Service> services)
         {

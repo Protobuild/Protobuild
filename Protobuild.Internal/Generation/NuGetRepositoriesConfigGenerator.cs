@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class NuGetRepositoriesConfigGenerator : INuGetRepositoriesConfigGenerator
+    internal class NuGetRepositoriesConfigGenerator : INuGetRepositoriesConfigGenerator
     {
         public void Generate(
             string solutionPath,

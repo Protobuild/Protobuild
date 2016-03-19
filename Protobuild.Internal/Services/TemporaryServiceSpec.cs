@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class TemporaryServiceSpec : IDisposable
+    internal class TemporaryServiceSpec : IDisposable
     {
         private readonly string _path;
         private readonly bool _noDelete;

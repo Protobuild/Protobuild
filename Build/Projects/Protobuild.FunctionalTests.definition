@@ -1,5 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Name="Protobuild.FunctionalTests" Path="Protobuild.FunctionalTests" Type="Console">
+  <Properties>
+    <Property Name="NoWarn" Value="1591" />
+  </Properties>
   <References>
     <Reference Include="System" />
     <Reference Include="System.Core" />

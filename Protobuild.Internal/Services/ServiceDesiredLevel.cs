@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public enum ServiceDesiredLevel
+    internal enum ServiceDesiredLevel
     {
         /// <summary>
         /// The service is disabled explicitly; if a required service conflicts

@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class PackageRootCommand : ICommand
+    internal class PackageRootCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 

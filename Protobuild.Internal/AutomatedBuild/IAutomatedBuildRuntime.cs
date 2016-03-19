@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Protobuild
 {
-    public interface IAutomatedBuildRuntime
+    internal interface IAutomatedBuildRuntime
     {
         object Parse(string text);
         int Execute(object handle);

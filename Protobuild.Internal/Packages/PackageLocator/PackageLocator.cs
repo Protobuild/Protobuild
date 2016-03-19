@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PackageLocator : IPackageLocator
+    internal class PackageLocator : IPackageLocator
     {
         private readonly IPackageRedirector _packageRedirector;
 

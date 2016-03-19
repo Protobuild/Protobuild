@@ -3,7 +3,7 @@ namespace Protobuild.Services
     using System.Collections.Generic;
     using System.Xml;
 
-    public class Service
+    internal class Service
     {
         public Service()
         {

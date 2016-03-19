@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class HostPlatformDetector : IHostPlatformDetector
+    internal class HostPlatformDetector : IHostPlatformDetector
     {
         public static string SimulatedHostPlatform { get; set; }
 

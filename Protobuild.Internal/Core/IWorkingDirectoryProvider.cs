@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IWorkingDirectoryProvider
+    internal interface IWorkingDirectoryProvider
     {
         string GetPath();
     }

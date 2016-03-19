@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    public interface INuGetRepositoriesConfigGenerator
+    internal interface INuGetRepositoriesConfigGenerator
     {
         void Generate(
             string solutionPath,

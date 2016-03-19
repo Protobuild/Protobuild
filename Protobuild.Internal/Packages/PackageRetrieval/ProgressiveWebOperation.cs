@@ -3,7 +3,7 @@ using System.Net;
 
 namespace Protobuild
 {
-    public class ProgressiveWebOperation : IProgressiveWebOperation
+    internal class ProgressiveWebOperation : IProgressiveWebOperation
     {
         public byte[] Get(string uri)
         {
@@ -47,7 +47,7 @@ namespace Protobuild
                     System.Threading.Thread.Sleep(0);
                 }
 
-                downloadProgressRenderer.Finalize();
+                downloadProgressRenderer.FinalizeRendering();
 
                 if (ex != null)
                 {

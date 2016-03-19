@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class ExternalProjectReferenceResolver : IExternalProjectReferenceResolver
+    internal class ExternalProjectReferenceResolver : IExternalProjectReferenceResolver
     {
         public void ResolveExternalProjectReferences(List<LoadedDefinitionInfo> documents, XmlDocument projectDoc, string targetPlatform)
         {

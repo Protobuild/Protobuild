@@ -3,7 +3,7 @@
 
 namespace LZMA
 {
-	public class InBuffer
+    internal class InBuffer
 	{
 		byte[] m_Buffer;
 		uint m_Pos;

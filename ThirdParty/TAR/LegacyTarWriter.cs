@@ -5,7 +5,7 @@ using tar_cs;
 
 namespace tar_cs
 {
-    public class LegacyTarWriter : IDisposable
+    internal class LegacyTarWriter : IDisposable
     {
         private readonly Stream outStream;
         protected byte[] buffer = new byte[1024];

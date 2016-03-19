@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageMetadata
+    internal interface IPackageMetadata
     {
         string PackageType { get; }
 

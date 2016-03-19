@@ -5,7 +5,7 @@ using Protobuild.Tasks;
 
 namespace Protobuild
 {
-    public class ActionDispatch : IActionDispatch
+    internal class ActionDispatch : IActionDispatch
     {
         private readonly LightweightKernel m_LightweightKernel;
 
@@ -407,6 +407,7 @@ namespace Protobuild
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
+        /// <param name="taskParallelisation">Whether to enable or disable task generation, or null for the default behaviour.</param>
         public bool DefaultAction(
             ModuleInfo module, 
             string platform = null, 

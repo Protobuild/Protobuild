@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Protobuild
 {
-    public class PushPackageCommand : ICommand
+    internal class PushPackageCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 
@@ -242,7 +242,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     System.Threading.Thread.Sleep(0);
                 }
 
-                uploadProgressRenderer.Finalize();
+                uploadProgressRenderer.FinalizeRendering();
 
                 if (ex != null)
                 {

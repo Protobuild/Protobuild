@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IPackageCacheConfiguration
+    internal interface IPackageCacheConfiguration
     {
         string GetCacheDirectory();
 

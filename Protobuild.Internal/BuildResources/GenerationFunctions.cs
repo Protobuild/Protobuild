@@ -8,17 +8,31 @@
 using System;
 using System.Text;
 
+/// <summary>
+/// The C# functions available to the XSLT generation files.
+/// </summary>
 public class GenerationFunctions
 {
     // **begin**
 
     private Func<string, string> _getKnownToolCached;
 
+    /// <summary>
+    /// Normalizes the filename of an XAP file (used on the WindowsPhone platform).
+    /// </summary>
+    /// <param name="origName">The original filename.</param>
+    /// <returns>The normalized filename.</returns>
     public string NormalizeXAPName(string origName)
     {
         return origName.Replace('.', '_');
     }
-
+    
+    /// <summary>
+    /// Calculates a relative path from one absolute directory to another absolute directory.
+    /// </summary>
+    /// <param name="from">The absolute directory to calculate from.</param>
+    /// <param name="to">The absolute directory that is the target.</param>
+    /// <returns>A relative path from one directory to another.</returns>
     public string GetRelativePath(string from, string to)
     {
         try
@@ -35,6 +49,11 @@ public class GenerationFunctions
         }
     }
 
+    /// <summary>
+    /// Generates a GUID based on a string value.
+    /// </summary>
+    /// <param name="source">The source value to generate a GUID from.</param>
+    /// <returns>The generated GUID.</returns>
     public string GenerateGuid(string source)
     {
         if (String.IsNullOrEmpty(source))
@@ -54,6 +73,11 @@ public class GenerationFunctions
         return guid.ToString();
     }
 
+    /// <summary>
+    /// Strips leading dot paths from a relative path, e.g. the "./" and "../" entries.
+    /// </summary>
+    /// <param name="path">The path to strip leading dots from.</param>
+    /// <returns>The path with leading dot paths stripped.</returns>
     public string StripLeadingDotPaths(string path)
     {
         var components = path.Replace('\\', '/').Split('/');
@@ -72,6 +96,19 @@ public class GenerationFunctions
             (x, b) => x + "/" + b);
     }
 
+    /// <summary>
+    /// Returns whether or not the platform and service strings are active given the
+    /// current state of the generation and the item being generated.
+    /// </summary>
+    /// <param name="platformString">The &lt;Platform&gt; tag of the item.</param>
+    /// <param name="includePlatformString">The &lt;IncludePlatform&gt; tag of the item.</param>
+    /// <param name="excludePlatformString">The &lt;ExcludePlatform&gt; tag of the item.</param>
+    /// <param name="serviceString">The &lt;Service&gt; tag of the item.</param>
+    /// <param name="includeServiceString">The &lt;IncludeService&gt; tag of the item.</param>
+    /// <param name="excludeServiceString">The &lt;ExcludeService&gt; tag of the item.</param>
+    /// <param name="activePlatform">The current active platform being generated for.</param>
+    /// <param name="activeServicesString">The current active service string for generation.</param>
+    /// <returns>Whether this item should be included in the output of the generation.</returns>
     public bool ProjectAndServiceIsActive(
         string platformString,
         string includePlatformString,
@@ -90,6 +127,15 @@ public class GenerationFunctions
         return ServiceIsActive(serviceString, includeServiceString, excludeServiceString, activeServicesString);
     }
 
+    /// <summary>
+    /// Returns whether or not the platform is active given the
+    /// current state of the generation and the item being generated.
+    /// </summary>
+    /// <param name="platformString">The &lt;Platform&gt; tag of the item.</param>
+    /// <param name="includePlatformString">The &lt;IncludePlatform&gt; tag of the item.</param>
+    /// <param name="excludePlatformString">The &lt;ExcludePlatform&gt; tag of the item.</param>
+    /// <param name="activePlatform">The current active platform being generated for.</param>
+    /// <returns>Whether this item should be included in the output of the generation.</returns>
     public bool ProjectIsActive(
         string platformString,
         string includePlatformString,
@@ -136,6 +182,15 @@ public class GenerationFunctions
         return false;
     }
 
+    /// <summary>
+    /// Returns whether or not the service strings are active given the
+    /// current state of the generation and the item being generated.
+    /// </summary>
+    /// <param name="serviceString">The &lt;Service&gt; tag of the item.</param>
+    /// <param name="includeServiceString">The &lt;IncludeService&gt; tag of the item.</param>
+    /// <param name="excludeServiceString">The &lt;ExcludeService&gt; tag of the item.</param>
+    /// <param name="activeServicesString">The current active service string for generation.</param>
+    /// <returns>Whether this item should be included in the output of the generation.</returns>
     public bool ServiceIsActive(
         string serviceString,
         string includeServiceString,
@@ -184,16 +239,31 @@ public class GenerationFunctions
         return false;
     }
 
+    /// <summary>
+    /// Returns whether the normalized text value represents a truth value (with the default being false).
+    /// </summary>
+    /// <param name="text">The text to evaluate.</param>
+    /// <returns>Whether the normalized text value represents a truth value.</returns>
     public bool IsTrue(string text)
     {
         return text.ToLower() == "true";
     }
 
+    /// <summary>
+    /// Returns whether the normalized text value represents a truth value (with the default being true).
+    /// </summary>
+    /// <param name="text">The text to evaluate.</param>
+    /// <returns>Whether the normalized text value represents a truth value.</returns>
     public bool IsTrueDefault(string text)
     {
         return text.ToLower() != "false";
     }
 
+    /// <summary>
+    /// Reads a text file at the given path and returns it's contents.
+    /// </summary>
+    /// <param name="path">The path of the file to read.</param>
+    /// <returns>The contents of the file.</returns>
     public string ReadFile(string path)
     {
         path = path.Replace('/', System.IO.Path.DirectorySeparatorChar);
@@ -205,27 +275,48 @@ public class GenerationFunctions
         }
     }
 
+    /// <summary>
+    /// Returns whether or not the user has any version of Xamarin Mac (Unified or Classic) installed.
+    /// </summary>
+    /// <returns>Whether or not the user has any version of Xamarin Mac (Unified or Classic) installed.</returns>
     public bool HasXamarinMac()
     {
         return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll") ||
 			System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
     }
 
-	public bool HasXamarinMacUnifiedAPI()
+    /// <summary>
+    /// Returns whether or not the user has the Unified Xamarin Mac API installed.
+    /// </summary>
+    /// <returns>Whether or not the user has the Unified Xamarin Mac API installed.</returns>
+    public bool HasXamarinMacUnifiedAPI()
 	{
 		return System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
 	}
 
-	public bool DoesNotHaveXamarinMacUnifiedAPI()
+    /// <summary>
+    /// Returns whether or not the user does not have the Unified Xamarin Mac API installed.
+    /// </summary>
+    /// <returns>Whether or not the user does not have the Unified Xamarin Mac API installed.</returns>
+    public bool DoesNotHaveXamarinMacUnifiedAPI()
 	{
 		return !System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
     }
 
+    /// <summary>
+    /// Returns whether a file exists at a given path.
+    /// </summary>
+    /// <param name="path">The path to check.</param>
+    /// <returns>Whether a file exists at the given path.</returns>
     public bool FileExists(string path)
     {
         return System.IO.File.Exists(path);
     }
 
+    /// <summary>
+    /// Returns whether a code signing key file exists.
+    /// </summary>
+    /// <returns>Whether a code signing key file exists.</returns>
     public bool CodesignKeyExists()
     {
         var home = Environment.GetEnvironmentVariable("HOME");
@@ -237,6 +328,10 @@ public class GenerationFunctions
         return System.IO.File.Exists(path);
     }
 
+    /// <summary>
+    /// Returns the contents of the code signing key file.
+    /// </summary>
+    /// <returns>The contents of the code signing key file.</returns>
     public string GetCodesignKey()
     {
         var home = Environment.GetEnvironmentVariable("HOME");
@@ -251,6 +346,13 @@ public class GenerationFunctions
         }
     }
 
+    /// <summary>
+    /// Calculates the defines to set on the C# project based on a list of defines to add
+    /// and a list of defines to remove.
+    /// </summary>
+    /// <param name="addDefines">The semicolon separated list of defines to add.</param>
+    /// <param name="removeDefines">The semicolon separated list of defines to remove.</param>
+    /// <returns>The final calculated list of defines.</returns>
     public string CalculateDefines(string addDefines, string removeDefines)
     {
         var addArray = addDefines.Trim(';').Split(';');
@@ -275,6 +377,11 @@ public class GenerationFunctions
         return string.Join(";", list.ToArray());
     }
 
+    /// <summary>
+    /// Calculates the filename from a path name.
+    /// </summary>
+    /// <param name="name">The path to calculate the filename from.</param>
+    /// <returns>The filename.</returns>
     public string GetFilename(string name)
     {
         var components = name.Split('\\', '/');
@@ -285,6 +392,10 @@ public class GenerationFunctions
         return components[components.Length - 1];
     }
 
+    /// <summary>
+    /// Returns the path to the "Program Files (x86)" directory on 64-bit Windows, and "Program Files" on 32-bit Windows.
+    /// </summary>
+    /// <returns>The path to the "Program Files (x86)" directory on 64-bit Windows, and "Program Files" on 32-bit Windows.</returns>
     public string ProgramFilesx86()
     {
         if (IntPtr.Size == 8 ||
@@ -295,6 +406,10 @@ public class GenerationFunctions
         return Environment.GetEnvironmentVariable("ProgramFiles");
     }
 
+    /// <summary>
+    /// Detects the C++ toolset version that's installed on this Windows machine.
+    /// </summary>
+    /// <returns>The C++ toolset version that's installed on this Windows machine.</returns>
     public string DetectWindowsCPlusPlusToolsetVersion()
     {
         // We can't just select a common low version here; we need to pick a
@@ -311,6 +426,10 @@ public class GenerationFunctions
         return "10";
     }
 
+    /// <summary>
+    /// Detects the C++ build tools version that's installed on this Windows machine.
+    /// </summary>
+    /// <returns>The C++ build tools version that's installed on this Windows machine.</returns>
     public string DetectWindowsCPlusPlusBuildToolsVersion()
     {
         var platformTools = DetectWindowsCPlusPlusToolsetVersion();
@@ -323,6 +442,13 @@ public class GenerationFunctions
         }
     }
 
+    /// <summary>
+    /// Detects the latest version of the MSBuild project format that's supported on this host platform for the
+    /// given target platform.
+    /// </summary>
+    /// <param name="hostPlatform">The host platform.</param>
+    /// <param name="targetPlatform">The target platform.</param>
+    /// <returns>The latest MSBuild toolset version.</returns>
     public string GetLatestSupportedMSBuildToolsetVersionForPlatform(string hostPlatform, string targetPlatform)
     {
         // Welcome to hell.
@@ -380,6 +506,10 @@ public class GenerationFunctions
         }
     }
 
+    /// <summary>
+    /// Detects the installed Windows 10 SDK version.
+    /// </summary>
+    /// <returns>The installed Windows 10 SDK version.</returns>
     public string DetectWindows10InstalledSDK()
     {
         Microsoft.Win32.RegistryKey registryKey;
@@ -424,6 +554,11 @@ public class GenerationFunctions
         return productVersion;
     }
 
+    /// <summary>
+    /// Gets the path to the known tool like JSIL, installing it if it's not already installed.
+    /// </summary>
+    /// <param name="toolName">The known tool name.</param>
+    /// <returns>The path to the known tool executable.</returns>
     public string GetKnownTool(string toolName)
     {
         if (_getKnownToolCached != null)
@@ -452,19 +587,42 @@ public class GenerationFunctions
         return result2;
     }
 
+    /// <summary>
+    /// Returns whether the given path ends in the given extension.
+    /// </summary>
+    /// <param name="path">The path to check.</param>
+    /// <param name="ext">The file extension.</param>
+    /// <returns>Whether the given path ends in the given extension.</returns>
     public bool PathEndsWith(string path, string ext)
     {
         return path.EndsWith(ext);
     }
 
+    /// <summary>
+    /// Strips the file extension from the path.
+    /// </summary>
+    /// <param name="path">A path with a file extension.</param>
+    /// <returns>The path with the file extension stripped.</returns>
     public string StripExtension(string path)
     {
         var extl = path.LastIndexOf('.');
         return path.Substring(0, extl);
     }
-
-    // This implementation should be the same as the implementation
-    // offered by ILanguageStringProvider.
+    
+    /// <summary>
+    /// Calculates the project filename extension for the target language
+    /// and host platform.
+    /// </summary>
+    /// <remarks>
+    /// This implementation should be the same as the implementation
+    /// offered by ILanguageStringProvider.
+    /// </remarks>
+    /// <param name="language">The target language.</param>
+    /// <param name="platform">The host platform.</param>
+    /// <returns>
+    /// The project filename extension for the target language
+    /// and host platform.
+    /// </returns>
     public string GetProjectExtension(string language, string platform)
     {
         if (language == "C++")
@@ -478,6 +636,13 @@ public class GenerationFunctions
         return ".csproj";
     }
 
+    /// <summary>
+    /// Returns whether or not the platform is active given the
+    /// current state of the generation and the item being generated.
+    /// </summary>
+    /// <param name="platformString">The &lt;Platform&gt; tag of the item.</param>
+    /// <param name="activePlatform">The current active platform being generated for.</param>
+    /// <returns>Whether this item should be included in the output of the generation.</returns>
     public bool ProjectIsActive(string platformString, string activePlatform)
     {
         if (string.IsNullOrEmpty(platformString))
@@ -495,6 +660,13 @@ public class GenerationFunctions
         return false;
     }
 
+    /// <summary>
+    /// Returns whether or not the service strings are active given the
+    /// current state of the generation and the item being generated.
+    /// </summary>
+    /// <param name="serviceString">The &lt;Service&gt; tag of the item.</param>
+    /// <param name="activeServicesString">The current active service string for generation.</param>
+    /// <returns>Whether this item should be included in the output of the generation.</returns>
     public bool ServiceIsActive(
         string serviceString,
         string activeServicesString)
@@ -515,11 +687,22 @@ public class GenerationFunctions
         return false;
     }
 
+    /// <summary>
+    /// Converts the input string to a base64-encoded, UTF16 (little endian) format.  This is
+    /// used to encode commands for PowerShell execution.
+    /// </summary>
+    /// <param name="input">The input string.</param>
+    /// <returns>The encoded string.</returns>
     public string ToBase64StringUTF16LE(string input)
     {
         return Convert.ToBase64String(System.Text.Encoding.Unicode.GetBytes(input));
     }
    
+    /// <summary>
+    /// Emits a warning to the console when concrete PCLs are being used.
+    /// </summary>
+    /// <param name="platform">The current target platform.</param>
+    /// <returns>An empty string.</returns>
     public string WarnForConcretePCLUsage(string platform)
     {
         if (platform == "PCL")
@@ -541,6 +724,11 @@ public class GenerationFunctions
         return string.Empty;
     }
 
+    /// <summary>
+    /// Emits a warning to the console when post-build hooks won't work for
+    /// this target platform.
+    /// </summary>
+    /// <returns>An empty string.</returns>
     public string WarnForPostBuildHooksOnOldMacPlatform()
     {
         Console.WriteLine(

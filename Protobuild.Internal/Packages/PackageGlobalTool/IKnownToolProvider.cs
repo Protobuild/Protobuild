@@ -1,6 +1,6 @@
 ﻿namespace Protobuild
 {
-    public interface IKnownToolProvider
+    internal interface IKnownToolProvider
     {
         string GetToolExecutablePath(string toolName);
     }

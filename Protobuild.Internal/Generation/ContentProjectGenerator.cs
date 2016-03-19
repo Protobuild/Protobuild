@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class ContentProjectGenerator : IContentProjectGenerator
+    internal class ContentProjectGenerator : IContentProjectGenerator
     {
         private readonly ILogger m_Logger;
 

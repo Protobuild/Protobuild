@@ -5,7 +5,7 @@ namespace Protobuild
 {
     using System;
 
-    public class SyncProjectsTask : BaseTask
+    internal class SyncProjectsTask : BaseTask
     {
         private readonly IFeatureManager _featureManager;
 

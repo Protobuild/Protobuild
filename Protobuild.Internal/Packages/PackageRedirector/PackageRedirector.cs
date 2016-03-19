@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PackageRedirector : IPackageRedirector
+    internal class PackageRedirector : IPackageRedirector
     {
         private IPackageCacheConfiguration m_PackageCacheConfiguration;
 

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PackageUrlParser : IPackageUrlParser
+    internal class PackageUrlParser : IPackageUrlParser
     {
         public PackageRef Parse(string url)
         {

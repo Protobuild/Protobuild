@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class Logger : ILogger
+    internal class Logger : ILogger
     {
         public void Log(string message)
         {

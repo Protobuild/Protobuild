@@ -5,7 +5,7 @@ using System.Net;
 
 namespace Protobuild
 {
-    public class RetryableWebClient : IDisposable
+    internal class RetryableWebClient : IDisposable
     {
         private readonly List<WebClient> _clientsToDispose = new List<WebClient>();
 

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class PackageNameLookup : IPackageNameLookup
+    internal class PackageNameLookup : IPackageNameLookup
     {
         public PackageRef LookupPackageByName(ModuleInfo module, string url)
         {

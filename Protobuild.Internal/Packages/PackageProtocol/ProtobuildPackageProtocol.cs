@@ -8,7 +8,7 @@ using fastJSON;
 
 namespace Protobuild.Internal
 {
-    public class ProtobuildPackageProtocol : IPackageProtocol
+    internal class ProtobuildPackageProtocol : IPackageProtocol
     {
         private readonly IPackageCacheConfiguration _packageCacheConfiguration;
         private readonly BinaryPackageResolve _binaryPackageResolve;
@@ -78,7 +78,7 @@ namespace Protobuild.Internal
                             writer.Write(jsonString);
                         }
                     }
-                    catch (IOException ex)
+                    catch (IOException)
                     {
                         Console.WriteLine("WARNING: Unable to save cached result of request.");
                     }

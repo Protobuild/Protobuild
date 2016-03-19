@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
-    public class SourcePackageResolve : IPackageResolve
+    internal class SourcePackageResolve : IPackageResolve
     {
         private readonly IProjectTemplateApplier _projectTemplateApplier;
         private readonly IPackageCacheConfiguration _packageCacheConfiguration;

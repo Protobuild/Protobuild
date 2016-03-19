@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public class ParallelCommand : ICommand
+    internal class ParallelCommand : ICommand
     {
         public void Encounter(Execution pendingExecution, string[] args)
         {

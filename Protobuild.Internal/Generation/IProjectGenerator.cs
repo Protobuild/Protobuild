@@ -5,7 +5,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public interface IProjectGenerator
+    internal interface IProjectGenerator
     {
         void Generate(
             DefinitionInfo current,

@@ -1,6 +1,6 @@
 ﻿namespace tar_cs
 {
-    public interface IArchiveDataWriter
+    internal interface IArchiveDataWriter
     {
         /// <summary>
         /// Write `length` bytes of data from `buffer` to corresponding archive.
@@ -10,5 +10,5 @@
         int Write(byte[] buffer, int count);
         bool CanWrite { get; }
     }
-    public delegate void WriteDataDelegate(IArchiveDataWriter writer);
+    internal delegate void WriteDataDelegate(IArchiveDataWriter writer);
 }

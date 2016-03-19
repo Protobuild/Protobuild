@@ -4,8 +4,16 @@ using LZMA;
 
 namespace Protobuild.Compress
 {
+    /// <summary>
+    /// A program which compresses files so they can be embedded inside the single
+    /// Protobuild executable that is produced.
+    /// </summary>
     public static class Program
     {
+        /// <summary>
+        /// The main entry point for the compression utility.
+        /// </summary>
+        /// <param name="args">The arguments passed in on the command line.</param>
         public static void Main(string[] args)
         {
             if (args.Length == 0)

@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Protobuild
 {
-    public interface INuGetReferenceDetector
+    internal interface INuGetReferenceDetector
     {
         void ApplyNuGetReferences(
             string rootPath,

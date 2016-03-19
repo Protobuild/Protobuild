@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public class SolutionGenerator : ISolutionGenerator
+    internal class SolutionGenerator : ISolutionGenerator
     {
         private readonly IResourceProvider m_ResourceProvider;
 

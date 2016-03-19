@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
-    public class FileFilter : IEnumerable<KeyValuePair<string, string>>
+    internal class FileFilter : IEnumerable<KeyValuePair<string, string>>
     {
         private List<string> m_SourceFiles = new List<string>();
         private Dictionary<string, string> m_FileMappings = new Dictionary<string, string>();

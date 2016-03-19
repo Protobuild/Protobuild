@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class PackageCacheConfiguration : IPackageCacheConfiguration
+    internal class PackageCacheConfiguration : IPackageCacheConfiguration
     {
         public string GetCacheDirectory()
         {

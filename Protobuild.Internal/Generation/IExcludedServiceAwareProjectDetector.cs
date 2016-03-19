@@ -5,7 +5,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public interface IExcludedServiceAwareProjectDetector
+    internal interface IExcludedServiceAwareProjectDetector
     {
         bool IsExcludedServiceAwareProject(string name, XmlDocument projectDoc, List<Service> services);
     }

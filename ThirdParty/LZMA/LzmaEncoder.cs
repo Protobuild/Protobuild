@@ -7,7 +7,7 @@ namespace LZMA
 {
 	using RangeCoder;
 
-	public class LzmaEncoder : ICoder, ISetCoderProperties, IWriteCoderProperties
+    internal class LzmaEncoder : ICoder, ISetCoderProperties, IWriteCoderProperties
 	{
 		enum EMatchFinderType
 		{

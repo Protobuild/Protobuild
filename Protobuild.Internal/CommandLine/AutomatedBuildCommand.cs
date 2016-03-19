@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Protobuild
 {
-    public class AutomatedBuildCommand : ICommand
+    internal class AutomatedBuildCommand : ICommand
     {
         private readonly IAutomatedBuildController _automatedBuildController;
 

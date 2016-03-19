@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Protobuild
 {
-    public static class EnumerableExtensions
+    internal static class EnumerableExtensions
     {
         // Helper function to do some initialization before
         public static IEnumerable<T> Init<T>(this IEnumerable<T> enumerable, Action init)

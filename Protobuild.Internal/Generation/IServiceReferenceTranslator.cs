@@ -5,7 +5,7 @@ using Protobuild.Services;
 
 namespace Protobuild
 {
-    public interface IServiceReferenceTranslator
+    internal interface IServiceReferenceTranslator
     {
         XmlNode TranslateProjectWithServiceReferences(XmlNode importNode, List<Service> services);
     }

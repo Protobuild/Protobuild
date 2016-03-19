@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public abstract class BaseProgressRenderer
+    internal abstract class BaseProgressRenderer
     {
         private readonly DateTime m_StartTime;
         private bool m_IsShowingProgress;
@@ -47,7 +47,7 @@ namespace Protobuild
             this.m_DidOutput = true;
         }
 
-        public void Finalize()
+        public void FinalizeRendering()
         {
             if (this.m_DidOutput)
             {

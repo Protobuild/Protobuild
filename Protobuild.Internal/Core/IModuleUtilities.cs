@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    public interface IModuleUtilities
+    internal interface IModuleUtilities
     {
         string NormalizePlatform(ModuleInfo module, string platform);
     }
