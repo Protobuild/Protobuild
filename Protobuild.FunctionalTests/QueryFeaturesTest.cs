@@ -27,7 +27,7 @@
                 "no-host-generate",
                 "propagate-features",
                 "task-parallelisation",
-        };
+            };
 
             _assert.Equal(expectedFeatureList, featureList);
         }

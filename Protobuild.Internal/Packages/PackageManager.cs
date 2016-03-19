@@ -102,8 +102,15 @@ namespace Protobuild
                         else
                         {
                             var metadata = Lookup(module, submodule1, platform, null, null, forceUpgrade);
-                            resultList.Add(new Tuple<string, Action>(submodule1.Uri,
-                                () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade); }));;
+                            if (metadata == null)
+                            {
+                                resultList.Add(new Tuple<string, Action>(submodule1.Uri, () => { }));
+                            }
+                            else
+                            {
+                                resultList.Add(new Tuple<string, Action>(submodule1.Uri,
+                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade); }));
+                            }
                         }
                     }
                     else
@@ -173,6 +180,10 @@ namespace Protobuild
             bool forceUpgrade = false)
         {
             var metadata = Lookup(module, reference, platform, templateName, source, forceUpgrade);
+            if (metadata == null)
+            {
+                return;
+            }
             Resolve(metadata, reference, templateName, source, forceUpgrade);
         }
 
