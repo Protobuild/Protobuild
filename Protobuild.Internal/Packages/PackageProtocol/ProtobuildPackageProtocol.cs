@@ -83,38 +83,7 @@ namespace Protobuild.Internal
                         Console.WriteLine("WARNING: Unable to save cached result of request.");
                     }
                 }
-                catch (WebException)
-                {
-                    // Attempt to retrieve it from the lookup cache.
-                    if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
-                    {
-                        var shouldThrow = false;
-                        try
-                        {
-                            using (var reader = new StreamReader(this.GetLookupCacheFilename(request.Uri)))
-                            {
-                                apiData = JSON.ToDynamic(reader.ReadToEnd());
-                            }
-                        }
-                        catch (ExecEnvironment.SelfInvokeExitException)
-                        {
-                            throw;
-                        }
-                        catch
-                        {
-                            shouldThrow = true;
-                        }
-                        if (shouldThrow)
-                        {
-                            throw;
-                        }
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                catch (InvalidOperationException)
+                catch (Exception)
                 {
                     // Attempt to retrieve it from the lookup cache.
                     if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
