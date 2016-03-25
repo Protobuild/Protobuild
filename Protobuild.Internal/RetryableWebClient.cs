@@ -115,6 +115,19 @@ namespace Protobuild
                     Console.Error.WriteLine(ex);
                     exceptions.Add(ex);
 
+                    var webException = ex as WebException;
+                    if (webException != null)
+                    {
+                        switch (webException.Status)
+                        {
+                            case WebExceptionStatus.NameResolutionFailure:
+                                // This is a permanent failure.
+                                i = MaxRequests;
+                                backoff = 0;
+                                break;
+                        }
+                    }
+
                     Console.WriteLine("Backing off web requests for " + backoff + "ms...");
                     System.Threading.Thread.Sleep(backoff);
                     backoff *= 2;
@@ -146,6 +159,19 @@ namespace Protobuild
                     Console.Error.WriteLine("Exception during web request: ");
                     Console.Error.WriteLine(ex);
                     exceptions.Add(ex);
+
+                    var webException = ex as WebException;
+                    if (webException != null)
+                    {
+                        switch (webException.Status)
+                        {
+                            case WebExceptionStatus.NameResolutionFailure:
+                                // This is a permanent failure.
+                                i = MaxRequests;
+                                backoff = 0;
+                                break;
+                        }
+                    }
 
                     Console.WriteLine("Backing off web requests for " + backoff + "ms...");
                     System.Threading.Thread.Sleep(backoff);
