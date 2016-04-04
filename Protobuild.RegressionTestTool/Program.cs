@@ -89,7 +89,10 @@ namespace Protobuild.RegressionTestTool
                         if (commit.CommitHash.StartsWith("7f0242680") ||
                             commit.CommitHash.StartsWith("7e7ddb77a") ||
                             commit.CommitHash.StartsWith("cf231b244") ||
-                            commit.CommitHash.StartsWith("f90fdcf2d"))
+                            commit.CommitHash.StartsWith("f90fdcf2d") ||
+                            commit.CommitHash.StartsWith("d63462baa") ||
+                            commit.CommitHash.StartsWith("260c5045f") ||
+                            commit.CommitHash.StartsWith("0e9223d18"))
                         {
                             // These are known bad commits, exclude them.
                             return;
