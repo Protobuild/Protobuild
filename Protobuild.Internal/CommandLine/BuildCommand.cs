@@ -88,7 +88,7 @@ namespace Protobuild
                     var extraArgs = string.Empty;
                     if (!builderPath.Contains("v2.0.50727"))
                     {
-                        extraArgs = "/m ";
+                        extraArgs = "/m /nodeReuse:false ";
                     }
 
                     switch (arch)
