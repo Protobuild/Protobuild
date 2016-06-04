@@ -49,6 +49,7 @@
     <Compile Include="BasicSynchronisationWorksTest.cs" />
     <Compile Include="CheckForOverflowUnderflowPropertyWorksTest.cs" />
     <Compile Include="ConfigurationMappingWorksTest.cs" />
+    <Compile Include="ContentProjectEmbeddedResourceWorksTest.cs" />
     <Compile Include="CPlusPlusConsoleWorksTest.cs" />
     <Compile Include="CPlusPlusDirectReferenceWorksTest.cs" />
     <Compile Include="CPlusPlusExternalDirectReferenceWorksTest.cs" />
@@ -158,6 +159,7 @@
     <Compile Include="SyncDoesNotIncludeContentWorksTest.cs" />
     <Compile Include="TreatWarningsAsErrorsPropertyTest.cs" />
     <Compile Include="WarningLevelPropertyTest.cs" />
+    <Content Include="TestData\ContentProjectEmbeddedResourceWorks\Resources\Test.txt" />
     <None Include="Info.plist">
       <Platforms>iOS,MacOS</Platforms>
     </None>
@@ -174,6 +176,10 @@
     <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.definition" />
     <None Include="TestData\ConfigurationMappingWorks\Build\Projects\Console.ThirdParty.definition" />
     <None Include="TestData\ConfigurationMappingWorks\Console\Program.cs" />
+    <None Include="TestData\ContentProjectEmbeddedResourceWorks\Build\Module.xml" />
+    <None Include="TestData\ContentProjectEmbeddedResourceWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\ContentProjectEmbeddedResourceWorks\Build\Projects\Content.definition" />
+    <None Include="TestData\ContentProjectEmbeddedResourceWorks\Console\Program.cs" />
     <None Include="TestData\CPlusPlusConsoleWorks\Build\Module.xml" />
     <None Include="TestData\CPlusPlusConsoleWorks\Build\Projects\Console.definition" />
     <None Include="TestData\CPlusPlusConsoleWorks\Console\main.c" />

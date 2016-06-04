@@ -1950,100 +1950,125 @@
           <xsl:if test="
             count($root/Input/Projects/ContentProject[@Name=$include-path]) > 0">
 
-            <xsl:for-each select="$root/Input
-                                  /Projects
-                                  /ContentProject[@Name=$include-path]
-                                  /Compiled">
-              <xsl:choose>
-                <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUniversal' or $root/Input/Generation/Platform = 'Windows'">
-                  <Content>
-                    <xsl:attribute name="Include">
-                      <xsl:value-of
-                        select="user:GetRelativePath(
-                      concat(
-                        $root/Input/Generation/RootPath,
-                        $project/@Path,
-                        '\',
-                        $project/@Name,
-                        '.',
-                        $root/Input/Generation/Platform,
-                        '.srcproj'),
-                      current()/FullPath)" />
-                    </xsl:attribute>
-                    <Link>
-                      <xsl:text>Content</xsl:text>
-                      <xsl:value-of select="current()/RelativePath" />
-                    </Link>
-                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                  </Content>
-                </xsl:when>
-                <xsl:when test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
-                  <AndroidAsset>
-                    <xsl:attribute name="Include">
-                      <xsl:value-of
-                        select="user:GetRelativePath(
-                      concat(
-                        $root/Input/Generation/RootPath,
-                        $project/@Path,
-                        '\',
-                        $project/@Name,
-                        '.',
-                        $root/Input/Generation/Platform,
-                        '.srcproj'),
-                      current()/FullPath)" />
-                    </xsl:attribute>
-                    <Link>
-                      <xsl:text>Assets</xsl:text>
-                      <xsl:value-of select="current()/RelativePath" />
-                    </Link>
-                  </AndroidAsset>
-                </xsl:when>
-                <xsl:when test="$root/Input/Generation/Platform = 'MacOS' or $root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
-                  <Content>
-                    <xsl:attribute name="Include">
-                      <xsl:value-of
-                        select="user:GetRelativePath(
-                      concat(
-                        $root/Input/Generation/RootPath,
-                        $project/@Path,
-                        '\',
-                        $project/@Name,
-                        '.',
-                        $root/Input/Generation/Platform,
-                        '.srcproj'),
-                      current()/FullPath)" />
-                    </xsl:attribute>
-                    <Link>
-                      <xsl:text>Content</xsl:text>
-                      <xsl:value-of select="current()/RelativePath" />
-                    </Link>
-                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                  </Content>
-                </xsl:when>
-                <xsl:otherwise>
-                  <None>
-                    <xsl:attribute name="Include">
-                      <xsl:value-of
-                        select="user:GetRelativePath(
-                      concat(
-                        $root/Input/Generation/RootPath,
-                        $project/@Path,
-                        '\',
-                        $project/@Name,
-                        '.',
-                        $root/Input/Generation/Platform,
-                        '.srcproj'),
-                      current()/FullPath)" />
-                    </xsl:attribute>
-                    <Link>
-                      <xsl:text>Content</xsl:text>
-                      <xsl:value-of select="current()/RelativePath" />
-                    </Link>
-                    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                  </None>
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:for-each>
+            <xsl:choose>
+              <xsl:when test="$root/Input/Projects/ContentProject[@Name=$include-path]/@ResourceType = 'EmbeddedResource'">
+                <EmbeddedResource>
+                  <xsl:attribute name="Include">
+                    <xsl:value-of
+                      select="user:GetRelativePath(
+                        concat(
+                          $root/Input/Generation/RootPath,
+                          $project/@Path,
+                          '\',
+                          $project/@Name,
+                          '.',
+                          $root/Input/Generation/Platform,
+                          '.srcproj'),
+                        current()/FullPath)" />
+                  </xsl:attribute>
+                  <Link>
+                    <xsl:text>Resources</xsl:text>
+                    <xsl:value-of select="current()/RelativePath" />
+                  </Link>
+                </EmbeddedResource>
+              </xsl:when>
+              <xsl:otherwise>
+                <xsl:for-each select="$root/Input
+                                      /Projects
+                                      /ContentProject[@Name=$include-path]
+                                      /Compiled">
+                  <xsl:choose>
+                    <xsl:when test="$root/Input/Generation/Platform = 'Windows8' or $root/Input/Generation/Platform = 'WindowsUniversal' or $root/Input/Generation/Platform = 'Windows'">
+                      <Content>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of
+                            select="user:GetRelativePath(
+                          concat(
+                            $root/Input/Generation/RootPath,
+                            $project/@Path,
+                            '\',
+                            $project/@Name,
+                            '.',
+                            $root/Input/Generation/Platform,
+                            '.srcproj'),
+                          current()/FullPath)" />
+                        </xsl:attribute>
+                        <Link>
+                          <xsl:text>Content</xsl:text>
+                          <xsl:value-of select="current()/RelativePath" />
+                        </Link>
+                        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                      </Content>
+                    </xsl:when>
+                    <xsl:when test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
+                      <AndroidAsset>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of
+                            select="user:GetRelativePath(
+                          concat(
+                            $root/Input/Generation/RootPath,
+                            $project/@Path,
+                            '\',
+                            $project/@Name,
+                            '.',
+                            $root/Input/Generation/Platform,
+                            '.srcproj'),
+                          current()/FullPath)" />
+                        </xsl:attribute>
+                        <Link>
+                          <xsl:text>Assets</xsl:text>
+                          <xsl:value-of select="current()/RelativePath" />
+                        </Link>
+                      </AndroidAsset>
+                    </xsl:when>
+                    <xsl:when test="$root/Input/Generation/Platform = 'MacOS' or $root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
+                      <Content>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of
+                            select="user:GetRelativePath(
+                          concat(
+                            $root/Input/Generation/RootPath,
+                            $project/@Path,
+                            '\',
+                            $project/@Name,
+                            '.',
+                            $root/Input/Generation/Platform,
+                            '.srcproj'),
+                          current()/FullPath)" />
+                        </xsl:attribute>
+                        <Link>
+                          <xsl:text>Content</xsl:text>
+                          <xsl:value-of select="current()/RelativePath" />
+                        </Link>
+                        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                      </Content>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <None>
+                        <xsl:attribute name="Include">
+                          <xsl:value-of
+                            select="user:GetRelativePath(
+                          concat(
+                            $root/Input/Generation/RootPath,
+                            $project/@Path,
+                            '\',
+                            $project/@Name,
+                            '.',
+                            $root/Input/Generation/Platform,
+                            '.srcproj'),
+                          current()/FullPath)" />
+                        </xsl:attribute>
+                        <Link>
+                          <xsl:text>Content</xsl:text>
+                          <xsl:value-of select="current()/RelativePath" />
+                        </Link>
+                        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                      </None>
+                    </xsl:otherwise>
+                  </xsl:choose>
+                </xsl:for-each>
+              </xsl:otherwise>
+            </xsl:choose>
           </xsl:if>
         </xsl:for-each>
       </ItemGroup>

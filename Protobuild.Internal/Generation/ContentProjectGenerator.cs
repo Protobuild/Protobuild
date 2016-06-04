@@ -64,6 +64,9 @@ namespace Protobuild
             projectNode.SetAttribute(
                 "Name",
                 source.DocumentElement.GetAttribute("Name"));
+            projectNode.SetAttribute(
+                "ResourceType",
+                source.DocumentElement.GetAttribute("ResourceType"));
 
             foreach (var kv in allFiles)
             {
