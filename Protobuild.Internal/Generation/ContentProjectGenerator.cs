@@ -32,6 +32,11 @@ namespace Protobuild
                 {
                     sourceFolder = sourceFolder.Replace("$(Platform)", platformName);
                 }
+                if (!string.IsNullOrWhiteSpace(element.GetAttribute("Platform")) &&
+                    element.GetAttribute("Platform") != platformName)
+                {
+                    continue;
+                }
                 var matchFiles = element.GetAttribute("Match");
                 var originalSourceFolder = sourceFolder;
                 if (element.HasAttribute("Primary") && element.GetAttribute("Primary").ToLower() == "true")
