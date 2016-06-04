@@ -209,7 +209,17 @@ namespace Protobuild
                             continue;
                     }
                 }
-                
+
+                // Ignore files included by content projects.
+                if (element.ChildNodes.OfType<XmlNode>().Any(x => x.Name == "FromContentProject"))
+                {
+                    if (element.ChildNodes.OfType<XmlNode>().First(x => x.Name == "FromContentProject").InnerText.Trim() ==
+                        "True")
+                    {
+                        continue;
+                    }
+                }
+
                 // Ignore files included by include projects.
                 if (element.ChildNodes.OfType<XmlNode>().Any(x => x.Name == "FromIncludeProject"))
                 {

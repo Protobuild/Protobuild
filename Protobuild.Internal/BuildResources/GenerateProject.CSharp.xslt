@@ -1970,6 +1970,7 @@
                     <xsl:text>Resources</xsl:text>
                     <xsl:value-of select="current()/RelativePath" />
                   </Link>
+                  <FromContentProject>True</FromContentProject>
                 </EmbeddedResource>
               </xsl:when>
               <xsl:otherwise>
@@ -1998,6 +1999,7 @@
                           <xsl:value-of select="current()/RelativePath" />
                         </Link>
                         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                        <FromContentProject>True</FromContentProject>
                       </Content>
                     </xsl:when>
                     <xsl:when test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
@@ -2019,6 +2021,7 @@
                           <xsl:text>Assets</xsl:text>
                           <xsl:value-of select="current()/RelativePath" />
                         </Link>
+                        <FromContentProject>True</FromContentProject>
                       </AndroidAsset>
                     </xsl:when>
                     <xsl:when test="$root/Input/Generation/Platform = 'MacOS' or $root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
@@ -2041,6 +2044,7 @@
                           <xsl:value-of select="current()/RelativePath" />
                         </Link>
                         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                        <FromContentProject>True</FromContentProject>
                       </Content>
                     </xsl:when>
                     <xsl:otherwise>
@@ -2063,6 +2067,7 @@
                           <xsl:value-of select="current()/RelativePath" />
                         </Link>
                         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+                        <FromContentProject>True</FromContentProject>
                       </None>
                     </xsl:otherwise>
                   </xsl:choose>
