@@ -1952,10 +1952,14 @@
 
             <xsl:choose>
               <xsl:when test="$root/Input/Projects/ContentProject[@Name=$include-path]/@ResourceType = 'EmbeddedResource'">
-                <EmbeddedResource>
-                  <xsl:attribute name="Include">
-                    <xsl:value-of
-                      select="user:GetRelativePath(
+                <xsl:for-each select="$root/Input
+                                      /Projects
+                                      /ContentProject[@Name=$include-path]
+                                      /Compiled">
+                  <EmbeddedResource>
+                    <xsl:attribute name="Include">
+                      <xsl:value-of
+                        select="user:GetRelativePath(
                         concat(
                           $root/Input/Generation/RootPath,
                           $project/@Path,
@@ -1965,13 +1969,14 @@
                           $root/Input/Generation/Platform,
                           '.srcproj'),
                         current()/FullPath)" />
-                  </xsl:attribute>
-                  <Link>
-                    <xsl:text>Resources</xsl:text>
-                    <xsl:value-of select="current()/RelativePath" />
-                  </Link>
-                  <FromContentProject>True</FromContentProject>
-                </EmbeddedResource>
+                    </xsl:attribute>
+                    <Link>
+                      <xsl:text>Resources</xsl:text>
+                      <xsl:value-of select="current()/RelativePath" />
+                    </Link>
+                    <FromContentProject>True</FromContentProject>
+                  </EmbeddedResource>
+                </xsl:for-each>
               </xsl:when>
               <xsl:otherwise>
                 <xsl:for-each select="$root/Input
