@@ -4,8 +4,10 @@
 // assembly System.Web
 // assembly Microsoft.CSharp
 // using System
+// using System.Text
 
 using System;
+using System.Linq;
 using System.Text;
 
 /// <summary>
@@ -512,6 +514,7 @@ public class GenerationFunctions
     /// <returns>The installed Windows 10 SDK version.</returns>
     public string DetectWindows10InstalledSDK()
     {
+        string versionString;
         Microsoft.Win32.RegistryKey registryKey;
         try
         {
@@ -538,20 +541,41 @@ public class GenerationFunctions
                 "WARNING: No versions of the Windows 10 SDK were available " +
                 "according to the registry (or they were not readable).  " +
                 "Defaulting to ProductVersion 10.0.10240.");
-            return "10.0.10240";
+            versionString = "10.0.10240";
         }
-
-        var productVersion = registryKey.GetValue("ProductVersion") as string;
-        if (productVersion == null)
+        else
         {
-            Console.Error.WriteLine(
-                "WARNING: No versions of the Windows 10 SDK were available " +
-                "according to the registry (or they were not readable).  " +
-                "Defaulting to ProductVersion 10.0.10240.");
-            return "10.0.10240";
+            var productVersion = registryKey.GetValue("ProductVersion") as string;
+            if (productVersion == null)
+            {
+                Console.Error.WriteLine(
+                    "WARNING: No versions of the Windows 10 SDK were available " +
+                    "according to the registry (or they were not readable).  " +
+                    "Defaulting to ProductVersion 10.0.10240.");
+                versionString = "10.0.10240";
+            }
+            else
+            {
+                versionString = productVersion;
+            }
         }
 
-        return productVersion;
+        // Try and parse it as a version, ensuring that we append ".0" on the end if necessary.
+        try
+        {
+            var version = Version.Parse(versionString);
+            if (version.Revision == -1)
+            {
+                // No revision component (missing ".0").  Append it.
+                return version + ".0";
+            }
+            return version.ToString();
+        }
+        catch (Exception)
+        {
+            // Unable to parse; return it as-is.
+            return versionString;
+        }
     }
 
     /// <summary>

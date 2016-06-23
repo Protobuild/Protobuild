@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 
 namespace Protobuild
 {
@@ -34,7 +35,34 @@ namespace Protobuild
                 AggressiveDirectoryDelete(dir);
             }
 
-            Directory.Delete(directory, false);
+            for (var i = 0; i < 5; i++)
+            {
+                try
+                {
+                    Directory.Delete(directory, true);
+                    break;
+                }
+                catch (IOException ex)
+                {
+                    Thread.Sleep(500);
+                    if (i == 4)
+                    {
+                        throw new IOException(
+                            "Unable to delete the directory '" + directory + "' after 5 " +
+                            "attempts.  Is it in-use by another process?", ex);
+                    }
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Thread.Sleep(500);
+                    if (i == 4)
+                    {
+                        throw new UnauthorizedAccessException(
+                            "Unable to delete the directory '" + directory + "' after 5 " +
+                            "attempts.  Is it in-use by another process?", ex);
+                    }
+                }
+            }
         }
     }
 }
