@@ -18,11 +18,18 @@ namespace Protobuild
                 Arguments = str,
                 WorkingDirectory = workingDirectory,
                 UseShellExecute = false,
+                RedirectStandardInput = true
             };
             
             Console.WriteLine(consoleWriteLine);
             
             var process = Process.Start(processStartInfo);
+            if (process == null)
+            {
+                throw new InvalidOperationException("Unable to execute Git!");
+            }
+
+            process.StandardInput.Close();
             process.WaitForExit();
 
             if (process.ExitCode != 0)
@@ -54,6 +61,7 @@ namespace Protobuild
                     Arguments = str,
                     WorkingDirectory = folder == null ? Environment.CurrentDirectory : Path.Combine(Environment.CurrentDirectory, folder),
                     RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
                     CreateNoWindow = true,
                     UseShellExecute = false,
                 };
@@ -62,6 +70,12 @@ namespace Protobuild
             Console.WriteLine("Executing: git " + str + suffix);
 
             var process = Process.Start(processStartInfo);
+            if (process == null)
+            {
+                throw new InvalidOperationException("Unable to execute Git!");
+            }
+
+            process.StandardInput.Close();
             var result = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
@@ -81,10 +95,16 @@ namespace Protobuild
                     Arguments = "status",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
+                    RedirectStandardInput = true,
                     UseShellExecute = false,
                 };
 
             var process = Process.Start(processStartInfo);
+            if (process == null)
+            {
+                throw new InvalidOperationException("Unable to execute Git!");
+            }
+            process.StandardInput.Close();
             process.WaitForExit();
 
             if (process.ExitCode == 128)
