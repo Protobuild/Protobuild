@@ -92,13 +92,14 @@ namespace Protobuild
             var processStartInfo = new ProcessStartInfo
                 {
                     FileName = GetCachedGitPath(),
-                    Arguments = "status",
+                    Arguments = "rev-parse --is-inside-work-tree",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     RedirectStandardInput = true,
                     UseShellExecute = false,
                 };
 
+            Console.WriteLine("Executing: git rev-parse --is-inside-work-tree");
             var process = Process.Start(processStartInfo);
             if (process == null)
             {
@@ -107,14 +108,23 @@ namespace Protobuild
             process.StandardInput.Close();
             process.WaitForExit();
 
-            if (process.ExitCode == 128)
+            if (process.ExitCode != 0)
             {
+                // If we are not in a Git directory at all, the process exits with
+                // an error code of 128.
                 return false;
             }
-            else
+
+            if (process.StandardOutput.ReadToEnd().Trim() == "true")
             {
+                // If we are inside a working tree (not a .git folder), this outputs
+                // "true" with an exit code of 0.
                 return true;
             }
+
+            // If we are inside a .git folder (not a working tree), this outputs
+            // "false" with an exit code of 0.
+            return false;
         }
 
         public static void UnmarkIgnored(string folder)
