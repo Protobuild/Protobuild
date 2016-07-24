@@ -128,21 +128,27 @@ namespace Protobuild
                 string[] clrNames = new[]
                 {
                     // Exact matches
+                    "=net45",
+                    "=Net45",
                     "=net40-client",
                     "=Net40-client",
+                    "=net403",
+                    "=Net403",
                     "=net40",
                     "=Net40",
-                    "=net35",
-                    "=Net35",
+                    "=net35-client",
+                    "=Net35-client",
                     "=net20",
                     "=Net20",
+                    "=net11",
+                    "=Net11",
                     "=20",
                     "=11",
                     "=",
-                    "=net45",
-                    "=Net45",
 
                     // Substring matches
+                    "?net45",
+                    "?Net45",
                     "?net4",
                     "?Net4",
                     "?MonoAndroid",
