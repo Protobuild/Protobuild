@@ -641,13 +641,22 @@ namespace System.IO.Compression
         }
         private DateTime DosTimeToDateTime(uint _dt)
         {
-            return new DateTime(
-                (int)(_dt >> 25) + 1980,
-                (int)(_dt >> 21) & 15,
-                (int)(_dt >> 16) & 31,
-                (int)(_dt >> 11) & 31,
-                (int)(_dt >> 5) & 63,
-                (int)(_dt & 31) * 2);
+            try
+            {
+                return new DateTime(
+                    (int) (_dt >> 25) + 1980,
+                    (int) (_dt >> 21) & 15,
+                    (int) (_dt >> 16) & 31,
+                    (int) (_dt >> 11) & 31,
+                    (int) (_dt >> 5) & 63,
+                    (int) (_dt & 31)*2);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                // When ZIP packages have badly formatted datetime values, default
+                // to using DateTime.Now instead of throwing an exception.
+                return DateTime.Now;
+            }
         }
 
         /* CRC32 algorithm
