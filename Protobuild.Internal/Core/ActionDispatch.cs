@@ -168,7 +168,7 @@ namespace Protobuild
 
             // If running pure synchronisation or a project clean, we don't need to perform
             // package resolution.
-            if (action.ToLower() == "sync" && action.ToLower() == "clean")
+            if (action.ToLower() == "sync" || action.ToLower() == "clean")
             {
                 disablePackageResolution = true;
             }
