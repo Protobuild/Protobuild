@@ -10,12 +10,14 @@ namespace Protobuild
         private readonly IKnownToolProvider _knownToolProvider;
 
         private readonly ExecuteCommand _executeCommand;
+        private readonly IAutomatedBuildController _automatedBuildController;
 
-        public DefaultCommand(IActionDispatch actionDispatch, IKnownToolProvider knownToolProvider, ExecuteCommand executeCommand)
+        public DefaultCommand(IActionDispatch actionDispatch, IKnownToolProvider knownToolProvider, ExecuteCommand executeCommand, IAutomatedBuildController automatedBuildController)
         {
             this.m_ActionDispatch = actionDispatch;
             _knownToolProvider = knownToolProvider;
             _executeCommand = executeCommand;
+            _automatedBuildController = automatedBuildController;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -36,8 +38,14 @@ namespace Protobuild
                 return _executeCommand.Execute(subexecution);
             }
 
+            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            if (module.DefaultAction == "automated-build")
+            {
+                return _automatedBuildController.Execute("automated.build");
+            }
+
             return this.m_ActionDispatch.DefaultAction(
-                ModuleInfo.Load(Path.Combine("Build", "Module.xml")),
+                module,
                 enabledServices: execution.EnabledServices.ToArray(),
                 disabledServices: execution.DisabledServices.ToArray(),
                 serviceSpecPath: execution.ServiceSpecificationPath,
