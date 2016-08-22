@@ -67,10 +67,14 @@ namespace Protobuild
 
                 this.LogMessage(
                     "Invoking submodule synchronisation for " + submodule.Name);
+                var noResolve = _featureManager.IsFeatureEnabledInSubmodule(module, submodule,
+                    Feature.PackageManagementNoResolve)
+                    ? " -no-resolve"
+                    : string.Empty;
                 _moduleExecution.RunProtobuild(
                     submodule, 
                     _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + 
-                    "-sync " + this.Platform);
+                    "-sync " + this.Platform + noResolve);
                 this.LogMessage(
                     "Finished submodule synchronisation for " + submodule.Name);
             }
