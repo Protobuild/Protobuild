@@ -46,13 +46,15 @@ namespace Protobuild
 
             return this.m_ActionDispatch.DefaultAction(
                 module,
-                enabledServices: execution.EnabledServices.ToArray(),
-                disabledServices: execution.DisabledServices.ToArray(),
-                serviceSpecPath: execution.ServiceSpecificationPath,
-                debugServiceResolution: execution.DebugServiceResolution,
-                disablePackageResolution: execution.DisablePackageResolution,
-                disableHostPlatformGeneration: execution.DisableHostProjectGeneration,
-                taskParallelisation: execution.UseTaskParallelisation) ? 0 : 1;
+                null,
+                execution.EnabledServices.ToArray(),
+                execution.DisabledServices.ToArray(),
+                execution.ServiceSpecificationPath,
+                execution.DebugServiceResolution,
+                execution.DisablePackageResolution,
+                execution.DisableHostProjectGeneration,
+                execution.UseTaskParallelisation,
+                execution.SafePackageResolution) ? 0 : 1;
         }
 
         public string GetDescription()

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name>Module</Name>
+  <DefaultAction>resync</DefaultAction>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <Packages>
+    <Package Folder="Package" GitRef="master" Uri="http://protobuild.org/hach-que/TestEmptyPackage" />
+  </Packages>
+  <FeatureSet>
+    <Feature>PackageManagement</Feature>
+    <Feature>HostPlatformGeneration</Feature>
+    <Feature>SafeResolutionDisabled</Feature>
+  </FeatureSet>
+</Module>

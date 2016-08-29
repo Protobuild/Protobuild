@@ -59,7 +59,7 @@ namespace Protobuild
             _hostPlatformDetector = hostPlatformDetector;
         }
 
-        public void ResolveAll(ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade = false)
+        public void ResolveAll(ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
             {
@@ -89,19 +89,19 @@ namespace Protobuild
                             var task = new Func<Task<Tuple<string, Action>>>(async () =>
                             {
                                 var metadata = await Task.Run(() =>
-                                    Lookup(module, submodule1, platform, null, null, forceUpgrade));
+                                    Lookup(module, submodule1, platform, null, null, forceUpgrade, safeResolve));
                                 if (metadata == null)
                                 {
                                     return new Tuple<string, Action>(submodule1.Uri, () => { });
                                 }
                                 return new Tuple<string, Action>(submodule1.Uri,
-                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade); });
+                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade, safeResolve); });
                             });
                             taskList.Add(task());
                         }
                         else
                         {
-                            var metadata = Lookup(module, submodule1, platform, null, null, forceUpgrade);
+                            var metadata = Lookup(module, submodule1, platform, null, null, forceUpgrade, safeResolve);
                             if (metadata == null)
                             {
                                 resultList.Add(new Tuple<string, Action>(submodule1.Uri, () => { }));
@@ -109,7 +109,7 @@ namespace Protobuild
                             else
                             {
                                 resultList.Add(new Tuple<string, Action>(submodule1.Uri,
-                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade); }));
+                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade, safeResolve); }));
                             }
                         }
                     }
@@ -177,18 +177,18 @@ namespace Protobuild
         }
 
         public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
-            bool forceUpgrade = false)
+            bool forceUpgrade, bool? safeResolve)
         {
-            var metadata = Lookup(module, reference, platform, templateName, source, forceUpgrade);
+            var metadata = Lookup(module, reference, platform, templateName, source, forceUpgrade, safeResolve);
             if (metadata == null)
             {
                 return;
             }
-            Resolve(metadata, reference, templateName, source, forceUpgrade);
+            Resolve(metadata, reference, templateName, source, forceUpgrade, safeResolve);
         }
 
         public IPackageMetadata Lookup(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
-            bool forceUpgrade = false)
+            bool forceUpgrade, bool? safeResolve)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
             {
@@ -235,7 +235,7 @@ namespace Protobuild
         }
 
         public void Resolve(IPackageMetadata metadata, PackageRef reference, string templateName, bool? source,
-            bool forceUpgrade = false)
+            bool forceUpgrade, bool? safeResolve)
         {
             if (reference.Folder == null)
             {
@@ -266,15 +266,41 @@ namespace Protobuild
                         if (!File.Exists(Path.Combine(reference.Folder, ".git")) && !Directory.Exists(Path.Combine(reference.Folder, ".git")) &&
                             !File.Exists(Path.Combine(reference.Folder, ".pkg")))
                         {
-                            Console.Error.WriteLine(
-                                "WARNING: The package directory '" + reference.Folder + "' already exists and contains " +
-                                "files and/or subdirectories, but neither a .pkg file nor a .git file or subdirectory exists.  " +
-                                "This indicates the package directory contains data that is not been instantiated or managed " +
-                                "by Protobuild.  Since there is no safe way to initialize the package in this directory " +
-                                "without a potential loss of data, Protobuild will not modify the contents of this folder " +
-                                "during package resolution.  If the folder does not contains the required package " +
-                                "dependencies, the project generation or build may unexpectedly fail.");
-                            return;
+                            bool shouldSafeResolve;
+                            if (safeResolve.HasValue)
+                            {
+                                // If the user specifies it on the command line, use that setting.
+                                shouldSafeResolve = safeResolve.Value;
+                            }
+                            else
+                            {
+                                if (!_featureManager.IsFeatureEnabled(Feature.SafeResolutionDisabled))
+                                {
+                                    // If the module doesn't have this feature set enabled, we default
+                                    // to using safe package resolution.
+                                    shouldSafeResolve = true;
+                                }
+                                else
+                                {
+                                    // If the module does have this feature set enabled, or is using the
+                                    // full feature set, we default to turning safe resolution off.
+                                    shouldSafeResolve = false;
+                                }
+                            }
+
+                            if (shouldSafeResolve)
+                            {
+                                Console.Error.WriteLine(
+                                    "WARNING: The package directory '" + reference.Folder +
+                                    "' already exists and contains " +
+                                    "files and/or subdirectories, but neither a .pkg file nor a .git file or subdirectory exists.  " +
+                                    "This indicates the package directory contains data that is not been instantiated or managed " +
+                                    "by Protobuild.  Since there is no safe way to initialize the package in this directory " +
+                                    "without a potential loss of data, Protobuild will not modify the contents of this folder " +
+                                    "during package resolution.  If the folder does not contains the required package " +
+                                    "dependencies, the project generation or build may unexpectedly fail.");
+                                return;
+                            }
                         }
                     }
 

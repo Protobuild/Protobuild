@@ -40,7 +40,22 @@ namespace Protobuild
             else
             {
                 _parentPropagatesFullFeatureSet = false;
-                _featuresEnabledFromCommandLine = commandArguments.Split(',').Select(x => (Feature)Enum.Parse(typeof(Feature), x)).ToList();
+
+                var commandArgumentsArr = commandArguments.Split(',');
+                var commandArgumentsList = new List<Feature>();
+                for (var i = 0; i < commandArgumentsArr.Length; i++)
+                {
+                    try
+                    {
+                        commandArgumentsList.Add((Feature) Enum.Parse(typeof(Feature), commandArgumentsArr[i]));
+                    }
+                    catch
+                    {
+                        Console.WriteLine("WARNING: Unknown feature specified on command line; ignoring: " +
+                                          commandArgumentsArr[i]);
+                    }
+                }
+                _featuresEnabledFromCommandLine = commandArgumentsList;
             }
         }
 

@@ -37,7 +37,7 @@ namespace Protobuild
             var platforms = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
             foreach (var platform in platforms.Split(','))
             {
-                this.m_PackageManager.ResolveAll(module, platform, execution.UseTaskParallelisation);
+                this.m_PackageManager.ResolveAll(module, platform, execution.UseTaskParallelisation, false, execution.SafePackageResolution);
             }
             return 0;
         }

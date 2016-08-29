@@ -139,6 +139,8 @@
     <Compile Include="Regression\RegressionHtmlSummaryConsumer.cs" />
     <Compile Include="Regression\RegressionTestSetProvider.cs" />
     <Compile Include="ResyncPreventedWhenSyncIsDisabledTest.cs" />
+    <Compile Include="SafeResolveDefaultsWithFeatureSetTest.cs" />
+    <Compile Include="SafeResolveDefaultsWithoutFeatureSetTest.cs" />
     <Compile Include="ServicesCrossProjectRequireTest.cs" />
     <Compile Include="ServicesDefaultForRootTest.cs" />
     <Compile Include="ServicesDependenciesPlatformsTest.cs" />
@@ -583,6 +585,14 @@
     <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Build\Module.xml" />
     <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Build\Projects\Console.definition" />
     <None Include="TestData\ResyncPreventedWhenSyncIsDisabled\Console\Program.cs" />
+    <None Include="TestData\SafeResolveDefaultsWithFeatureSet\Build\Module.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TestData\SafeResolveDefaultsWithFeatureSet\PackageTemp\Test.txt" />
+    <None Include="TestData\SafeResolveDefaultsWithoutFeatureSet\Build\Module.xml">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="TestData\SafeResolveDefaultsWithoutFeatureSet\PackageTemp\Test.txt" />
     <None Include="TestData\ServicesBaseTest\Build\Module.xml" />
     <None Include="TestData\ServicesBaseTest\Build\Projects\Console.definition" />
     <None Include="TestData\ServicesBaseTest\Console\Program.cs" />

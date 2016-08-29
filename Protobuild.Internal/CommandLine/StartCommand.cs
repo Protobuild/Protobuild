@@ -60,7 +60,7 @@ namespace Protobuild
 
             // The module can not be loaded before this point because it doesn't
             // yet exist.
-            this.m_PackageManager.Resolve(null, packageRef, "Template", execution.StartProjectName, false);
+            this.m_PackageManager.Resolve(null, packageRef, "Template", execution.StartProjectName, false, false, execution.SafePackageResolution);
 
             if (execution.DisableProjectGeneration)
             {
@@ -81,7 +81,8 @@ namespace Protobuild
                 execution.DebugServiceResolution,
                 execution.DisablePackageResolution,
                 execution.DisableHostProjectGeneration,
-                execution.UseTaskParallelisation)
+                execution.UseTaskParallelisation,
+                execution.SafePackageResolution)
                 ? 0 : 1;
         }
 

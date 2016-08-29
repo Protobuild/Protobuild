@@ -84,6 +84,7 @@ namespace Protobuild
                 { "repush", kernel.Get<RepushPackageCommand>() },
                 { "resolve", kernel.Get<ResolveCommand>() },
                 { "no-resolve", kernel.Get<NoResolveCommand>() },
+                { "safe-resolve", kernel.Get<SafeResolveCommand>() },
                 { "parallel", kernel.Get<ParallelCommand>() },
                 { "no-parallel", kernel.Get<NoParallelCommand>() },
                 { "redirect", kernel.Get<RedirectPackageCommand>() },

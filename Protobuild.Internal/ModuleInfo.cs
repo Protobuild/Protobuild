@@ -232,7 +232,14 @@ namespace Protobuild
                     var features = featureSetElem.Elements();
                     foreach (var feature in features)
                     {
-                        def.FeatureSet.Add((Feature)Enum.Parse(typeof(Feature), feature.Value));
+                        try
+                        {
+                            def.FeatureSet.Add((Feature) Enum.Parse(typeof(Feature), feature.Value));
+                        }
+                        catch
+                        {
+                            Console.Error.WriteLine("Unknown feature in Module.xml; ignoring: " + feature.Value);
+                        }
                     }
                 }
                 else

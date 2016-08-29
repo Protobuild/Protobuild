@@ -3,18 +3,18 @@ using System.IO;
 
 namespace Protobuild
 {
-    internal class NoResolveCommand : ICommand
+    internal class SafeResolveCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 
-        public NoResolveCommand(IFeatureManager featureManager)
+        public SafeResolveCommand(IFeatureManager featureManager)
         {
             _featureManager = featureManager;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
         {
-            pendingExecution.DisablePackageResolution = true;
+            pendingExecution.SafePackageResolution = true;
         }
 
         public int Execute(Execution execution)
@@ -25,8 +25,10 @@ namespace Protobuild
         public string GetDescription()
         {
             return @"
-Prevents package resolution occurring when any of the standard
-actions are used.
+Prevents package resolution from aggressively removing content
+from the directories where packages will be resolved to.  You
+only need to enable this option if you have package directories
+which are written to by another process (e.g. git submodules).
 ";
         }
 
