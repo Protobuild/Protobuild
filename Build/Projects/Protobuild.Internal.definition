@@ -138,6 +138,7 @@
     <Compile Include="CommandLine\RepushPackageCommand.cs" />
     <Compile Include="CommandLine\ResolveCommand.cs" />
     <Compile Include="CommandLine\ResyncCommand.cs" />
+    <Compile Include="CommandLine\SafeResolveCommand.cs" />
     <Compile Include="CommandLine\ServiceSpecificationCommand.cs" />
     <Compile Include="CommandLine\SimulateHostPlatformCommand.cs" />
     <Compile Include="CommandLine\StartCommand.cs" />

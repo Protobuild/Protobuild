@@ -75,8 +75,12 @@ namespace Protobuild
         public bool DisableProjectGeneration { get; set; }
 
         public bool DisableHostProjectGeneration { get; set; }
+
         public string BuildProcessArchitecture { get; set; }
+
         public bool? UseTaskParallelisation { get; set; }
+
+        public bool? SafePackageResolution { get; set; }
 
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {

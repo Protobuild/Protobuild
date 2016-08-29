@@ -67,7 +67,8 @@ namespace Protobuild
                 execution.Platform ?? _hostPlatformDetector.DetectPlatform(),
                 null,
                 null,
-                true);
+                true,
+                execution.SafePackageResolution);
 
             return 0;
         }

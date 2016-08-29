@@ -48,14 +48,15 @@ namespace Protobuild
         public bool PerformAction(
             ModuleInfo module, 
             string action, 
-            string platform = null, 
-            string[] enabledServices = null, 
-            string[] disabledServices = null, 
-            string serviceSpecPath = null,
-            bool debugServiceResolution = false,
-            bool disablePackageResolution = false,
-            bool disableHostPlatformGeneration = false,
-            bool? taskParallelisation = null)
+            string platform, 
+            string[] enabledServices, 
+            string[] disabledServices, 
+            string serviceSpecPath,
+            bool debugServiceResolution,
+            bool disablePackageResolution,
+            bool disableHostPlatformGeneration,
+            bool? taskParallelisation,
+            bool? safeResolve)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
@@ -176,7 +177,7 @@ namespace Protobuild
             // Resolve submodules as needed.
             if (!disablePackageResolution)
             {
-                this.m_PackageManager.ResolveAll(module, primaryPlatform, taskParallelisation);
+                this.m_PackageManager.ResolveAll(module, primaryPlatform, taskParallelisation, false, safeResolve);
             }
 
             // Create the list of multiple platforms.
@@ -280,7 +281,7 @@ namespace Protobuild
                 // Resolve submodules as needed.
                 if (!disablePackageResolution)
                 {
-                    this.m_PackageManager.ResolveAll(module, platformIter, taskParallelisation);
+                    this.m_PackageManager.ResolveAll(module, platformIter, taskParallelisation, false, safeResolve);
                 }
 
                 switch (action.ToLower())
@@ -339,7 +340,7 @@ namespace Protobuild
                 // Resolve submodules as needed.
                 if (!disablePackageResolution)
                 {
-                    this.m_PackageManager.ResolveAll(module, hostPlatform, taskParallelisation);
+                    this.m_PackageManager.ResolveAll(module, hostPlatform, taskParallelisation, false, safeResolve);
                 }
 
                 switch (action.ToLower())
@@ -410,14 +411,15 @@ namespace Protobuild
         /// <param name="taskParallelisation">Whether to enable or disable task generation, or null for the default behaviour.</param>
         public bool DefaultAction(
             ModuleInfo module, 
-            string platform = null, 
-            string[] enabledServices = null, 
-            string[] disabledServices = null, 
-            string serviceSpecPath = null,
-            bool debugServiceResolution = false,
-            bool disablePackageResolution = false,
-            bool disableHostPlatformGeneration = false,
-            bool? taskParallelisation = null)
+            string platform, 
+            string[] enabledServices, 
+            string[] disabledServices, 
+            string serviceSpecPath,
+            bool debugServiceResolution,
+            bool disablePackageResolution,
+            bool disableHostPlatformGeneration,
+            bool? taskParallelisation,
+            bool? safeResolve)
         {
             return PerformAction(
                 module, 
@@ -429,7 +431,8 @@ namespace Protobuild
                 debugServiceResolution,
                 disablePackageResolution,
                 disableHostPlatformGeneration,
-                taskParallelisation);
+                taskParallelisation,
+                safeResolve);
         }
 
         /// <summary>

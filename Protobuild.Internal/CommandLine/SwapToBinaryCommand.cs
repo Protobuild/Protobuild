@@ -44,7 +44,7 @@ namespace Protobuild
                 if (submodule.Uri == execution.PackageUrl)
                 {
                     Console.WriteLine("Switching to binary: " + submodule.Uri);
-                    this.m_PackageManager.Resolve(module, submodule, platform, null, false);
+                    this.m_PackageManager.Resolve(module, submodule, platform, null, false, false, execution.SafePackageResolution);
                     done = true;
                     break;
                 }

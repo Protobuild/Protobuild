@@ -19,7 +19,7 @@
             var src = this.SetupSrcPackage();
             try
             {
-                this.Generate(args: "--redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src);
+                this.Generate(args: "--safe-resolve --redirect http://protobuild.org/hach-que/TestEmptyPackage local-git://" + src);
 
                 _assert.True(File.Exists(this.GetPath("Package\\empty.txt")));
                 _assert.False(File.Exists(this.GetPath("Package\\.pkg")));

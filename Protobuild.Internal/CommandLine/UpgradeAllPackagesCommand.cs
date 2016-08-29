@@ -44,7 +44,8 @@ namespace Protobuild
                     platform,
                     null,
                     null,
-                    true);
+                    true,
+                    execution.SafePackageResolution);
             }
 
             return 0;

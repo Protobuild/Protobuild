@@ -37,7 +37,8 @@ namespace Protobuild
                     execution.DebugServiceResolution,
                     execution.DisablePackageResolution,
                     execution.DisableHostProjectGeneration,
-                    execution.UseTaskParallelisation)
+                    execution.UseTaskParallelisation,
+                    execution.SafePackageResolution)
                     ? 0
                     : 1;
             }

@@ -79,6 +79,15 @@ namespace Protobuild
                 "IDE editor integrations will not be available",
             })]
         HostPlatformGeneration,
+
+        [FeatureDescription(
+            "Turns off safe package resolution by default.",
+            new[]
+            {
+                "Package directories will not be removed if needed upon package resolution",
+                "Builds may fail when files are missing due to package resolution skipping directories",
+            })]
+        SafeResolutionDisabled,
     }
 }
 

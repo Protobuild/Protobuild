@@ -44,7 +44,7 @@ namespace Protobuild
                 if (submodule.Uri == execution.PackageUrl)
                 {
                     Console.WriteLine("Switching to source: " + submodule.Uri);
-                    this.m_PackageManager.Resolve(module, submodule, platform, null, true);
+                    this.m_PackageManager.Resolve(module, submodule, platform, null, true, false, execution.SafePackageResolution);
                     done = true;
                     break;
                 }
