@@ -54,7 +54,7 @@ namespace Protobuild
             };
 
             Console.WriteLine("Installing " + url + "...");
-            this.m_PackageManager.Resolve(null, package, this.m_HostPlatformDetector.DetectPlatform(), null, false, true);
+            this.m_PackageManager.Resolve(null, package, this.m_HostPlatformDetector.DetectPlatform(), null, false, true, false);
 
             return 0;
         }
