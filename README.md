@@ -10,6 +10,18 @@ Getting Started
 
 Whether you're looking to start using Protobuild in your own project, or using it to generate an existing project, documentation such as usage guides can be found on [Read the Docs](https://protobuild.readthedocs.org/).
 
+Build Status
+-------------
+
+|     | Status |
+| --- | ----- |
+| **Core Projects** |  |
+| Protobuild | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=Protobuild/Protobuild/master) |
+| Protobuild Manager | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=Protobuild/Protobuild.Manager/master) |
+| Protobuild for Visual Studio | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=Protobuild/Protobuild.IDE.VisualStudio/master) |
+| **Supporting Projects** |  |
+| JSIL for Web Projects | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=RedpointGames/JSIL/master) |
+
 Overview
 ----------
 
