@@ -1,16 +1,14 @@
 using System.Xml;
 using System.Xml.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Xml.Serialization;
+using LegacyModuleInfo = Protobuild.Legacy.ModuleInfo;
 
 namespace Protobuild
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Xml.Serialization;
-
     /// <summary>
     /// Represents a Protobuild module.
     /// </summary>
@@ -138,17 +136,21 @@ namespace Protobuild
         /// <returns>The loaded Protobuild module.</returns>
         public static ModuleInfo Load(string xmlFile)
         {
+            var modulePath = new FileInfo(xmlFile).Directory.Parent.FullName;
             return LoadInternal(
                 XDocument.Load(xmlFile),
-                new FileInfo(xmlFile).Directory.Parent.FullName,
+                modulePath,
                 () =>
                 {
                     // This is a previous module info format.
-                    var serializer = new XmlSerializer(typeof(ModuleInfo));
+                    var serializer = new XmlSerializer(typeof(LegacyModuleInfo));
                     var reader = new StreamReader(xmlFile);
-                    var module = (ModuleInfo)serializer.Deserialize(reader);
-                    module.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
+                    var legacyModule = (LegacyModuleInfo)serializer.Deserialize(reader);
+                    legacyModule.Path = new FileInfo(xmlFile).Directory.Parent.FullName;
                     reader.Close();
+
+                    // Migrate from the old format.
+                    var module = UpgradeFromOlderFormat(legacyModule, modulePath);
 
                     // Re-save in the new format.
                     if (xmlFile == System.IO.Path.Combine("Build", "Module.xml"))
@@ -158,6 +160,35 @@ namespace Protobuild
 
                     return module;
                 });
+        }
+
+        private static ModuleInfo UpgradeFromOlderFormat(LegacyModuleInfo legacyModule, string modulePath)
+        {
+            var module = new ModuleInfo();
+            module.Name = legacyModule.Name;
+            module.Path = modulePath;
+            module.DefaultAction = legacyModule.DefaultAction;
+            module.DefaultWindowsPlatforms = legacyModule.DefaultWindowsPlatforms;
+            module.DefaultMacOSPlatforms = legacyModule.DefaultMacOSPlatforms;
+            module.DefaultLinuxPlatforms = legacyModule.DefaultLinuxPlatforms;
+            module.GenerateNuGetRepositories = legacyModule.GenerateNuGetRepositories;
+            module.SupportedPlatforms = legacyModule.SupportedPlatforms;
+            module.DisableSynchronisation = legacyModule.DisableSynchronisation;
+            module.DefaultStartupProject = legacyModule.DefaultStartupProject;
+            module.Packages = new List<PackageRef>();
+            if (legacyModule.Packages != null)
+            {
+                foreach (var oldPkg in legacyModule.Packages)
+                {
+                    module.Packages.Add(new PackageRef
+                    {
+                        Folder = oldPkg.Folder,
+                        GitRef = oldPkg.GitRef,
+                        Uri = oldPkg.Uri
+                    });
+                }
+            }
+            return module;
         }
 
         private static ModuleInfo LoadInternal(XDocument doc, string modulePath, Func<ModuleInfo> fallback)

@@ -209,6 +209,7 @@
     <Compile Include="Generation\SolutionInputGenerator.cs" />
     <Compile Include="JSIL\IJSILProvider.cs" />
     <Compile Include="JSIL\JSILProvider.cs" />
+    <Compile Include="LegacyModuleInfo.cs" />
     <Compile Include="LoadedDefinitionInfo.cs" />
     <Compile Include="ModuleInfo.cs" />
     <Compile Include="Packages\AutomaticPackager\AutomaticModulePackager.cs" />
