@@ -218,8 +218,10 @@
     <Compile Include="Packages\AutomaticPackager\IAutomaticModulePackager.cs" />
     <Compile Include="Packages\AutomaticPackager\IDeduplicator.cs" />
     <Compile Include="Packages\AutomaticPackager\IProjectOutputPathCalculator.cs" />
+    <Compile Include="Packages\AutomaticPackager\NuGetAutomaticModulePackager.cs" />
     <Compile Include="Packages\AutomaticPackager\OutputPathMode.cs" />
     <Compile Include="Packages\AutomaticPackager\ProjectOutputPathCalculator.cs" />
+    <Compile Include="Packages\AutomaticPackager\ProtobuildAutomaticModulePackager.cs" />
     <Compile Include="Packages\GetProtobuildPackageBinaryDelegate.cs" />
     <Compile Include="Packages\GitUtils.cs" />
     <Compile Include="Packages\IPackageManager.cs" />
@@ -273,6 +275,7 @@
     <Compile Include="Packages\ResolveMetadataDelegate.cs" />
     <Compile Include="PathUtils.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ProgressRenderer\AddFilesProgressRenderer.cs" />
     <Compile Include="ProgressRenderer\BaseProgressRenderer.cs" />
     <Compile Include="ProgressRenderer\CompressProgressRenderer.cs" />
     <Compile Include="ProgressRenderer\DedupProgressRenderer.cs" />

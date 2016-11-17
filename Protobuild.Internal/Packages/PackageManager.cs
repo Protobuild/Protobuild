@@ -31,6 +31,8 @@ namespace Protobuild
 
         public const string ARCHIVE_FORMAT_TAR_GZIP = "tar/gzip";
 
+        public const string ARCHIVE_FORMAT_NUGET_ZIP = "nuget/zip";
+
         public const string PACKAGE_TYPE_LIBRARY = "library";
 
         public const string PACKAGE_TYPE_TEMPLATE = "template";

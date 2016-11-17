@@ -23,6 +23,7 @@ namespace Protobuild
             {
                 case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                 case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
                     pendingExecution.PackageFormat = args[0];
                     break;
                 default:

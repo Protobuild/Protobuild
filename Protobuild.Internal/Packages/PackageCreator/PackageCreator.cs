@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -24,20 +25,65 @@ namespace Protobuild
                 switch (packageFormat)
                 {
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                        {
-                            Console.WriteLine("Writing package in tar/gzip format...");
-                            break;
-                        }
+                        Console.WriteLine("Writing package in tar/gzip format...");
+                        break;
+                    case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
+                        Console.WriteLine("Writing package in NuGet ZIP format... (this is experimental!)");
+                        break;
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
-                        {
-                            Console.WriteLine("Writing package in tar/lzma format...");
-                            break;
-                        }
+                        Console.WriteLine("Writing package in tar/lzma format...");
+                        break;
                 }
 
                 switch (packageFormat)
                 {
+                    case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
+                        {
+                            using (var zip = ZipStorer.Create(target, string.Empty))
+                            {
+                                Console.WriteLine("Adding files to package...");
+
+                                var progressHelper = new AddFilesProgressRenderer(filter.Count());
+                                var current = 0;
+
+                                var uniqueFiles = new HashSet<string>();
+
+                                foreach (var kv in filter.OrderBy(kv => kv.Value))
+                                {
+                                    if (kv.Value.EndsWith("/"))
+                                    {
+                                        // Directory - do nothing
+                                    }
+                                    else
+                                    {
+                                        var realFile = Path.Combine(basePath, kv.Key);
+
+                                        if (uniqueFiles.Contains(kv.Value))
+                                        {
+                                            // Already exists - do nothing
+                                        }
+                                        else
+                                        {
+                                            zip.AddFile(
+                                                ZipStorer.Compression.Deflate,
+                                                realFile,
+                                                kv.Value,
+                                                string.Empty);
+                                            uniqueFiles.Add(kv.Value);
+                                        }
+                                    }
+
+                                    current++;
+
+                                    progressHelper.SetProgress(current);
+                                }
+
+                                progressHelper.FinalizeRendering();
+                            }
+
+                            break;
+                        }
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
@@ -105,6 +151,9 @@ namespace Protobuild
 
                 switch (packageFormat)
                 {
+                    case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
+                        // No need to compress anything further.
+                        break;
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                         {
                             Console.WriteLine("Compressing package...");

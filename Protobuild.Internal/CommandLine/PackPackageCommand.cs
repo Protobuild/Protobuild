@@ -108,7 +108,8 @@ namespace Protobuild
                                     execution,
                                     rootModule,
                                     execution.PackageSourceFolder,
-                                    execution.PackagePlatform,
+                                    execution.PackagePlatform, 
+                                    execution.PackageFormat,
                                     temporaryFiles);
                             }
                             else
