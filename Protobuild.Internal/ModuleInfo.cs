@@ -39,6 +39,24 @@ namespace Protobuild
         public string Name { get; set; }
 
         /// <summary>
+        /// Gets or sets the authors of the module.
+        /// </summary>
+        /// <value>The name or names of the authors.</value>
+        public string Authors { get; set; }
+
+        /// <summary>
+        /// Gets or sets the description of the module.
+        /// </summary>
+        /// <value>The description of the module.</value>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Gets or sets the semantic version of the module.
+        /// </summary>
+        /// <value>The semantic version of the module.</value>
+        public string SemanticVersion { get; set; }
+
+        /// <summary>
         /// The root path of this module.
         /// </summary>
         public string Path { get; set; }
@@ -217,6 +235,9 @@ namespace Protobuild
             };
             
             def.Name = getStringValue("Name");
+            def.Authors = getStringValue("Authors");
+            def.Description = getStringValue("Description");
+            def.SemanticVersion = getStringValue("SemanticVersion");
             def.Path = modulePath;
             def.DefaultAction = getStringValue("DefaultAction");
             def.DefaultLinuxPlatforms = getStringValue("DefaultLinuxPlatforms");
@@ -495,6 +516,9 @@ namespace Protobuild
             };
 
             createStringElement("Name", Name);
+            createStringElement("Authors", Authors);
+            createStringElement("Description", Description);
+            createStringElement("SemanticVersion", SemanticVersion);
             createStringElement("DefaultAction", DefaultAction);
             createStringElement("DefaultLinuxPlatforms", DefaultLinuxPlatforms);
             createStringElement("DefaultMacOSPlatforms", DefaultMacOSPlatforms);

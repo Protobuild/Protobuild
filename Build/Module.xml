@@ -1,6 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Module>
   <Name>Protobuild</Name>
+  <Authors>.NET Foundation</Authors>
+  <Description>Protobuild is a cross-platform project generator for C#.</Description>
   <DefaultAction>resync</DefaultAction>
   <DisableSynchronisation>false</DisableSynchronisation>
   <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
