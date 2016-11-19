@@ -178,6 +178,12 @@ namespace Protobuild.Internal
             // Resolve Git reference to Git commit hash.
             var gitCommit = resolvedHash.ContainsKey(request.GitRef) ? resolvedHash[request.GitRef] : request.GitRef;
 
+            if (string.IsNullOrWhiteSpace(sourceUri))
+            {
+                // Normalize source URI value.
+                sourceUri = null;
+            }
+
             string fileUri, archiveType;
             if (!downloadMap.ContainsKey(gitCommit))
             {
