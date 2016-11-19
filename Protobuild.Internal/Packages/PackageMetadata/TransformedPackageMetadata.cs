@@ -28,7 +28,9 @@
 
         string ICachableBinaryPackageMetadata.GitCommitOrRef => GitRef;
 
-        string ICachableBinaryPackageMetadata.BinaryFormat => PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+        string IBinaryPackageMetadata.BinaryUri => null;
+
+        string IBinaryPackageMetadata.BinaryFormat => PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
 
         public string GitRef { get; }
 

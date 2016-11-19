@@ -247,6 +247,7 @@
     <Compile Include="Packages\PackageMetadata\GitPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\ICachableBinaryPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\IPackageMetadata.cs" />
+    <Compile Include="Packages\PackageMetadata\NuGet3PackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\ProtobuildPackageMetadata.cs" />
     <Compile Include="Packages\PackageMetadata\TransformedPackageMetadata.cs" />
     <Compile Include="Packages\PackageNameLookup.cs" />
@@ -255,6 +256,7 @@
     <Compile Include="Packages\PackageProtocol\LocalProtobuildPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\LocalTemplateGitPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\LocalTemplatePackageProtocol.cs" />
+    <Compile Include="Packages\PackageProtocol\NuGet3PackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\NuGetPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\ProtobuildPackageProtocol.cs" />
     <Compile Include="Packages\PackageRedirector\IPackageRedirector.cs" />

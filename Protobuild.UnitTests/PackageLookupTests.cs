@@ -129,7 +129,7 @@ namespace Protobuild.UnitTests
             _assert.Equal("http://protobuild.org/hach-que/TestEmptyPackage", protobuildMetadata.ReferenceURI);
             _assert.Equal("50a2a4e9b12739b20932d152e211239db88cbb49", protobuildMetadata.GitCommit);
             _assert.Equal(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, protobuildMetadata.BinaryFormat);
-            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryURI);
+            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryUri);
             _assert.Null(protobuildMetadata.SourceURI);
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
             _assert.Equal("Windows", protobuildMetadata.Platform);
@@ -143,7 +143,7 @@ namespace Protobuild.UnitTests
             _assert.Equal("https://protobuild.org/hach-que/TestEmptyPackage", protobuildMetadata.ReferenceURI);
             _assert.Equal("50a2a4e9b12739b20932d152e211239db88cbb49", protobuildMetadata.GitCommit);
             _assert.Equal(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, protobuildMetadata.BinaryFormat);
-            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryURI);
+            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryUri);
             _assert.Null(protobuildMetadata.SourceURI);
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
             _assert.Equal("Windows", protobuildMetadata.Platform);
