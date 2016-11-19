@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name>MyProject</Name>
+  <DefaultAction>resync</DefaultAction>
+  <DisableSynchronisation>false</DisableSynchronisation>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <Packages>
+    <Package Uri="https://protobuild.org/hach-que/Protobuild" Folder="Protobuild" GitRef="master" />
+    <Package Repository="https://api.nuget.org/v3/index.json" Package="Protobuild" Version="16.1119.13506" />
+  </Packages>
+</Module>
