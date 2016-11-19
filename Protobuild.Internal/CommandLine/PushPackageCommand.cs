@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Protobuild.Internal;
 
 namespace Protobuild
 {
@@ -116,7 +117,7 @@ namespace Protobuild
                                                 new Regex("version\\>[0-9]+\\.[0-9]+\\.[0-9]+\\+([^\\<]*)\\<\\/version");
 
                                             nuspecContent = regex.Replace(nuspecContent,
-                                                "version>0.0.0-GIT" + execution.PackagePushVersion + "</version");
+                                                "version>" + NuGetVersionHelper.CreateNuGetPackageVersion(execution.PackagePushVersion, execution.PackagePushPlatform) + "</version");
 
                                             using (var patchedFileStream = new MemoryStream())
                                             {
@@ -167,7 +168,7 @@ namespace Protobuild
 
                     // Push the patched package to the NuGet repository.
                     Console.WriteLine("Uploading package with Git version...");
-                    return this.PushNuGetBinary("https://www.nuget.org/api/v2/package", execution.PackagePushApiKey,
+                    return this.PushNuGetBinary(execution.PackagePushUrl, execution.PackagePushApiKey,
                         patchedPackage, execution.PackagePushIgnoreOnExisting);
                 }
             }
@@ -186,7 +187,7 @@ namespace Protobuild
                         // Note about the true argument here: We always ignore a conflict for the semantic version, as
                         // the build server may be pushing on every commit.  In this scenario, developers will leave
                         // the semantic version as-is until they're ready to release a new semantic version.
-                        return this.PushNuGetBinary("https://www.nuget.org/api/v2/package", execution.PackagePushApiKey,
+                        return this.PushNuGetBinary(execution.PackagePushUrl, execution.PackagePushApiKey,
                             memoryStream, true);
                     }
                 }
@@ -516,79 +517,25 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     }
                 }
 
+                if (result != null)
+                {
+                    var resultDecoded = Encoding.UTF8.GetString(result);
+                    if (!string.IsNullOrWhiteSpace(resultDecoded))
+                    {
+                        Console.WriteLine(Encoding.UTF8.GetString(result));
+                    }
+                    else
+                    {
+                        Console.WriteLine("Package uploaded successfully");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Package uploaded successfully");
+                }
+
                 return 0;
             }
-
-                /*
-
-
-                var request = (HttpWebRequest)WebRequest.Create(new Uri(targetUri));
-                request.ContentType = "multipart/form-data; boundary=\"" + boundary + "\"";
-                request.ContentLength = requestLength;
-                request.Method = "PUT";
-                request.AllowReadStreamBuffering = false;
-                request.AllowWriteStreamBuffering = false;
-                request.SendChunked = true;
-
-                if (!string.IsNullOrWhiteSpace(apiKey))
-                {
-                    request.Headers[ApiKeyHeader] = apiKey;
-                }
-
-                var i = 0;
-                using (var requestStream = await request.GetRequestStreamAsync())
-                {
-                    while (i < requestLength)
-                    {
-                        uploadProgressRenderer.Update((int) Math.Round(i/(double) requestLength*100), i/1048);
-                        await requestStream.WriteAsync(combinedContent, i, Math.Min(81920, requestLength - i));
-                        await requestStream.FlushAsync();
-                        i += Math.Min(81920, requestLength - i);
-                    }
-                }
-
-                Console.WriteLine("Waiting for response...");
-
-                // Try and get the response immediately while we wait for the upload task
-                // to run.  This is so we can catch errors like "Unauthorized" before we
-                // finish uploading the entire file.
-                try
-                {
-                    var response = await request.GetResponseAsync();
-                    var httpResponse = response as HttpWebResponse;
-
-                    uploadProgressRenderer.FinalizeRendering();
-
-                    if (httpResponse != null)
-                    {
-                        Console.Error.WriteLine(httpResponse.StatusDescription);
-                    }
-
-                    var responseStream = response.GetResponseStream();
-                    if (responseStream != null)
-                    {
-                        using (var streamReader = new StreamReader(responseStream))
-                        {
-                            var responseString = await streamReader.ReadToEndAsync();
-
-                            Console.Write(responseString);
-                        }
-                    }
-
-                    return 0;
-                }
-                catch (WebException webException)
-                {
-                    uploadProgressRenderer.FinalizeRendering();
-
-                    request.Abort();
-
-                    if (webException != null)
-                    {
-                    }
-                }*/
-
-            return 1;
         }
 
         private string DetectPackageType(string file)
