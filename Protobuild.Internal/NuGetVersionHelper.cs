@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Protobuild.Internal
+namespace Protobuild
 {
     public static class NuGetVersionHelper
     {
