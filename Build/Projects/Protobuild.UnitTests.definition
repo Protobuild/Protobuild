@@ -30,6 +30,9 @@
     <EmbeddedResource Include="ModuleInfos\FeatureSetIsPackageManagementAndHostPlatformGeneration.xml">
       <LogicalName>FeatureSetIsPackageManagementAndHostPlatformGeneration.xml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="ModuleInfos\Package.xml">
+      <LogicalName>Package.xml</LogicalName>
+    </EmbeddedResource>
     <None Include="Info.plist">
       <Platforms>iOS,MacOS</Platforms>
     </None>

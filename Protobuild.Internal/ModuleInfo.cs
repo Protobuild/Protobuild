@@ -278,11 +278,47 @@ namespace Protobuild
                     var packages = packagesElem.Elements();
                     foreach (var package in packages)
                     {
+                        var folder = package.Attribute(XName.Get("Folder"))?.Value;
+                        var gitRef = package.Attribute(XName.Get("GitRef"))?.Value;
+                        var uri = package.Attribute(XName.Get("Uri"))?.Value;
+
+                        var repository = package.Attribute(XName.Get("Repository"))?.Value;
+                        var packageName = package.Attribute(XName.Get("Package"))?.Value;
+                        var version = package.Attribute(XName.Get("Version"))?.Value;
+
+                        if (!string.IsNullOrWhiteSpace(repository) && !string.IsNullOrWhiteSpace(packageName) && !string.IsNullOrWhiteSpace(version))
+                        {
+                            // This is NuGet v3 package.  Rather than writing a different interface,
+                            // we just automatically form a URI that complies with the rest of the
+                            // package resolution system.
+                            uri = repository;
+                            if (!string.IsNullOrWhiteSpace(uri))
+                            {
+                                uri = uri.Replace("https://", "https-nuget-v3://");
+                                uri = uri.Replace("http://", "http-nuget-v3://");
+                                uri += $"|{packageName}";
+                            }
+
+                            gitRef = version;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(folder) && !string.IsNullOrWhiteSpace(packageName))
+                        {
+                            folder = packageName;
+                        }
+
+                        if (string.IsNullOrWhiteSpace(folder) || string.IsNullOrWhiteSpace(gitRef) ||
+                            string.IsNullOrWhiteSpace(uri))
+                        {
+                            Console.Error.WriteLine("WARNING: Invalid package declaration in module; skipping package.");
+                            continue;
+                        }
+
                         var packageRef = new PackageRef
                         {
-                            Folder = package.Attribute(XName.Get("Folder")).Value,
-                            GitRef = package.Attribute(XName.Get("GitRef")).Value,
-                            Uri = package.Attribute(XName.Get("Uri")).Value,
+                            Folder = folder,
+                            GitRef = gitRef,
+                            Uri = uri,
                             Platforms = null,
                         };
                         
@@ -511,6 +547,26 @@ namespace Protobuild
         /// <param name="xmlFile">The path to a Module.xml file.</param>
         public void Save(string xmlFile)
         {
+            using (var writer = XmlWriter.Create(xmlFile, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
+            {
+                InternalSave().Save(writer);
+            }
+        }
+
+        /// <summary>
+        /// Saves the current module to a stream.
+        /// </summary>
+        /// <param name="xmlFile">The path to a stream.</param>
+        public void Save(Stream stream)
+        {
+            using (var writer = XmlWriter.Create(stream, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
+            {
+                InternalSave().Save(writer);
+            }
+        }
+
+        private XmlDocument InternalSave()
+        {
             var doc = new XmlDocument();
 
             var root = doc.CreateElement("Module");
@@ -560,9 +616,36 @@ namespace Protobuild
                 foreach (var package in Packages)
                 {
                     var packageElem = doc.CreateElement("Package");
-                    packageElem.SetAttribute("Uri", package.Uri);
-                    packageElem.SetAttribute("Folder", package.Folder);
-                    packageElem.SetAttribute("GitRef", package.GitRef);
+
+                    if (package.Uri != null &&
+                        (package.Uri.StartsWith("https-nuget-v3://", StringComparison.InvariantCultureIgnoreCase) ||
+                         package.Uri.StartsWith("http-nuget-v3://", StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        var uriReplaced = package.Uri;
+                        uriReplaced = uriReplaced.Replace("https-nuget-v3://", "https://");
+                        uriReplaced = uriReplaced.Replace("http-nuget-v3://", "http://");
+
+                        var components = uriReplaced.Split(new[] {'|'}, 2);
+
+                        var repository = components[0];
+                        var packageName = components[1];
+
+                        packageElem.SetAttribute("Repository", repository);
+                        packageElem.SetAttribute("Package", packageName);
+                        packageElem.SetAttribute("Version", package.GitRef);
+
+                        if (packageName != package.Folder)
+                        {
+                            // We only need to specify this if it's different to the 
+                            packageElem.SetAttribute("Folder", package.Folder);
+                        }
+                    }
+                    else
+                    {
+                        packageElem.SetAttribute("Uri", package.Uri);
+                        packageElem.SetAttribute("Folder", package.Folder);
+                        packageElem.SetAttribute("GitRef", package.GitRef);
+                    }
 
                     if (package.Platforms != null && package.Platforms.Length > 0)
                     {
@@ -573,10 +656,7 @@ namespace Protobuild
                 }
             }
 
-            using (var writer = XmlWriter.Create(xmlFile, new XmlWriterSettings {Indent = true, IndentChars = "  "}))
-            {
-                doc.Save(writer);
-            }
+            return doc;
         }
 
         /// <summary>
