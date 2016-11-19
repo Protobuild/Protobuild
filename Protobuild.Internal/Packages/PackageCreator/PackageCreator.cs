@@ -40,7 +40,7 @@ namespace Protobuild
                 {
                     case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
                         {
-                            using (var zip = ZipStorer.Create(target, string.Empty))
+                            using (var zip = ZipStorer.Create(target, string.Empty, true))
                             {
                                 Console.WriteLine("Adding files to package...");
 

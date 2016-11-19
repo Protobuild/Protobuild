@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.IO.Compression;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Protobuild
 {
@@ -46,12 +50,153 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
+            var archiveType = this.DetectPackageType(execution.PackagePushFile);
+
+            Console.WriteLine("Detected package type as " + archiveType + ".");
+
+            switch (archiveType)
+            {
+                case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
+                    return PushToNuGetRepository(execution);
+                case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
+                case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
+                default:
+                    return PushToProtobuildRepository(execution, archiveType);
+            }
+        }
+
+        private int PushToNuGetRepository(Execution execution)
+        {
+            var ret = PushToNuGetRepository(execution, false);
+            if (ret != 0)
+            {
+                return ret;
+            }
+
+            return PushToNuGetRepository(execution, true);
+        }
+
+        private int PushToNuGetRepository(Execution execution, bool pushGitVersion)
+        {
+            if (pushGitVersion)
+            {
+                // We have to patch the package file in memory to include the Git hash
+                // as part of the version.  This is required so that Protobuild
+                // can resolve source-equivalent binary packages.
+                Console.WriteLine("Patching package file to include Git version information...");
+
+                using (var patchedPackage = new MemoryStream())
+                {
+                    using (var patchedPackageWriter = ZipStorer.Create(patchedPackage, string.Empty, true))
+                    {
+                        using (var packageReader = ZipStorer.Open(execution.PackagePushFile, FileAccess.Read))
+                        {
+                            var entries = packageReader.ReadCentralDir();
+
+                            var progressRenderer = new PackagePatchProgressRenderer(entries.Count);
+                            var i = 0;
+
+                            foreach (var entry in packageReader.ReadCentralDir())
+                            {
+                                if (entry.FilenameInZip.EndsWith(".nuspec") && !entry.FilenameInZip.Contains("/"))
+                                {
+                                    // This is the NuGet specification file in the root of the package
+                                    // that we need to patch.
+                                    using (var fileStream = new MemoryStream())
+                                    {
+                                        packageReader.ExtractFile(entry, fileStream);
+                                        fileStream.Seek(0, SeekOrigin.Begin);
+                                        string nuspecContent;
+                                        using (
+                                            var reader = new StreamReader(fileStream, Encoding.UTF8, true, 4096, true))
+                                        {
+                                            nuspecContent = reader.ReadToEnd();
+
+                                            var regex =
+                                                new Regex("version\\>[0-9]+\\.[0-9]+\\.[0-9]+\\+([^\\<]*)\\<\\/version");
+
+                                            nuspecContent = regex.Replace(nuspecContent,
+                                                "version>0.0.0-GIT" + execution.PackagePushVersion + "</version");
+
+                                            using (var patchedFileStream = new MemoryStream())
+                                            {
+                                                using (
+                                                    var writer = new StreamWriter(patchedFileStream, Encoding.UTF8, 4096,
+                                                        true))
+                                                {
+                                                    writer.Write(nuspecContent);
+                                                    writer.Flush();
+                                                    patchedFileStream.Seek(0, SeekOrigin.Begin);
+                                                    patchedPackageWriter.AddStream(
+                                                        entry.Method,
+                                                        entry.FilenameInZip,
+                                                        patchedFileStream,
+                                                        entry.ModifyTime,
+                                                        entry.Comment,
+                                                        true);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    using (var fileStream = new MemoryStream())
+                                    {
+                                        packageReader.ExtractFile(entry, fileStream);
+                                        fileStream.Seek(0, SeekOrigin.Begin);
+                                        patchedPackageWriter.AddStream(
+                                            entry.Method,
+                                            entry.FilenameInZip,
+                                            fileStream,
+                                            entry.ModifyTime,
+                                            entry.Comment,
+                                            true);
+                                    }
+                                }
+
+                                i++;
+                                progressRenderer.SetProgress(i);
+                            }
+
+                            progressRenderer.FinalizeRendering();
+                        }
+                    }
+
+                    patchedPackage.Seek(0, SeekOrigin.Begin);
+
+                    // Push the patched package to the NuGet repository.
+                    Console.WriteLine("Uploading package with Git version...");
+                    return this.PushNuGetBinary("https://www.nuget.org/api/v2/package", execution.PackagePushApiKey,
+                        patchedPackage, execution.PackagePushIgnoreOnExisting);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Uploading package with semantic version...");
+                using (
+                    var stream = new FileStream(execution.PackagePushFile, FileMode.Open, FileAccess.Read,
+                        FileShare.Read))
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        stream.CopyTo(memoryStream);
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+
+                        // Note about the true argument here: We always ignore a conflict for the semantic version, as
+                        // the build server may be pushing on every commit.  In this scenario, developers will leave
+                        // the semantic version as-is until they're ready to release a new semantic version.
+                        return this.PushNuGetBinary("https://www.nuget.org/api/v2/package", execution.PackagePushApiKey,
+                            memoryStream, true);
+                    }
+                }
+            }
+        }
+
+        private int PushToProtobuildRepository(Execution execution, string archiveType)
+        {
             using (var client = new RetryableWebClient())
             {
-                var archiveType = this.DetectPackageType(execution.PackagePushFile);
-
-                Console.WriteLine("Detected package type as " + archiveType + ".");
-
                 Console.WriteLine("Creating new package version...");
 
                 if (execution.PackagePushVersion.StartsWith("hash:", StringComparison.InvariantCulture))
@@ -236,6 +381,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                         uploadProgressRenderer.Update(e.ProgressPercentage, e.BytesSent / 1024);
                     }
                 };
+
                 client.UploadDataAsync(new Uri(targetUri), "PUT", bytes);
                 while (!done)
                 {
@@ -253,21 +399,210 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
             }
         }
 
+        private int PushNuGetBinary(string targetUri, string apiKey, MemoryStream file, bool ignoreOnExisting)
+        {
+            var task = Task.Run(async () => await PushNuGetBinaryAsync(targetUri, apiKey, file, ignoreOnExisting));
+            task.Wait();
+            return task.Result;
+        }
+
+        private async Task<int> PushNuGetBinaryAsync(string targetUri, string apiKey, MemoryStream file, bool ignoreOnExisting)
+        {
+            byte[] fileBytes;
+            fileBytes = new byte[(int)file.Length];
+            file.Read(fileBytes, 0, fileBytes.Length);
+
+            const string ApiKeyHeader = "X-NuGet-ApiKey";
+
+            var boundary = Guid.NewGuid().ToString();
+
+            int requestLength;
+            byte[] combinedContent;
+            using (var requestContent = new MemoryStream())
+            {
+                byte[] boundaryBytes = Encoding.UTF8.GetBytes("--" + boundary + "\r\n");
+                byte[] trailer = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
+                string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
+                string fileheaderTemplate =
+                    "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\";\r\nContent-Type: {2}\r\n\r\n";
+
+                Action<Stream, string> writeString = (_stream, _txt) =>
+                {
+                    byte[] bytes = Encoding.UTF8.GetBytes(_txt);
+                    _stream.Write(bytes, 0, bytes.Length);
+                };
+
+                requestContent.Write(boundaryBytes, 0, boundaryBytes.Length);
+                writeString(requestContent,
+                    string.Format(fileheaderTemplate, "package", "package.nupkg", "application/octet-stream"));
+                requestContent.Write(fileBytes, 0, fileBytes.Length);
+                requestContent.Write(trailer, 0, trailer.Length);
+
+                requestLength = (int)requestContent.Position;
+                requestContent.Seek(0, SeekOrigin.Begin);
+                combinedContent = new byte[requestLength];
+                await requestContent.ReadAsync(combinedContent, 0, requestLength);
+            }
+                
+            using (var client = new RetryableWebClient())
+            {
+                var done = false;
+                byte[] result = null;
+                Exception ex = null;
+                var uploadProgressRenderer = new UploadProgressRenderer();
+                client.UploadDataCompleted += (sender, e) => {
+                    if (e.Error != null)
+                    {
+                        ex = e.Error;
+                    }
+
+                    try
+                    {
+                        result = e.Result;
+                    }
+                    catch { }
+                    done = true;
+                };
+                client.UploadProgressChanged += (sender, e) => {
+                    if (!done)
+                    {
+                        uploadProgressRenderer.Update(e.ProgressPercentage, e.BytesSent / 1024);
+                    }
+                };
+
+                client.SetHeader("Content-Type", "multipart/form-data; boundary=\"" + boundary + "\"");
+                if (!string.IsNullOrWhiteSpace(apiKey))
+                {
+                    client.SetHeader(ApiKeyHeader, apiKey);
+                }
+
+                client.UploadDataAsync(new Uri(targetUri), "PUT", combinedContent);
+                while (!done)
+                {
+                    System.Threading.Thread.Sleep(0);
+                }
+
+                uploadProgressRenderer.FinalizeRendering();
+
+                if (ex != null)
+                {
+                    var webException = ex as WebException;
+                    if (webException != null)
+                    {
+                        var httpResponse = webException.Response as HttpWebResponse;
+                        if (httpResponse != null)
+                        {
+                            Console.Error.WriteLine(httpResponse.StatusDescription);
+
+                            if (httpResponse.StatusCode == HttpStatusCode.Conflict)
+                            {
+                                if (ignoreOnExisting)
+                                {
+                                    // This is okay - the user doesn't care if there's an existing package with the same version.
+                                    return 0;
+                                }
+                                else
+                                {
+                                    return 1;
+                                }
+                            }
+
+                            return 1;
+                        }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Upload error", ex);
+                    }
+                }
+
+                return 0;
+            }
+
+                /*
+
+
+                var request = (HttpWebRequest)WebRequest.Create(new Uri(targetUri));
+                request.ContentType = "multipart/form-data; boundary=\"" + boundary + "\"";
+                request.ContentLength = requestLength;
+                request.Method = "PUT";
+                request.AllowReadStreamBuffering = false;
+                request.AllowWriteStreamBuffering = false;
+                request.SendChunked = true;
+
+                if (!string.IsNullOrWhiteSpace(apiKey))
+                {
+                    request.Headers[ApiKeyHeader] = apiKey;
+                }
+
+                var i = 0;
+                using (var requestStream = await request.GetRequestStreamAsync())
+                {
+                    while (i < requestLength)
+                    {
+                        uploadProgressRenderer.Update((int) Math.Round(i/(double) requestLength*100), i/1048);
+                        await requestStream.WriteAsync(combinedContent, i, Math.Min(81920, requestLength - i));
+                        await requestStream.FlushAsync();
+                        i += Math.Min(81920, requestLength - i);
+                    }
+                }
+
+                Console.WriteLine("Waiting for response...");
+
+                // Try and get the response immediately while we wait for the upload task
+                // to run.  This is so we can catch errors like "Unauthorized" before we
+                // finish uploading the entire file.
+                try
+                {
+                    var response = await request.GetResponseAsync();
+                    var httpResponse = response as HttpWebResponse;
+
+                    uploadProgressRenderer.FinalizeRendering();
+
+                    if (httpResponse != null)
+                    {
+                        Console.Error.WriteLine(httpResponse.StatusDescription);
+                    }
+
+                    var responseStream = response.GetResponseStream();
+                    if (responseStream != null)
+                    {
+                        using (var streamReader = new StreamReader(responseStream))
+                        {
+                            var responseString = await streamReader.ReadToEndAsync();
+
+                            Console.Write(responseString);
+                        }
+                    }
+
+                    return 0;
+                }
+                catch (WebException webException)
+                {
+                    uploadProgressRenderer.FinalizeRendering();
+
+                    request.Abort();
+
+                    if (webException != null)
+                    {
+                    }
+                }*/
+
+            return 1;
+        }
+
         private string DetectPackageType(string file)
         {
             using (var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None))
             {
                 try
                 {
-                    using (var gzip = new GZipStream(stream, CompressionMode.Decompress, true))
+                    using (var zip = ZipStorer.Open(stream, FileAccess.Read, false))
                     {
-                        using (var reader = new StreamReader(gzip))
-                        {
-                            reader.ReadToEnd();
-                        }
-                    }
+                        zip.ReadCentralDir();
 
-                    return PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
+                        return PackageManager.ARCHIVE_FORMAT_NUGET_ZIP;
+                    }
                 }
                 catch (ExecEnvironment.SelfInvokeExitException)
                 {
@@ -279,12 +614,15 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
                     try
                     {
-                        using (var memory = new MemoryStream())
+                        using (var gzip = new GZipStream(stream, CompressionMode.Decompress, true))
                         {
-                            LZMA.LzmaHelper.Decompress(stream, memory);
+                            using (var reader = new StreamReader(gzip))
+                            {
+                                reader.ReadToEnd();
+                            }
                         }
 
-                        return PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                        return PackageManager.ARCHIVE_FORMAT_TAR_GZIP;
                     }
                     catch (ExecEnvironment.SelfInvokeExitException)
                     {
@@ -292,7 +630,25 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     }
                     catch
                     {
-                        throw new InvalidOperationException("Package format not recognised for " + file);
+                        stream.Seek(0, SeekOrigin.Begin);
+
+                        try
+                        {
+                            using (var memory = new MemoryStream())
+                            {
+                                LZMA.LzmaHelper.Decompress(stream, memory);
+                            }
+
+                            return PackageManager.ARCHIVE_FORMAT_TAR_LZMA;
+                        }
+                        catch (ExecEnvironment.SelfInvokeExitException)
+                        {
+                            throw;
+                        }
+                        catch
+                        {
+                            throw new InvalidOperationException("Package format not recognised for " + file);
+                        }
                     }
                 }
             }

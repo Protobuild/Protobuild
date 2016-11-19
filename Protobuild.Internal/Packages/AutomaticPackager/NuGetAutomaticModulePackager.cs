@@ -130,7 +130,7 @@ namespace Protobuild
                 (dict, d) => Console.WriteLine ("WARNING: More than one file maps to " + d.Key));
             if (!filterDictionary.ContainsValue("Build/Module.xml"))
             {
-                fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "Build/Module.xml");
+                fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "protobuild/Build/Module.xml");
             }
 
             // Add required NuGet content.
@@ -187,19 +187,46 @@ namespace Protobuild
             package.AppendChild(metadata);
 
             var id = document.CreateElement(null, "id", specPrefix);
-            var description = document.CreateElement(null, "description", specPrefix);
             var version = document.CreateElement(null, "version", specPrefix);
+            var title = document.CreateElement(null, "title", specPrefix);
             var authors = document.CreateElement(null, "authors", specPrefix);
+            var licenseUrl = document.CreateElement(null, "licenseUrl", specPrefix);
+            var projectUrl = document.CreateElement(null, "projectUrl", specPrefix);
+            var iconUrl = document.CreateElement(null, "iconUrl", specPrefix);
+            var requireLicenseAcceptance = document.CreateElement(null, "requireLicenseAcceptance", specPrefix);
+            var description = document.CreateElement(null, "description", specPrefix);
+            var tags = document.CreateElement(null, "tags", specPrefix);
 
             id.InnerText = module.Name;
             version.InnerText = GenerateNuGetSemanticVersion(module);
-            description.InnerText = module.Description ?? "No Description Specified";
+            title.InnerText = module.Name;
             authors.InnerText = module.Authors ?? "No Authors Specified";
+            licenseUrl.InnerText = module.LicenseUrl;
+            projectUrl.InnerText = module.ProjectUrl;
+            iconUrl.InnerText = module.IconUrl;
+            requireLicenseAcceptance.InnerText = "false";
+            description.InnerText = module.Description ?? "No Description Specified";
+            tags.InnerText = string.Empty;
 
             metadata.AppendChild(id);
-            metadata.AppendChild(description);
             metadata.AppendChild(version);
+            metadata.AppendChild(title);
             metadata.AppendChild(authors);
+            if (!string.IsNullOrWhiteSpace(module.LicenseUrl))
+            {
+                metadata.AppendChild(licenseUrl);
+            }
+            if (!string.IsNullOrWhiteSpace(module.ProjectUrl))
+            {
+                metadata.AppendChild(projectUrl);
+            }
+            if (!string.IsNullOrWhiteSpace(module.IconUrl))
+            {
+                metadata.AppendChild(iconUrl);
+            }
+            metadata.AppendChild(requireLicenseAcceptance);
+            metadata.AppendChild(description);
+            metadata.AppendChild(tags);
 
             var name = module.Name + ".nuspec";
             var temp = Path.Combine(Path.GetTempPath(), name);
@@ -215,7 +242,7 @@ namespace Protobuild
         {
             if (module.SemanticVersion != null)
             {
-                return module.SemanticVersion;
+                return module.SemanticVersion + "+git.unspecified";
             }
 
             var utcTime = DateTime.UtcNow;
@@ -227,7 +254,7 @@ namespace Protobuild
                 utcTime.Hour.ToString("D2", CultureInfo.InvariantCulture) +
                 utcTime.Minute.ToString("D2", CultureInfo.InvariantCulture) +
                 utcTime.Second.ToString("D2", CultureInfo.InvariantCulture);
-            return major + "." + minor + "." + patch;
+            return major + "." + minor + "." + patch + "+git.unspecified";
         }
 
         private void AutomaticallyPackageExternalProject(
@@ -268,7 +295,7 @@ namespace Protobuild
             {
                 externalProjectDocument.WriteTo(writer);
             }
-            fileFilter.AddManualMapping(temp, "Build/Projects/" + definition.Name + ".definition");
+            fileFilter.AddManualMapping(temp, "protobuild/Build/Projects/" + definition.Name + ".definition");
         }
 
         private void TranslateExternalProject(
@@ -325,7 +352,7 @@ namespace Protobuild
                                 var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
 
                                 var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                                fileFilter.ApplyRewrite(sourcePathRegex, destPathRegex);
+                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + destPathRegex);
                                 if (includeMatch)
                                 {
                                     if (extension == sourceFileInfo.Extension)
@@ -358,7 +385,7 @@ namespace Protobuild
                             var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
 
                             var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                            fileFilter.ApplyRewrite(sourcePathRegex, destPathRegex);
+                            fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + destPathRegex);
                             if (includeMatch)
                             {
                                 var nativeBinaryEntry = toNode.OwnerDocument.CreateElement("NativeBinary");
@@ -568,7 +595,7 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", definition.Name + "/AnyCPU/" + assemblyFile);
+                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + definition.Name + "/AnyCPU/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {
                                     if (assemblyFile.EndsWith(".dll"))
@@ -596,7 +623,7 @@ namespace Protobuild
                             // For executables, we ship everything in the output directory, because we
                             // want the executables to be able to run from the package directory.
                             fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
-                            fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/AnyCPU/$2");
+                            fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + definition.Name + "/AnyCPU/$2");
 
                             // Mark the executable files in the directory as tools that can be executed.
                             foreach (var assemblyFile in assemblyFilesToCopy)
@@ -652,7 +679,7 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", definition.Name + "/" + pathArchReplace + "/" + assemblyFile);
+                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + definition.Name + "/" + pathArchReplace + "/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {
                                     if (assemblyFile.EndsWith(".dll"))
@@ -683,11 +710,11 @@ namespace Protobuild
 
                             if (pathArchMatch == "([^/]+)")
                             {
-                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/" + pathArchReplace + "/$3");
+                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + definition.Name + "/" + pathArchReplace + "/$3");
                             }
                             else
                             {
-                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", definition.Name + "/" + pathArchReplace + "/$2");
+                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + definition.Name + "/" + pathArchReplace + "/$2");
                             }
 
                             // Mark the executable files in the directory as tools that can be executed.
@@ -830,7 +857,7 @@ namespace Protobuild
                                 var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
 
                                 var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                                fileFilter.ApplyRewrite(sourcePathRegex, destPathRegex);
+                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + destPathRegex);
                                 if (includeMatch)
                                 {
                                     var nativeBinaryEntry = externalProjectDocument.CreateElement("NativeBinary");
@@ -857,7 +884,7 @@ namespace Protobuild
             {
                 externalProjectDocument.WriteTo(writer);
             }
-            fileFilter.AddManualMapping(temp, "Build/Projects/" + definition.Name + ".definition");
+            fileFilter.AddManualMapping(temp, "protobuild/Build/Projects/" + definition.Name + ".definition");
         }
 
         private void AutomaticallyPackageIncludeProject(

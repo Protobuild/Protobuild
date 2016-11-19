@@ -51,6 +51,24 @@ namespace Protobuild
         public string Description { get; set; }
 
         /// <summary>
+        /// Gets or sets the URL that specifies the license for the module.
+        /// </summary>
+        /// <value>The license URL for the module.</value>
+        public string LicenseUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the URL for the project.
+        /// </summary>
+        /// <value>The project URL for the module.</value>
+        public string ProjectUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets a 64x64 icon for the module.
+        /// </summary>
+        /// <value>The URL to the 64x64 icon.</value>
+        public string IconUrl { get; set; }
+
+        /// <summary>
         /// Gets or sets the semantic version of the module.
         /// </summary>
         /// <value>The semantic version of the module.</value>
@@ -237,6 +255,9 @@ namespace Protobuild
             def.Name = getStringValue("Name");
             def.Authors = getStringValue("Authors");
             def.Description = getStringValue("Description");
+            def.ProjectUrl = getStringValue("ProjectUrl");
+            def.LicenseUrl = getStringValue("LicenseUrl");
+            def.IconUrl = getStringValue("IconUrl");
             def.SemanticVersion = getStringValue("SemanticVersion");
             def.Path = modulePath;
             def.DefaultAction = getStringValue("DefaultAction");
@@ -518,6 +539,9 @@ namespace Protobuild
             createStringElement("Name", Name);
             createStringElement("Authors", Authors);
             createStringElement("Description", Description);
+            createStringElement("ProjectUrl", ProjectUrl);
+            createStringElement("LicenseUrl", LicenseUrl);
+            createStringElement("IconUrl", IconUrl);
             createStringElement("SemanticVersion", SemanticVersion);
             createStringElement("DefaultAction", DefaultAction);
             createStringElement("DefaultLinuxPlatforms", DefaultLinuxPlatforms);

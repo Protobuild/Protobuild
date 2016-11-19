@@ -3,6 +3,9 @@
   <Name>Protobuild</Name>
   <Authors>.NET Foundation</Authors>
   <Description>Protobuild is a cross-platform project generator for C#.</Description>
+  <LicenseUrl>https://opensource.org/licenses/MIT</LicenseUrl>
+  <ProjectUrl>https://protobuild.org/</ProjectUrl>
+  <IconUrl>https://protobuild.org/favicon.png</IconUrl>
   <DefaultAction>resync</DefaultAction>
   <DisableSynchronisation>false</DisableSynchronisation>
   <GenerateNuGetRepositories>true</GenerateNuGetRepositories>

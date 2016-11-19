@@ -83,6 +83,8 @@ namespace System.IO.Compression
         private static UInt32[] CrcTable = null;
         // Default filename encoder
         private static Encoding DefaultEncoding = Encoding.GetEncoding(437);
+        // Leave underlying stream open?
+        private bool LeaveOpen;
         #endregion
 
         #region Public methods
@@ -114,7 +116,7 @@ namespace System.IO.Compression
         {
             Stream stream = new FileStream(_filename, FileMode.Create, FileAccess.ReadWrite);
 
-            ZipStorer zip = Create(stream, _comment);
+            ZipStorer zip = Create(stream, _comment, false);
             zip.Comment = _comment;
             zip.FileName = _filename;
 
@@ -126,12 +128,13 @@ namespace System.IO.Compression
         /// <param name="_stream"></param>
         /// <param name="_comment"></param>
         /// <returns>A valid ZipStorer object</returns>
-        public static ZipStorer Create(Stream _stream, string _comment)
+        public static ZipStorer Create(Stream _stream, string _comment, bool _leaveOpen)
         {
             ZipStorer zip = new ZipStorer();
             zip.Comment = _comment;
             zip.ZipFileStream = _stream;
             zip.Access = FileAccess.Write;
+            zip.LeaveOpen = _leaveOpen;
 
             return zip;
         }
@@ -145,7 +148,7 @@ namespace System.IO.Compression
         {
             Stream stream = (Stream)new FileStream(_filename, FileMode.Open, _access == FileAccess.Read ? FileAccess.Read : FileAccess.ReadWrite);
 
-            ZipStorer zip = Open(stream, _access);
+            ZipStorer zip = Open(stream, _access, false);
             zip.FileName = _filename;
 
             return zip;
@@ -156,7 +159,7 @@ namespace System.IO.Compression
         /// <param name="_stream">Already opened stream with zip contents</param>
         /// <param name="_access">File access mode for stream operations</param>
         /// <returns>A valid ZipStorer object</returns>
-        public static ZipStorer Open(Stream _stream, FileAccess _access)
+        public static ZipStorer Open(Stream _stream, FileAccess _access, bool _leaveOpen)
         {
             if (!_stream.CanSeek && _access != FileAccess.Read)
                 throw new InvalidOperationException("Stream cannot seek");
@@ -165,6 +168,7 @@ namespace System.IO.Compression
             //zip.FileName = _filename;
             zip.ZipFileStream = _stream;
             zip.Access = _access;
+            zip.LeaveOpen = _leaveOpen;
 
             if (zip.ReadFileInfo())
                 return zip;
@@ -195,7 +199,7 @@ namespace System.IO.Compression
         /// <param name="_source">Stream object containing the data to store in Zip</param>
         /// <param name="_modTime">Modification time of the data to store</param>
         /// <param name="_comment">Comment for stored file</param>
-        public void AddStream(Compression _method, string _filenameInZip, Stream _source, DateTime _modTime, string _comment)
+        public void AddStream(Compression _method, string _filenameInZip, Stream _source, DateTime _modTime, string _comment, bool _leaveOpen = false)
         {
             if (Access == FileAccess.Read)
                 throw new InvalidOperationException("Writing is not alowed");
@@ -227,7 +231,10 @@ namespace System.IO.Compression
 
             // Write file to zip (store)
             Store(ref zfe, _source);
-            _source.Close();
+            if (!_leaveOpen)
+            {
+                _source.Close();
+            }
 
             this.UpdateCrcAndSizes(ref zfe);
 
@@ -263,7 +270,10 @@ namespace System.IO.Compression
             if (this.ZipFileStream != null)
             {
                 this.ZipFileStream.Flush();
-                this.ZipFileStream.Dispose();
+                if (!LeaveOpen)
+                {
+                    this.ZipFileStream.Dispose();
+                }
                 this.ZipFileStream = null;
             }
         }

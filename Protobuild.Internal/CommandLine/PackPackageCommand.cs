@@ -156,34 +156,37 @@ namespace Protobuild
 
                 var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
 
-                if (!filterDictionary.ContainsValue("Build/"))
+                if (execution.PackageFormat != PackageManager.ARCHIVE_FORMAT_NUGET_ZIP)
                 {
-                    Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
-                    if (execution.PackageFilterFile != null)
+                    if (!filterDictionary.ContainsValue("Build/"))
                     {
-                        this.PrintFilterMappings(filterDictionary);
+                        Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                        if (execution.PackageFilterFile != null)
+                        {
+                            this.PrintFilterMappings(filterDictionary);
+                        }
+                        return 1;
                     }
-                    return 1;
-                }
 
-                if (!filterDictionary.ContainsValue("Build/Projects/"))
-                {
-                    Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
-                    if (execution.PackageFilterFile != null)
+                    if (!filterDictionary.ContainsValue("Build/Projects/"))
                     {
-                        this.PrintFilterMappings(filterDictionary);
+                        Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                        if (execution.PackageFilterFile != null)
+                        {
+                            this.PrintFilterMappings(filterDictionary);
+                        }
+                        return 1;
                     }
-                    return 1;
-                }
 
-                if (!filterDictionary.ContainsValue("Build/Module.xml"))
-                {
-                    Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
-                    if (execution.PackageFilterFile != null)
+                    if (!filterDictionary.ContainsValue("Build/Module.xml"))
                     {
-                        this.PrintFilterMappings(filterDictionary);
+                        Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                        if (execution.PackageFilterFile != null)
+                        {
+                            this.PrintFilterMappings(filterDictionary);
+                        }
+                        return 1;
                     }
-                    return 1;
                 }
 
                 if (filterDictionary.ContainsValue("Protobuild.exe"))

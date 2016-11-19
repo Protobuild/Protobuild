@@ -9,6 +9,8 @@ namespace Protobuild
     {
         private readonly List<WebClient> _clientsToDispose = new List<WebClient>();
 
+        private readonly Dictionary<string, string> _headers = new Dictionary<string, string>();
+
         public event UploadDataCompletedEventHandler UploadDataCompleted;
         public event UploadProgressChangedEventHandler UploadProgressChanged;
 
@@ -16,6 +18,11 @@ namespace Protobuild
         public event DownloadProgressChangedEventHandler DownloadProgressChanged;
 
         private const int MaxRequests = 10;
+
+        public void SetHeader(string key, string value)
+        {
+            _headers[key] = value;
+        }
 
         public byte[] UploadValues(string url, NameValueCollection uploadParameters)
         {
@@ -34,6 +41,14 @@ namespace Protobuild
         }
 
         public void UploadDataAsync(Uri uri, string method, byte[] bytes)
+        {
+            var client = new AccurateWebClient(bytes.Length);
+            SetupClient(client);
+
+            PerformRetryableRequest(ProtocolOf(uri) + " " + method + " " + uri, uri, u => client.UploadDataAsync(u, method, bytes));
+        }
+
+        public void UploadDataAsync(Uri uri, string method, byte[] bytes, string contentType)
         {
             var client = new AccurateWebClient(bytes.Length);
             SetupClient(client);
@@ -216,6 +231,11 @@ namespace Protobuild
                     DownloadProgressChanged(sender, args);
                 }
             };
+
+            foreach (var kv in _headers)
+            {
+                client.Headers[kv.Key] = kv.Value;
+            }
         }
 
         private class AccurateWebClient : WebClient
