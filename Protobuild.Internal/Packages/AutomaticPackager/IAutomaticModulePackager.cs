@@ -11,6 +11,7 @@ namespace Protobuild
             ModuleInfo rootModule, 
             string rootPath,
             string platform,
+            string packageFormat,
             List<string> temporaryFiles);
     }
 }
