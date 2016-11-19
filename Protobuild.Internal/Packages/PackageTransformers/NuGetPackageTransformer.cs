@@ -65,6 +65,35 @@ namespace Protobuild
 
             var originalFolder = DownloadOrUseExistingNuGetPackage(repoUrl.TrimEnd('/'), packageName, gitReference);
 
+            if (Directory.Exists(Path.Combine(originalFolder, "protobuild")))
+            {
+                // This is a Protobuild-aware NuGet package.  In this case, we just use the contents of the
+                // "protobuild" folder as the content of our package, and ignore everything else.
+                Console.WriteLine("Detected Protobuild-aware package...");
+
+                Console.WriteLine("Converting to a Protobuild package...");
+
+                var target = new MemoryStream();
+                var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(originalFolder));
+
+                filter.ApplyInclude("protobuild/(.*)");
+                filter.ApplyRewrite("protobuild/(.*)", "$1");
+
+                filter.ImplyDirectories();
+
+                _packageCreator.Create(
+                    target,
+                    filter,
+                    originalFolder,
+                    format);
+
+                Console.WriteLine("Package conversion complete.");
+                var bytes2 = new byte[target.Position];
+                target.Seek(0, SeekOrigin.Begin);
+                target.Read(bytes2, 0, bytes2.Length);
+                return bytes2;
+            }
+
             var folder = Path.GetTempFileName();
             File.Delete(folder);
             Directory.CreateDirectory(folder);
@@ -413,6 +442,21 @@ namespace Protobuild
             Console.WriteLine("Found NuGet package '" + title.Value + "'");
 
             var downloadUrl = content.Attributes().First(x => x.Name.LocalName == "src").Value;
+
+            // Some packages (like Protobuild packages), have a component of their version after a + symbol.  Even
+            // though NuGet gives us a download URL with that component in it, it doesn't actually exist when you
+            // request it.
+            var plusUrl = downloadUrl.IndexOf("%2b", StringComparison.InvariantCultureIgnoreCase);
+            if (plusUrl != -1)
+            {
+                downloadUrl = downloadUrl.Substring(0, plusUrl);
+            }
+            plusUrl = downloadUrl.IndexOf("+", StringComparison.InvariantCultureIgnoreCase);
+            if (plusUrl != -1)
+            {
+                downloadUrl = downloadUrl.Substring(0, plusUrl);
+            }
+
             var downloadedZipData = _progressiveWebOperation.Get(downloadUrl);
 
             // Save the ZIP file onto disk.
