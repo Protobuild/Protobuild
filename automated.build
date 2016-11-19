@@ -4,7 +4,7 @@ set build-target Rebuild
 set build-property Configuration Release
 set execute-configuration Release
 
-resync
+generate
 build
 if host Windows
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
