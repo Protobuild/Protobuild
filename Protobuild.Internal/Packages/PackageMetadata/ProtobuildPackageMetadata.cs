@@ -19,7 +19,7 @@
             Platform = platform;
             GitCommit = gitCommit;
             BinaryFormat = binaryFormat;
-            BinaryURI = binaryUri;
+            BinaryUri = binaryUri;
             Resolve = resolve;
             GetProtobuildPackageBinary = getProtobuildPackageBinary;
         }
@@ -44,6 +44,6 @@
 
         public string BinaryFormat { get; }
 
-        public string BinaryURI { get; }
+        public string BinaryUri { get; }
     }
 }

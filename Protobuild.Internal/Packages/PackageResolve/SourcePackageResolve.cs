@@ -23,6 +23,7 @@ namespace Protobuild
         {
             var gitMetadata = metadata as GitPackageMetadata;
             var protobuildMetadata = metadata as ProtobuildPackageMetadata;
+            var nuGet3Metadata = metadata as NuGet3PackageMetadata;
             var folderMetadata = metadata as FolderPackageMetadata;
 
             if (gitMetadata != null)
@@ -34,6 +35,12 @@ namespace Protobuild
             if (protobuildMetadata != null)
             {
                 ResolveProtobuild(protobuildMetadata, folder, templateName, forceUpgrade);
+                return;
+            }
+
+            if (nuGet3Metadata != null)
+            {
+                ResolveNuGet3(nuGet3Metadata, folder, templateName, forceUpgrade);
                 return;
             }
 
@@ -52,6 +59,20 @@ namespace Protobuild
                 new GitPackageMetadata(
                     protobuildMetadata.SourceURI,
                     protobuildMetadata.GitCommit,
+                    protobuildMetadata.PackageType,
+                    (metadata, s, name, upgrade, source) => Resolve(metadata, s, name, upgrade)
+                    ),
+                folder,
+                templateName,
+                forceUpgrade);
+        }
+
+        private void ResolveNuGet3(NuGet3PackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
+        {
+            ResolveGit(
+                new GitPackageMetadata(
+                    protobuildMetadata.SourceUri,
+                    protobuildMetadata.CommitHashForSourceResolve,
                     protobuildMetadata.PackageType,
                     (metadata, s, name, upgrade, source) => Resolve(metadata, s, name, upgrade)
                     ),

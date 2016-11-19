@@ -33,11 +33,18 @@ namespace Protobuild
         public void Resolve(IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
         {
             var protobuildMetadata = metadata as ProtobuildPackageMetadata;
+            var nuGet3Metadata = metadata as NuGet3PackageMetadata;
             var transformedMetadata = metadata as TransformedPackageMetadata;
 
             if (protobuildMetadata != null)
             {
                 ResolveProtobuild(protobuildMetadata, folder, templateName, forceUpgrade);
+                return;
+            }
+
+            if (nuGet3Metadata != null)
+            {
+                ResolveNuGet3(nuGet3Metadata, folder, templateName, forceUpgrade);
                 return;
             }
 
@@ -57,7 +64,7 @@ namespace Protobuild
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
                     ResolveLibraryBinary(protobuildMetadata, folder, forceUpgrade, () =>
                     {
-                        var package = GetProtobuildBinaryPackage(protobuildMetadata);
+                        var package = GetBinaryPackage(protobuildMetadata);
                         if (package == null)
                         {
                             _sourcePackageResolve.Resolve(protobuildMetadata, folder, null, forceUpgrade);
@@ -74,6 +81,33 @@ namespace Protobuild
                     break;
                 default:
                     throw new InvalidOperationException("Unable to resolve binary package with type '" + protobuildMetadata.PackageType + "' using Protobuild-based package.");
+            }
+        }
+
+        private void ResolveNuGet3(NuGet3PackageMetadata nuGet3Metadata, string folder, string templateName, bool forceUpgrade)
+        {
+            switch (nuGet3Metadata.PackageType)
+            {
+                case PackageManager.PACKAGE_TYPE_LIBRARY:
+                    ResolveLibraryBinary(nuGet3Metadata, folder, forceUpgrade, () =>
+                    {
+                        var package = GetBinaryPackage(nuGet3Metadata);
+                        if (package == null)
+                        {
+                            _sourcePackageResolve.Resolve(nuGet3Metadata, folder, null, forceUpgrade);
+                            return null;
+                        }
+                        return package;
+                    });
+                    break;
+                case PackageManager.PACKAGE_TYPE_TEMPLATE:
+                    ResolveTemplateBinary(nuGet3Metadata, folder, templateName, forceUpgrade);
+                    break;
+                case PackageManager.PACKAGE_TYPE_GLOBAL_TOOL:
+                    ResolveGlobalToolBinary(nuGet3Metadata, forceUpgrade);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unable to resolve binary package with type '" + nuGet3Metadata.PackageType + "' using Protobuild-based package.");
             }
         }
 
@@ -180,7 +214,7 @@ namespace Protobuild
             Console.WriteLine("Binary resolution complete");
         }
 
-        private void ResolveTemplateBinary(ProtobuildPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveTemplateBinary(ICachableBinaryPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
         {
             if (folder != string.Empty)
             {
@@ -195,7 +229,7 @@ namespace Protobuild
 
             Directory.CreateDirectory(".staging");
 
-            var package = GetProtobuildBinaryPackage(protobuildMetadata);
+            var package = GetBinaryPackage(protobuildMetadata);
             if (package == null)
             {
                 _sourcePackageResolve.Resolve(protobuildMetadata, folder, templateName, forceUpgrade);
@@ -208,9 +242,9 @@ namespace Protobuild
             PathUtils.AggressiveDirectoryDelete(".staging");
         }
 
-        private void ResolveGlobalToolBinary(ProtobuildPackageMetadata protobuildMetadata, bool forceUpgrade)
+        private void ResolveGlobalToolBinary(ICachableBinaryPackageMetadata protobuildMetadata, bool forceUpgrade)
         {
-            var toolFolder = _packageGlobalTool.GetGlobalToolInstallationPath(protobuildMetadata.ReferenceURI);
+            var toolFolder = _packageGlobalTool.GetGlobalToolInstallationPath(protobuildMetadata.CanonicalURI);
 
             if (File.Exists(Path.Combine(toolFolder, ".pkg")))
             {
@@ -225,8 +259,8 @@ namespace Protobuild
             PathUtils.AggressiveDirectoryDelete(toolFolder);
             Directory.CreateDirectory(toolFolder);
 
-            Console.WriteLine("Installing " + protobuildMetadata.ReferenceURI + " at version " + protobuildMetadata.GitCommit);
-            var package = GetProtobuildBinaryPackage(protobuildMetadata);
+            Console.WriteLine("Installing " + protobuildMetadata.CanonicalURI + " at version " + protobuildMetadata.GitCommitOrRef);
+            var package = GetBinaryPackage(protobuildMetadata);
             if (package == null)
             {
                 Console.WriteLine("The specified global tool package is not available for this platform.");
@@ -243,9 +277,9 @@ namespace Protobuild
             Console.WriteLine("Binary resolution complete");
         }
 
-        private byte[] GetProtobuildBinaryPackage(ProtobuildPackageMetadata metadata)
+        private byte[] GetBinaryPackage(ICachableBinaryPackageMetadata metadata)
         {
-            if (metadata.BinaryFormat == null || metadata.BinaryURI == null)
+            if (metadata.BinaryFormat == null || metadata.BinaryUri == null)
             {
                 // There is no binary format for this package.
                 return null;
@@ -254,7 +288,7 @@ namespace Protobuild
             var localFileExists = false;
             try
             {
-                localFileExists = File.Exists(metadata.BinaryURI);
+                localFileExists = File.Exists(metadata.BinaryUri);
             }
             catch
             {
@@ -263,7 +297,7 @@ namespace Protobuild
             if (metadata.BinaryFormat != null && localFileExists)
             {
                 // This is a local package file, read it directly.
-                using (var stream = new FileStream(metadata.BinaryURI, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (var stream = new FileStream(metadata.BinaryUri, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     var data = new byte[stream.Length];
                     stream.Read(data, 0, data.Length);
@@ -417,6 +451,8 @@ namespace Protobuild
                     return ".tar.lzma";
                 case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                     return ".tar.gz";
+                case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
+                    return ".nupkg";
                 case "":
                     return string.Empty;
                 default:
@@ -424,7 +460,7 @@ namespace Protobuild
             }
         }
 
-        private bool DownloadBinaryPackage(ProtobuildPackageMetadata metadata, string targetPath)
+        private bool DownloadBinaryPackage(ICachableBinaryPackageMetadata metadata, string targetPath)
         {
             if (File.Exists(targetPath))
             {
@@ -469,15 +505,15 @@ namespace Protobuild
             return true;
         }
 
-        private byte[] DownloadBinaryPackage(ProtobuildPackageMetadata metadata)
+        private byte[] DownloadBinaryPackage(ICachableBinaryPackageMetadata metadata)
         {
             try
             {
-                return _progressiveWebOperation.Get(metadata.BinaryURI);
+                return _progressiveWebOperation.Get(metadata.BinaryUri);
             }
             catch (InvalidOperationException)
             {
-                Console.WriteLine("Unable to download binary package for version \"" + metadata.GitCommit + "\" and platform \"" + metadata.Platform + "\", falling back to source version");
+                Console.WriteLine("Unable to download binary package for version \"" + metadata.GitCommitOrRef + "\" and platform \"" + metadata.Platform + "\", falling back to source version");
                 return null;
             }
         }
@@ -520,6 +556,26 @@ namespace Protobuild
                         }
                         break;
                     }
+                case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
+                    {
+                        using (var inMemory = new MemoryStream(data))
+                        {
+                            using (var zipStorer = ZipStorer.Open(inMemory, FileAccess.Read, true))
+                            {
+                                var entries = zipStorer.ReadCentralDir();
+                                foreach (var entry in entries)
+                                {
+                                    if (entry.FilenameInZip.StartsWith("protobuild/"))
+                                    {
+                                        var relativePath = entry.FilenameInZip.Substring("protobuild/".Length);
+                                        var combinedPath = Path.Combine(path, relativePath);
+                                        zipStorer.ExtractFile(entry, combinedPath);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    }
                 default:
                     throw new InvalidOperationException(
                         "This version of Protobuild does not support the " +
@@ -536,7 +592,7 @@ namespace Protobuild
             }
 
             archiveType = protobuildPackageMetadata.BinaryFormat;
-            packageData = GetProtobuildBinaryPackage(protobuildPackageMetadata);
+            packageData = GetBinaryPackage(protobuildPackageMetadata);
         }
     }
 }

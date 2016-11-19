@@ -29,11 +29,24 @@ namespace fastJSON
 
         public override bool TryGetIndex(GetIndexBinder binder, Object[] indexes, out Object result)
         {
-            int index = (int)indexes[0];
-            result = _list[index];
-            if (result is IDictionary<string, object>)
-                result = new DynamicJson(result as IDictionary<string, object>);
-            return true;
+            var ii = indexes[0];
+            if (ii is int)
+            {
+                int index = (int) indexes[0];
+                result = _list[index];
+                if (result is IDictionary<string, object>)
+                    result = new DynamicJson(result as IDictionary<string, object>);
+                return true;
+            }
+            if (ii is string)
+            {
+                string index = (string) indexes[0];
+                result = _dictionary[index];
+                if (result is IDictionary<string, object>)
+                    result = new DynamicJson(result as IDictionary<string, object>);
+                return true;
+            }
+            throw new IndexOutOfRangeException("No such numeric or string index in JSON");
         }
 
         public override bool TryGetMember(GetMemberBinder binder, out object result)
