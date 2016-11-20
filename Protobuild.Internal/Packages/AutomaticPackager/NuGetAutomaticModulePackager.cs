@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using Protobuild.Services;
 
@@ -32,7 +33,144 @@ namespace Protobuild
         public void Autopackage(
             FileFilter fileFilter,
             Execution execution,
-            ModuleInfo module, 
+            ModuleInfo module,
+            string rootPath,
+            string platform,
+            string packageFormat,
+            List<string> temporaryFiles)
+        {
+            if (string.Equals(platform, "Unified", StringComparison.InvariantCulture))
+            {
+                AutopackageUnified(
+                    fileFilter,
+                    execution,
+                    module,
+                    rootPath,
+                    platform,
+                    packageFormat,
+                    temporaryFiles);
+            }
+            else
+            {
+                AutopackagePlatform(
+                    fileFilter,
+                    execution,
+                    module,
+                    rootPath,
+                    platform,
+                    packageFormat,
+                    temporaryFiles);
+            }
+        }
+
+        private void AutopackageUnified(
+            FileFilter fileFilter,
+            Execution execution,
+            ModuleInfo module,
+            string rootPath,
+            string platform,
+            string packageFormat,
+            List<string> temporaryFiles)
+        {
+            // We are going to combine all the nupkg files in the current module folder
+            // into one unified package.  We only use package files that target exactly
+            // one platform when performing this operation.
+            Console.WriteLine("NuGet: Creating unified platform package...");
+
+            string[] supportedPlatforms = null;
+            if (!string.IsNullOrWhiteSpace(module.SupportedPlatforms))
+            {
+                supportedPlatforms = module.SupportedPlatforms.Split(new[] {','},
+                    StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToArray();
+            }
+
+            var processedPlatforms = new List<string>();
+            var packageFiles = new DirectoryInfo(module.Path).GetFiles("*.nupkg");
+            foreach (var file in packageFiles)
+            {
+                using (var storer = ZipStorer.Open(file.FullName, FileAccess.Read))
+                {
+                    var entries = storer.ReadCentralDir();
+
+                    var metadataEntries = entries.Where(x => x.FilenameInZip == "Package.xml").ToList();
+                    if (metadataEntries.Count == 0)
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because it has no Package.xml file");
+                        continue;
+                    }
+
+                    var metadataEntry = metadataEntries[0];
+
+                    XmlDocument document;
+                    using (var memory = new MemoryStream())
+                    {
+                        storer.ExtractFile(metadataEntry, memory);
+                        memory.Seek(0, SeekOrigin.Begin);
+                        document = new XmlDocument();
+                        document.Load(memory);
+                    }
+
+                    var platforms = document.SelectNodes("/Package/BinaryPlatforms/Platform");
+                    if (platforms == null || platforms.Count == 0)
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because it contains no binary platforms");
+                        continue;
+                    }
+                    if (platforms.Count > 1)
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because it contains more than one binary platform");
+                        continue;
+                    }
+
+                    var binaryPlatform = platforms[0].InnerText;
+                    if (processedPlatforms.Contains(binaryPlatform))
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because a package for the '" + binaryPlatform + "' platform has already been processed");
+                        continue;
+                    }
+                    if (supportedPlatforms != null)
+                    {
+                        if (!supportedPlatforms.Contains(binaryPlatform))
+                        {
+                            Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because the '" + binaryPlatform + "' platform is not supported by this module");
+                            continue;
+                        }
+                    }
+
+                    var tempFile = Path.GetTempFileName();
+                    File.Delete(tempFile);
+                    Directory.CreateDirectory(tempFile);
+
+                    foreach (var entry in entries)
+                    {
+                        if (entry.FilenameInZip == "Package.xml")
+                        {
+                            continue;
+                        }
+
+                        var extractedPath = Path.Combine(tempFile, entry.FilenameInZip);
+                        storer.ExtractFile(entry, extractedPath);
+                        temporaryFiles.Add(extractedPath);
+
+                        if (entry.FilenameInZip.StartsWith("protobuild/"))
+                        {
+                            fileFilter.AddManualMapping(extractedPath,
+                                "protobuild/" + binaryPlatform + "/" + entry.FilenameInZip.Substring("protobuild/".Length).Replace('\\', '/'));
+                        }
+                    }
+
+                    processedPlatforms.Add(binaryPlatform);
+                }
+            }
+        }
+
+        private void AutopackagePlatform(
+            FileFilter fileFilter,
+            Execution execution,
+            ModuleInfo module,
             string rootPath,
             string platform,
             string packageFormat,
@@ -137,6 +275,36 @@ namespace Protobuild
             AddNuGetContentTypes(fileFilter, temporaryFiles);
             AddNuGetRelationships(module, fileFilter, temporaryFiles);
             AddNuGetSpecification(module, fileFilter, temporaryFiles);
+            AddPackageMetadata(module, fileFilter, temporaryFiles, platform);
+        }
+
+        private void AddPackageMetadata(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string platform)
+        {
+            Console.WriteLine("Protobuild: Generating Package.xml...");
+            var name = "Package.xml";
+            var temp = Path.Combine(Path.GetTempPath(), name);
+            temporaryFiles.Add(temp);
+
+            var document = new XmlDocument();
+            document.AppendChild(document.CreateXmlDeclaration("1.0", "utf-8", null));
+
+            var packageElem = document.CreateElement("Package");
+            document.AppendChild(packageElem);
+
+            var binaryPlatforms = document.CreateElement("BinaryPlatforms");
+            packageElem.AppendChild(binaryPlatforms);
+
+            var platformElem = document.CreateElement("Platform");
+            binaryPlatforms.AppendChild(platformElem);
+
+            platformElem.InnerText = platform;
+
+            using (var writer = XmlWriter.Create(temp, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
+            {
+                document.WriteTo(writer);
+            }
+
+            fileFilter.AddManualMapping(temp, "Package.xml");
         }
 
         private void AddNuGetContentTypes(FileFilter fileFilter, List<string> temporaryFiles)
