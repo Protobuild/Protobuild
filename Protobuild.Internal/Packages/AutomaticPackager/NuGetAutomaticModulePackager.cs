@@ -331,6 +331,12 @@ namespace Protobuild
                 gitRepoElem.InnerText = execution.PackageGitRepositoryUrl;
                 sourceElem.AppendChild(gitRepoElem);
             }
+            else if (!string.IsNullOrWhiteSpace(module.GitRepositoryUrl))
+            {
+                var gitRepoElem = document.CreateElement("GitRepositoryUrl");
+                gitRepoElem.InnerText = module.GitRepositoryUrl;
+                sourceElem.AppendChild(gitRepoElem);
+            }
 
             using (var writer = XmlWriter.Create(temp, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
             {
@@ -415,6 +421,10 @@ namespace Protobuild
             if (!string.IsNullOrWhiteSpace(execution.PackageGitRepositoryUrl))
             {
                 tagsList.Add("git=" + execution.PackageGitRepositoryUrl);
+            }
+            else if (!string.IsNullOrWhiteSpace(module.GitRepositoryUrl))
+            {
+                tagsList.Add("git=" + module.GitRepositoryUrl);
             }
 
             id.InnerText = module.Name;
