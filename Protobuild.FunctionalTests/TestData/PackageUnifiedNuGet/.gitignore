@@ -1,0 +1,8 @@
+*.nupkg
+*.csproj
+*.sln
+*.speccache
+bin/
+obj/
+*.zip
+api_key.txt

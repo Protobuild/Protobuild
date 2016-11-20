@@ -128,6 +128,7 @@
     <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
     <Compile Include="PackageTemplateIgnoresTemplateOnlyFolderTest.cs" />
+    <Compile Include="PackageUnifiedNuGetTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
@@ -549,6 +550,12 @@
     <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated.Content\assets\AssetReadme.txt" />
     <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated.Content\compiled\CompiledReadme.txt" />
     <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated\Properties\AndroidManifest.xml" />
+    <None Include="TestData\PackageUnifiedNuGet\.gitignore" />
+    <None Include="TestData\PackageUnifiedNuGet\automated.build" />
+    <None Include="TestData\PackageUnifiedNuGet\Build\Module.xml" />
+    <None Include="TestData\PackageUnifiedNuGet\Build\Projects\TestInstall.definition" />
+    <None Include="TestData\PackageUnifiedNuGet\TestInstall\packages.config" />
+    <None Include="TestData\PackageUnifiedNuGet\TestInstall\Program.cs" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputDefault\Test\Program.cs" />

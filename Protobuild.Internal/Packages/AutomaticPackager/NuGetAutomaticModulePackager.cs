@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using Protobuild.Services;
 
@@ -32,7 +33,148 @@ namespace Protobuild
         public void Autopackage(
             FileFilter fileFilter,
             Execution execution,
-            ModuleInfo module, 
+            ModuleInfo module,
+            string rootPath,
+            string platform,
+            string packageFormat,
+            List<string> temporaryFiles)
+        {
+            if (string.Equals(platform, "Unified", StringComparison.InvariantCulture))
+            {
+                AutopackageUnified(
+                    fileFilter,
+                    execution,
+                    module,
+                    rootPath,
+                    platform,
+                    packageFormat,
+                    temporaryFiles);
+            }
+            else
+            {
+                AutopackagePlatform(
+                    fileFilter,
+                    execution,
+                    module,
+                    rootPath,
+                    platform,
+                    packageFormat,
+                    temporaryFiles);
+            }
+        }
+
+        private void AutopackageUnified(
+            FileFilter fileFilter,
+            Execution execution,
+            ModuleInfo module,
+            string rootPath,
+            string platform,
+            string packageFormat,
+            List<string> temporaryFiles)
+        {
+            // We are going to combine all the nupkg files in the current module folder
+            // into one unified package.  We only use package files that target exactly
+            // one platform when performing this operation.
+            Console.WriteLine("NuGet: Creating unified platform package...");
+
+            string[] supportedPlatforms = null;
+            if (!string.IsNullOrWhiteSpace(module.SupportedPlatforms))
+            {
+                supportedPlatforms = module.SupportedPlatforms.Split(new[] {','},
+                    StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToArray();
+            }
+
+            var processedPlatforms = new List<string>();
+            var packageFiles = new DirectoryInfo(module.Path).GetFiles("*.nupkg");
+            foreach (var file in packageFiles)
+            {
+                using (var storer = ZipStorer.Open(file.FullName, FileAccess.Read))
+                {
+                    var entries = storer.ReadCentralDir();
+
+                    var metadataEntries = entries.Where(x => x.FilenameInZip == "Package.xml").ToList();
+                    if (metadataEntries.Count == 0)
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because it has no Package.xml file");
+                        continue;
+                    }
+
+                    var metadataEntry = metadataEntries[0];
+
+                    XmlDocument document;
+                    using (var memory = new MemoryStream())
+                    {
+                        storer.ExtractFile(metadataEntry, memory);
+                        memory.Seek(0, SeekOrigin.Begin);
+                        document = new XmlDocument();
+                        document.Load(memory);
+                    }
+
+                    var platforms = document.SelectNodes("/Package/BinaryPlatforms/Platform");
+                    if (platforms == null || platforms.Count == 0)
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because it contains no binary platforms");
+                        continue;
+                    }
+                    if (platforms.Count > 1)
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because it contains more than one binary platform");
+                        continue;
+                    }
+
+                    var binaryPlatform = platforms[0].InnerText;
+                    if (processedPlatforms.Contains(binaryPlatform))
+                    {
+                        Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because a package for the '" + binaryPlatform + "' platform has already been processed");
+                        continue;
+                    }
+                    if (supportedPlatforms != null)
+                    {
+                        if (!supportedPlatforms.Contains(binaryPlatform))
+                        {
+                            Console.Error.WriteLine("NuGet: Skipping package " + file.Name + " because the '" + binaryPlatform + "' platform is not supported by this module");
+                            continue;
+                        }
+                    }
+
+                    var tempFile = Path.GetTempFileName();
+                    File.Delete(tempFile);
+                    Directory.CreateDirectory(tempFile);
+
+                    foreach (var entry in entries)
+                    {
+                        if (entry.FilenameInZip == "Package.xml")
+                        {
+                            continue;
+                        }
+
+                        var extractedPath = Path.Combine(tempFile, entry.FilenameInZip);
+                        storer.ExtractFile(entry, extractedPath);
+                        temporaryFiles.Add(extractedPath);
+
+                        if (entry.FilenameInZip.StartsWith("protobuild/"))
+                        {
+                            fileFilter.AddManualMapping(extractedPath, entry.FilenameInZip);
+                        }
+                    }
+
+                    processedPlatforms.Add(binaryPlatform);
+                }
+            }
+
+            AddNuGetContentTypes(fileFilter, temporaryFiles);
+            AddNuGetRelationships(module, fileFilter, temporaryFiles);
+            AddNuGetSpecification(module, fileFilter, temporaryFiles, processedPlatforms.ToArray());
+            AddPackageMetadata(module, fileFilter, temporaryFiles, processedPlatforms.ToArray());
+        }
+
+        private void AutopackagePlatform(
+            FileFilter fileFilter,
+            Execution execution,
+            ModuleInfo module,
             string rootPath,
             string platform,
             string packageFormat,
@@ -130,13 +272,46 @@ namespace Protobuild
                 (dict, d) => Console.WriteLine ("WARNING: More than one file maps to " + d.Key));
             if (!filterDictionary.ContainsValue("Build/Module.xml"))
             {
-                fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "protobuild/Build/Module.xml");
+                fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "protobuild/" + platform + "/Build/Module.xml");
             }
 
             // Add required NuGet content.
             AddNuGetContentTypes(fileFilter, temporaryFiles);
             AddNuGetRelationships(module, fileFilter, temporaryFiles);
-            AddNuGetSpecification(module, fileFilter, temporaryFiles);
+            AddNuGetSpecification(module, fileFilter, temporaryFiles, new[] { platform });
+            AddPackageMetadata(module, fileFilter, temporaryFiles, new[] { platform });
+        }
+
+        private void AddPackageMetadata(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string[] platforms)
+        {
+            Console.WriteLine("Protobuild: Generating Package.xml...");
+            var name = "Package.xml";
+            var temp = Path.Combine(Path.GetTempPath(), name);
+            temporaryFiles.Add(temp);
+
+            var document = new XmlDocument();
+            document.AppendChild(document.CreateXmlDeclaration("1.0", "utf-8", null));
+
+            var packageElem = document.CreateElement("Package");
+            document.AppendChild(packageElem);
+
+            var binaryPlatforms = document.CreateElement("BinaryPlatforms");
+            packageElem.AppendChild(binaryPlatforms);
+
+            foreach (var platform in platforms)
+            {
+                var platformElem = document.CreateElement("Platform");
+                binaryPlatforms.AppendChild(platformElem);
+
+                platformElem.InnerText = platform;
+            }
+
+            using (var writer = XmlWriter.Create(temp, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
+            {
+                document.WriteTo(writer);
+            }
+
+            fileFilter.AddManualMapping(temp, "Package.xml");
         }
 
         private void AddNuGetContentTypes(FileFilter fileFilter, List<string> temporaryFiles)
@@ -169,7 +344,7 @@ namespace Protobuild
             fileFilter.AddManualMapping(temp, "_rels/.rels");
         }
 
-        private void AddNuGetSpecification(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles)
+        private void AddNuGetSpecification(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string[] platforms)
         {
             Console.WriteLine("NuGet: Generating " + module.Name + ".nuspec...");
 
@@ -206,7 +381,7 @@ namespace Protobuild
             iconUrl.InnerText = module.IconUrl;
             requireLicenseAcceptance.InnerText = "false";
             description.InnerText = module.Description ?? "No Description Specified";
-            tags.InnerText = string.Empty;
+            tags.InnerText = "platforms=" + string.Join(",", platforms ?? new string[0]) ;
 
             metadata.AppendChild(id);
             metadata.AppendChild(version);
@@ -295,7 +470,7 @@ namespace Protobuild
             {
                 externalProjectDocument.WriteTo(writer);
             }
-            fileFilter.AddManualMapping(temp, "protobuild/Build/Projects/" + definition.Name + ".definition");
+            fileFilter.AddManualMapping(temp, "protobuild/" + platform + "/Build/Projects/" + definition.Name + ".definition");
         }
 
         private void TranslateExternalProject(
@@ -352,7 +527,7 @@ namespace Protobuild
                                 var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
 
                                 var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + destPathRegex);
+                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + platform + "/" + destPathRegex);
                                 if (includeMatch)
                                 {
                                     if (extension == sourceFileInfo.Extension)
@@ -385,7 +560,7 @@ namespace Protobuild
                             var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
 
                             var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                            fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + destPathRegex);
+                            fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + platform + "/" + destPathRegex);
                             if (includeMatch)
                             {
                                 var nativeBinaryEntry = toNode.OwnerDocument.CreateElement("NativeBinary");
@@ -595,7 +770,7 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + definition.Name + "/AnyCPU/" + assemblyFile);
+                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + platform + "/" + definition.Name + "/AnyCPU/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {
                                     if (assemblyFile.EndsWith(".dll"))
@@ -623,7 +798,7 @@ namespace Protobuild
                             // For executables, we ship everything in the output directory, because we
                             // want the executables to be able to run from the package directory.
                             fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
-                            fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + definition.Name + "/AnyCPU/$2");
+                            fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/AnyCPU/$2");
 
                             // Mark the executable files in the directory as tools that can be executed.
                             foreach (var assemblyFile in assemblyFilesToCopy)
@@ -679,7 +854,7 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + definition.Name + "/" + pathArchReplace + "/" + assemblyFile);
+                                var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + platform + "/" + definition.Name + "/" + pathArchReplace + "/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {
                                     if (assemblyFile.EndsWith(".dll"))
@@ -710,11 +885,11 @@ namespace Protobuild
 
                             if (pathArchMatch == "([^/]+)")
                             {
-                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + definition.Name + "/" + pathArchReplace + "/$3");
+                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/" + pathArchReplace + "/$3");
                             }
                             else
                             {
-                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + definition.Name + "/" + pathArchReplace + "/$2");
+                                fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/" + pathArchReplace + "/$2");
                             }
 
                             // Mark the executable files in the directory as tools that can be executed.
@@ -857,7 +1032,7 @@ namespace Protobuild
                                 var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
 
                                 var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + destPathRegex);
+                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + platform + "/" + destPathRegex);
                                 if (includeMatch)
                                 {
                                     var nativeBinaryEntry = externalProjectDocument.CreateElement("NativeBinary");
@@ -884,7 +1059,7 @@ namespace Protobuild
             {
                 externalProjectDocument.WriteTo(writer);
             }
-            fileFilter.AddManualMapping(temp, "protobuild/Build/Projects/" + definition.Name + ".definition");
+            fileFilter.AddManualMapping(temp, "protobuild/" + platform + "/Build/Projects/" + definition.Name + ".definition");
         }
 
         private void AutomaticallyPackageIncludeProject(

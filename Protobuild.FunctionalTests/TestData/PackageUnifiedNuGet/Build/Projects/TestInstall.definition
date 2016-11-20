@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Name="TestInstall" Path="TestInstall" Type="Console">
+  <References>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+  </References>
+  <Files>
+    <Compile Include="Program.cs" />
+  </Files>
+</Project>

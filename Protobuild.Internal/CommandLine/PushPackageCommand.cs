@@ -67,10 +67,14 @@ namespace Protobuild
 
         private int PushToNuGetRepository(Execution execution)
         {
-            var ret = PushToNuGetRepository(execution, false);
-            if (ret != 0)
+            // Only push semantic versions for packages which contain multiple platforms.
+            if (string.Equals(execution.PackagePushPlatform, "Unified", StringComparison.InvariantCulture))
             {
-                return ret;
+                var ret = PushToNuGetRepository(execution, false);
+                if (ret != 0)
+                {
+                    return ret;
+                }
             }
 
             return PushToNuGetRepository(execution, true);
