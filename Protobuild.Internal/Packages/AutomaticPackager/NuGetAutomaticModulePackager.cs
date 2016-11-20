@@ -165,10 +165,19 @@ namespace Protobuild
                 }
             }
 
-            AddNuGetContentTypes(fileFilter, temporaryFiles);
-            AddNuGetRelationships(module, fileFilter, temporaryFiles);
-            AddNuGetSpecification(module, fileFilter, temporaryFiles, processedPlatforms.ToArray());
-            AddPackageMetadata(module, fileFilter, temporaryFiles, processedPlatforms.ToArray());
+            if (processedPlatforms.Count == 0)
+            {
+                Console.Error.WriteLine(
+                    "NuGet: No other .nupkg files were valid candidates for creating a unified package.");
+                throw new InvalidOperationException("NuGet: No other .nupkg files were valid candidates for creating a unified package.");
+            }
+            else
+            {
+                AddNuGetContentTypes(fileFilter, temporaryFiles);
+                AddNuGetRelationships(module, fileFilter, temporaryFiles);
+                AddNuGetSpecification(module, fileFilter, temporaryFiles, processedPlatforms.ToArray(), execution);
+                AddPackageMetadata(module, fileFilter, temporaryFiles, processedPlatforms.ToArray(), execution);
+            }
         }
 
         private void AutopackagePlatform(
@@ -278,11 +287,11 @@ namespace Protobuild
             // Add required NuGet content.
             AddNuGetContentTypes(fileFilter, temporaryFiles);
             AddNuGetRelationships(module, fileFilter, temporaryFiles);
-            AddNuGetSpecification(module, fileFilter, temporaryFiles, new[] { platform });
-            AddPackageMetadata(module, fileFilter, temporaryFiles, new[] { platform });
+            AddNuGetSpecification(module, fileFilter, temporaryFiles, new[] { platform }, execution);
+            AddPackageMetadata(module, fileFilter, temporaryFiles, new[] { platform }, execution);
         }
 
-        private void AddPackageMetadata(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string[] platforms)
+        private void AddPackageMetadata(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string[] platforms, Execution execution)
         {
             Console.WriteLine("Protobuild: Generating Package.xml...");
             var name = "Package.xml";
@@ -304,6 +313,29 @@ namespace Protobuild
                 binaryPlatforms.AppendChild(platformElem);
 
                 platformElem.InnerText = platform;
+            }
+
+            var sourceElem = document.CreateElement("Source");
+            packageElem.AppendChild(sourceElem);
+
+            if (!string.IsNullOrWhiteSpace(execution.PackageGitCommit))
+            {
+                var gitCommitElem = document.CreateElement("GitCommitHash");
+                gitCommitElem.InnerText = execution.PackageGitCommit;
+                sourceElem.AppendChild(gitCommitElem);
+            }
+
+            if (!string.IsNullOrWhiteSpace(execution.PackageGitRepositoryUrl))
+            {
+                var gitRepoElem = document.CreateElement("GitRepositoryUrl");
+                gitRepoElem.InnerText = execution.PackageGitRepositoryUrl;
+                sourceElem.AppendChild(gitRepoElem);
+            }
+            else if (!string.IsNullOrWhiteSpace(module.GitRepositoryUrl))
+            {
+                var gitRepoElem = document.CreateElement("GitRepositoryUrl");
+                gitRepoElem.InnerText = module.GitRepositoryUrl;
+                sourceElem.AppendChild(gitRepoElem);
             }
 
             using (var writer = XmlWriter.Create(temp, new XmlWriterSettings { Indent = true, IndentChars = "  " }))
@@ -344,7 +376,7 @@ namespace Protobuild
             fileFilter.AddManualMapping(temp, "_rels/.rels");
         }
 
-        private void AddNuGetSpecification(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string[] platforms)
+        private void AddNuGetSpecification(ModuleInfo module, FileFilter fileFilter, List<string> temporaryFiles, string[] platforms, Execution execution)
         {
             Console.WriteLine("NuGet: Generating " + module.Name + ".nuspec...");
 
@@ -372,6 +404,29 @@ namespace Protobuild
             var description = document.CreateElement(null, "description", specPrefix);
             var tags = document.CreateElement(null, "tags", specPrefix);
 
+            var tagsList = new List<string>();
+            tagsList.Add("platforms=" + string.Join(",", platforms ?? new string[0]));
+            if (!string.IsNullOrWhiteSpace(execution.PackageType))
+            {
+                tagsList.Add("type=" + execution.PackageType);
+            }
+            else
+            {
+                tagsList.Add("type=" + PackageManager.PACKAGE_TYPE_LIBRARY);
+            }
+            if (!string.IsNullOrWhiteSpace(execution.PackageGitCommit))
+            {
+                tagsList.Add("commit=" + execution.PackageGitCommit);
+            }
+            if (!string.IsNullOrWhiteSpace(execution.PackageGitRepositoryUrl))
+            {
+                tagsList.Add("git=" + execution.PackageGitRepositoryUrl);
+            }
+            else if (!string.IsNullOrWhiteSpace(module.GitRepositoryUrl))
+            {
+                tagsList.Add("git=" + module.GitRepositoryUrl);
+            }
+
             id.InnerText = module.Name;
             version.InnerText = GenerateNuGetSemanticVersion(module);
             title.InnerText = module.Name;
@@ -381,7 +436,7 @@ namespace Protobuild
             iconUrl.InnerText = module.IconUrl;
             requireLicenseAcceptance.InnerText = "false";
             description.InnerText = module.Description ?? "No Description Specified";
-            tags.InnerText = "platforms=" + string.Join(",", platforms ?? new string[0]) ;
+            tags.InnerText = string.Join(" ", tagsList);
 
             metadata.AppendChild(id);
             metadata.AppendChild(version);
@@ -1072,9 +1127,15 @@ namespace Protobuild
         {
             // Include the include project's definition.
             fileFilter.ApplyInclude("^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$");
+            fileFilter.ApplyRewrite(
+                "^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$",
+                "protobuild/" + platform + "/Build/Projects/" + definition.Name + ".definition");
 
             // Include everything underneath the include project's path.
-            fileFilter.ApplyInclude("^" + Regex.Escape(definition.RelativePath) + ".+$");
+            fileFilter.ApplyInclude("^" + Regex.Escape(definition.RelativePath) + "(.+)$");
+            fileFilter.ApplyRewrite(
+                "^" + Regex.Escape(definition.RelativePath) + "(.+)$",
+                "protobuild/" + platform + "/" + definition.RelativePath + "$1");
         }
     }
 }

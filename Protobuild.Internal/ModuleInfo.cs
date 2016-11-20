@@ -69,6 +69,13 @@ namespace Protobuild
         public string IconUrl { get; set; }
 
         /// <summary>
+        /// Gets or sets the public, anonymous Git repository URL for the module.
+        /// This URL should not require interactive authentication from the user.
+        /// </summary>
+        /// <value>The public, anonymous Git repository URL for the module.</value>
+        public string GitRepositoryUrl { get; set; }
+
+        /// <summary>
         /// Gets or sets the semantic version of the module.
         /// </summary>
         /// <value>The semantic version of the module.</value>
@@ -258,6 +265,7 @@ namespace Protobuild
             def.ProjectUrl = getStringValue("ProjectUrl");
             def.LicenseUrl = getStringValue("LicenseUrl");
             def.IconUrl = getStringValue("IconUrl");
+            def.GitRepositoryUrl = getStringValue("GitRepositoryUrl");
             def.SemanticVersion = getStringValue("SemanticVersion");
             def.Path = modulePath;
             def.DefaultAction = getStringValue("DefaultAction");
@@ -598,6 +606,7 @@ namespace Protobuild
             createStringElement("ProjectUrl", ProjectUrl);
             createStringElement("LicenseUrl", LicenseUrl);
             createStringElement("IconUrl", IconUrl);
+            createStringElement("GitRepositoryUrl", GitRepositoryUrl);
             createStringElement("SemanticVersion", SemanticVersion);
             createStringElement("DefaultAction", DefaultAction);
             createStringElement("DefaultLinuxPlatforms", DefaultLinuxPlatforms);

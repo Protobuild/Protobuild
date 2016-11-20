@@ -416,7 +416,7 @@ namespace Protobuild
                             return 1;
                         }
 
-                        if (args.Contains("$GIT_COMMIT"))
+                        if (args.Contains("$GIT_COMMIT") || inst.Command == "pack")
                         {
                             string commit;
 
@@ -428,6 +428,11 @@ namespace Protobuild
                             catch (InvalidOperationException)
                             {
                                 commit = string.Empty;
+                            }
+
+                            if (inst.Command == "pack" && !string.IsNullOrWhiteSpace(commit))
+                            {
+                                args = "--package-git-commit " + commit + " " + args;
                             }
 
                             args = args.Replace("$GIT_COMMIT", commit);

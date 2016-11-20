@@ -22,6 +22,14 @@ namespace Protobuild
 
         public string ServiceSpecificationPath { get; set; }
 
+        public string PackageId { get; set; }
+
+        public string PackageGitRepositoryUrl { get; set; }
+
+        public string PackageGitCommit { get; set; }
+
+        public string PackageType { get; set; }
+
         public string PackageUrl { get; set; }
 
         public string PackageSourceFolder { get; set; }
