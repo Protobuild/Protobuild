@@ -173,7 +173,7 @@ namespace Protobuild
                 return;
             }
 
-            ExtractTo(protobuildMetadata.BinaryFormat, package, platformFolder);
+            ExtractTo(protobuildMetadata.BinaryFormat, package, platformFolder, protobuildMetadata.Platform);
 
             // Only copy ourselves to the binary folder if both "Build/Module.xml" and
             // "Build/Projects" exist in the binary package's folder.  This prevents us
@@ -236,7 +236,7 @@ namespace Protobuild
                 return;
             }
 
-            ExtractTo(protobuildMetadata.BinaryFormat, package, ".staging");
+            ExtractTo(protobuildMetadata.BinaryFormat, package, ".staging", "Template");
 
             _projectTemplateApplier.Apply(".staging", templateName);
             PathUtils.AggressiveDirectoryDelete(".staging");
@@ -267,7 +267,7 @@ namespace Protobuild
                 return;
             }
 
-            ExtractTo(protobuildMetadata.BinaryFormat, package, toolFolder);
+            ExtractTo(protobuildMetadata.BinaryFormat, package, toolFolder, protobuildMetadata.Platform);
 
             var file = File.Create(Path.Combine(toolFolder, ".pkg"));
             file.Close();
@@ -518,7 +518,7 @@ namespace Protobuild
             }
         }
 
-        private void ExtractTo(string format, byte[] data, string path)
+        private void ExtractTo(string format, byte[] data, string path, string platform)
         {
             Console.WriteLine("Unpacking binary package from " + format + " archive");
             switch (format)
@@ -565,9 +565,9 @@ namespace Protobuild
                                 var entries = zipStorer.ReadCentralDir();
                                 foreach (var entry in entries)
                                 {
-                                    if (entry.FilenameInZip.StartsWith("protobuild/"))
+                                    if (entry.FilenameInZip.StartsWith("protobuild/" + platform + "/"))
                                     {
-                                        var relativePath = entry.FilenameInZip.Substring("protobuild/".Length);
+                                        var relativePath = entry.FilenameInZip.Substring(("protobuild/" + platform + "/").Length);
                                         var combinedPath = Path.Combine(path, relativePath);
                                         zipStorer.ExtractFile(entry, combinedPath);
                                     }

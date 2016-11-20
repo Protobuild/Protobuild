@@ -1127,9 +1127,15 @@ namespace Protobuild
         {
             // Include the include project's definition.
             fileFilter.ApplyInclude("^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$");
+            fileFilter.ApplyRewrite(
+                "^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$",
+                "protobuild/" + platform + "/Build/Projects/" + definition.Name + ".definition");
 
             // Include everything underneath the include project's path.
-            fileFilter.ApplyInclude("^" + Regex.Escape(definition.RelativePath) + ".+$");
+            fileFilter.ApplyInclude("^" + Regex.Escape(definition.RelativePath) + "(.+)$");
+            fileFilter.ApplyRewrite(
+                "^" + Regex.Escape(definition.RelativePath) + "(.+)$",
+                "protobuild/" + platform + "/" + definition.RelativePath + "$1");
         }
     }
 }

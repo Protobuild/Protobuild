@@ -28,11 +28,7 @@ namespace Protobuild
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
 
-            if (args.Length == 3)
-            {
-                // This is the new format for nuget/zip packages.
-            }
-            else if (args.Length < 5 || args[0] == null || args[1] == null || args[2] == null || args[3] == null || args[4] == null)
+            if (args.Length < 3 || args[0] == null || args[1] == null || args[2] == null)
             {
                 throw new InvalidOperationException("You must provide all arguments to -push except for the branch name.");
             }
@@ -51,8 +47,8 @@ namespace Protobuild
 
             pendingExecution.PackagePushFile = new FileInfo(args[1]).FullName;
             pendingExecution.PackagePushUrl = args[2].TrimEnd('/');
-            pendingExecution.PackagePushVersion = args.Length == 3 ? ArgumentOmitted : args[3];
-            pendingExecution.PackagePushPlatform = args.Length == 3 ? ArgumentOmitted : args[4];
+            pendingExecution.PackagePushVersion = args.Length < 4 ? ArgumentOmitted : (args[3] ?? ArgumentOmitted);
+            pendingExecution.PackagePushPlatform = args.Length < 5 ? ArgumentOmitted : (args[4] ?? ArgumentOmitted);
             pendingExecution.PackagePushBranchToUpdate = args.Length >= 6 ? args[5] : null;
         }
 

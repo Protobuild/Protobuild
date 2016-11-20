@@ -113,36 +113,47 @@ namespace Protobuild.Internal
 
                 if (!string.IsNullOrWhiteSpace(sourceCodeUrl))
                 {
-                    var heads = GitUtils.RunGitAndCapture(
-                        Environment.CurrentDirectory,
-                        "ls-remote --heads " + new Uri(sourceCodeUrl));
-
-                    var lines = heads.Split(new string[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
-                    
-                    foreach (var line in lines)
+                    if (sourceCodeUrl.StartsWith("git="))
                     {
-                        var sourceEntryComponents = line.Split('\t');
-                        if (sourceEntryComponents.Length >= 2)
+                        sourceCodeUrl = sourceCodeUrl.Substring("git=".Length);
+
+                        var heads = GitUtils.RunGitAndCapture(
+                            Environment.CurrentDirectory,
+                            "ls-remote --heads " + new Uri(sourceCodeUrl));
+
+                        var lines = heads.Split(new string[] {"\r\n", "\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
+
+                        foreach (var line in lines)
                         {
-                            var branchName = sourceEntryComponents[1].Trim();
+                            var sourceEntryComponents = line.Split('\t');
+                            if (sourceEntryComponents.Length >= 2)
+                            {
+                                var branchName = sourceEntryComponents[1].Trim();
 
-                            if (branchName.StartsWith("refs/heads/"))
-                            {
-                                branchName = branchName.Substring("refs/heads/".Length);
-                            }
-                            else
-                            {
-                                continue;
-                            }
+                                if (branchName.StartsWith("refs/heads/"))
+                                {
+                                    branchName = branchName.Substring("refs/heads/".Length);
+                                }
+                                else
+                                {
+                                    continue;
+                                }
 
-                            if (string.Equals(version, branchName, StringComparison.InvariantCulture))
-                            {
-                                // This is a match and we've found our Git hash to use.
-                                version = NuGetVersionHelper.CreateNuGetPackageVersion(sourceEntryComponents[0].Trim(), request.Platform);
-                                commitHashForSourceResolve = version;
-                                break;
+                                if (string.Equals(version, branchName, StringComparison.InvariantCulture))
+                                {
+                                    // This is a match and we've found our Git hash to use.
+                                    version =
+                                        NuGetVersionHelper.CreateNuGetPackageVersion(sourceEntryComponents[0].Trim(),
+                                            request.Platform);
+                                    commitHashForSourceResolve = sourceEntryComponents[0].Trim();
+                                    break;
+                                }
                             }
                         }
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Unknown source code repository type '" + sourceCodeUrl + "'");
                     }
 
                     // If we fall out of this loop, we'll hit the next if statement and most likely fail.
@@ -170,6 +181,15 @@ namespace Protobuild.Internal
             {
                 sourceCodeUrl = ExtractSourceRepository(packagesByVersion[version]);
                 packageType = ExtractPackageType(packagesByVersion[version]);
+                
+                if (sourceCodeUrl.StartsWith("git="))
+                {
+                    sourceCodeUrl = sourceCodeUrl.Substring("git=".Length);
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unknown source code repository type '" + sourceCodeUrl + "'");
+                }
 
                 if (commitHashForSourceResolve == null)
                 {
