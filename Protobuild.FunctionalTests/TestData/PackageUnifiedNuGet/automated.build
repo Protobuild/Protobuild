@@ -1,0 +1,13 @@
+#version 1
+
+set target-platforms Windows,Linux
+set package-format nuget/zip
+
+generate
+build
+
+pack . TestInstall.$TARGET_PLATFORM.nupkg $TARGET_PLATFORM
+pack . TestInstall.nupkg Unified
+
+#push api_key.txt TestInstall.$TARGET_PLATFORM.nupkg https://www.nuget.org/api/v2/package $GIT_COMMIT $TARGET_PLATFORM
+#push api_key.txt TestInstall.nupkg https://www.nuget.org/api/v2/package $GIT_COMMIT Unified

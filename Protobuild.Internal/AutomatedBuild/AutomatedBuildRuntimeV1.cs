@@ -179,10 +179,17 @@ namespace Protobuild
                                         Values = components.Skip(1).ToArray()
                                     });
                                     break;
+                                case "package-format":
+                                    instructions.Add(new ParsedInstruction
+                                    {
+                                        Key = "package-format",
+                                        Values = components.Skip(1).ToArray()
+                                    });
+                                    break;
                                 default:
                                     throw new ParserErrorException(
                                         "Unexpected variable name, expected 'target-platforms', 'build-target', 'build-property', " +
-                                        "'build-process-arch' or 'execute-configuration', got '" +
+                                        "'build-process-arch', 'execute-configuration' or 'package-format', got '" +
                                         components[0] + "' instead", currentLine);
                             }
                             break;
@@ -218,6 +225,7 @@ namespace Protobuild
             var buildProcessArch = string.Empty;
             var buildProperties = new Dictionary<string, string>();
             string executeConfiguration = null;
+            string packageFormat = null;
 
             var predicates = new Stack<ParsedInstruction>();
             foreach (var inst in instructions)
@@ -371,7 +379,12 @@ namespace Protobuild
                             case "pack":
                             case "push":
                             case "repush":
-                                args = "--" + inst.Command + " " + inst.Arguments;
+                                args = string.Empty;
+                                if (!string.IsNullOrWhiteSpace(packageFormat))
+                                {
+                                    args = "--format " + packageFormat + " ";
+                                }
+                                args += "--" + inst.Command + " " + inst.Arguments;
                                 break;
                             default:
                                 args = "--" + inst.Command + " " + targets + " " + inst.Arguments;
@@ -498,6 +511,9 @@ namespace Protobuild
                                 break;
                             case "execute-configuration":
                                 executeConfiguration = inst.Values.First();
+                                break;
+                            case "package-format":
+                                packageFormat = inst.Values.First();
                                 break;
                         }
                     }
