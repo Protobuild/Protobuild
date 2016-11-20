@@ -129,7 +129,11 @@
     <Compile Include="CommandLine\NoParallelCommand.cs" />
     <Compile Include="CommandLine\NoResolveCommand.cs" />
     <Compile Include="CommandLine\Options.cs" />
+    <Compile Include="CommandLine\PackageGitCommitCommand.cs" />
+    <Compile Include="CommandLine\PackageGitRepoCommand.cs" />
+    <Compile Include="CommandLine\PackageIdCommand.cs" />
     <Compile Include="CommandLine\PackageRootCommand.cs" />
+    <Compile Include="CommandLine\PackageTypeCommand.cs" />
     <Compile Include="CommandLine\PackPackageCommand.cs" />
     <Compile Include="CommandLine\ParallelCommand.cs" />
     <Compile Include="CommandLine\PushPackageCommand.cs" />

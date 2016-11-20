@@ -95,6 +95,10 @@ namespace Protobuild
                 { "no-host-generate", kernel.Get<NoHostGenerateCommand>() },
                 { "execute", kernel.Get<ExecuteCommand>() },
                 { "execute-configuration", kernel.Get<ExecuteConfigurationCommand>() },
+                { "package-id", kernel.Get<PackageIdCommand>() },
+                { "package-git-repo", kernel.Get<PackageGitRepoCommand>() },
+                { "package-git-commit", kernel.Get<PackageGitCommitCommand>() },
+                { "package-type", kernel.Get<PackageTypeCommand>() },
             };
 
             var execution = new Execution();

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
 using Protobuild.Internal;
 
 namespace Protobuild
@@ -14,6 +16,8 @@ namespace Protobuild
     internal class PushPackageCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
+
+        const string ArgumentOmitted = "\0argument-omitted";
 
         public PushPackageCommand(IFeatureManager featureManager)
         {
@@ -24,7 +28,11 @@ namespace Protobuild
         {
             pendingExecution.SetCommandToExecuteIfNotDefault(this);
 
-            if (args.Length < 5 || args[0] == null || args[1] == null || args[2] == null || args[3] == null || args[4] == null)
+            if (args.Length == 3)
+            {
+                // This is the new format for nuget/zip packages.
+            }
+            else if (args.Length < 5 || args[0] == null || args[1] == null || args[2] == null || args[3] == null || args[4] == null)
             {
                 throw new InvalidOperationException("You must provide all arguments to -push except for the branch name.");
             }
@@ -43,14 +51,29 @@ namespace Protobuild
 
             pendingExecution.PackagePushFile = new FileInfo(args[1]).FullName;
             pendingExecution.PackagePushUrl = args[2].TrimEnd('/');
-            pendingExecution.PackagePushVersion = args[3];
-            pendingExecution.PackagePushPlatform = args[4];
+            pendingExecution.PackagePushVersion = args.Length == 3 ? ArgumentOmitted : args[3];
+            pendingExecution.PackagePushPlatform = args.Length == 3 ? ArgumentOmitted : args[4];
             pendingExecution.PackagePushBranchToUpdate = args.Length >= 6 ? args[5] : null;
         }
 
         public int Execute(Execution execution)
         {
             var archiveType = this.DetectPackageType(execution.PackagePushFile);
+
+            if (archiveType == PackageManager.ARCHIVE_FORMAT_NUGET_ZIP)
+            {
+                if (execution.PackagePushVersion != ArgumentOmitted || execution.PackagePushPlatform != ArgumentOmitted)
+                {
+                    Console.Error.WriteLine("You must omit the version and platform arguments when pushing packages in the NuGet format.");
+                }
+            }
+            else
+            {
+                if (execution.PackagePushVersion == ArgumentOmitted || execution.PackagePushPlatform == ArgumentOmitted)
+                {
+                    Console.Error.WriteLine("You must provide the version and platform arguments.");
+                }
+            }
 
             Console.WriteLine("Detected package type as " + archiveType + ".");
 
@@ -67,20 +90,66 @@ namespace Protobuild
 
         private int PushToNuGetRepository(Execution execution)
         {
-            // Only push semantic versions for packages which contain multiple platforms.
-            if (string.Equals(execution.PackagePushPlatform, "Unified", StringComparison.InvariantCulture))
+            var isUnified = false;
+            string platform = null;
+            string commitHash = null;
+
+            // Detect if it is a unified package, and if not the platform and Git hash that this package is
+            // for by reading the package file.
+            using (var storer = ZipStorer.Open(execution.PackagePushFile, FileAccess.Read))
             {
-                var ret = PushToNuGetRepository(execution, false);
+                var entries = storer.ReadCentralDir();
+                
+                var protobuildMetadata =
+                    entries.Where(
+                        x => x.FilenameInZip == "Package.xml").ToArray();
+
+                if (protobuildMetadata.Length > 0)
+                {
+                    using (var memory = new MemoryStream())
+                    {
+                        storer.ExtractFile(protobuildMetadata[0], memory);
+                        memory.Seek(0, SeekOrigin.Begin);
+                        var document = new XmlDocument();
+                        document.Load(memory);
+                        var platforms = document.SelectNodes("/Package/BinaryPlatforms/Platform");
+                        if (platforms != null)
+                        {
+                            if (platforms.Count == 1)
+                            {
+                                isUnified = false;
+                                platform = platforms[0].InnerText;
+                            }
+                            else if (platforms.Count > 1)
+                            {
+                                isUnified = true;
+                                platform = null;
+                            }
+                        }
+
+                        var commitHashNode = document.SelectSingleNode("/Package/Source/GitCommitHash");
+                        if (commitHashNode != null)
+                        {
+                            commitHash = commitHashNode.InnerText;
+                        }
+                    }
+                }
+            }
+
+            // Only push semantic versions for packages which contain multiple platforms.
+            if (isUnified)
+            {
+                var ret = PushToNuGetRepository(execution, false, platform, commitHash);
                 if (ret != 0)
                 {
                     return ret;
                 }
             }
 
-            return PushToNuGetRepository(execution, true);
+            return PushToNuGetRepository(execution, true, platform, commitHash);
         }
 
-        private int PushToNuGetRepository(Execution execution, bool pushGitVersion)
+        private int PushToNuGetRepository(Execution execution, bool pushGitVersion, string platform, string commitHash)
         {
             if (pushGitVersion)
             {
@@ -120,7 +189,7 @@ namespace Protobuild
                                                 new Regex("version\\>[0-9]+\\.[0-9]+\\.[0-9]+\\+([^\\<]*)\\<\\/version");
 
                                             nuspecContent = regex.Replace(nuspecContent,
-                                                "version>" + NuGetVersionHelper.CreateNuGetPackageVersion(execution.PackagePushVersion, execution.PackagePushPlatform) + "</version");
+                                                "version>" + NuGetVersionHelper.CreateNuGetPackageVersion(commitHash, platform) + "</version");
 
                                             using (var patchedFileStream = new MemoryStream())
                                             {
@@ -337,7 +406,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
         public string[] GetArgNames()
         {
-            return new[] { "api_key_or_key_file", "file", "url", "version", "platform", "branch_to_update?" };
+            return new[] { "api_key_or_key_file", "file", "url", "version?", "platform?", "branch_to_update?" };
         }
 
         public bool IsInternal()
