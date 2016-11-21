@@ -74,6 +74,7 @@ namespace Protobuild
             kernel.Bind<IKnownToolProvider, KnownToolProvider>();
             kernel.Bind<IPackageNameLookup, PackageNameLookup>();
             kernel.Bind<IProjectTemplateApplier, ProjectTemplateApplier>();
+            kernel.Bind<INuGetPlatformMapping, NuGetPlatformMapping>();
 
             kernel.Bind<IPackageProtocol, GitPackageProtocol>();
             kernel.Bind<IPackageProtocol, LocalTemplatePackageProtocol>();

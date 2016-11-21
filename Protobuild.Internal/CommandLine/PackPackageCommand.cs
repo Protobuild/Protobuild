@@ -153,48 +153,46 @@ namespace Protobuild
                 }
 
                 filter.ImplyDirectories();
-
-                var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
-
+                
                 if (execution.PackageFormat != PackageManager.ARCHIVE_FORMAT_NUGET_ZIP)
                 {
-                    if (!filterDictionary.ContainsValue("Build/"))
+                    if (!filter.ContainsTargetPath("Build/"))
                     {
                         Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
                         if (execution.PackageFilterFile != null)
                         {
-                            this.PrintFilterMappings(filterDictionary);
+                            this.PrintFilterMappings(filter);
                         }
                         return 1;
                     }
 
-                    if (!filterDictionary.ContainsValue("Build/Projects/"))
+                    if (!filter.ContainsTargetPath("Build/Projects/"))
                     {
                         Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
                         if (execution.PackageFilterFile != null)
                         {
-                            this.PrintFilterMappings(filterDictionary);
+                            this.PrintFilterMappings(filter);
                         }
                         return 1;
                     }
 
-                    if (!filterDictionary.ContainsValue("Build/Module.xml"))
+                    if (!filter.ContainsTargetPath("Build/Module.xml"))
                     {
                         Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
                         if (execution.PackageFilterFile != null)
                         {
-                            this.PrintFilterMappings(filterDictionary);
+                            this.PrintFilterMappings(filter);
                         }
                         return 1;
                     }
                 }
 
-                if (filterDictionary.ContainsValue("Protobuild.exe"))
+                if (filter.ContainsTargetPath("Protobuild.exe"))
                 {
                     Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
                     if (execution.PackageFilterFile != null)
                     {
-                        this.PrintFilterMappings(filterDictionary);
+                        this.PrintFilterMappings(filter);
                     }
                     return 1;
                 }
@@ -263,42 +261,42 @@ namespace Protobuild
 
             var filterDictionary = filter.ToDictionary(k => k.Key, v => v.Value);
 
-            if (!filterDictionary.ContainsValue("Build/"))
+            if (!filter.ContainsTargetPath("Build/"))
             {
                 Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
                 if (execution.PackageFilterFile != null)
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    this.PrintFilterMappings(filter);
                 }
                 return 1;
             }
 
-            if (!filterDictionary.ContainsValue("Build/Projects/"))
+            if (!filter.ContainsTargetPath("Build/Projects/"))
             {
                 Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
                 if (execution.PackageFilterFile != null)
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    this.PrintFilterMappings(filter);
                 }
                 return 1;
             }
 
-            if (!filterDictionary.ContainsValue("Build/Module.xml"))
+            if (!filter.ContainsTargetPath("Build/Module.xml"))
             {
                 Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
                 if (execution.PackageFilterFile != null)
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    this.PrintFilterMappings(filter);
                 }
                 return 1;
             }
 
-            if (filterDictionary.ContainsValue("Protobuild.exe"))
+            if (filter.ContainsTargetPath("Protobuild.exe"))
             {
                 Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
                 if (execution.PackageFilterFile != null)
                 {
-                    this.PrintFilterMappings(filterDictionary);
+                    this.PrintFilterMappings(filter);
                 }
                 return 1;
             }
@@ -354,12 +352,15 @@ If a filter file is specified, performs the steps in the filter file instead.
             return false;
         }
 
-        private void PrintFilterMappings(Dictionary<string, string> mappings)
+        private void PrintFilterMappings(FileFilter mappings)
         {
             Console.WriteLine("The filter mappings resulted in: ");
             foreach (var kv in mappings)
             {
-                Console.WriteLine("  " + kv.Key + " -> " + kv.Value);
+                foreach (var v in kv.Value)
+                {
+                    Console.WriteLine("  " + kv.Key + " -> " + v);
+                }
             }
         }
     }

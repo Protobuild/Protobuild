@@ -44,12 +44,14 @@ namespace Protobuild
                             {
                                 Console.WriteLine("Adding files to package...");
 
-                                var progressHelper = new AddFilesProgressRenderer(filter.Count());
+                                var progressHelper = new AddFilesProgressRenderer(filter.CountTargetPaths());
                                 var current = 0;
 
                                 var uniqueFiles = new HashSet<string>();
 
-                                foreach (var kv in filter.OrderBy(kv => kv.Value))
+                                var entries = filter.GetExpandedEntries();
+
+                                foreach (var kv in entries.OrderBy(kv => kv.Value))
                                 {
                                     if (kv.Value.EndsWith("/"))
                                     {
@@ -92,10 +94,12 @@ namespace Protobuild
 
                             Console.Write("Deduplicating files in package...");
 
-                            var progressHelper = new DedupProgressRenderer(filter.Count());
+                            var progressHelper = new DedupProgressRenderer(filter.CountTargetPaths());
                             var current = 0;
 
-                            foreach (var kv in filter.OrderBy(kv => kv.Value))
+                            var entries = filter.GetExpandedEntries();
+
+                            foreach (var kv in entries.OrderBy(kv => kv.Value))
                             {
                                 if (kv.Value.EndsWith("/"))
                                 {

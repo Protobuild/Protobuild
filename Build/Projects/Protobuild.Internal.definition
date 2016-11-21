@@ -229,9 +229,11 @@
     <Compile Include="Packages\AutomaticPackager\ProtobuildAutomaticModulePackager.cs" />
     <Compile Include="Packages\GetProtobuildPackageBinaryDelegate.cs" />
     <Compile Include="Packages\GitUtils.cs" />
+    <Compile Include="Packages\INuGetPlatformMapping.cs" />
     <Compile Include="Packages\IPackageManager.cs" />
     <Compile Include="Packages\IPackageNameLookup.cs" />
     <Compile Include="Packages\IPackageUrlParser.cs" />
+    <Compile Include="Packages\NuGetPlatformMapping.cs" />
     <Compile Include="Packages\PackageCache\IPackageCacheConfiguration.cs" />
     <Compile Include="Packages\PackageCache\PackageCacheConfiguration.cs" />
     <Compile Include="Packages\PackageCreator\GetRecursiveUtilitiesInPath.cs" />

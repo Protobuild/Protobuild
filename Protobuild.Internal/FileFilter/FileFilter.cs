@@ -6,10 +6,11 @@ using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
-    internal class FileFilter : IEnumerable<KeyValuePair<string, string>>
+    internal class FileFilter : IEnumerable<KeyValuePair<string, List<string>>>
     {
         private List<string> m_SourceFiles = new List<string>();
-        private Dictionary<string, string> m_FileMappings = new Dictionary<string, string>();
+        private Dictionary<string, List<string>> m_FileMappings = new Dictionary<string, List<string>>();
+        private int? _targetPathCount;
 
         public FileFilter(IEnumerable<string> filenames)
         {
@@ -19,7 +20,7 @@ namespace Protobuild
 
         public void AddManualMapping(string source, string destination)
         {
-            this.m_FileMappings.Add(source, destination);
+            this.m_FileMappings.Add(source, new List<string> {destination});
         }
 
         public bool ApplyInclude(string regex)
@@ -35,10 +36,11 @@ namespace Protobuild
                         return true;
                     }
 
-                    this.m_FileMappings.Add(s, s);
+                    this.m_FileMappings.Add(s, new List<string> {s});
                     didMatch = true;
                 }
             }
+            _targetPathCount = null;
             return didMatch;
         }
 
@@ -47,18 +49,28 @@ namespace Protobuild
             var didMatch = false;
             var re = new Regex(regex);
             var toRemove = new List<string>();
-            foreach (KeyValuePair<string, string> kv in this.m_FileMappings)
+            foreach (KeyValuePair<string, List<string>> kv in this.m_FileMappings)
             {
-                if (re.IsMatch(kv.Value))
+                foreach (var v in kv.Value.ToArray())
                 {
-                    toRemove.Add(kv.Key);
-                    didMatch = true;
+                    if (re.IsMatch(v))
+                    {
+                        kv.Value.Remove(v);
+                        didMatch = true;
+                    }
+
+                    if (kv.Value.Count == 0)
+                    {
+                        // no mappings left
+                        toRemove.Add(kv.Key);
+                    }
                 }
             }
             foreach (string s in toRemove)
             {
                 this.m_FileMappings.Remove(s);
             }
+            _targetPathCount = null;
             return didMatch;
         }
 
@@ -66,15 +78,41 @@ namespace Protobuild
         {
             var didMatch = false;
             var re = new Regex(find);
-            var copy = new Dictionary<string, string>(this.m_FileMappings);
-            foreach (KeyValuePair<string, string> kv in copy)
+            var copy = new Dictionary<string, List<string>>(this.m_FileMappings);
+            foreach (KeyValuePair<string, List<string>> kv in copy)
             {
-                if (re.IsMatch(kv.Value))
+                var a = kv.Value.ToArray();
+                for (var i = 0; i < a.Length; i++)
                 {
-                    this.m_FileMappings[kv.Key] = re.Replace(kv.Value, replace);
-                    didMatch = true;
+                    if (re.IsMatch(a[i]))
+                    {
+                        this.m_FileMappings[kv.Key][i] = re.Replace(a[i], replace);
+                        didMatch = true;
+                    }
                 }
             }
+            _targetPathCount = null;
+            return didMatch;
+        }
+
+        public bool ApplyCopy(string find, string target)
+        {
+            var didMatch = false;
+            var re = new Regex(find);
+            var copy = new Dictionary<string, List<string>>(this.m_FileMappings);
+            foreach (KeyValuePair<string, List<string>> kv in copy)
+            {
+                var a = kv.Value.ToArray();
+                for (var i = 0; i < a.Length; i++)
+                {
+                    if (re.IsMatch(a[i]))
+                    {
+                        this.m_FileMappings[kv.Key].Add(re.Replace(a[i], target));
+                        didMatch = true;
+                    }
+                }
+            }
+            _targetPathCount = null;
             return didMatch;
         }
 
@@ -84,29 +122,77 @@ namespace Protobuild
 
             foreach (var mappingCopy in this.m_FileMappings)
             {
-                var filename = mappingCopy.Value;
-                var components = filename.Split('/', '\\');
-                var stack = new List<string>();
-
-                for (var i = 0; i < components.Length - 1; i++)
+                foreach (var filename in mappingCopy.Value)
                 {
-                    stack.Add(components[i]);
-                    if (!directoriesNeeded.Contains(string.Join("/", stack)))
+                    var components = filename.Split('/', '\\');
+                    var stack = new List<string>();
+
+                    for (var i = 0; i < components.Length - 1; i++)
                     {
-                        directoriesNeeded.Add(string.Join("/", stack));
+                        stack.Add(components[i]);
+                        if (!directoriesNeeded.Contains(string.Join("/", stack)))
+                        {
+                            directoriesNeeded.Add(string.Join("/", stack));
+                        }
                     }
                 }
             }
 
             foreach (var dir in directoriesNeeded)
             {
-                this.m_FileMappings.Add(dir, dir + "/");
+                this.m_FileMappings.Add(dir, new List<string> { dir + "/" });
+            }
+
+            _targetPathCount = null;
+        }
+
+        public bool ContainsTargetPath(string path)
+        {
+            foreach (var mapping in this.m_FileMappings)
+            {
+                foreach (var entry in mapping.Value)
+                {
+                    if (entry == path)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public int CountTargetPaths()
+        {
+            if (_targetPathCount != null)
+            {
+                return _targetPathCount.Value;
+            }
+
+            var i = 0;
+            foreach (var mapping in this.m_FileMappings)
+            {
+                i += mapping.Value.Count;
+            }
+
+            _targetPathCount = i;
+            return i;
+        }
+
+        public IEnumerable<KeyValuePair<string, string>> GetExpandedEntries()
+        {
+            foreach (var mapping in m_FileMappings)
+            {
+                foreach (var value in mapping.Value)
+                {
+                    yield return new KeyValuePair<string, string>(mapping.Key, value);
+                }
             }
         }
 
         #region IEnumerable<KeyValuePair<string,string>> Members
 
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
+        public IEnumerator<KeyValuePair<string, List<string>>> GetEnumerator()
         {
             return this.m_FileMappings.GetEnumerator();
         }

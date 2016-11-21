@@ -123,11 +123,7 @@ namespace Protobuild
             }
 
             // If there is no Module.xml in the source mappings already, then copy the current module.
-            var filterDictionary = fileFilter.ToDictionarySafe(
-                k => k.Key, 
-                v => v.Value,
-                (dict, d) => Console.WriteLine ("WARNING: More than one file maps to " + d.Key));
-            if (!filterDictionary.ContainsValue("Build/Module.xml"))
+            if (!fileFilter.ContainsTargetPath("Build/Module.xml"))
             {
                 fileFilter.AddManualMapping(Path.Combine(module.Path, "Build", "Module.xml"), "Build/Module.xml");
             }
