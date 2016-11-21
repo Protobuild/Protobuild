@@ -20,14 +20,18 @@ namespace Protobuild
 
         private readonly IGetRecursiveUtilitiesInPath _getRecursiveUtilitiesInPath;
 
+        private readonly INuGetPlatformMapping _nuGetPlatformMapping;
+
         public NuGetPackageTransformer(
             IProgressiveWebOperation progressiveWebOperation,
             IPackageCreator packageCreator,
-            IGetRecursiveUtilitiesInPath getRecursiveUtilitiesInPath)
+            IGetRecursiveUtilitiesInPath getRecursiveUtilitiesInPath,
+            INuGetPlatformMapping nuGetPlatformMapping)
         {
             _progressiveWebOperation = progressiveWebOperation;
             _packageCreator = packageCreator;
             _getRecursiveUtilitiesInPath = getRecursiveUtilitiesInPath;
+            _nuGetPlatformMapping = nuGetPlatformMapping;
         }
 
         private void CopyFolder(DirectoryInfo source, DirectoryInfo destination)
@@ -154,47 +158,7 @@ namespace Protobuild
 
                 // Determine the priority of the frameworks that we want to target
                 // out of the available versions.
-                string[] clrNames = new[]
-                {
-                    // Exact matches
-                    "=net45",
-                    "=Net45",
-                    "=net40-client",
-                    "=Net40-client",
-                    "=net403",
-                    "=Net403",
-                    "=net40",
-                    "=Net40",
-                    "=net35-client",
-                    "=Net35-client",
-                    "=net20",
-                    "=Net20",
-                    "=net11",
-                    "=Net11",
-                    "=20",
-                    "=11",
-                    "=",
-
-                    // Substring matches
-                    "?net45",
-                    "?Net45",
-                    "?net4",
-                    "?Net4",
-                    "?MonoAndroid",
-                };
-
-                if (platform == "WindowsUniversal")
-                {
-                    // This is the priority list for Windows Universal Apps.
-                    clrNames = new[]
-                    {
-                        "=uap10.0",
-                        "=uap",
-                        "=netcore451",
-                        "=netcore",
-                        "=dotnet"
-                    };
-                }
+                string[] clrNames = _nuGetPlatformMapping.GetFrameworkNamesForRead(platform);
 
                 var referenceDirectories = new string[] {"ref", "lib"};
 
