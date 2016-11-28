@@ -1111,7 +1111,14 @@
         <xsl:choose>
           <xsl:when test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
             <FileAlignment>512</FileAlignment>
-            <AndroidSupportedAbis>armeabi,armeabi-v7a,x86</AndroidSupportedAbis>
+            <xsl:choose>
+              <xsl:when test="user:HasXamarinAndroidTargets()">
+                <AndroidSupportedAbis>armeabi,armeabi-v7a,arm64-v8a,x86,x86_64</AndroidSupportedAbis>
+              </xsl:when>
+              <xsl:otherwise>
+                <AndroidSupportedAbis>armeabi,armeabi-v7a,x86</AndroidSupportedAbis>
+              </xsl:otherwise>
+            </xsl:choose>
             <AndroidStoreUncompressedFileExtensions />
             <MandroidI18n />
             <DeployExternal>False</DeployExternal>
@@ -2088,7 +2095,14 @@
           <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
         </xsl:when>
         <xsl:when test="$root/Input/Generation/Platform = 'Android' or $root/Input/Generation/Platform = 'Ouya'">
-          <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+          <xsl:choose>
+            <xsl:when test="user:HasXamarinAndroidTargets()">
+              <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
+            </xsl:when>
+            <xsl:otherwise>
+              <Import Project="$(MSBuildExtensionsPath)\Novell\Novell.MonoDroid.CSharp.targets" />
+            </xsl:otherwise>
+          </xsl:choose>
         </xsl:when>
         <xsl:when test="$root/Input/Generation/Platform = 'Windows8'">
           <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
