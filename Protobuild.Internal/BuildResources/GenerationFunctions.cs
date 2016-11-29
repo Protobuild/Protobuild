@@ -306,6 +306,30 @@ public class GenerationFunctions
     }
 
     /// <summary>
+    /// Returns whether or not the user has the more modern Xamarin Android targets available.
+    /// </summary>
+    public bool HasXamarinAndroidTargets()
+    {
+        var programFiles = ProgramFilesx86();
+        if (!string.IsNullOrWhiteSpace(programFiles))
+        {
+            var windowsPath = System.IO.Path.Combine(programFiles, @"MSBuild\Xamarin\Android\Xamarin.Android.CSharp.targets");
+            if (System.IO.File.Exists(windowsPath))
+            {
+                return true;
+            }
+        }
+
+        var macPath = @"/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Android/Xamarin.Android.CSharp.targets";
+        if (System.IO.File.Exists(macPath))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     /// Returns whether a file exists at a given path.
     /// </summary>
     /// <param name="path">The path to check.</param>
