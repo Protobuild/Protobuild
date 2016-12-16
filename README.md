@@ -1,6 +1,8 @@
 Protobuild
 ==========
 
+[![Join the chat at https://gitter.im/Protobuild/Protobuild](https://badges.gitter.im/Protobuild/Protobuild.svg)](https://gitter.im/Protobuild/Protobuild?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 _Cross-platform project generation for C#_
 
 Define your project content once and compile code for every platform, in any IDE or build system, on any operating system.  See http://protobuild.org/ for more information.
