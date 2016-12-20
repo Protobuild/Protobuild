@@ -272,7 +272,8 @@ namespace Protobuild
                         this.AutomaticallyPackageIncludeProject(definitions, services, fileFilter, rootPath, platform, definition);
                         break;
                     case "Content":
-                        Console.WriteLine("Content project definition skipped: " + definition.Name);
+                        Console.WriteLine("Packaging: " + definition.Name);
+                        this.AutomaticallyPackageContentProject(definitions, services, fileFilter, rootPath, platform, definition);
                         break;
                     default:
                         Console.WriteLine("Packaging: " + definition.Name);
@@ -529,6 +530,35 @@ namespace Protobuild
                 externalProjectDocument.WriteTo(writer);
             }
             fileFilter.AddManualMapping(temp, "protobuild/" + platform + "/Build/Projects/" + definition.Name + ".definition");
+        }
+
+        private void AutomaticallyPackageContentProject(
+            DefinitionInfo[] definitions,
+            List<Service> services,
+            FileFilter fileFilter,
+            string rootPath,
+            string platform,
+            DefinitionInfo definition)
+        {
+            var document = new XmlDocument();
+            document.Load(definition.DefinitionPath);
+
+            // Copy the definition file as-is.
+            fileFilter.ApplyInclude("^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$");
+            fileFilter.ApplyRewrite("^" + Regex.Escape("Build/Projects/" + definition.Name + ".definition") + "$", "protobuild/" + platform + "/Build/Projects/" + definition.Name + ".definition");
+
+            // Load the content project and include all relevant paths.
+            foreach (var element in document.SelectNodes("//Source").OfType<XmlElement>())
+            {
+                var include = element.GetAttribute("Include");
+                var match = element.GetAttribute("Match");
+
+                include = include.Replace("$(Platform)", platform);
+
+                // TODO: Only include files that match?
+                fileFilter.ApplyInclude("^" + Regex.Escape(include.TrimEnd(new[] { '/', '\\' })) + "/(.*)$");
+                fileFilter.ApplyRewrite("^" + Regex.Escape(include.TrimEnd(new[] { '/', '\\' })) + "/(.*)$", "protobuild/" + platform + "/" + include.TrimEnd(new[] { '/', '\\' }) + "/$1");
+            }
         }
 
         private void TranslateExternalProject(
@@ -865,6 +895,13 @@ namespace Protobuild
                             // For executables, we ship everything in the output directory, because we
                             // want the executables to be able to run from the package directory.
                             fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
+                            
+                            // Exclude the .app folder for Mac executables, because these applications are huge (they contain
+                            // a Mono runtime), and they're almost certainly redundant for tools in packages, which are going
+                            // to be used in development environments where the Mono runtime is available.
+                            fileFilter.ApplyExclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+
+                            // Copy remaining files to the right locations.
                             fileFilter.ApplyCopy("^" + pathPrefix + "(.+)$", "tools/$2");
                             fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/AnyCPU/$2");
 
@@ -951,6 +988,13 @@ namespace Protobuild
                             // For executables, we ship everything in the output directory, because we
                             // want the executables to be able to run from the package directory.
                             fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
+
+                            // Exclude the .app folder for Mac executables, because these applications are huge (they contain
+                            // a Mono runtime), and they're almost certainly redundant for tools in packages, which are going
+                            // to be used in development environments where the Mono runtime is available.
+                            fileFilter.ApplyExclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+
+                            // Copy remaining files to the right locations.
                             fileFilter.ApplyCopy("^" + pathPrefix + "(.+)$", "tools/$2");
 
                             if (pathArchMatch == "([^/]+)")
@@ -961,7 +1005,7 @@ namespace Protobuild
                             {
                                 fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/" + pathArchReplace + "/$2");
                             }
-
+                            
                             // Mark the executable files in the directory as tools that can be executed.
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {

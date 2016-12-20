@@ -181,14 +181,17 @@ namespace Protobuild.Internal
             {
                 sourceCodeUrl = ExtractSourceRepository(packagesByVersion[version]);
                 packageType = ExtractPackageType(packagesByVersion[version]);
-                
-                if (sourceCodeUrl.StartsWith("git="))
+
+                if (!string.IsNullOrWhiteSpace(sourceCodeUrl))
                 {
-                    sourceCodeUrl = sourceCodeUrl.Substring("git=".Length);
-                }
-                else
-                {
-                    throw new InvalidOperationException("Unknown source code repository type '" + sourceCodeUrl + "'");
+                    if (sourceCodeUrl.StartsWith("git="))
+                    {
+                        sourceCodeUrl = sourceCodeUrl.Substring("git=".Length);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Unknown source code repository type '" + sourceCodeUrl + "'");
+                    }
                 }
 
                 if (commitHashForSourceResolve == null)
