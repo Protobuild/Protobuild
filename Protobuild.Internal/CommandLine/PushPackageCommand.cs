@@ -485,33 +485,27 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
 
             var boundary = Guid.NewGuid().ToString();
 
-            int requestLength;
-            byte[] combinedContent;
-            using (var requestContent = new MemoryStream())
+            byte[] boundaryBytes = Encoding.UTF8.GetBytes("--" + boundary + "\r\n");
+            byte[] trailer = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
+            byte[] header =
+                Encoding.UTF8.GetBytes(
+                    string.Format(
+                        "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\";\r\nContent-Type: {2}\r\n\r\n",
+                        "package", "package.nupkg",
+                        "application/octet-stream"));
+
+            var requestLength = boundaryBytes.Length + header.Length + trailer.Length + fileBytes.Length;
+            var combinedContent = new byte[requestLength];
+
+            if (combinedContent == null)
             {
-                byte[] boundaryBytes = Encoding.UTF8.GetBytes("--" + boundary + "\r\n");
-                byte[] trailer = Encoding.UTF8.GetBytes("\r\n--" + boundary + "--\r\n");
-                string formdataTemplate = "Content-Disposition: form-data; name=\"{0}\"\r\n\r\n{1}";
-                string fileheaderTemplate =
-                    "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\";\r\nContent-Type: {2}\r\n\r\n";
-
-                Action<Stream, string> writeString = (_stream, _txt) =>
-                {
-                    byte[] bytes = Encoding.UTF8.GetBytes(_txt);
-                    _stream.Write(bytes, 0, bytes.Length);
-                };
-
-                requestContent.Write(boundaryBytes, 0, boundaryBytes.Length);
-                writeString(requestContent,
-                    string.Format(fileheaderTemplate, "package", "package.nupkg", "application/octet-stream"));
-                requestContent.Write(fileBytes, 0, fileBytes.Length);
-                requestContent.Write(trailer, 0, trailer.Length);
-
-                requestLength = (int)requestContent.Position;
-                requestContent.Seek(0, SeekOrigin.Begin);
-                combinedContent = new byte[requestLength];
-                await requestContent.ReadAsync(combinedContent, 0, requestLength);
+                throw new InvalidOperationException("Unable to create byte array " + requestLength + " bytes long for upload!");
             }
+
+            boundaryBytes.CopyTo(combinedContent, 0);
+            header.CopyTo(combinedContent, boundaryBytes.Length);
+            fileBytes.CopyTo(combinedContent, boundaryBytes.Length + header.Length);
+            trailer.CopyTo(combinedContent, boundaryBytes.Length + header.Length + fileBytes.Length);
                 
             using (var client = new RetryableWebClient())
             {
