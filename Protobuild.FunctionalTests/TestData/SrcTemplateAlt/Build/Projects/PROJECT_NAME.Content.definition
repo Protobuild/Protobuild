@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentProject Name="PROJECT_NAME.Content">
+  <Source Include="PROJECT_NAME.Content/assets" Match="*" Primary="true" />
+  <Source Include="PROJECT_NAME.Content/compiled" Match="*" />
+</ContentProject>

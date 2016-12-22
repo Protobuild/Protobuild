@@ -251,6 +251,23 @@ namespace Protobuild.Tests
             return tempLocation;
         }
 
+        protected string SetupSrcTemplateAlt()
+        {
+            var location = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory.FullName;
+            var dataLocation = Path.Combine(location, "..", "..", "..", "..", "TestData", "SrcTemplateAlt");
+
+            var tempLocation = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            CopyDirectory(dataLocation, tempLocation);
+
+            RunGitAndCapture(tempLocation, "init");
+            RunGitAndCapture(tempLocation, "config user.email temp@temp.com");
+            RunGitAndCapture(tempLocation, "config user.name Temp");
+            RunGitAndCapture(tempLocation, "add -f .");
+            RunGitAndCapture(tempLocation, "commit -a -m 'temp'");
+
+            return tempLocation;
+        }
+
         private static void CopyDirectory(string source, string dest)
         {
             var dir = new DirectoryInfo(source);

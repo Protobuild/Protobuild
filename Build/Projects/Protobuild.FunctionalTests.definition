@@ -126,6 +126,7 @@
     <Compile Include="PackageResolutionDoesNotOccurInSubmodulesTwiceTest.cs" />
     <Compile Include="PackageResolutionDoesNotOccurWhenPackageManagementDisabledTest.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyTest.cs" />
+    <Compile Include="PackageTemplateAppliesCorrectlyWithSimpleNames.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
     <Compile Include="PackageTemplateIgnoresTemplateOnlyFolderTest.cs" />
     <Compile Include="PackageUnifiedNuGetTest.cs" />
@@ -545,6 +546,7 @@
     <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Build\Projects\Console.definition" />
     <None Include="TestData\PackageResolutionDoesNotOccurWhenPackageManagementDisabled\Console\Program.cs" />
     <None Include="TestData\PackageTemplateAppliesCorrectly\.gitkeep" />
+    <None Include="TestData\PackageTemplateAppliesCorrectlyWithSimpleNames\.gitkeep" />
     <None Include="TestData\PackageTemplateAppliesCorrectlyWithUnsafeName\.gitkeep" />
     <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\.gitkeep" />
     <None Include="TestData\PackageTemplateIgnoresTemplateOnlyFolder\Generated\Generated.Content\assets\AssetReadme.txt" />

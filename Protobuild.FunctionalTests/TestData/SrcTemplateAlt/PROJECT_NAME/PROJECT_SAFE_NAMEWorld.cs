@@ -1,4 +1,4 @@
-namespace Generated
+namespace PROJECT_SAFE_NAME
 {
     using System.Collections.Generic;
 
@@ -6,7 +6,7 @@ namespace Generated
 
     using Protogame;
 
-    public class GeneratedWorld : IWorld
+    public class PROJECT_SAFE_NAMEWorld : IWorld
     {
         private readonly I2DRenderUtilities m_2DRenderUtilities;
 
@@ -14,7 +14,7 @@ namespace Generated
 
         private readonly FontAsset m_DefaultFont;
         
-        public GeneratedWorld(
+        public PROJECT_SAFE_NAMEWorld(
             I2DRenderUtilities twoDRenderUtilities,
             IAssetManagerProvider assetManagerProvider)
         {
@@ -42,7 +42,7 @@ namespace Generated
             this.m_2DRenderUtilities.RenderText(
                 renderContext,
                 new Vector2(10, 10),
-                "Hello Generated!",
+                "Hello {PROJECT_NAME}!",
                 this.m_DefaultFont);
 
             this.m_2DRenderUtilities.RenderText(
