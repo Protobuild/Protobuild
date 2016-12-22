@@ -1,6 +1,6 @@
 #if PLATFORM_ANDROID || PLATFORM_OUYA
 
-namespace Generated
+namespace PROJECT_SAFE_NAME
 {
     using System;
     using System.Collections.Generic;
@@ -22,13 +22,13 @@ namespace Generated
     using Protogame;
   
     [Activity(
-        Label = "Generated",
+        Label = "PROJECT_NAME",
         MainLauncher = true,
         AlwaysRetainTaskState = true,
         LaunchMode = Android.Content.PM.LaunchMode.SingleInstance,
         ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.Keyboard | ConfigChanges.KeyboardHidden,
         ScreenOrientation = ScreenOrientation.Landscape)]
-    public class GeneratedActivity : AndroidGameActivity
+    public class PROJECT_SAFE_NAMEActivity : AndroidGameActivity
     {
         protected override void OnCreate(Bundle bundle)
         {
@@ -40,7 +40,7 @@ namespace Generated
             AssetManagerClient.AcceptArgumentsAndSetup<GameAssetManagerProvider>(kernel, null);
 
             // Create our OpenGL view, and display it
-            var g = new GeneratedGame(kernel);
+            var g = new PROJECT_SAFE_NAMEGame(kernel);
             SetContentView(g.AndroidGameView);
             g.Run();
         }

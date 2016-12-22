@@ -20,6 +20,8 @@ namespace Protobuild
 
                 var replacedPath = path.Replace("{PROJECT_NAME}", name);
                 replacedPath = replacedPath.Replace("{PROJECT_SAFE_NAME}", normalizedTemplateName);
+                replacedPath = replacedPath.Replace("PROJECT_NAME", name);
+                replacedPath = replacedPath.Replace("PROJECT_SAFE_NAME", normalizedTemplateName);
                 var dirSeperator = replacedPath.LastIndexOfAny(new[] {'/', '\\'});
                 if (dirSeperator != -1)
                 {
@@ -37,13 +39,28 @@ namespace Protobuild
                 }
 
                 if (contents.Contains("{PROJECT_NAME}") || contents.Contains("{PROJECT_XML_NAME}") ||
-                    contents.Contains("{PROJECT_SAFE_NAME}") || contents.Contains("{PROJECT_SAFE_XML_NAME}"))
+                    contents.Contains("{PROJECT_SAFE_NAME}") || contents.Contains("{PROJECT_SAFE_XML_NAME}") ||
+                    contents.Contains("PROJECT_NAME") || contents.Contains("PROJECT_XML_NAME") ||
+                    contents.Contains("PROJECT_SAFE_NAME") || contents.Contains("PROJECT_SAFE_XML_NAME"))
                 {
                     contents = contents.Replace("{PROJECT_NAME}", name);
                     contents = contents.Replace("{PROJECT_XML_NAME}", SecurityElement.Escape(name));
                     contents = contents.Replace("{PROJECT_SAFE_NAME}", normalizedTemplateName);
                     contents = contents.Replace("{PROJECT_SAFE_XML_NAME}",
                         SecurityElement.Escape(normalizedTemplateName));
+                    if (file.FullName.ToLowerInvariant().EndsWith(".xml") ||
+                        file.FullName.ToLowerInvariant().EndsWith(".definition"))
+                    {
+                        contents = contents.Replace("PROJECT_NAME", SecurityElement.Escape(name));
+                        contents = contents.Replace("PROJECT_SAFE_NAME",
+                            SecurityElement.Escape(normalizedTemplateName));
+                    }
+                    else
+                    {
+                        contents = contents.Replace("PROJECT_NAME", name);
+                        contents = contents.Replace("PROJECT_SAFE_NAME", normalizedTemplateName);
+                    }
+                    
                     using (var writer = new StreamWriter(replacedPath))
                     {
                         writer.Write(contents);

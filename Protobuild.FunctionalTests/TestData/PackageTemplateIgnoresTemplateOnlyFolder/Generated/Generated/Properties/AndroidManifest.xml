@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemes.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="Generated">
-    <uses-sdk />
-    <application android:label="Generated"></application>
-</manifest>

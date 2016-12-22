@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Name="Generated" Path="Generated" Type="App">
+<Project Name="PROJECT_NAME" Path="PROJECT_NAME" Type="App">
   <References>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
@@ -11,13 +11,13 @@
     <Reference Include="MonoGame.Framework" />
     <Reference Include="Protogame" />
     <Reference Include="Protogame.ThirdParty" />
-    <Reference Include="Generated.Content" />
+    <Reference Include="PROJECT_NAME.Content" />
   </References>
   <Files>
     <Compile Include="Program.cs" />
-    <Compile Include="GeneratedGame.cs" />
-    <Compile Include="GeneratedWorld.cs" />
-    <Compile Include="GeneratedActivity.cs" />
+    <Compile Include="PROJECT_SAFE_NAMEGame.cs" />
+    <Compile Include="PROJECT_SAFE_NAMEWorld.cs" />
+    <Compile Include="PROJECT_SAFE_NAMEActivity.cs" />
     <None Include="Properties/AndroidManifest.xml" />
   </Files>
 </Project>
