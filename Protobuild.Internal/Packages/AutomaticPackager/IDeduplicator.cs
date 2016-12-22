@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.IO.Compression;
 
 namespace Protobuild
 {
@@ -12,6 +13,8 @@ namespace Protobuild
         void AddFile(DeduplicatorState state, FileInfo sourceFile, string destinationPath);
 
         void PushToTar(DeduplicatorState state, tar_cs.TarWriter writer);
+
+        void PushToZip(DeduplicatorState state, ZipStorer zip);
     }
 }
 
