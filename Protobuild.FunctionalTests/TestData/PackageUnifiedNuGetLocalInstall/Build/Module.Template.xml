@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Module>
-  <Name>Protobuild.TestInstall</Name>
+  <Name>test</Name>
   <DefaultAction>resync</DefaultAction>
   <DisableSynchronisation>false</DisableSynchronisation>
   <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
   <Packages>
-    <Package Uri="local-nuget-v3://C:\Users\June\Documents\Projects\Protobuild\Protobuild.FunctionalTests\TestData\PackageUnifiedNuGet\TestInstall.nupkg" Folder="TestInstall.nupkg" GitRef="master" />
+    <Package Uri="local-nuget-v3://{PATH_TO_NUGET_PKG}" Folder="TestInstall" GitRef="master" />
   </Packages>
 </Module>

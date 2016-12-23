@@ -259,6 +259,7 @@
     <Compile Include="Packages\PackageNameLookup.cs" />
     <Compile Include="Packages\PackageProtocol\GitPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\IPackageProtocol.cs" />
+    <Compile Include="Packages\PackageProtocol\LocalNuGet3PackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\LocalProtobuildPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\LocalTemplateGitPackageProtocol.cs" />
     <Compile Include="Packages\PackageProtocol\LocalTemplatePackageProtocol.cs" />

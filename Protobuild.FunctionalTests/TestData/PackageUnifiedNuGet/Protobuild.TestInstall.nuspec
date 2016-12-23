@@ -1,0 +1,12 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Protobuild.TestInstall</id>
+    <version>16.1223.004459+git.unspecified</version>
+    <title>Protobuild.TestInstall</title>
+    <authors>No Authors Specified</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>No Description Specified</description>
+    <tags>platforms=Linux type=library commit=bdb315ab53b65aa6a6a3c8ea0e2d89fb2b171b05</tags>
+  </metadata>
+</package>
