@@ -106,3 +106,5 @@ Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectlyWithSimpleNam
 
 Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstall/TestInstall/
 Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstall/Build/Module.xml
+Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstallNoDedup/Build/Module.xml
+Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstallNoDedup/TestInstall/

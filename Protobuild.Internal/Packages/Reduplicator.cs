@@ -256,13 +256,20 @@ namespace Protobuild
                 // Extract as-is.
                 foreach (var entry in entries.OrderBy(x => x.FilenameInZip))
                 {
-                    if (filterOutputPaths != null && !filterOutputPaths(entry.FilenameInZip))
+                    var outputFilename = NormalizeName(entry.FilenameInZip);
+
+                    if (filterOutputPaths != null && !filterOutputPaths(outputFilename))
                     {
                         // Path was filtered out.
                         continue;
                     }
 
-                    var baseName = Path.GetDirectoryName(entry.FilenameInZip);
+                    if (mutateOutputPaths != null)
+                    {
+                        outputFilename = mutateOutputPaths(outputFilename);
+                    }
+
+                    var baseName = Path.GetDirectoryName(outputFilename);
                     var buildUp = string.Empty;
                     foreach (var dirComponent in baseName.Replace('\\', '/').Split(new[] { '/' }))
                     {
@@ -290,12 +297,12 @@ namespace Protobuild
                             var bytes = new byte[stream.Position];
                             stream.Seek(0, SeekOrigin.Begin);
                             stream.Read(bytes, 0, bytes.Length);
-                            results.Add(entry.FilenameInZip, bytes);
+                            results.Add(outputFilename, bytes);
                         }
                     }
                     else
                     {
-                        zip.ExtractFile(entry, folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(entry.FilenameInZip));
+                        zip.ExtractFile(entry, folder.TrimEnd(new[] { '/', '\\' }) + '/' + outputFilename);
                     }
                 }
             }
