@@ -84,6 +84,7 @@ namespace Protobuild
                     }
 
                     rootCopies[kv.Value] = kv.Key;
+                    state.FileHashToSource[kv.Value].Seek(0, SeekOrigin.Begin);
                     zip.AddStream(
                         ZipStorer.Compression.Deflate,
                         kv.Key,
@@ -105,6 +106,7 @@ namespace Protobuild
                 else
                 {
                     // We need to store this under _DedupFiles.
+                    kv.Value.Seek(0, SeekOrigin.Begin);
                     zip.AddStream(
                         ZipStorer.Compression.Deflate,
                         "_DedupFiles/" + kv.Key,
@@ -145,7 +147,6 @@ namespace Protobuild
                     writer.Flush();
 
                     mappingStream.Seek(0, SeekOrigin.Begin);
-
                     zip.AddStream(
                         ZipStorer.Compression.Deflate,
                         "_DedupIndex.txt",
