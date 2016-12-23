@@ -140,7 +140,7 @@ namespace Protobuild
             return UnpackTar(reader, null, true);
         }
 
-        private Dictionary<string, byte[]> UnpackZip(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths, bool toMemory)
+        private Dictionary<string, byte[]> UnpackZip(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths, bool toMemory)
         {
             var results = new Dictionary<string, byte[]>();
 
@@ -171,6 +171,17 @@ namespace Protobuild
                             var outputFilename = components[0];
                             var filenameInZip = components[1];
 
+                            if (filterOutputPaths != null && !filterOutputPaths(outputFilename))
+                            {
+                                // Path was filtered out.
+                                continue;
+                            }
+
+                            if (mutateOutputPaths != null)
+                            {
+                                outputFilename = mutateOutputPaths(outputFilename);
+                            }
+
                             if (filenameInZip == "<DIRECTORY>")
                             {
                                 // Explicitly create this directory.
@@ -192,17 +203,12 @@ namespace Protobuild
                                         Directory.CreateDirectory(Path.Combine(folder, localDir));
                                     }
                                 }
+                                continue;
                             }
 
                             if (!entries.Any(x => x.FilenameInZip == filenameInZip))
                             {
                                 Console.WriteLine("WARNING: Unable to locate deduplication data file in ZIP: " + filenameInZip);
-                                continue;
-                            }
-
-                            if (filterOutputPaths != null && !filterOutputPaths(outputFilename))
-                            {
-                                // Path was filtered out.
                                 continue;
                             }
 
@@ -297,14 +303,14 @@ namespace Protobuild
             return results;
         }
 
-        public void UnpackZipToFolder(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths)
+        public void UnpackZipToFolder(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths)
         {
-            UnpackZip(zip, folder, filterOutputPaths, false);
+            UnpackZip(zip, folder, filterOutputPaths, mutateOutputPaths, false);
         }
 
-        public Dictionary<string, byte[]> UnpackZipToMemory(ZipStorer zip, Func<string, bool> filterOutputPaths)
+        public Dictionary<string, byte[]> UnpackZipToMemory(ZipStorer zip, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths)
         {
-            return UnpackZip(zip, null, filterOutputPaths, true);
+            return UnpackZip(zip, null, filterOutputPaths, mutateOutputPaths, true);
         }
     }
 }

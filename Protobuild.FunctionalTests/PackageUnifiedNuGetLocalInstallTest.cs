@@ -25,11 +25,16 @@
             using (var reader = new StreamReader(this.GetPath(Path.Combine("Build", "Module.Template.xml"))))
             {
                 var content = reader.ReadToEnd();
-                content.Replace("{PATH_TO_NUGET_PKG}", SecurityElement.Escape(this.GetPath("TestInstall.nupkg")));
+                content = content.Replace("{PATH_TO_NUGET_PKG}", SecurityElement.Escape(this.GetPath("TestInstall.nupkg")));
                 using (var writer = new StreamWriter(this.GetPath(Path.Combine("Build", "Module.xml"))))
                 {
                     writer.Write(content);
                 }
+            }
+
+            if (Directory.Exists(this.GetPath("TestInstall")))
+            {
+                PathUtils.AggressiveDirectoryDelete(this.GetPath("TestInstall"));
             }
 
             this.OtherMode("resolve", "Windows");

@@ -563,7 +563,11 @@ namespace Protobuild
                             using (var zipStorer = ZipStorer.Open(inMemory, FileAccess.Read, true))
                             {
                                 var reduplicator = new Reduplicator();
-                                reduplicator.UnpackZipToFolder(zipStorer, path, candidatePath => candidatePath.StartsWith("protobuild/"));
+                                reduplicator.UnpackZipToFolder(
+                                    zipStorer, 
+                                    path, 
+                                    candidatePath => candidatePath.Replace('\\', '/').StartsWith("protobuild/" + platform + "/"),
+                                    outputPath => outputPath.Replace('\\', '/').Substring(("protobuild/" + platform + "/").Length));
                             }
                         }
                         break;

@@ -4,7 +4,5 @@
   <DefaultAction>resync</DefaultAction>
   <DisableSynchronisation>false</DisableSynchronisation>
   <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
-  <Packages>
-    <Package Uri="local-nuget-v3://C:\Users\June\Documents\Projects\Protobuild\Protobuild.FunctionalTests\TestData\PackageUnifiedNuGet\TestInstall.nupkg" Folder="TestInstall.nupkg" GitRef="master" />
-  </Packages>
+  <Packages></Packages>
 </Module>
