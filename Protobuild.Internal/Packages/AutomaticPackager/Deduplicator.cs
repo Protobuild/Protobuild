@@ -83,7 +83,7 @@ namespace Protobuild
                         continue;
                     }
 
-                    rootCopies.Add(kv.Value, kv.Key);
+                    rootCopies[kv.Value] = kv.Key;
                     zip.AddStream(
                         ZipStorer.Compression.Deflate,
                         kv.Key,
