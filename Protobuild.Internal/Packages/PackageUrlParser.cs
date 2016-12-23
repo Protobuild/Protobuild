@@ -16,12 +16,17 @@ namespace Protobuild
             }
 
             var uri = new Uri(url);
+            var folder = uri.AbsolutePath.Replace("%7C", "/").Replace('|', '/').Trim('/').Split('/').Last();
+            if (folder.EndsWith(".nupkg"))
+            {
+                folder = folder.Substring(0, folder.Length - ".nupkg".Length);
+            }
 
             var package = new PackageRef
             {
                 Uri = url,
                 GitRef = branch,
-                Folder = uri.AbsolutePath.Replace("%7C", "/").Replace('|', '/').Trim('/').Split('/').Last()
+                Folder = folder
             };
 
             return package;

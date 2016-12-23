@@ -103,3 +103,6 @@ Protobuild.FunctionalTests/TestData/PackageTemplateIgnoresTemplateOnlyFolder/Gen
 Protobuild.FunctionalTests/TestData/PackageTemplateIgnoresTemplateOnlyFolder/Generated/
 Protobuild.FunctionalTests/TestData/PackageTemplateIgnoresTemplateOnlyFolder/Generated/**
 Protobuild.FunctionalTests/TestData/PackageTemplateAppliesCorrectlyWithSimpleNames/Generated/
+
+Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstall/TestInstall/
+Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstall/Build/Module.xml

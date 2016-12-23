@@ -81,6 +81,7 @@ namespace Protobuild
             kernel.Bind<IPackageProtocol, LocalTemplateGitPackageProtocol>();
             kernel.Bind<IPackageProtocol, NuGetPackageProtocol>();
             kernel.Bind<IPackageProtocol, NuGet3PackageProtocol>();
+            kernel.Bind<IPackageProtocol, LocalNuGet3PackageProtocol>();
             kernel.Bind<IPackageProtocol, ProtobuildPackageProtocol>();
             kernel.Bind<IPackageProtocol, LocalProtobuildPackageProtocol>();
         }

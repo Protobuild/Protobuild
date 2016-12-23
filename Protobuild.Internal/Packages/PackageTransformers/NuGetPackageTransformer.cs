@@ -89,7 +89,8 @@ namespace Protobuild
                     target,
                     filter,
                     originalFolder,
-                    format);
+                    format,
+                    platform);
 
                 Console.WriteLine("Package conversion complete.");
                 var bytes2 = new byte[target.Position];
@@ -364,7 +365,8 @@ namespace Protobuild
                     target,
                     filter,
                     folder,
-                    format);
+                    format,
+                    platform);
 
                 Console.WriteLine("Package conversion complete.");
                 bytes = new byte[target.Position];

@@ -18,6 +18,9 @@
     <Compile Include="..\Protobuild.Internal\PathUtils.cs">
       <Link>PathUtils.cs</Link>
     </Compile>
+    <Compile Include="..\Protobuild.Internal\ZIP\ZipStorer.cs">
+      <Link>ZIP\ZipStorer.cs</Link>
+    </Compile>
     <Compile Include="..\ThirdParty\TAR\DataWriter.cs">
       <Link>TAR\DataWriter.cs</Link>
     </Compile>
@@ -129,6 +132,7 @@
     <Compile Include="PackageTemplateAppliesCorrectlyWithSimpleNames.cs" />
     <Compile Include="PackageTemplateAppliesCorrectlyWithUnsafeNameTest.cs" />
     <Compile Include="PackageTemplateIgnoresTemplateOnlyFolderTest.cs" />
+    <Compile Include="PackageUnifiedNuGetLocalInstallTest.cs" />
     <Compile Include="PackageUnifiedNuGetTest.cs" />
     <Compile Include="PlatformSpecificOutputDefaultTest.cs" />
     <Compile Include="PlatformSpecificOutputFalseTest.cs" />
@@ -558,6 +562,9 @@
     <None Include="TestData\PackageUnifiedNuGet\Build\Projects\TestInstall.definition" />
     <None Include="TestData\PackageUnifiedNuGet\TestInstall\packages.config" />
     <None Include="TestData\PackageUnifiedNuGet\TestInstall\Program.cs" />
+    <None Include="TestData\PackageUnifiedNuGetLocalInstall\Build\Module.Template.xml" />
+    <None Include="TestData\PackageUnifiedNuGetLocalInstall\Build\Projects\test.definition" />
+    <None Include="TestData\PackageUnifiedNuGetLocalInstall\TestInstall.nupkg" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Module.xml" />
     <None Include="TestData\PlatformSpecificOutputDefault\Build\Projects\Test.definition" />
     <None Include="TestData\PlatformSpecificOutputDefault\Test\Program.cs" />

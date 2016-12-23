@@ -91,6 +91,8 @@ namespace Protobuild
                     .ToArray();
             }
 
+            var dedupIndex = new Dictionary<string, string>();
+
             var processedPlatforms = new List<string>();
             var packageFiles = new DirectoryInfo(module.Path).GetFiles("*.nupkg");
             foreach (var file in packageFiles)
@@ -157,6 +159,11 @@ namespace Protobuild
                             continue;
                         }
 
+                        if (entry.FilenameInZip == "_DedupIndex.txt")
+                        {
+                            continue;
+                        }
+
                         var extractedPath = Path.Combine(tempFile, entry.FilenameInZip);
                         storer.ExtractFile(entry, extractedPath);
                         temporaryFiles.Add(extractedPath);
@@ -168,8 +175,47 @@ namespace Protobuild
                         }
                     }
 
+                    var dedupEntries = entries.Where(x => x.FilenameInZip == "_DedupIndex.txt").ToList();
+                    if (dedupEntries.Count != 0)
+                    {
+                        var dedupEntry = dedupEntries[0];
+                        var memory = new MemoryStream();
+                        storer.ExtractFile(dedupEntry, memory);
+                        memory.Seek(0, SeekOrigin.Begin);
+                        using (var reader = new StreamReader(memory))
+                        {
+                            while (!reader.EndOfStream)
+                            {
+                                var line = reader.ReadLine();
+                                var components = line.Split(new[] { '?' }, 2);
+                                if (components.Length == 2 && (components.Length >= 1 && !string.IsNullOrWhiteSpace(components[0])))
+                                {
+                                    if (!dedupIndex.ContainsKey(components[0]))
+                                    {
+                                        dedupIndex[components[0]] = components[1];
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     processedPlatforms.Add(binaryPlatform);
                 }
+            }
+
+            if (dedupIndex.Count > 0)
+            {
+                var name = "_DedupIndex.txt";
+                var temp = Path.Combine(Path.GetTempPath(), name);
+                temporaryFiles.Add(temp);
+                using (var writer = new StreamWriter(temp))
+                {
+                    foreach (var kv in dedupIndex)
+                    {
+                        writer.WriteLine(kv.Key + "?" + kv.Value);
+                    }
+                }
+                fileFilter.AddManualMapping(temp, "_DedupIndex.txt");
             }
 
             if (processedPlatforms.Count == 0)

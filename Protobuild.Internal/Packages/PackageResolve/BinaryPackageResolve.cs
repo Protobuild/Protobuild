@@ -562,16 +562,12 @@ namespace Protobuild
                         {
                             using (var zipStorer = ZipStorer.Open(inMemory, FileAccess.Read, true))
                             {
-                                var entries = zipStorer.ReadCentralDir();
-                                foreach (var entry in entries)
-                                {
-                                    if (entry.FilenameInZip.StartsWith("protobuild/" + platform + "/"))
-                                    {
-                                        var relativePath = entry.FilenameInZip.Substring(("protobuild/" + platform + "/").Length);
-                                        var combinedPath = Path.Combine(path, relativePath);
-                                        zipStorer.ExtractFile(entry, combinedPath);
-                                    }
-                                }
+                                var reduplicator = new Reduplicator();
+                                reduplicator.UnpackZipToFolder(
+                                    zipStorer, 
+                                    path, 
+                                    candidatePath => candidatePath.Replace('\\', '/').StartsWith("protobuild/" + platform + "/"),
+                                    outputPath => outputPath.Replace('\\', '/').Substring(("protobuild/" + platform + "/").Length));
                             }
                         }
                         break;
