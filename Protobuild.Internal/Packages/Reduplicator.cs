@@ -200,7 +200,7 @@ namespace Protobuild
                                     }
                                     else
                                     {
-                                        Directory.CreateDirectory(Path.Combine(folder, localDir));
+                                        Directory.CreateDirectory(folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(localDir));
                                     }
                                 }
                                 continue;
@@ -228,7 +228,7 @@ namespace Protobuild
                                 }
                                 else
                                 {
-                                    Directory.CreateDirectory(Path.Combine(folder, localDir));
+                                    Directory.CreateDirectory(folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(localDir));
                                 }
                             }
 
@@ -245,7 +245,7 @@ namespace Protobuild
                             }
                             else
                             {
-                                zip.ExtractFile(entries.First(x => x.FilenameInZip == filenameInZip), Path.Combine(folder, outputFilename));
+                                zip.ExtractFile(entries.First(x => x.FilenameInZip == filenameInZip), folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(outputFilename));
                             }
                         }
                     }
@@ -278,7 +278,7 @@ namespace Protobuild
                         }
                         else
                         {
-                            Directory.CreateDirectory(Path.Combine(folder, localDir));
+                            Directory.CreateDirectory(folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(localDir));
                         }
                     }
 
@@ -295,12 +295,20 @@ namespace Protobuild
                     }
                     else
                     {
-                        zip.ExtractFile(entry, Path.Combine(folder, entry.FilenameInZip));
+                        zip.ExtractFile(entry, folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(entry.FilenameInZip));
                     }
                 }
             }
 
             return results;
+        }
+
+        private static string NormalizeName(string name)
+        {
+            name = name.Trim(new[] { '/', '\\' });
+            name = name.Replace('/', Path.DirectorySeparatorChar);
+            name = name.Replace('\\', Path.DirectorySeparatorChar);
+            return name;
         }
 
         public void UnpackZipToFolder(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths)
