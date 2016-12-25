@@ -93,13 +93,41 @@ namespace Protobuild.Internal
 
             string packageMetadataJson;
             var packageMetadata = GetJSON(new Uri(packageMetadataUrl), out packageMetadataJson);
-            
-            var latestPackageVersion = (string)packageMetadata.items[0].upper;
+
+            string latestPackageVersion = null;
+            foreach (var item in packageMetadata.items)
+            {
+                if (latestPackageVersion == null || string.CompareOrdinal((string)item.upper, latestPackageVersion) > 0)
+                {
+                    latestPackageVersion = item.upper;
+                }
+            }
 
             var packagesByVersion = new Dictionary<string, dynamic>();
-            foreach (var item in packageMetadata.items[0].items)
+            foreach (var item in packageMetadata.items)
             {
-                packagesByVersion[(string) item.catalogEntry.version] = item;
+                try
+                {
+                    var subitems = item.items;
+                    foreach (var subitem in subitems)
+                    {
+                        packagesByVersion[(string)subitem.catalogEntry.version] = subitem;
+                    }
+                }
+                catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+                {
+                    // When NuGet packages have a lot of versions, the items list is in a seperate document.
+                    // Download the document for each group of versions.  Ideally we would only download
+                    // the document we need, but for branches it's a little more complicated (we first need
+                    // to get the document for the latest version and then get the document for the resolved
+                    // version).  For now, we just download each document as we need it.
+                    string subdocumentJson;
+                    var subdocument = GetJSON(new Uri((string)item["@id"]), out subdocumentJson);
+                    foreach (var subitem in subdocument.items)
+                    {
+                        packagesByVersion[(string)subitem.catalogEntry.version] = subitem;
+                    }
+                }
             }
 
             string packageType = PackageManager.PACKAGE_TYPE_LIBRARY;
