@@ -63,7 +63,7 @@ namespace Protobuild
                 throw new InvalidOperationException("The source folder " + execution.PackageSourceFolder + " does not exist.");
             }
 
-            if (execution.PackagePlatform == "Template")
+            if (execution.PackagePlatform == "Template" && execution.PackageFormat != PackageManager.ARCHIVE_FORMAT_NUGET_ZIP)
             {
                 return ExecuteForTemplate(execution);
             }
