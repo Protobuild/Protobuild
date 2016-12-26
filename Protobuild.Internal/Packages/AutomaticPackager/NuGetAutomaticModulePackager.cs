@@ -54,6 +54,17 @@ namespace Protobuild
                     packageFormat,
                     temporaryFiles);
             }
+            else if (string.Equals(platform, "Template", StringComparison.InvariantCulture) || execution.PackageType == PackageManager.PACKAGE_TYPE_TEMPLATE)
+            {
+                AutopackageTemplate(
+                    fileFilter,
+                    execution,
+                    module,
+                    rootPath,
+                    "Template",
+                    packageFormat,
+                    temporaryFiles);
+            }
             else
             {
                 AutopackagePlatform(
@@ -231,6 +242,46 @@ namespace Protobuild
                 AddNuGetSpecification(module, fileFilter, temporaryFiles, processedPlatforms.ToArray(), execution);
                 AddPackageMetadata(module, fileFilter, temporaryFiles, processedPlatforms.ToArray(), execution);
             }
+        }
+
+        private void AutopackageTemplate(
+            FileFilter fileFilter,
+            Execution execution,
+            ModuleInfo module,
+            string rootPath,
+            string platform,
+            string packageFormat,
+            List<string> temporaryFiles)
+        {
+            fileFilter.ApplyInclude("^.*$");
+            fileFilter.ApplyExclude("^\\.git/.*$");
+            fileFilter.ApplyExclude("^\\.hg/.*$");
+            fileFilter.ApplyExclude("^\\.svn/.*$");
+            fileFilter.ApplyExclude("^_TemplateOnly/.*$");
+            fileFilter.ApplyExclude("^Jenkinsfile$");
+            fileFilter.ApplyExclude("^automated\\.build$");
+            fileFilter.ApplyExclude("^[Pp]rotobuild\\.exe$");
+            fileFilter.ApplyExclude("^(.*)\\.nupkg$");
+            fileFilter.ApplyExclude("^(.*)\\.nuspec$");
+            fileFilter.ApplyExclude("^Build/Module\\.xml$");
+
+            // Exclude any folders that are from packages.
+            foreach (var package in module.Packages)
+            {
+                fileFilter.ApplyExclude("^" + Regex.Escape(package.Folder) + "/(.*)$");
+            }
+
+            fileFilter.ApplyRewrite("^Build/Module\\.xml\\.template$", "Build/Module.xml");
+            fileFilter.ApplyRewrite("^automated\\.build\\.template$", "automated.build");
+            fileFilter.ApplyRewrite("^(.*)$", "protobuild/Template/$1");
+
+            execution.PackageType = PackageManager.PACKAGE_TYPE_TEMPLATE;
+
+            // Add required NuGet content.
+            AddNuGetContentTypes(fileFilter, temporaryFiles);
+            AddNuGetRelationships(module, fileFilter, temporaryFiles);
+            AddNuGetSpecification(module, fileFilter, temporaryFiles, new[] { platform }, execution);
+            AddPackageMetadata(module, fileFilter, temporaryFiles, new[] { platform }, execution);
         }
 
         private void AutopackagePlatform(

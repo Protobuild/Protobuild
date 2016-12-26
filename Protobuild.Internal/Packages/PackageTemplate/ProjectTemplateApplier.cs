@@ -86,12 +86,10 @@ namespace Protobuild
             var dirInfo = new DirectoryInfo(currentDirectory);
             foreach (var subdir in dirInfo.GetDirectories("*"))
             {
-                if (subdir.Name == ".git")
-                {
-                    continue;
-                }
-
-                if (subdir.Name == "_TemplateOnly")
+                if (subdir.Name == ".git" ||
+                    subdir.Name == ".hg" || 
+                    subdir.Name == ".svn" ||
+                    subdir.Name == "_TemplateOnly")
                 {
                     continue;
                 }
@@ -107,7 +105,28 @@ namespace Protobuild
 
             foreach (var file in dirInfo.GetFiles("*"))
             {
-                yield return new KeyValuePair<string, FileInfo>(Path.Combine(currentPrefix, file.Name), file);
+                var combinedPrefix = Path.Combine(currentPrefix, file.Name);
+
+                if (combinedPrefix == "automated.build" ||
+                    combinedPrefix == "Jenkinsfile" ||
+                    combinedPrefix == "Protobuild.exe" ||
+                    combinedPrefix.EndsWith(".nupkg") ||
+                    combinedPrefix.EndsWith(".nuspec"))
+                {
+                    continue;
+                }
+
+                if (combinedPrefix == "automated.build.template")
+                {
+                    combinedPrefix = "automated.build";
+                }
+
+                if (combinedPrefix == Path.Combine("Build", "Module.xml.template"))
+                {
+                    combinedPrefix = Path.Combine("Build", "Module.xml");
+                }
+
+                yield return new KeyValuePair<string, FileInfo>(combinedPrefix, file);
             }
         }
 
