@@ -11,17 +11,20 @@ namespace Protobuild
         private readonly IHostPlatformDetector _hostPlatformDetector;
         private readonly IPackageNameLookup _packageNameLookup;
         private readonly IFeatureManager _featureManager;
+        private readonly IPackageUrlParser _packageUrlParser;
 
         public UpgradePackageCommand(
             IPackageManager packageManager,
             IHostPlatformDetector hostPlatformDetector,
             IPackageNameLookup packageNameLookup,
-            IFeatureManager featureManager)
+            IFeatureManager featureManager,
+            IPackageUrlParser packageUrlParser)
         {
             _packageManager = packageManager;
             _hostPlatformDetector = hostPlatformDetector;
             _packageNameLookup = packageNameLookup;
             _featureManager = featureManager;
+            _packageUrlParser = packageUrlParser;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -43,23 +46,16 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            var url = execution.PackageUrl;
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
 
             if (module.Packages == null)
             {
                 throw new InvalidOperationException("No such package has been added");
             }
-                
-            var branch = "master";
-            if (url.LastIndexOf('@') > url.LastIndexOf('/'))
-            {
-                // A branch / commit ref is specified.
-                branch = url.Substring(url.LastIndexOf('@') + 1);
-                url = url.Substring(0, url.LastIndexOf('@'));
-            }
 
-            var packageRef = _packageNameLookup.LookupPackageByName(module, url);
+            var package = _packageUrlParser.Parse(execution.PackageUrl);
+
+            var packageRef = _packageNameLookup.LookupPackageByName(module, package.Uri);
 
             _packageManager.Resolve(
                 module,

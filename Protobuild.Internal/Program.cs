@@ -73,6 +73,7 @@ namespace Protobuild
                 { "query-features", kernel.Get<QueryFeaturesCommand>() },
                 { "features", kernel.Get<FeaturesCommand>() },
                 { "add", kernel.Get<AddPackageCommand>() },
+                { "remove", kernel.Get<RemovePackageCommand>() },
                 { "list", kernel.Get<ListPackagesCommand>() },
                 { "install", kernel.Get<InstallPackageCommand>() },
                 { "upgrade", kernel.Get<UpgradePackageCommand>() },

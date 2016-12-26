@@ -5,13 +5,13 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    internal class AddPackageCommand : ICommand
+    internal class RemovePackageCommand : ICommand
     {
         private readonly IFeatureManager _featureManager;
 
         private readonly IPackageUrlParser _packageUrlParser;
 
-        public AddPackageCommand(IPackageUrlParser packageUrlParser, IFeatureManager featureManager)
+        public RemovePackageCommand(IPackageUrlParser packageUrlParser, IFeatureManager featureManager)
         {
             _packageUrlParser = packageUrlParser;
             _featureManager = featureManager;
@@ -23,7 +23,7 @@ namespace Protobuild
 
             if (args.Length == 0 || args[0] == null)
             {
-                throw new InvalidOperationException("You must provide an argument to the -add option");
+                throw new InvalidOperationException("You must provide an argument to the -remove option");
             }
 
             pendingExecution.PackageUrl = args[0];
@@ -39,22 +39,26 @@ namespace Protobuild
                 module.Packages = new List<PackageRef>();
             }
 
-            var package = _packageUrlParser.Parse(url);
+            var packageRef = _packageUrlParser.Parse(url);
 
-            if (module.Packages.Any(x => x.Uri == package.Uri))
+            foreach (var package in module.Packages.ToArray())
             {
-                Console.WriteLine("WARNING: Package with URI " + package.Uri + " is already present; ignoring request to add package.");
-                return 0;
-            }
+                if (package.Uri == packageRef.Uri)
+                {
+                    Console.WriteLine("Removing " + package.Uri + "...");
+                    module.Packages.Remove(package);
 
-            if (Directory.Exists(package.Folder))
-            {
-                throw new InvalidOperationException(package.Folder + " already exists");
-            }
+                    // Save after each package remove in case something goes wrong deleting
+                    // the directory.
+                    module.Save(Path.Combine("Build", "Module.xml"));
 
-            Console.WriteLine("Adding " + package.Uri + " as " + package.Folder + "...");
-            module.Packages.Add(package);
-            module.Save(Path.Combine("Build", "Module.xml"));
+                    if (Directory.Exists(Path.Combine(module.Path, package.Folder)))
+                    {
+                        Console.WriteLine("Deleting folder '" + package.Folder + "'...");
+                        PathUtils.AggressiveDirectoryDelete(Path.Combine(module.Path, package.Folder));
+                    }
+                }
+            }
 
             return 0;
         }
@@ -62,7 +66,7 @@ namespace Protobuild
         public string GetDescription()
         {
             return @"
-Add a package to the current module.
+Remove a package and delete the associated folder from the current module.
 ";
         }
 

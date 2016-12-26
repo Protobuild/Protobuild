@@ -12,14 +12,18 @@ namespace Protobuild
 
         private readonly IFeatureManager _featureManager;
 
+        private readonly IPackageUrlParser _packageUrlParser;
+
         public InstallPackageCommand(
             IHostPlatformDetector hostPlatformDetector,
             IPackageManager packageManager,
-            IFeatureManager featureManager)
+            IFeatureManager featureManager,
+            IPackageUrlParser packageUrlParser)
         {
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_PackageManager = packageManager;
             _featureManager = featureManager;
+            _packageUrlParser = packageUrlParser;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -36,24 +40,9 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            var url = execution.PackageUrl;
+            var package = _packageUrlParser.Parse(execution.PackageUrl);
 
-            var branch = "master";
-            if (url.LastIndexOf('@') > url.LastIndexOf('/'))
-            {
-                // A branch / commit ref is specified.
-                branch = url.Substring(url.LastIndexOf('@') + 1);
-                url = url.Substring(0, url.LastIndexOf('@'));
-            }
-
-            var package = new PackageRef
-            {
-                Uri = url,
-                GitRef = branch,
-                Folder = null
-            };
-
-            Console.WriteLine("Installing " + url + "...");
+            Console.WriteLine("Installing " + package.Uri + "...");
             this.m_PackageManager.Resolve(null, package, this.m_HostPlatformDetector.DetectPlatform(), null, false, true, false);
 
             return 0;
