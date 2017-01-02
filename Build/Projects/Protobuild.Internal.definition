@@ -328,6 +328,9 @@
     <EmbeddedResource Include="BuildResources\GenerationFunctions.cs-msbuild-hack.lzma">
       <LogicalName>GenerationFunctions.cs.lzma</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\NuGetPlatformMappings.xml.lzma">
+      <LogicalName>NuGetPlatformMappings.xml.lzma</LogicalName>
+    </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\JSILTemplate.htm.lzma">
       <LogicalName>JSILTemplate.htm.lzma</LogicalName>
     </EmbeddedResource>

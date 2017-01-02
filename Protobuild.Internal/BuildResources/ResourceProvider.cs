@@ -44,6 +44,8 @@ namespace Protobuild
                 case ResourceType.SelectSolution:
                 case ResourceType.AdditionalProjectTransforms:
                     return "xslt";
+                case ResourceType.NuGetPlatformMappings:
+                    return "xml";
                 case ResourceType.GenerationFunctions:
                 case ResourceType.AdditionalGenerationFunctions:
                     return "cs";
@@ -77,6 +79,9 @@ namespace Protobuild
                     break;
                 case ResourceType.GenerationFunctions:
                     name = "GenerationFunctions";
+                    break;
+                case ResourceType.NuGetPlatformMappings:
+                    name = "NuGetPlatformMappings";
                     break;
                 case ResourceType.AdditionalGenerationFunctions:
                     name = "AdditionalGenerationFunctions";
@@ -278,6 +283,16 @@ namespace Protobuild
 
             cache[hash] = result;
             return result;
+        }
+
+        public XmlDocument LoadXML(ResourceType resourceType, Language language, string platform)
+        {         
+            var source = this.LoadOverriddableResource(resourceType, language, platform);
+
+            var document = new XmlDocument();
+            document.Load(source);
+
+            return document;
         }
 
         private Stream GetTransparentDecompressionStream(Stream input)

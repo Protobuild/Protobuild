@@ -10,6 +10,7 @@ if host Windows
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateSolution.xslt Protobuild.Internal\BuildResources\GenerateSolution.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\NuGetPlatformMappings.xml Protobuild.Internal\BuildResources\NuGetPlatformMappings.xml.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\SelectSolution.xslt Protobuild.Internal\BuildResources\SelectSolution.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\JSILTemplate.htm Protobuild.Internal\BuildResources\JSILTemplate.htm.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerationFunctions.cs Protobuild.Internal\BuildResources\GenerationFunctions.cs-msbuild-hack.lzma
@@ -18,6 +19,7 @@ if host-not Windows
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/NuGetPlatformMappings.xml Protobuild.Internal/BuildResources/NuGetPlatformMappings.xml.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/SelectSolution.xslt Protobuild.Internal/BuildResources/SelectSolution.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/JSILTemplate.htm Protobuild.Internal/BuildResources/JSILTemplate.htm.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerationFunctions.cs Protobuild.Internal/BuildResources/GenerationFunctions.cs-msbuild-hack.lzma

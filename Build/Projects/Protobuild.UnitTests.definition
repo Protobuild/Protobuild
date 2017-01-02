@@ -18,6 +18,7 @@
     <Compile Include="PackageRefTests.cs" />
     <Compile Include="PathUtilsTests.cs" />
     <Compile Include="ServiceResolutionTests.cs" />
+    <Compile Include="NuGetPlatformMappingTests.cs" />
     <EmbeddedResource Include="ModuleInfos\FeatureSetIsEmpty.xml">
       <LogicalName>FeatureSetIsEmpty.xml</LogicalName>
     </EmbeddedResource>

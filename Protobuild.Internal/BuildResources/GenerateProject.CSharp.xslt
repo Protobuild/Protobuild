@@ -76,6 +76,9 @@
             <xsl:value-of select="$root/Input/Properties/LangVersion"/>
           </LangVersion>
         </xsl:when>
+        <xsl:when test="$root/Input/Generation/Platform = 'Unity'">
+          <LangVersion>4</LangVersion>
+        </xsl:when>
         <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'Windows8'">
           <LangVersion>5</LangVersion>
         </xsl:when>
@@ -141,6 +144,9 @@
             <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+          </xsl:when>
+          <xsl:when test="$root/Input/Generation/Platform = 'Unity'">
+            <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
           </xsl:when>
           <xsl:otherwise>
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -324,6 +330,9 @@
               </xsl:when>
               <xsl:when test="$root/Input/Generation/Platform = 'tvOS'">
                 <xsl:text>PLATFORM_TVOS</xsl:text>
+              </xsl:when>
+              <xsl:when test="$root/Input/Generation/Platform = 'Unity'">
+                <xsl:text>PLATFORM_UNITY</xsl:text>
               </xsl:when>
             </xsl:choose>
             <xsl:text>;</xsl:text>
@@ -1079,7 +1088,7 @@
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:when>
-                <xsl:when test="$root/Input/Generation/Platform = 'iOS'  or $root/Input/Generation/Platform = 'tvOS'">
+                <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS'">
                   <xsl:text>Exe</xsl:text>
                 </xsl:when>
                 <xsl:otherwise>
