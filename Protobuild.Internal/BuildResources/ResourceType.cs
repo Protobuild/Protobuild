@@ -12,6 +12,8 @@ namespace Protobuild
 
         GenerationFunctions,
 
+        NuGetPlatformMappings,
+
         AdditionalGenerationFunctions,
 
         AdditionalProjectTransforms

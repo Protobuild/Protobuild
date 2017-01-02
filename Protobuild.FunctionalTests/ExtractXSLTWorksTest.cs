@@ -23,6 +23,7 @@
                 "GenerateProject.CPlusPlus.VisualStudio.xslt",
                 "GenerateSolution.xslt",
                 "GenerationFunctions.cs",
+                "NuGetPlatformMappings.xml",
                 "SelectSolution.xslt",
             };
 

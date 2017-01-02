@@ -174,7 +174,7 @@ namespace Protobuild
                     Console.Error.WriteLine("WARNING: Source package cache is corrupt, removing and cloning again...");
                     try
                     {
-                        Directory.Delete(sourcePath, true);
+                        PathUtils.AggressiveDirectoryDelete(sourcePath);
                     }
                     catch (Exception)
                     {
