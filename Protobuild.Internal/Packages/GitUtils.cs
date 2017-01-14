@@ -21,7 +21,7 @@ namespace Protobuild
                 RedirectStandardInput = true
             };
             
-            Console.WriteLine(consoleWriteLine);
+            RedirectableConsole.WriteLine(consoleWriteLine);
             
             var process = Process.Start(processStartInfo);
             if (process == null)
@@ -67,7 +67,7 @@ namespace Protobuild
                 };
 
             var suffix = folder == null ? "" : " (" + folder + ")";
-            Console.WriteLine("Executing: git " + str + suffix);
+            RedirectableConsole.WriteLine("Executing: git " + str + suffix);
 
             var process = Process.Start(processStartInfo);
             if (process == null)
@@ -99,7 +99,7 @@ namespace Protobuild
                     UseShellExecute = false,
                 };
 
-            Console.WriteLine("Executing: git rev-parse --is-inside-work-tree");
+            RedirectableConsole.WriteLine("Executing: git rev-parse --is-inside-work-tree");
             var process = Process.Start(processStartInfo);
             if (process == null)
             {
@@ -216,7 +216,7 @@ namespace Protobuild
                     }
                 }
 
-                Console.Error.WriteLine(
+                RedirectableConsole.ErrorWriteLine(
                     "WARNING: Unable to find Git on your PATH, or any standard " +
                     "locations.  Have you installed Git on this system?");
                 return "git";

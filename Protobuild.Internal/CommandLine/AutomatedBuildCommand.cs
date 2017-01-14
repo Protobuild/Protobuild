@@ -28,7 +28,7 @@ namespace Protobuild
 
             if (!File.Exists(scriptPath))
             {
-                Console.Error.WriteLine("ERROR: Automated build script not found at " + scriptPath + ".");
+                RedirectableConsole.ErrorWriteLine("ERROR: Automated build script not found at " + scriptPath + ".");
             }
 
             return _automatedBuildController.Execute(scriptPath);

@@ -124,7 +124,7 @@ namespace Protobuild
                             {
                                 if (!File.Exists(Path.Combine(srcDir, "index.htm")))
                                 {
-                                    Console.WriteLine("Extracting JSIL HTML template...");
+                                    RedirectableConsole.WriteLine("Extracting JSIL HTML template...");
                                     ResourceExtractor.ExtractJSILTemplate(projectName, Path.Combine(srcDir, "index.htm"));
                                 }
                             }

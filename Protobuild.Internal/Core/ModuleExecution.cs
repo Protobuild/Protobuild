@@ -17,19 +17,40 @@ namespace Protobuild
                 invokeInline = true;
             }
 
-            if ((ExecEnvironment.RunProtobuildInProcess || invokeInline) && !capture)
+            if (ExecEnvironment.RunProtobuildInProcess || invokeInline)
             {
+                var oldBuffer = RedirectableConsole.TargetBuffer;
+                var ourBuffer = new RedirectableBuffer();
+                RedirectableConsole.TargetBuffer = ourBuffer;
+                var needsEndSelfInvoke = true;
                 var old = Environment.CurrentDirectory;
                 try
                 {
                     Environment.CurrentDirectory = module.Path;
-                    return new Tuple<int, string, string>(
-                        ExecEnvironment.InvokeSelf(args.SplitCommandLine().ToArray()),
-                        string.Empty,
-                        string.Empty);
+                    var exitCode = ExecEnvironment.InvokeSelf(args.SplitCommandLine().ToArray());
+                    RedirectableConsole.TargetBuffer = oldBuffer;
+                    needsEndSelfInvoke = false;
+                    if (capture)
+                    {
+                        return new Tuple<int, string, string>(
+                            exitCode,
+                            ourBuffer.Stdout,
+                            ourBuffer.Stderr);
+                    }
+                    else
+                    {
+                        return new Tuple<int, string, string>(
+                            exitCode,
+                            string.Empty,
+                            string.Empty);
+                    }
                 }
                 finally
                 {
+                    if (needsEndSelfInvoke)
+                    {
+                        RedirectableConsole.TargetBuffer = oldBuffer;
+                    }
                     Environment.CurrentDirectory = old;
                 }
             }
@@ -87,7 +108,7 @@ namespace Protobuild
                                 }
                                 else
                                 {
-                                    Console.WriteLine(eventArgs.Data);
+                                    RedirectableConsole.WriteLine(eventArgs.Data);
                                 }
                             }
                         };
@@ -101,7 +122,7 @@ namespace Protobuild
                                 }
                                 else
                                 {
-                                    Console.Error.WriteLine(eventArgs.Data);
+                                    RedirectableConsole.ErrorWriteLine(eventArgs.Data);
                                 }
                             }
                         };
@@ -121,13 +142,13 @@ namespace Protobuild
                             // Show a warning and sleep for a bit before retrying.
                             if (attempt != 2)
                             {
-                                Console.WriteLine("WARNING: Unable to execute Protobuild.exe, will retry again...");
+                                RedirectableConsole.WriteLine("WARNING: Unable to execute Protobuild.exe, will retry again...");
                                 System.Threading.Thread.Sleep(2000);
                                 continue;
                             }
                             else
                             {
-                                Console.WriteLine("ERROR: Still unable to execute Protobuild.exe.");
+                                RedirectableConsole.WriteLine("ERROR: Still unable to execute Protobuild.exe.");
                                 throw;
                             }
                         }

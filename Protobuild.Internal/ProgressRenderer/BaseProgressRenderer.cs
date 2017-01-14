@@ -43,7 +43,7 @@ namespace Protobuild
 
         protected void Output(string str)
         {
-            Console.Write("\r" + str);
+            RedirectableConsole.Write("\r" + str);
             this.m_DidOutput = true;
         }
 
@@ -51,7 +51,7 @@ namespace Protobuild
         {
             if (this.m_DidOutput)
             {
-                Console.WriteLine();
+                RedirectableConsole.WriteLine();
             }
         }
     }

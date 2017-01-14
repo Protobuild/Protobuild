@@ -201,7 +201,7 @@ namespace Protobuild.Internal
                 }
                 else
                 {
-                    Console.WriteLine("Unable to resolve binary package for version \"" + version +
+                    RedirectableConsole.WriteLine("Unable to resolve binary package for version \"" + version +
                                       "\" and platform \"" + request.Platform + "\", falling back to source version");
                 }
             }

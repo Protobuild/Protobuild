@@ -25,14 +25,14 @@ namespace Protobuild
                 switch (packageFormat)
                 {
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
-                        Console.WriteLine("Writing package in tar/gzip format...");
+                        RedirectableConsole.WriteLine("Writing package in tar/gzip format...");
                         break;
                     case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
-                        Console.WriteLine("Writing package in NuGet ZIP format... (this is experimental!)");
+                        RedirectableConsole.WriteLine("Writing package in NuGet ZIP format... (this is experimental!)");
                         break;
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
-                        Console.WriteLine("Writing package in tar/lzma format...");
+                        RedirectableConsole.WriteLine("Writing package in tar/lzma format...");
                         break;
                 }
 
@@ -48,7 +48,7 @@ namespace Protobuild
                                 // package contents.  Just add all the files to the ZIP instead.
                                 Action<ZipStorer> addFilesToZip = zip =>
                                 {
-                                    Console.WriteLine("Adding files to package...");
+                                    RedirectableConsole.WriteLine("Adding files to package...");
 
                                     var progressHelper = new AddFilesProgressRenderer(filter.CountTargetPaths());
                                     var current = 0;
@@ -102,7 +102,7 @@ namespace Protobuild
                                     // It's possible the archive is too large to store in memory.  Fall
                                     // back to using a temporary file on disk.
                                     cleanUp = Path.GetTempFileName();
-                                    Console.WriteLine(
+                                    RedirectableConsole.WriteLine(
                                         "WARNING: Out-of-memory while creating ZIP file, falling back to storing " +
                                         "temporary file on disk at " + cleanUp + " during package creation.");
                                     archive.Dispose();
@@ -119,7 +119,7 @@ namespace Protobuild
                                 // Deduplicate the contents of the ZIP package.
                                 var state = _deduplicator.CreateState();
 
-                                Console.Write("Deduplicating files in package...");
+                                RedirectableConsole.Write("Deduplicating files in package...");
 
                                 var progressHelper = new DedupProgressRenderer(filter.CountTargetPaths());
                                 var current = 0;
@@ -148,7 +148,7 @@ namespace Protobuild
                                 }
 
                                 progressHelper.FinalizeRendering();
-                                Console.WriteLine("Adding files to package...");
+                                RedirectableConsole.WriteLine("Adding files to package...");
 
                                 try
                                 {
@@ -162,7 +162,7 @@ namespace Protobuild
                                     // It's possible the archive is too large to store in memory.  Fall
                                     // back to using a temporary file on disk.
                                     cleanUp = Path.GetTempFileName();
-                                    Console.WriteLine(
+                                    RedirectableConsole.WriteLine(
                                         "WARNING: Out-of-memory while creating ZIP file, falling back to storing " +
                                         "temporary file on disk at " + cleanUp + " during package creation.");
                                     archive.Dispose();
@@ -183,7 +183,7 @@ namespace Protobuild
                         {
                             var state = _deduplicator.CreateState();
 
-                            Console.Write("Deduplicating files in package...");
+                            RedirectableConsole.Write("Deduplicating files in package...");
 
                             var progressHelper = new DedupProgressRenderer(filter.CountTargetPaths());
                             var current = 0;
@@ -212,7 +212,7 @@ namespace Protobuild
                             }
 
                             progressHelper.FinalizeRendering();
-                            Console.WriteLine("Adding files to package...");
+                            RedirectableConsole.WriteLine("Adding files to package...");
 
                             try
                             {
@@ -226,7 +226,7 @@ namespace Protobuild
                                 // It's possible the archive is too large to store in memory.  Fall
                                 // back to using a temporary file on disk.
                                 cleanUp = Path.GetTempFileName();
-                                Console.WriteLine(
+                                RedirectableConsole.WriteLine(
                                     "WARNING: Out-of-memory while creating TAR file, falling back to storing " +
                                     "temporary file on disk at " + cleanUp + " during package creation.");
                                 archive.Dispose();
@@ -251,7 +251,7 @@ namespace Protobuild
                         break;
                     case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:
                         {
-                            Console.WriteLine("Compressing package...");
+                            RedirectableConsole.WriteLine("Compressing package...");
 
                             using (var compress = new GZipStream(target, CompressionMode.Compress))
                             {
@@ -263,7 +263,7 @@ namespace Protobuild
                     case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                     default:
                         {
-                            Console.Write("Compressing package...");
+                            RedirectableConsole.Write("Compressing package...");
 
                             var progressHelper = new CompressProgressRenderer(archive.Length);
 
@@ -285,7 +285,7 @@ namespace Protobuild
                     }
                     catch
                     {
-                        Console.WriteLine("WARNING: Unable to clean up temporary package file at " + cleanUp);
+                        RedirectableConsole.WriteLine("WARNING: Unable to clean up temporary package file at " + cleanUp);
                     }
                 }
             }

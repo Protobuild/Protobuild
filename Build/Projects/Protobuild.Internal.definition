@@ -298,6 +298,7 @@
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RedirectableConsole.cs" />
     <Compile Include="RetryableWebClient.cs" />
     <Compile Include="SafeToDictionaryExtension.cs" />
     <Compile Include="Services\Service.cs" />
@@ -328,11 +329,11 @@
     <EmbeddedResource Include="BuildResources\GenerationFunctions.cs-msbuild-hack.lzma">
       <LogicalName>GenerationFunctions.cs.lzma</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="BuildResources\NuGetPlatformMappings.xml.lzma">
-      <LogicalName>NuGetPlatformMappings.xml.lzma</LogicalName>
-    </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\JSILTemplate.htm.lzma">
       <LogicalName>JSILTemplate.htm.lzma</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BuildResources\NuGetPlatformMappings.xml.lzma">
+      <LogicalName>NuGetPlatformMappings.xml.lzma</LogicalName>
     </EmbeddedResource>
     <EmbeddedResource Include="BuildResources\SelectSolution.xslt.lzma">
       <LogicalName>SelectSolution.xslt.lzma</LogicalName>

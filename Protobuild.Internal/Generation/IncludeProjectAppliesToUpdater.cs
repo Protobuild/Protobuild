@@ -23,7 +23,7 @@ namespace Protobuild
                         reference.SetAttribute("Include", doc.DocumentElement.GetAttribute("Name"));
                         references.AppendChild(reference);
 
-                        Console.WriteLine(
+                        RedirectableConsole.WriteLine(
                             "NOTE: Added " + doc.DocumentElement.GetAttribute("Name") + " as a reference in " + 
                             currentName + " because of an AppliesTo attribute on the include project.");
                     }

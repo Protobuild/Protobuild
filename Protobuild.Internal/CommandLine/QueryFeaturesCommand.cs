@@ -20,7 +20,7 @@ namespace Protobuild
         {
             foreach (var featureId in _featureManager.GetEnabledInternalFeatureIDs())
             {
-                Console.WriteLine(featureId);
+                RedirectableConsole.WriteLine(featureId);
             }
             return 0;
         }

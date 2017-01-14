@@ -22,7 +22,7 @@ namespace Protobuild
                     var existing = dict[x.Definition.Name];
                     var tried = x;
 
-                    Console.WriteLine("WARNING: There is more than one project with the name " +
+                    RedirectableConsole.WriteLine("WARNING: There is more than one project with the name " +
                         x.Definition.Name + " (first project loaded from " + tried.Definition.AbsolutePath + ", " +
                         "skipped loading second project from " + existing.Definition.AbsolutePath + ")");
                 })

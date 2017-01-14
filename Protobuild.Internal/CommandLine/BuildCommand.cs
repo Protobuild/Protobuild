@@ -57,7 +57,7 @@ namespace Protobuild
                             continue;
                         }
 
-                        Console.Error.WriteLine(
+                        RedirectableConsole.ErrorWriteLine(
                             "ERROR: No versions of MSBuild were available " +
                             "according to the registry (or they were not readable).");
                         return 1;
@@ -80,7 +80,7 @@ namespace Protobuild
                             continue;
                         }
 
-                        Console.Error.WriteLine(
+                        RedirectableConsole.ErrorWriteLine(
                             "ERROR: Unable to find installed MSBuild in any installed tools version.");
                         return 1;
                     }
@@ -144,7 +144,7 @@ namespace Protobuild
 
                 if (builderPathNativeArch == null)
                 {
-                    Console.Error.WriteLine("ERROR: Unable to find xbuild on the current PATH.");
+                    RedirectableConsole.ErrorWriteLine("ERROR: Unable to find xbuild on the current PATH.");
                     return 1;
                 }
 
@@ -164,14 +164,14 @@ namespace Protobuild
             switch (execution.BuildProcessArchitecture)
             {
                 case "x86":
-                    Console.WriteLine("INFO: Using " + builderPath32 + " (forced 32-bit) to perform this build.");
+                    RedirectableConsole.WriteLine("INFO: Using " + builderPath32 + " (forced 32-bit) to perform this build.");
                     break;
                 case "x64":
-                    Console.WriteLine("INFO: Using " + builderPath64 + " (forced 64-bit) to perform this build.");
+                    RedirectableConsole.WriteLine("INFO: Using " + builderPath64 + " (forced 64-bit) to perform this build.");
                     break;
                 case "Default":
                 default:
-                    Console.WriteLine("INFO: Using " + builderPathNativeArch + " (32-bit: " + builderPath32 + ") to perform this build.");
+                    RedirectableConsole.WriteLine("INFO: Using " + builderPathNativeArch + " (32-bit: " + builderPath32 + ") to perform this build.");
                     break;
             }
 
@@ -202,13 +202,13 @@ namespace Protobuild
 
                 var fileToBuild = module.Name + "." + platform + ".sln";
 
-                Console.WriteLine("INFO: Executing " + builderPath + " with arguments: " + extraArgs + fileToBuild);
+                RedirectableConsole.WriteLine("INFO: Executing " + builderPath + " with arguments: " + extraArgs + fileToBuild);
 
                 var process =
                     Process.Start(new ProcessStartInfo(builderPath, extraArgs + fileToBuild) {UseShellExecute = false});
                 if (process == null)
                 {
-                    Console.Error.WriteLine("ERROR: Build process did not start successfully.");
+                    RedirectableConsole.ErrorWriteLine("ERROR: Build process did not start successfully.");
                     return 1;
                 }
                 process.WaitForExit();
