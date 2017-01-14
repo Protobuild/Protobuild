@@ -40,7 +40,7 @@ namespace Protobuild
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine("ERROR: " + ex.Message);
+                RedirectableConsole.ErrorWriteLine("ERROR: " + ex.Message);
                 return 1;
             }
             try
@@ -49,7 +49,7 @@ namespace Protobuild
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine("ERROR: " + ex.Message + Environment.NewLine + ex.StackTrace);
+                RedirectableConsole.ErrorWriteLine("ERROR: " + ex.Message + Environment.NewLine + ex.StackTrace);
                 return 1;
             }
         }

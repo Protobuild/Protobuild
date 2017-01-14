@@ -43,7 +43,7 @@ namespace Protobuild
 
             if (module.Packages.Any(x => x.Uri == package.Uri))
             {
-                Console.WriteLine("WARNING: Package with URI " + package.Uri + " is already present; ignoring request to add package.");
+                RedirectableConsole.WriteLine("WARNING: Package with URI " + package.Uri + " is already present; ignoring request to add package.");
                 return 0;
             }
 
@@ -52,7 +52,7 @@ namespace Protobuild
                 throw new InvalidOperationException(package.Folder + " already exists");
             }
 
-            Console.WriteLine("Adding " + package.Uri + " as " + package.Folder + "...");
+            RedirectableConsole.WriteLine("Adding " + package.Uri + " as " + package.Folder + "...");
             module.Packages.Add(package);
             module.Save(Path.Combine("Build", "Module.xml"));
 

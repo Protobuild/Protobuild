@@ -22,7 +22,7 @@ namespace Protobuild
             {
                 if (url == kv.Key)
                 {
-                    Console.WriteLine("Redirecting package from " + kv.Key + " to " + kv.Value + " due to command line options");
+                    RedirectableConsole.WriteLine("Redirecting package from " + kv.Key + " to " + kv.Value + " due to command line options");
                     return kv.Value;
                 }
             }
@@ -53,7 +53,7 @@ namespace Protobuild
 
                         if (url == original)
                         {
-                            Console.WriteLine("Redirecting package from " + original + " to " + replace + " due to configuration in " + redirects);
+                            RedirectableConsole.WriteLine("Redirecting package from " + original + " to " + replace + " due to configuration in " + redirects);
                             return replace;
                         }
                     }

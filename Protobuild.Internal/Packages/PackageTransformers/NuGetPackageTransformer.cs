@@ -58,7 +58,7 @@ namespace Protobuild
 
             if (urlAndPackageName.Length != 2)
             {
-                Console.Error.WriteLine(
+                RedirectableConsole.ErrorWriteLine(
                     "ERROR: Malformed NuGet package reference '" + url +
                     "'.  Make sure you split the NuGet server URL and the package name with a pipe character (|).");
                 ExecEnvironment.Exit(1);
@@ -73,9 +73,9 @@ namespace Protobuild
             {
                 // This is a Protobuild-aware NuGet package.  In this case, we just use the contents of the
                 // "protobuild" folder as the content of our package, and ignore everything else.
-                Console.WriteLine("Detected Protobuild-aware package...");
+                RedirectableConsole.WriteLine("Detected Protobuild-aware package...");
 
-                Console.WriteLine("Converting to a Protobuild package...");
+                RedirectableConsole.WriteLine("Converting to a Protobuild package...");
 
                 var target = new MemoryStream();
                 var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(originalFolder));
@@ -92,7 +92,7 @@ namespace Protobuild
                     format,
                     platform);
 
-                Console.WriteLine("Package conversion complete.");
+                RedirectableConsole.WriteLine("Package conversion complete.");
                 var bytes2 = new byte[target.Position];
                 target.Seek(0, SeekOrigin.Begin);
                 target.Read(bytes2, 0, bytes2.Length);
@@ -106,10 +106,10 @@ namespace Protobuild
             byte[] bytes;
             try
             {
-                Console.WriteLine("Copying directory for package transformation...");
+                RedirectableConsole.WriteLine("Copying directory for package transformation...");
                 CopyFolder(new DirectoryInfo(originalFolder), new DirectoryInfo(folder));
 
-                Console.WriteLine("Auto-detecting libraries to reference from NuGet package...");
+                RedirectableConsole.WriteLine("Auto-detecting libraries to reference from NuGet package...");
 
                 var packagePath = new DirectoryInfo(folder).GetFiles("*.nuspec").First().FullName;
                 var libraryReferences = new Dictionary<string, string>();
@@ -152,7 +152,7 @@ namespace Protobuild
                                     k => k.Attributes["id"].Value,
                                     v => v.Attributes["version"].Value,
                                     (dict, c) =>
-                                        Console.WriteLine("WARNING: More than one dependency on " + c +
+                                        RedirectableConsole.WriteLine("WARNING: More than one dependency on " + c +
                                                           " in NuGet package."));
                     }
                 }
@@ -297,10 +297,10 @@ namespace Protobuild
 
                 foreach (var kv in libraryReferences)
                 {
-                    Console.WriteLine("Found library to reference: " + kv.Key + " (at " + kv.Value + ")");
+                    RedirectableConsole.WriteLine("Found library to reference: " + kv.Key + " (at " + kv.Value + ")");
                 }
 
-                Console.WriteLine("Generating external project reference...");
+                RedirectableConsole.WriteLine("Generating external project reference...");
                 var document = new XmlDocument();
                 var externalProject = document.CreateElement("ExternalProject");
                 externalProject.SetAttribute("Name", packageName);
@@ -321,7 +321,7 @@ namespace Protobuild
                 }
                 document.Save(Path.Combine(folder, "_ProtobuildExternalProject.xml"));
 
-                Console.WriteLine("Generating module...");
+                RedirectableConsole.WriteLine("Generating module...");
                 var generatedModule = new ModuleInfo();
                 generatedModule.Name = packageName;
                 generatedModule.Packages = new List<PackageRef>();
@@ -340,7 +340,7 @@ namespace Protobuild
 
                 generatedModule.Save(Path.Combine(folder, "_ProtobuildModule.xml"));
 
-                Console.WriteLine("Converting to a Protobuild package...");
+                RedirectableConsole.WriteLine("Converting to a Protobuild package...");
 
                 var target = new MemoryStream();
                 var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(folder));
@@ -368,14 +368,14 @@ namespace Protobuild
                     format,
                     platform);
 
-                Console.WriteLine("Package conversion complete.");
+                RedirectableConsole.WriteLine("Package conversion complete.");
                 bytes = new byte[target.Position];
                 target.Seek(0, SeekOrigin.Begin);
                 target.Read(bytes, 0, bytes.Length);
             }
             finally
             {
-                Console.WriteLine("Cleaning up temporary data...");
+                RedirectableConsole.WriteLine("Cleaning up temporary data...");
                 PathUtils.AggressiveDirectoryDelete(folder);
             }
 
@@ -401,11 +401,11 @@ namespace Protobuild
             var xmlString = client.DownloadString(packagesUrl);
             var xDocument = XDocument.Parse(xmlString);
 
-            Console.WriteLine("Retrieved package information");
+            RedirectableConsole.WriteLine("Retrieved package information");
             var title = xDocument.Root.Elements().First(x => x.Name.LocalName == "title");
             var content = xDocument.Root.Elements().First(x => x.Name.LocalName == "content");
 
-            Console.WriteLine("Found NuGet package '" + title.Value + "'");
+            RedirectableConsole.WriteLine("Found NuGet package '" + title.Value + "'");
 
             var downloadUrl = content.Attributes().First(x => x.Name.LocalName == "src").Value;
 
@@ -436,7 +436,7 @@ namespace Protobuild
 
                 Directory.CreateDirectory(nugetPath);
 
-                Console.WriteLine("Extracting package to " + nugetPath + "...");
+                RedirectableConsole.WriteLine("Extracting package to " + nugetPath + "...");
 
                 using (var zip = ZipStorer.Open(tempFile, FileAccess.Read))
                 {
@@ -451,7 +451,7 @@ namespace Protobuild
                     }
                 }
 
-                Console.WriteLine("Extraction complete.");
+                RedirectableConsole.WriteLine("Extraction complete.");
             }
             finally
             {

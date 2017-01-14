@@ -8,7 +8,7 @@ namespace Protobuild
         {
             get
             {
-                return Console.WriteLine;
+                return RedirectableConsole.WriteLine;
             }
         }
 

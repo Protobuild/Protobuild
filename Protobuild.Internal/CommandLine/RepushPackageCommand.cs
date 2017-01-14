@@ -65,7 +65,7 @@ namespace Protobuild
             {
                 var sourcePackage = _packageUrlParser.Parse(execution.PackageUrl);
 
-                Console.WriteLine("Retrieving source package...");
+                RedirectableConsole.WriteLine("Retrieving source package...");
                 var metadata = _packageLookup.Lookup(new PackageRequestRef(
                     sourcePackage.Uri, 
                     sourcePackage.GitRef,
@@ -74,7 +74,7 @@ namespace Protobuild
 
                 if (metadata.GetProtobuildPackageBinary == null)
                 {
-                    Console.Error.WriteLine(
+                    RedirectableConsole.ErrorWriteLine(
                         "ERROR: URL resolved to a package metadata type '" + metadata.GetType().Name + "', " +
                         "but this type doesn't provide a mechanism to convert to a Protobuild package.");
                 }
@@ -86,11 +86,11 @@ namespace Protobuild
                 var protobuildPackageMetadata = metadata as ProtobuildPackageMetadata;
                 if (protobuildPackageMetadata == null)
                 {
-                    Console.Error.WriteLine("--repush requires that the source URL resolve to a Protobuild package");
+                    RedirectableConsole.ErrorWriteLine("--repush requires that the source URL resolve to a Protobuild package");
                     return 1;
                 }
                 
-                Console.WriteLine("Detected package type as " + archiveType + ".");
+                RedirectableConsole.WriteLine("Detected package type as " + archiveType + ".");
 
                 if (execution.PackagePushVersion.StartsWith("hash:", StringComparison.InvariantCulture))
                 {
@@ -99,7 +99,7 @@ namespace Protobuild
                     execution.PackagePushVersion = BitConverter.ToString(hashed).ToLowerInvariant().Replace("-", "");
                 }
 
-                Console.WriteLine("Creating new package version...");
+                RedirectableConsole.WriteLine("Creating new package version...");
 
                 var uploadParameters = new System.Collections.Specialized.NameValueCollection
                 {
@@ -114,17 +114,17 @@ namespace Protobuild
 
                 if (json.has_error)
                 {
-                    Console.WriteLine(json.error);
+                    RedirectableConsole.WriteLine(json.error);
                     return 1;
                 }
 
                 var uploadTarget = (string)json.result.uploadUrl;
                 var finalizeTarget = (string)json.result.finalizeUrl;
 
-                Console.WriteLine("Uploading package...");
+                RedirectableConsole.WriteLine("Uploading package...");
                 this.PushBinary(uploadTarget, archiveData);
 
-                Console.WriteLine("Finalizing package version...");
+                RedirectableConsole.WriteLine("Finalizing package version...");
 
                 var finalizeParameters = new System.Collections.Specialized.NameValueCollection
                 {
@@ -138,13 +138,13 @@ namespace Protobuild
 
                 if (json.has_error)
                 {
-                    Console.WriteLine(json.error);
+                    RedirectableConsole.WriteLine(json.error);
                     return 1;
                 }
 
                 if (execution.PackagePushBranchToUpdate != null)
                 {
-                    Console.WriteLine("Updating branch " + execution.PackagePushBranchToUpdate + " to point at new version...");
+                    RedirectableConsole.WriteLine("Updating branch " + execution.PackagePushBranchToUpdate + " to point at new version...");
 
                     var branchUpdateParameters = new System.Collections.Specialized.NameValueCollection
                     {
@@ -161,12 +161,12 @@ namespace Protobuild
 
                     if (json.has_error)
                     {
-                        Console.WriteLine(json.error);
+                        RedirectableConsole.WriteLine(json.error);
                         return 1;
                     }
                 }
 
-                Console.WriteLine("Package version repushed successfully.");
+                RedirectableConsole.WriteLine("Package version repushed successfully.");
             }
             return 0;
         }

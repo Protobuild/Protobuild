@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Xml;
 using Protobuild.Services;
 
@@ -21,6 +23,7 @@ namespace Protobuild.Tasks
         private readonly IModuleExecution _moduleExecution;
 
         private readonly IFeatureManager _featureManager;
+        private readonly IHostPlatformDetector _hostPlatformDetector;
 
         public GenerateProjectsTask(
             IProjectLoader projectLoader,
@@ -29,7 +32,8 @@ namespace Protobuild.Tasks
             IJSILProvider jsilProvider,
             IPackageRedirector packageRedirector,
             IModuleExecution moduleExecution,
-            IFeatureManager featureManager)
+            IFeatureManager featureManager,
+            IHostPlatformDetector hostPlatformDetector)
         {
             m_ProjectLoader = projectLoader;
             m_ProjectGenerator = projectGenerator;
@@ -38,6 +42,7 @@ namespace Protobuild.Tasks
             m_PackageRedirector = packageRedirector;
             _moduleExecution = moduleExecution;
             _featureManager = featureManager;
+            _hostPlatformDetector = hostPlatformDetector;
         }
 
         public string SourcePath { get; set; }
@@ -82,14 +87,41 @@ namespace Protobuild.Tasks
             var definitions = module.GetDefinitionsRecursively(Platform).ToArray();
             var loadedProjects = new List<LoadedDefinitionInfo>();
 
-            foreach (var definition in definitions)
+            if (_hostPlatformDetector.DetectPlatform() == "Windows")
             {
-                LogMessage("Loading: " + definition.Name);
-                loadedProjects.Add(
-                    m_ProjectLoader.Load(
-                        Platform,
-                        module,
-                        definition));
+                var concurrentProjects = new ConcurrentBag<LoadedDefinitionInfo>();
+
+                Parallel.ForEach(definitions, definition =>
+                {
+                    LogMessage("Loading: " + definition.Name);
+                    concurrentProjects.Add(
+                        m_ProjectLoader.Load(
+                            Platform,
+                            module,
+                            definition));
+                });
+                
+                // Do this so we maintain order with the original definitions list.
+                foreach (var definition in definitions)
+                {
+                    var loadedProject = concurrentProjects.FirstOrDefault(x => x.Definition == definition);
+                    if (loadedProject != null)
+                    {
+                        loadedProjects.Add(loadedProject);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var definition in definitions)
+                {
+                    LogMessage("Loading: " + definition.Name);
+                    loadedProjects.Add(
+                        m_ProjectLoader.Load(
+                            Platform,
+                            module,
+                            definition));
+                }
             }
 
             var serviceManager = new ServiceManager(Platform);
@@ -131,7 +163,7 @@ namespace Protobuild.Tasks
                 }
                 catch (InvalidOperationException ex)
                 {
-                    Console.WriteLine("Error during service resolution: " + ex.Message);
+                    RedirectableConsole.WriteLine("Error during service resolution: " + ex.Message);
                     return false;
                 }
 
@@ -153,23 +185,67 @@ namespace Protobuild.Tasks
 
             using (serviceSpecPath)
             {
-                // Run Protobuild in batch mode in each of the submodules
-                // where it is present.
-                foreach (var submodule in module.GetSubmodules(Platform))
+                var submodulesToProcess = new List<ModuleInfo>();
+                var allSubmodules = module.GetSubmodules(Platform);
+
+                if (_hostPlatformDetector.DetectPlatform() == "Windows")
                 {
-                    if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule,
-                        Feature.OptimizationSkipInvocationOnNoStandardProjects))
+                    var concurrentSubmodulesToProcess = new ConcurrentBag<ModuleInfo>();
+
+                    Parallel.ForEach(allSubmodules, submodule =>
                     {
-                        if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
+                        if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule,
+                            Feature.OptimizationSkipInvocationOnNoStandardProjects))
                         {
-                            // Do not invoke this submodule.
-                            LogMessage(
-                                "Skipping submodule generation for " + submodule.Name +
-                                " (there are no projects to generate)");
-                            continue;
+                            if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
+                            {
+                                // Do not invoke this submodule.
+                                LogMessage(
+                                    "Skipping submodule generation for " + submodule.Name +
+                                    " (there are no projects to generate)");
+                            }
+                            else
+                            {
+                                concurrentSubmodulesToProcess.Add(submodule);
+                            }
+                        }
+                    });
+
+                    // Do this so we maintain order with the original GetSubmodules list.
+                    foreach (var submodule in allSubmodules)
+                    {
+                        if (concurrentSubmodulesToProcess.Contains(submodule))
+                        {
+                            submodulesToProcess.Add(submodule);
                         }
                     }
+                }
+                else
+                {
+                    foreach (var submodule in module.GetSubmodules(Platform))
+                    {
+                        if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule,
+                            Feature.OptimizationSkipInvocationOnNoStandardProjects))
+                        {
+                            if (submodule.GetDefinitionsRecursively(Platform).All(x => !x.IsStandardProject))
+                            {
+                                // Do not invoke this submodule.
+                                LogMessage(
+                                    "Skipping submodule generation for " + submodule.Name +
+                                    " (there are no projects to generate)");
+                            }
+                            else
+                            {
+                                submodulesToProcess.Add(submodule);
+                            }
+                        }
+                    }
+                }
 
+                // Run Protobuild in batch mode in each of the submodules
+                // where it is present.
+                foreach (var submodule in submodulesToProcess)
+                {
                     LogMessage(
                         "Invoking submodule generation for " + submodule.Name);
                     var noResolve = _featureManager.IsFeatureEnabledInSubmodule(module, submodule,
@@ -194,30 +270,66 @@ namespace Protobuild.Tasks
 
                 var repositoryPaths = new List<string>();
 
-                foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
+                if (_hostPlatformDetector.DetectPlatform() == "Windows")
                 {
-                    if (definition.PostBuildHook && RequiresHostPlatform != null)
-                    {
-                        // We require the host platform projects at this point.
-                        RequiresHostPlatform();
-                    }
+                    var concurrentRepositoryPaths = new ConcurrentBag<string>();
 
-                    string repositoryPath;
-                    var definitionCopy = definition;
-                    m_ProjectGenerator.Generate(
-                        definition,
-                        loadedProjects,
-                        RootPath,
-                        definition.Name,
-                        Platform,
-                        services,
-                        out repositoryPath,
-                        () => LogMessage("Generating: " + definitionCopy.Name));
-
-                    // Only add repository paths if they should be generated.
-                    if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
+                    Parallel.ForEach(definitions.Where(x => x.ModulePath == module.Path), definition =>
                     {
-                        repositoryPaths.Add(repositoryPath);
+                        if (definition.PostBuildHook && RequiresHostPlatform != null)
+                        {
+                            // We require the host platform projects at this point.
+                            RequiresHostPlatform();
+                        }
+
+                        string repositoryPath;
+                        var definitionCopy = definition;
+                        m_ProjectGenerator.Generate(
+                            definition,
+                            loadedProjects,
+                            RootPath,
+                            definition.Name,
+                            Platform,
+                            services,
+                            out repositoryPath,
+                            () => LogMessage("Generating: " + definitionCopy.Name));
+
+                        // Only add repository paths if they should be generated.
+                        if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
+                        {
+                            concurrentRepositoryPaths.Add(repositoryPath);
+                        }
+                    });
+
+                    repositoryPaths = concurrentRepositoryPaths.ToList();
+                }
+                else
+                {
+                    foreach (var definition in definitions.Where(x => x.ModulePath == module.Path))
+                    {
+                        if (definition.PostBuildHook && RequiresHostPlatform != null)
+                        {
+                            // We require the host platform projects at this point.
+                            RequiresHostPlatform();
+                        }
+
+                        string repositoryPath;
+                        var definitionCopy = definition;
+                        m_ProjectGenerator.Generate(
+                            definition,
+                            loadedProjects,
+                            RootPath,
+                            definition.Name,
+                            Platform,
+                            services,
+                            out repositoryPath,
+                            () => LogMessage("Generating: " + definitionCopy.Name));
+
+                        // Only add repository paths if they should be generated.
+                        if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
+                        {
+                            repositoryPaths.Add(repositoryPath);
+                        }
                     }
                 }
 

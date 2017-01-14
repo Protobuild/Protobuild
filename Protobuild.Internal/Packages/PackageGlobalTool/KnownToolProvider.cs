@@ -40,7 +40,7 @@ namespace Protobuild
                     Folder = null
                 };
 
-                Console.WriteLine("Installing {0}...", _knownTools[toolName.ToLowerInvariant()]);
+                RedirectableConsole.WriteLine("Installing {0}...", _knownTools[toolName.ToLowerInvariant()]);
                 _packageManager.Resolve(null, package, _hostPlatformDetector.DetectPlatform(), null, false, true, false);
             }
             else

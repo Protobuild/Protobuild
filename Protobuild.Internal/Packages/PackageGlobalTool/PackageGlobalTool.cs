@@ -77,7 +77,7 @@ namespace Protobuild
                         writer.WriteLine(toolPath);
                     }
 
-                    Console.WriteLine("Global tool '" + toolName + "' now points to '" + toolPath + "'");
+                    RedirectableConsole.WriteLine("Global tool '" + toolName + "' now points to '" + toolPath + "'");
 
                     if (_hostPlatformDetector.DetectPlatform() == "Windows")
                     {
@@ -132,17 +132,17 @@ namespace Protobuild
 			{
 				install.WaitForExit();
 
-				Console.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
+				RedirectableConsole.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
 			}
 			else
 			{
-				Console.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (unable to create link)");
+				RedirectableConsole.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (unable to create link)");
 			}
 		}
 
         private void InstallToolIntoLinuxApplicationMenu(string toolName, string toolPath)
         {
-            Console.WriteLine("Installing global tool '" + toolName + "' into the application menu...");
+            RedirectableConsole.WriteLine("Installing global tool '" + toolName + "' into the application menu...");
 
             var menuPath = Path.Combine(GetToolsPath(), ".linux-menus");
             Directory.CreateDirectory(menuPath);
@@ -194,11 +194,11 @@ namespace Protobuild
             {
                 install.WaitForExit();
 
-                Console.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
+                RedirectableConsole.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
             }
             else
             {
-                Console.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (xdg-desktop-menu not found)");
+                RedirectableConsole.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (xdg-desktop-menu not found)");
             }
         }
 

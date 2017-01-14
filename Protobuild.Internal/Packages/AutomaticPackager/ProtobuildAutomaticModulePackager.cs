@@ -42,7 +42,7 @@ namespace Protobuild
 
             foreach (var definition in definitions)
             {
-                Console.WriteLine("Loading: " + definition.Name);
+                RedirectableConsole.WriteLine("Loading: " + definition.Name);
                 loadedProjects.Add(
                     this.m_ProjectLoader.Load(
                         platform,
@@ -79,7 +79,7 @@ namespace Protobuild
             {
                 if (service.ServiceName != null)
                 {
-                    Console.WriteLine("Enabled service: " + service.FullName);
+                    RedirectableConsole.WriteLine("Enabled service: " + service.FullName);
                 }
             }
 
@@ -91,32 +91,32 @@ namespace Protobuild
             {
                 if (definition.SkipAutopackage)
                 {
-                    Console.WriteLine("Skipping: " + definition.Name);
+                    RedirectableConsole.WriteLine("Skipping: " + definition.Name);
                     continue;
                 }
 
                 var definitionNormalizedPath = new FileInfo(definition.AbsolutePath).FullName;
                 if (packagePaths.Any(definitionNormalizedPath.StartsWith))
                 {
-                    Console.WriteLine("Skipping: " + definition.Name + " (part of another package)");
+                    RedirectableConsole.WriteLine("Skipping: " + definition.Name + " (part of another package)");
                     continue;
                 }
 
                 switch (definition.Type)
                 {
                     case "External":
-                        Console.WriteLine("Packaging: " + definition.Name);
+                        RedirectableConsole.WriteLine("Packaging: " + definition.Name);
                         this.AutomaticallyPackageExternalProject(definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
                         break;
                     case "Include":
-                        Console.WriteLine("Packaging: " + definition.Name);
+                        RedirectableConsole.WriteLine("Packaging: " + definition.Name);
                         this.AutomaticallyPackageIncludeProject(definitions, services, fileFilter, rootPath, platform, definition);
                         break;
                     case "Content":
-                        Console.WriteLine("Content project definition skipped: " + definition.Name);
+                        RedirectableConsole.WriteLine("Content project definition skipped: " + definition.Name);
                         break;
                     default:
-                        Console.WriteLine("Packaging: " + definition.Name);
+                        RedirectableConsole.WriteLine("Packaging: " + definition.Name);
                         this.AutomaticallyPackageNormalProject(definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
                         break;
                 }
@@ -278,7 +278,7 @@ namespace Protobuild
                             // show a warning that this reference will be converted to an external project
                             // reference instead, so that the developer can manually hook this up through
                             // additional directives in the filter file.
-                            Console.WriteLine(
+                            RedirectableConsole.WriteLine(
                                 "WARNING: The 'Project' tag in external projects can not be " + 
                                 "automatically converted during packaging.  This reference " +
                                 "to '" + child.GetAttribute("Name") + "' will be converted to refer " + 
@@ -331,7 +331,7 @@ namespace Protobuild
                         {
                             // We can't do anything with these tags, because we don't know what services were enabled
                             // when the assemblies were built.  Show a warning instead.
-                            Console.WriteLine("WARNING: Unknown tag '" + child.LocalName + "' encountered.");
+                            RedirectableConsole.WriteLine("WARNING: Unknown tag '" + child.LocalName + "' encountered.");
                             break;
                         }
                 }
@@ -620,7 +620,7 @@ namespace Protobuild
                     var existing = dict[x.Name];
                     var tried = x;
 
-                    Console.WriteLine("WARNING: There is more than one project with the name " +
+                    RedirectableConsole.WriteLine("WARNING: There is more than one project with the name " +
                                       x.Name + " (first project loaded from " + tried.AbsolutePath + ", " +
                                       "skipped loading second project from " + existing.AbsolutePath + ")");
                 });
@@ -707,7 +707,7 @@ namespace Protobuild
                         // supersedes this).
                         if (link.Contains('/') || link.Contains('\\'))
                         {
-                            Console.WriteLine(
+                            RedirectableConsole.WriteLine(
                                 "WARNING: Copy-on-build file '" + link + "' in library project which " +
                                 "does not output to root of project detected.  This is not supported.");
                         }
@@ -715,7 +715,7 @@ namespace Protobuild
                         {
                             if (fileInfo.Name != link)
                             {
-                                Console.WriteLine(
+                                RedirectableConsole.WriteLine(
                                     "WARNING: Copy-on-build file in library project does not have the same " +
                                     "name when copied to build directory.  This is not supported.");
                             }

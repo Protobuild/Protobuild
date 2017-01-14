@@ -156,7 +156,7 @@ namespace Protobuild
                 }
                 catch (InvalidOperationException ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    RedirectableConsole.WriteLine(ex.Message);
                     PrintHelp(commandMappings);
                     ExecEnvironment.Exit(1);
                 }
@@ -182,7 +182,7 @@ namespace Protobuild
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    RedirectableConsole.WriteLine(ex);
                     ExecEnvironment.Exit(1);
                 }
             }
@@ -217,7 +217,7 @@ namespace Protobuild
                     var givenThumbprint = chain.ChainElements.Count >= 2 ?
                         chain.ChainElements[1].Certificate.Thumbprint :
                         "<no thumbprint available>";
-                    Console.Error.WriteLine(
+                    RedirectableConsole.ErrorWriteLine(
                         "DANGER: The thumbprint of the issuer's SSL certificate for protobuild.org \"" +
                         givenThumbprint + "\" does not match the expected thumbprint value \"" +
                         chain.ChainElements[1].Certificate.Thumbprint +
@@ -236,7 +236,7 @@ namespace Protobuild
                 }
             }
 
-            Console.WriteLine(
+            RedirectableConsole.WriteLine(
                 "WARNING: Implicitly trusting SSL certificate " + certificate.GetCertHashString() + " " +
                 "for " + certificate.Subject + " issued by " + certificate.Issuer + " on Linux, due " +
                 "to inconsistent root CA store policies of Mono.");
@@ -245,11 +245,11 @@ namespace Protobuild
 
         private static void PrintHelp(Dictionary<string, ICommand> commandMappings)
         {
-            Console.WriteLine("Protobuild.exe [options]");
-            Console.WriteLine();
-            Console.WriteLine("By default Protobuild resynchronises or generates projects for");
-            Console.WriteLine("the current platform, depending on the module configuration.");
-            Console.WriteLine();
+            RedirectableConsole.WriteLine("Protobuild.exe [options]");
+            RedirectableConsole.WriteLine();
+            RedirectableConsole.WriteLine("By default Protobuild resynchronises or generates projects for");
+            RedirectableConsole.WriteLine("the current platform, depending on the module configuration.");
+            RedirectableConsole.WriteLine();
 
             foreach (var kv in commandMappings)
             {
@@ -325,15 +325,15 @@ namespace Protobuild
                     }
                 }
 
-                Console.WriteLine("  -" + kv.Key + argDesc);
-                Console.WriteLine();
+                RedirectableConsole.WriteLine("  -" + kv.Key + argDesc);
+                RedirectableConsole.WriteLine();
 
                 foreach (var line in lines)
                 {
-                    Console.WriteLine("  " + line);
+                    RedirectableConsole.WriteLine("  " + line);
                 }
 
-                Console.WriteLine();
+                RedirectableConsole.WriteLine();
             }
         }
     }

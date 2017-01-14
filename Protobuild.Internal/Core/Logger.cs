@@ -6,7 +6,7 @@ namespace Protobuild
     {
         public void Log(string message)
         {
-            Console.WriteLine(message);
+            RedirectableConsole.WriteLine(message);
         }
     }
 }

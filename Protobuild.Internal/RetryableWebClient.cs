@@ -121,13 +121,13 @@ namespace Protobuild
             {
                 try
                 {
-                    Console.WriteLine("(" + (i + 1) + "/" + MaxRequests + ") " + message);
+                    RedirectableConsole.WriteLine("(" + (i + 1) + "/" + MaxRequests + ") " + message);
                     return func(baseUri);
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine("Exception during web request: ");
-                    Console.Error.WriteLine(ex);
+                    RedirectableConsole.ErrorWriteLine("Exception during web request: ");
+                    RedirectableConsole.ErrorWriteLine(ex);
                     exceptions.Add(ex);
 
                     var webException = ex as WebException;
@@ -143,7 +143,7 @@ namespace Protobuild
                         }
                     }
 
-                    Console.WriteLine("Backing off web requests for " + backoff + "ms...");
+                    RedirectableConsole.WriteLine("Backing off web requests for " + backoff + "ms...");
                     System.Threading.Thread.Sleep(backoff);
                     backoff *= 2;
                     if (backoff > 20000)
@@ -165,14 +165,14 @@ namespace Protobuild
             {
                 try
                 {
-                    Console.WriteLine("(" + (i + 1) + "/" + MaxRequests + ") " + message);
+                    RedirectableConsole.WriteLine("(" + (i + 1) + "/" + MaxRequests + ") " + message);
                     func(baseUri);
                     return;
                 }
                 catch (Exception ex)
                 {
-                    Console.Error.WriteLine("Exception during web request: ");
-                    Console.Error.WriteLine(ex);
+                    RedirectableConsole.ErrorWriteLine("Exception during web request: ");
+                    RedirectableConsole.ErrorWriteLine(ex);
                     exceptions.Add(ex);
 
                     var webException = ex as WebException;
@@ -188,7 +188,7 @@ namespace Protobuild
                         }
                     }
 
-                    Console.WriteLine("Backing off web requests for " + backoff + "ms...");
+                    RedirectableConsole.WriteLine("Backing off web requests for " + backoff + "ms...");
                     System.Threading.Thread.Sleep(backoff);
                     backoff *= 2;
                     if (backoff > 20000)

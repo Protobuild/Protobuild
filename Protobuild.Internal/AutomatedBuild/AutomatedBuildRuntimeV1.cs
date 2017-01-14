@@ -251,13 +251,13 @@ namespace Protobuild
                         }
                         catch (ApplicationException ex)
                         {
-                            Console.Error.WriteLine(ex);
+                            RedirectableConsole.ErrorWriteLine(ex);
                             return 1;
                         }
 
                         var args = components.Length == 2 ? components[1] : string.Empty;
 
-                        Console.WriteLine("+ native-execute " + path + " " + args);
+                        RedirectableConsole.WriteLine("+ native-execute " + path + " " + args);
                         var process =
                             Process.Start(new ProcessStartInfo(path, args)
                             {
@@ -266,14 +266,14 @@ namespace Protobuild
                             });
                         if (process == null)
                         {
-                            Console.Error.WriteLine("ERROR: Process did not start when running " + path + " " +
+                            RedirectableConsole.ErrorWriteLine("ERROR: Process did not start when running " + path + " " +
                                 args);
                             return 1;
                         }
                         process.WaitForExit();
                         if (process.ExitCode != 0)
                         {
-                            Console.Error.WriteLine(
+                            RedirectableConsole.ErrorWriteLine(
                                 "ERROR: Non-zero exit code " + process.ExitCode);
                             return process.ExitCode;
                         }
@@ -300,7 +300,7 @@ namespace Protobuild
                             }
                             catch (ApplicationException ex)
                             {
-                                Console.Error.WriteLine(ex);
+                                RedirectableConsole.ErrorWriteLine(ex);
                                 return 1;
                             }
                         }
@@ -309,7 +309,7 @@ namespace Protobuild
 
                         if (hostPlatform != "Windows" && runtime != null)
                         {
-                            Console.WriteLine("+ " + runtime + " \"" + cachedNuget + "\" " + inst.Arguments);
+                            RedirectableConsole.WriteLine("+ " + runtime + " \"" + cachedNuget + "\" " + inst.Arguments);
                             process =
                                 Process.Start(new ProcessStartInfo(runtime, "\"" + cachedNuget + "\" " + inst.Arguments)
                                 {
@@ -319,7 +319,7 @@ namespace Protobuild
                         }
                         else
                         {
-                            Console.WriteLine("+ " + cachedNuget + " " + inst.Arguments);
+                            RedirectableConsole.WriteLine("+ " + cachedNuget + " " + inst.Arguments);
                             process =
                                 Process.Start(new ProcessStartInfo(cachedNuget, inst.Arguments)
                                 {
@@ -330,14 +330,14 @@ namespace Protobuild
 
                         if (process == null)
                         {
-                            Console.Error.WriteLine(
+                            RedirectableConsole.ErrorWriteLine(
                                 "ERROR: Process did not start when running NuGet with arguments " + inst.Arguments);
                             return 1;
                         }
                         process.WaitForExit();
                         if (process.ExitCode != 0)
                         {
-                            Console.Error.WriteLine(
+                            RedirectableConsole.ErrorWriteLine(
                                 "ERROR: Non-zero exit code " + process.ExitCode);
                             return process.ExitCode;
                         }
@@ -411,7 +411,7 @@ namespace Protobuild
 
                         if (args.Contains("$GIT_BRANCH"))
                         {
-                            Console.Error.WriteLine(
+                            RedirectableConsole.ErrorWriteLine(
                                 "ERROR: Support for $GIT_BRANCH has been dropped, because it almost never behaved as intended (due to no guarentees that the desired refs would exist in the repository being operated on).");
                             return 1;
                         }
@@ -422,7 +422,7 @@ namespace Protobuild
 
                             try
                             {
-                                Console.WriteLine("+ git rev-parse HEAD");
+                                RedirectableConsole.WriteLine("+ git rev-parse HEAD");
                                 commit = GitUtils.RunGitAndCapture(workingDirectory, "rev-parse HEAD").Trim();
                             }
                             catch (InvalidOperationException)
@@ -448,7 +448,7 @@ namespace Protobuild
                             }
                             catch (ApplicationException ex)
                             {
-                                Console.Error.WriteLine(ex);
+                                RedirectableConsole.ErrorWriteLine(ex);
                                 return 1;
                             }
                         }
@@ -462,7 +462,7 @@ namespace Protobuild
 
                             if (hostPlatform != "Windows" && runtime != null)
                             {
-                                Console.WriteLine("+ " + runtime + " \"" + protobuild + "\" " + runArgs);
+                                RedirectableConsole.WriteLine("+ " + runtime + " \"" + protobuild + "\" " + runArgs);
                                 process =
                                     Process.Start(new ProcessStartInfo(runtime, "\"" + protobuild + "\" " + runArgs)
                                         {
@@ -472,7 +472,7 @@ namespace Protobuild
                             }
                             else
                             {
-                                Console.WriteLine("+ " + protobuild + " " + runArgs);
+                                RedirectableConsole.WriteLine("+ " + protobuild + " " + runArgs);
                                 process =
                                     Process.Start(new ProcessStartInfo(protobuild, runArgs)
                                     {
@@ -483,14 +483,14 @@ namespace Protobuild
 
                             if (process == null)
                             {
-                                Console.Error.WriteLine(
+                                RedirectableConsole.ErrorWriteLine(
                                     "ERROR: Process did not start when running Protobuild with arguments " + args);
                                 return 1;
                             }
                             process.WaitForExit();
                             if (process.ExitCode != 0)
                             {
-                                Console.Error.WriteLine(
+                                RedirectableConsole.ErrorWriteLine(
                                     "ERROR: Non-zero exit code " + process.ExitCode);
                                 return process.ExitCode;
                             }
@@ -498,7 +498,7 @@ namespace Protobuild
                     }
                     else if (inst.Key != null)
                     {
-                        Console.WriteLine("+ set " + inst.Key + " -> " + inst.Values.Aggregate((a, b) => a + ", " + b));
+                        RedirectableConsole.WriteLine("+ set " + inst.Key + " -> " + inst.Values.Aggregate((a, b) => a + ", " + b));
                         switch (inst.Key)
                         {
                             case "target-platforms":
@@ -524,12 +524,12 @@ namespace Protobuild
                     }
                     else if (inst.Echo != null)
                     {
-                        Console.WriteLine(inst.Echo);
+                        RedirectableConsole.WriteLine(inst.Echo);
                     }
                 }
             }
 
-            Console.WriteLine("Automated build script completed successfully.");
+            RedirectableConsole.WriteLine("Automated build script completed successfully.");
             return 0;
         }
 
@@ -553,7 +553,7 @@ namespace Protobuild
                 throw new ApplicationException("ERROR: Could not find which or where on your system.");
             }
 
-            Console.WriteLine("+ native-execute " + searchFound + " " + program);
+            RedirectableConsole.WriteLine("+ native-execute " + searchFound + " " + program);
             var searchProcess =
                 Process.Start(new ProcessStartInfo(searchFound, program)
                     {

@@ -68,12 +68,12 @@ namespace Protobuild
                 return;
             }
 
-            Console.WriteLine("Starting resolution of packages for " + platform + "...");
+            RedirectableConsole.WriteLine("Starting resolution of packages for " + platform + "...");
 
             var parallelisation = enableParallelisation ?? _hostPlatformDetector.DetectPlatform() == "Windows";
             if (parallelisation)
             {
-                Console.WriteLine("Enabled parallelisation; use --no-parallel to disable...");
+                RedirectableConsole.WriteLine("Enabled parallelisation; use --no-parallel to disable...");
             }
 
             if (module.Packages != null && module.Packages.Count > 0)
@@ -84,7 +84,7 @@ namespace Protobuild
                 {
                     if (submodule.IsActiveForPlatform(platform))
                     {
-                        Console.WriteLine("Querying: " + submodule.Uri);
+                        RedirectableConsole.WriteLine("Querying: " + submodule.Uri);
                         var submodule1 = submodule;
                         if (parallelisation)
                         {
@@ -117,7 +117,7 @@ namespace Protobuild
                     }
                     else
                     {
-                        Console.WriteLine("Skipping resolution for " + submodule.Uri + " because it is not active for this target platform");
+                        RedirectableConsole.WriteLine("Skipping resolution for " + submodule.Uri + " because it is not active for this target platform");
                     }
                 }
 
@@ -127,7 +127,7 @@ namespace Protobuild
                     Task.WaitAll(taskArray);
                     foreach (var tuple in taskArray)
                     {
-                        Console.WriteLine("Resolving: " + tuple.Result.Item1);
+                        RedirectableConsole.WriteLine("Resolving: " + tuple.Result.Item1);
                         tuple.Result.Item2();
                     }
                 }
@@ -135,7 +135,7 @@ namespace Protobuild
                 {
                     foreach (var tuple in resultList)
                     {
-                        Console.WriteLine("Resolving: " + tuple.Item1);
+                        RedirectableConsole.WriteLine("Resolving: " + tuple.Item1);
                         tuple.Item2();
                     }
                 }
@@ -147,13 +147,13 @@ namespace Protobuild
                 {
                     if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.OptimizationSkipResolutionOnNoPackagesOrSubmodules))
                     {
-                        Console.WriteLine(
+                        RedirectableConsole.WriteLine(
                             "Skipping package resolution in submodule for " + submodule.Name + " (there are no submodule or packages)");
                         continue;
                     }
                 }
 
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "Invoking package resolution in submodule for " + submodule.Name);
                 string parallelMode = null;
                 if (_featureManager.IsFeatureEnabledInSubmodule(module, submodule, Feature.TaskParallelisation))
@@ -171,11 +171,11 @@ namespace Protobuild
                     submodule, 
                     _featureManager.GetFeatureArgumentToPassToSubmodule(module, submodule) + parallelMode +
                     "-resolve " + platform + " " + packageRedirector.GetRedirectionArguments());
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "Finished submodule package resolution for " + submodule.Name);
             }
 
-            Console.WriteLine("Package resolution complete.");
+            RedirectableConsole.WriteLine("Package resolution complete.");
         }
 
         public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
@@ -202,7 +202,7 @@ namespace Protobuild
                 var existingPath = this.m_PackageLocator.DiscoverExistingPackagePath(module.Path, reference, platform);
                 if (existingPath != null && Directory.Exists(existingPath))
                 {
-                    Console.WriteLine("Found an existing working copy of this package at " + existingPath);
+                    RedirectableConsole.WriteLine("Found an existing working copy of this package at " + existingPath);
 
                     Directory.CreateDirectory(reference.Folder);
                     using (var writer = new StreamWriter(Path.Combine(reference.Folder, ".redirect")))
@@ -292,7 +292,7 @@ namespace Protobuild
 
                             if (shouldSafeResolve)
                             {
-                                Console.Error.WriteLine(
+                                RedirectableConsole.ErrorWriteLine(
                                     "WARNING: The package directory '" + reference.Folder +
                                     "' already exists and contains " +
                                     "files and/or subdirectories, but neither a .pkg file nor a .git file or subdirectory exists.  " +
@@ -310,12 +310,12 @@ namespace Protobuild
                     {
                         if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
                         {
-                            Console.WriteLine("Git repository present at " + Path.Combine(reference.Folder, ".git") + "; leaving as source version.");
+                            RedirectableConsole.WriteLine("Git repository present at " + Path.Combine(reference.Folder, ".git") + "; leaving as source version.");
                             source = true;
                         }
                         else
                         {
-                            Console.WriteLine("Package type not specified (and no file at " + Path.Combine(reference.Folder, ".git") + "), requesting binary version.");
+                            RedirectableConsole.WriteLine("Package type not specified (and no file at " + Path.Combine(reference.Folder, ".git") + "), requesting binary version.");
                             source = false;
                         }
                     }
