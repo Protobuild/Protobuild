@@ -31,12 +31,15 @@ namespace Protobuild
             {
                 if (re.IsMatch(s))
                 {
-                    if (this.m_FileMappings.ContainsKey(s))
+                    if (!this.m_FileMappings.ContainsKey(s))
                     {
-                        return true;
+                        this.m_FileMappings.Add(s, new List<string> {s});
+                    }
+                    else
+                    {
+                        this.m_FileMappings[s].Add(s);
                     }
 
-                    this.m_FileMappings.Add(s, new List<string> {s});
                     didMatch = true;
                 }
             }
