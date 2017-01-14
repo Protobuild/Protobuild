@@ -182,7 +182,7 @@ namespace Protobuild
                                             nuspecContent = reader.ReadToEnd();
 
                                             var regex =
-                                                new Regex("version\\>[0-9]+\\.[0-9]+\\.[0-9]+\\+([^\\<]*)\\<\\/version");
+                                                new Regex("version\\>[^\\<]+\\<\\/version");
 
                                             nuspecContent = regex.Replace(nuspecContent,
                                                 "version>" + NuGetVersionHelper.CreateNuGetPackageVersion(commitHash, platform) + "</version");
