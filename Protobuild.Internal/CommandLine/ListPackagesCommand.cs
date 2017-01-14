@@ -29,7 +29,7 @@ namespace Protobuild
 
             foreach (var package in module.Packages)
             {
-                Console.WriteLine(package.Uri);
+                RedirectableConsole.WriteLine(package.Uri);
             }
 
             return 0;

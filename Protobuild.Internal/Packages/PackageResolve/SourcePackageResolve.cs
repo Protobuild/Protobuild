@@ -90,7 +90,7 @@ namespace Protobuild
                     {
                         if (!forceUpgrade)
                         {
-                            Console.WriteLine("Git submodule / repository already present at " + folder);
+                            RedirectableConsole.WriteLine("Git submodule / repository already present at " + folder);
                             return;
                         }
                     }
@@ -171,14 +171,14 @@ namespace Protobuild
                 }
                 else
                 {
-                    Console.Error.WriteLine("WARNING: Source package cache is corrupt, removing and cloning again...");
+                    RedirectableConsole.ErrorWriteLine("WARNING: Source package cache is corrupt, removing and cloning again...");
                     try
                     {
                         PathUtils.AggressiveDirectoryDelete(sourcePath);
                     }
                     catch (Exception)
                     {
-                        Console.Error.WriteLine("WARNING: Unable to delete invalid source package from cache!");
+                        RedirectableConsole.ErrorWriteLine("WARNING: Unable to delete invalid source package from cache!");
                     }
                 }
             }

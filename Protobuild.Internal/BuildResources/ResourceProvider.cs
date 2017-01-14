@@ -54,8 +54,9 @@ namespace Protobuild
             throw new InvalidOperationException();
         }
 
-        private Stream LoadOverriddableResource(ResourceType resourceType, Language language, string platform)
+        private Stream LoadOverriddableResource(ResourceType resourceType, Language language, string platform, out string loadHash)
         {
+            loadHash = string.Empty;
             string name = null;
             var extension = GetResourceExtension(resourceType);
             var fileSuffix = string.Empty;
@@ -134,6 +135,7 @@ namespace Protobuild
 
                     if (File.Exists(path))
                     {
+                        loadHash = "path:" + path;
                         source = File.Open(path, FileMode.Open);
                         break;
                     }
@@ -148,6 +150,7 @@ namespace Protobuild
 
                     if (File.Exists(path))
                     {
+                        loadHash = "path:" + path;
                         source = File.Open(path, FileMode.Open);
                         break;
                     }
@@ -164,6 +167,7 @@ namespace Protobuild
                 {
                     if (okayToFail)
                     {
+                        loadHash = "none";
                         return new MemoryStream();
                     }
                     else
@@ -171,6 +175,7 @@ namespace Protobuild
                         throw new InvalidOperationException("No embedded stream with name '" + embeddedName + "'");
                     }
                 }
+                loadHash = "embedded:" + embeddedName;
                 source = this.GetTransparentDecompressionStream(embeddedStream);
             }
 
@@ -181,10 +186,13 @@ namespace Protobuild
                 {
                     using (var writer = new StringWriter())
                     {
+                        string outHashTemp;
                         var replacementDataStream = this.LoadOverriddableResource(
                             replacement.Value.ResourceName,
                             language,
-                            platform);
+                            platform,
+                            out outHashTemp);
+                        loadHash += ":" + outHashTemp;
                         string replacementData;
                         using (var reader = new StreamReader(replacementDataStream))
                         {
@@ -218,27 +226,45 @@ namespace Protobuild
 
         public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform)
         {
-            var currentDir = m_WorkingDirectoryProvider.GetPath();
-            if (!m_CachedTransforms.ContainsKey(currentDir))
+            Dictionary<int, XslCompiledTransform> cache;
+            lock (m_WorkingDirectoryProvider)
             {
-                m_CachedTransforms[currentDir] = new Dictionary<int, XslCompiledTransform>();
+                var currentDir = m_WorkingDirectoryProvider.GetPath();
+                if (!m_CachedTransforms.ContainsKey(currentDir))
+                {
+                    m_CachedTransforms[currentDir] = new Dictionary<int, XslCompiledTransform>();
+                }
+                cache = m_CachedTransforms[currentDir];
             }
-            var cache = m_CachedTransforms[currentDir];
-
+            
             int hash;
             unchecked
             {
                 hash = 17 *
-                       resourceType.GetHashCode() * 31 +
-                       language.GetHashCode() * 31 +
-                       platform.GetHashCode() * 31;
-            }
-            if (cache.ContainsKey(hash))
-            {
-                return cache[hash];
+                        resourceType.GetHashCode() * 31 +
+                        language.GetHashCode() * 31 +
+                        platform.GetHashCode() * 31;
             }
 
-            var source = this.LoadOverriddableResource(resourceType, language, platform);
+            lock (cache)
+            {
+                if (cache.ContainsKey(hash))
+                {
+                    return cache[hash];
+                }
+            }
+
+            string loadHash;
+            var source = this.LoadOverriddableResource(resourceType, language, platform, out loadHash);
+            int loadHashCode = loadHash.GetHashCode();
+
+            lock (cache)
+            {
+                if (cache.ContainsKey(loadHashCode))
+                {
+                    return cache[loadHashCode];
+                }
+            }
 
             var reader2 = new StreamReader(source);
             var readerInspect = reader2.ReadToEnd();
@@ -254,7 +280,7 @@ namespace Protobuild
                         reader,
                         XsltSettings.TrustedXslt,
                         resolver
-                        );
+                    );
                 }
                 catch (XsltException ex)
                 {
@@ -281,13 +307,18 @@ namespace Protobuild
                 }
             }
 
-            cache[hash] = result;
+            lock (cache)
+            {
+                cache[hash] = result;
+                cache[loadHashCode] = result;
+            }
             return result;
         }
 
         public XmlDocument LoadXML(ResourceType resourceType, Language language, string platform)
-        {         
-            var source = this.LoadOverriddableResource(resourceType, language, platform);
+        {
+            string loadHash;
+            var source = this.LoadOverriddableResource(resourceType, language, platform, out loadHash);
 
             var document = new XmlDocument();
             document.Load(source);

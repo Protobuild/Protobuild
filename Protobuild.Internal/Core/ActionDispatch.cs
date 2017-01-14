@@ -77,7 +77,7 @@ namespace Protobuild
                 var platforms = platform.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
                 if (platforms.Length == 0)
                 {
-                    Console.Error.WriteLine("You supplied only commas where a list of platforms was expected.");
+                    RedirectableConsole.ErrorWriteLine("You supplied only commas where a list of platforms was expected.");
                     ExecEnvironment.Exit(1);
                     return false;
                 }
@@ -199,7 +199,7 @@ namespace Protobuild
             {
                 requiresHostPlatform = () =>
                 {
-                    Console.Error.WriteLine(
+                    RedirectableConsole.ErrorWriteLine(
                         "WARNING: One or more projects requires host platforms to be generated, " +
                         "but the HostPlatformGeneration feature is not enabled.  Expect your " +
                         "build to fail.");
@@ -256,7 +256,7 @@ namespace Protobuild
 
                     break;
                 default:
-                    Console.Error.WriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
+                    RedirectableConsole.ErrorWriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
                     return this.ResyncProjectsForPlatform(
                         module,
                         primaryPlatform,
@@ -326,14 +326,14 @@ namespace Protobuild
                 var hostPlatformNormalized = _moduleUtilities.NormalizePlatform(module, hostPlatform);
                 if (hostPlatformNormalized == null)
                 {
-                    Console.WriteLine(
+                    RedirectableConsole.WriteLine(
                         "WARNING: The current host platform is not a supported platform for the solution.  IDE editor " +
                         "projects and post-build hooks will not be available, and this may cause the project to be " +
                         "built incorrectly!");
                     return true;
                 }
 
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "One or more projects required the presence of host platform " +
                     "projects, implicitly starting generation for " + hostPlatform + "...");
 
@@ -382,15 +382,15 @@ namespace Protobuild
 
         private void ShowSupportedPlatformsError(ModuleInfo module, string requestedPlatform)
         {
-            Console.Error.WriteLine("The platform '" + requestedPlatform + "' is not supported.");
-            Console.Error.WriteLine("The following platforms are supported by this module:");
+            RedirectableConsole.ErrorWriteLine("The platform '" + requestedPlatform + "' is not supported.");
+            RedirectableConsole.ErrorWriteLine("The following platforms are supported by this module:");
             foreach (
                 var supportedPlatform in
                 module.SupportedPlatforms.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(x => x.Trim())
                 .Where(x => !string.IsNullOrWhiteSpace(x)))
             {
-                Console.Error.WriteLine("  * " + supportedPlatform);
+                RedirectableConsole.ErrorWriteLine("  * " + supportedPlatform);
             }
 
             ExecEnvironment.Exit(1);
@@ -461,8 +461,8 @@ namespace Protobuild
         {
             if (module.DisableSynchronisation ?? false)
             {
-                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
-                Console.WriteLine("To generate projects, use the --generate option instead.");
+                RedirectableConsole.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+                RedirectableConsole.WriteLine("To generate projects, use the --generate option instead.");
 
                 return false;
             }
@@ -496,7 +496,7 @@ namespace Protobuild
         {
             if (module.DisableSynchronisation ?? false)
             {
-                Console.WriteLine("Synchronisation is disabled for " + module.Name + ".");
+                RedirectableConsole.WriteLine("Synchronisation is disabled for " + module.Name + ".");
                 return false;
             }
 

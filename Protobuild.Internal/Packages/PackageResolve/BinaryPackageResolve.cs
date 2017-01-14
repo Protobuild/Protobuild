@@ -139,12 +139,12 @@ namespace Protobuild
             {
                 if (!forceUpgrade)
                 {
-                    Console.WriteLine("Protobuild binary package already present at " + platformFolder);
+                    RedirectableConsole.WriteLine("Protobuild binary package already present at " + platformFolder);
                     return;
                 }
             }
 
-            Console.WriteLine("Creating and emptying " + platformFolder);
+            RedirectableConsole.WriteLine("Creating and emptying " + platformFolder);
 
             if (File.Exists(Path.Combine(folder, ".pkg")))
             {
@@ -164,7 +164,7 @@ namespace Protobuild
 
             Directory.CreateDirectory(platformFolder);
 
-            Console.WriteLine("Marking " + folder + " as ignored for Git");
+            RedirectableConsole.WriteLine("Marking " + folder + " as ignored for Git");
             GitUtils.MarkIgnored(folder);
 
             var package = getBinaryPackage();
@@ -211,7 +211,7 @@ namespace Protobuild
             file = File.Create(Path.Combine(folder, ".pkg"));
             file.Close();
 
-            Console.WriteLine("Binary resolution complete");
+            RedirectableConsole.WriteLine("Binary resolution complete");
         }
 
         private void ResolveTemplateBinary(ICachableBinaryPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
@@ -250,20 +250,20 @@ namespace Protobuild
             {
                 if (!forceUpgrade)
                 {
-                    Console.WriteLine("Protobuild binary package already present at " + toolFolder);
+                    RedirectableConsole.WriteLine("Protobuild binary package already present at " + toolFolder);
                     return;
                 }
             }
 
-            Console.WriteLine("Creating and emptying " + toolFolder);
+            RedirectableConsole.WriteLine("Creating and emptying " + toolFolder);
             PathUtils.AggressiveDirectoryDelete(toolFolder);
             Directory.CreateDirectory(toolFolder);
 
-            Console.WriteLine("Installing " + protobuildMetadata.CanonicalURI + " at version " + protobuildMetadata.GitCommitOrRef);
+            RedirectableConsole.WriteLine("Installing " + protobuildMetadata.CanonicalURI + " at version " + protobuildMetadata.GitCommitOrRef);
             var package = GetBinaryPackage(protobuildMetadata);
             if (package == null)
             {
-                Console.WriteLine("The specified global tool package is not available for this platform.");
+                RedirectableConsole.WriteLine("The specified global tool package is not available for this platform.");
                 return;
             }
 
@@ -274,7 +274,7 @@ namespace Protobuild
 
             _packageGlobalTool.ScanPackageForToolsAndInstall(toolFolder);
 
-            Console.WriteLine("Binary resolution complete");
+            RedirectableConsole.WriteLine("Binary resolution complete");
         }
 
         private byte[] GetBinaryPackage(ICachableBinaryPackageMetadata metadata)
@@ -338,7 +338,7 @@ namespace Protobuild
             }
             catch (Exception)
             {
-                Console.WriteLine("WARNING: Unable to save package to cache.");
+                RedirectableConsole.WriteLine("WARNING: Unable to save package to cache.");
                 saveFile = tempFile;
             }
 
@@ -402,7 +402,7 @@ namespace Protobuild
                 {
                     // On Windows, we can't write out the package file if another instance of Protobuild
                     // is writing it out at the moment.  Just wait and retry in another second.
-                    Console.WriteLine("WARNING: Unable to write downloaded package file (attempt " + (11 - attempts) + " / 10)");
+                    RedirectableConsole.WriteLine("WARNING: Unable to write downloaded package file (attempt " + (11 - attempts) + " / 10)");
                     System.Threading.Thread.Sleep(5000);
                     attempts--;
                 }
@@ -489,7 +489,7 @@ namespace Protobuild
                 {
                     // On Windows, we can't write out the package file if another instance of Protobuild
                     // is writing it out at the moment.  Just wait and retry in another second.
-                    Console.WriteLine("WARNING: Unable to write downloaded package file (attempt " + (11 - attempts) + " / 10)");
+                    RedirectableConsole.WriteLine("WARNING: Unable to write downloaded package file (attempt " + (11 - attempts) + " / 10)");
                     System.Threading.Thread.Sleep(5000);
                     attempts--;
                 }
@@ -497,7 +497,7 @@ namespace Protobuild
 
             if (attempts == 0)
             {
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "WARNING: Unable to write out downloaded package!  Assuming " +
                     "another instance of Protobuild will provide it.");
             }
@@ -513,14 +513,14 @@ namespace Protobuild
             }
             catch (InvalidOperationException)
             {
-                Console.WriteLine("Unable to download binary package for version \"" + metadata.GitCommitOrRef + "\" and platform \"" + metadata.Platform + "\", falling back to source version");
+                RedirectableConsole.WriteLine("Unable to download binary package for version \"" + metadata.GitCommitOrRef + "\" and platform \"" + metadata.Platform + "\", falling back to source version");
                 return null;
             }
         }
 
         private void ExtractTo(string format, byte[] data, string path, string platform)
         {
-            Console.WriteLine("Unpacking binary package from " + format + " archive");
+            RedirectableConsole.WriteLine("Unpacking binary package from " + format + " archive");
             switch (format)
             {
                 case PackageManager.ARCHIVE_FORMAT_TAR_GZIP:

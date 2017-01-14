@@ -60,18 +60,18 @@ namespace Protobuild
             {
                 if (execution.PackagePushVersion != ArgumentOmitted || execution.PackagePushPlatform != ArgumentOmitted)
                 {
-                    Console.Error.WriteLine("You must omit the version and platform arguments when pushing packages in the NuGet format.");
+                    RedirectableConsole.ErrorWriteLine("You must omit the version and platform arguments when pushing packages in the NuGet format.");
                 }
             }
             else
             {
                 if (execution.PackagePushVersion == ArgumentOmitted || execution.PackagePushPlatform == ArgumentOmitted)
                 {
-                    Console.Error.WriteLine("You must provide the version and platform arguments.");
+                    RedirectableConsole.ErrorWriteLine("You must provide the version and platform arguments.");
                 }
             }
 
-            Console.WriteLine("Detected package type as " + archiveType + ".");
+            RedirectableConsole.WriteLine("Detected package type as " + archiveType + ".");
 
             switch (archiveType)
             {
@@ -152,7 +152,7 @@ namespace Protobuild
                 // We have to patch the package file in memory to include the Git hash
                 // as part of the version.  This is required so that Protobuild
                 // can resolve source-equivalent binary packages.
-                Console.WriteLine("Patching package file to include Git version information...");
+                RedirectableConsole.WriteLine("Patching package file to include Git version information...");
 
                 using (var patchedPackage = new MemoryStream())
                 {
@@ -235,14 +235,14 @@ namespace Protobuild
                     patchedPackage.Seek(0, SeekOrigin.Begin);
 
                     // Push the patched package to the NuGet repository.
-                    Console.WriteLine("Uploading package with Git version...");
+                    RedirectableConsole.WriteLine("Uploading package with Git version...");
                     return this.PushNuGetBinary(execution.PackagePushUrl, execution.PackagePushApiKey,
                         patchedPackage, execution.PackagePushIgnoreOnExisting);
                 }
             }
             else
             {
-                Console.WriteLine("Uploading package with semantic version...");
+                RedirectableConsole.WriteLine("Uploading package with semantic version...");
                 using (
                     var stream = new FileStream(execution.PackagePushFile, FileMode.Open, FileAccess.Read,
                         FileShare.Read))
@@ -266,7 +266,7 @@ namespace Protobuild
         {
             using (var client = new RetryableWebClient())
             {
-                Console.WriteLine("Creating new package version...");
+                RedirectableConsole.WriteLine("Creating new package version...");
 
                 if (execution.PackagePushVersion.StartsWith("hash:", StringComparison.InvariantCulture))
                 {
@@ -316,7 +316,7 @@ namespace Protobuild
 
                 if (json.has_error)
                 {
-                    Console.WriteLine(json.error);
+                    RedirectableConsole.WriteLine(json.error);
 
                     if (execution.PackagePushIgnoreOnExisting &&
                         ((string)json.error.ToString()).Contains("Another version already exists with this Git hash and platform"))
@@ -330,10 +330,10 @@ namespace Protobuild
                 var uploadTarget = (string)json.result.uploadUrl;
                 var finalizeTarget = (string)json.result.finalizeUrl;
 
-                Console.WriteLine("Uploading package...");
+                RedirectableConsole.WriteLine("Uploading package...");
                 this.PushBinary(uploadTarget, execution.PackagePushFile);
 
-                Console.WriteLine("Finalizing package version...");
+                RedirectableConsole.WriteLine("Finalizing package version...");
 
                 var finalizeParameters = new System.Collections.Specialized.NameValueCollection
                 {
@@ -347,13 +347,13 @@ namespace Protobuild
 
                 if (json.has_error)
                 {
-                    Console.WriteLine(json.error);
+                    RedirectableConsole.WriteLine(json.error);
                     return 1;
                 }
 
                 if (execution.PackagePushBranchToUpdate != null)
                 {
-                    Console.WriteLine("Updating branch " + execution.PackagePushBranchToUpdate + " to point at new version...");
+                    RedirectableConsole.WriteLine("Updating branch " + execution.PackagePushBranchToUpdate + " to point at new version...");
 
                     var branchUpdateParameters = new System.Collections.Specialized.NameValueCollection
                     {
@@ -370,12 +370,12 @@ namespace Protobuild
 
                     if (json.has_error)
                     {
-                        Console.WriteLine(json.error);
+                        RedirectableConsole.WriteLine(json.error);
                         return 1;
                     }
                 }
 
-                Console.WriteLine("Package version pushed successfully.");
+                RedirectableConsole.WriteLine("Package version pushed successfully.");
             }
             return 0;
         }
@@ -555,7 +555,7 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                         var httpResponse = webException.Response as HttpWebResponse;
                         if (httpResponse != null)
                         {
-                            Console.Error.WriteLine(httpResponse.StatusDescription);
+                            RedirectableConsole.ErrorWriteLine(httpResponse.StatusDescription);
 
                             if (httpResponse.StatusCode == HttpStatusCode.Conflict)
                             {
@@ -584,16 +584,16 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     var resultDecoded = Encoding.UTF8.GetString(result);
                     if (!string.IsNullOrWhiteSpace(resultDecoded))
                     {
-                        Console.WriteLine(Encoding.UTF8.GetString(result));
+                        RedirectableConsole.WriteLine(Encoding.UTF8.GetString(result));
                     }
                     else
                     {
-                        Console.WriteLine("Package uploaded successfully");
+                        RedirectableConsole.WriteLine("Package uploaded successfully");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Package uploaded successfully");
+                    RedirectableConsole.WriteLine("Package uploaded successfully");
                 }
 
                 return 0;

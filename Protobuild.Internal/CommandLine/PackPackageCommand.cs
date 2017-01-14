@@ -75,7 +75,7 @@ namespace Protobuild
             {
                 if (execution.PackageFilterFile == null)
                 {
-                    Console.WriteLine(
+                    RedirectableConsole.WriteLine(
                         "There is no module in the path '" + execution.PackageSourceFolder + "' (expected to " +
                         "find a Build\\Module.xml file within that directory).");
                     return 1;
@@ -114,7 +114,7 @@ namespace Protobuild
                             }
                             else
                             {
-                                Console.WriteLine(
+                                RedirectableConsole.WriteLine(
                                     "WARNING: There is no module in the path '" + execution.PackageSourceFolder +
                                     "' (expected to " +
                                     "find a Build\\Module.xml file within that directory).  Ignoring the 'autopackage' directive.");
@@ -123,7 +123,7 @@ namespace Protobuild
                     }
                 };
 
-                Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
+                RedirectableConsole.WriteLine("Starting package creation for " + execution.PackagePlatform);
 
                 var filter =
                     new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(execution.PackageSourceFolder));
@@ -147,7 +147,7 @@ namespace Protobuild
 
                 if (File.Exists(execution.PackageDestinationFile))
                 {
-                    Console.WriteLine("The destination file " + execution.PackageDestinationFile +
+                    RedirectableConsole.WriteLine("The destination file " + execution.PackageDestinationFile +
                                       " already exists; it will be overwritten.");
                     File.Delete(execution.PackageDestinationFile);
                 }
@@ -158,7 +158,7 @@ namespace Protobuild
                 {
                     if (!filter.ContainsTargetPath("Build/"))
                     {
-                        Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                        RedirectableConsole.WriteLine("ERROR: The Build directory does not exist in the source folder.");
                         if (execution.PackageFilterFile != null)
                         {
                             this.PrintFilterMappings(filter);
@@ -168,7 +168,7 @@ namespace Protobuild
 
                     if (!filter.ContainsTargetPath("Build/Projects/"))
                     {
-                        Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                        RedirectableConsole.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
                         if (execution.PackageFilterFile != null)
                         {
                             this.PrintFilterMappings(filter);
@@ -178,7 +178,7 @@ namespace Protobuild
 
                     if (!filter.ContainsTargetPath("Build/Module.xml"))
                     {
-                        Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                        RedirectableConsole.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
                         if (execution.PackageFilterFile != null)
                         {
                             this.PrintFilterMappings(filter);
@@ -189,7 +189,7 @@ namespace Protobuild
 
                 if (filter.ContainsTargetPath("Protobuild.exe"))
                 {
-                    Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
+                    RedirectableConsole.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
                     if (execution.PackageFilterFile != null)
                     {
                         this.PrintFilterMappings(filter);
@@ -209,7 +209,7 @@ namespace Protobuild
                         execution.PackagePlatform);
                 }
 
-                Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
+                RedirectableConsole.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
                 return 0;
             }
             finally
@@ -228,7 +228,7 @@ namespace Protobuild
                 throw new InvalidOperationException("The source folder " + execution.PackageSourceFolder + " does not exist.");
             }
 
-            Console.WriteLine("Starting package creation for " + execution.PackagePlatform);
+            RedirectableConsole.WriteLine("Starting package creation for " + execution.PackagePlatform);
 
             var filter = new FileFilter(_getRecursiveUtilitiesInPath.GetRecursiveFilesInPath(execution.PackageSourceFolder));
             if (execution.PackageFilterFile != null)
@@ -254,7 +254,7 @@ namespace Protobuild
 
             if (File.Exists(execution.PackageDestinationFile))
             {
-                Console.WriteLine("The destination file " + execution.PackageDestinationFile + " already exists; it will be overwritten.");
+                RedirectableConsole.WriteLine("The destination file " + execution.PackageDestinationFile + " already exists; it will be overwritten.");
                 File.Delete(execution.PackageDestinationFile);
             }
 
@@ -264,7 +264,7 @@ namespace Protobuild
 
             if (!filter.ContainsTargetPath("Build/"))
             {
-                Console.WriteLine("ERROR: The Build directory does not exist in the source folder.");
+                RedirectableConsole.WriteLine("ERROR: The Build directory does not exist in the source folder.");
                 if (execution.PackageFilterFile != null)
                 {
                     this.PrintFilterMappings(filter);
@@ -274,7 +274,7 @@ namespace Protobuild
 
             if (!filter.ContainsTargetPath("Build/Projects/"))
             {
-                Console.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
+                RedirectableConsole.WriteLine("ERROR: The Build\\Projects directory does not exist in the source folder.");
                 if (execution.PackageFilterFile != null)
                 {
                     this.PrintFilterMappings(filter);
@@ -284,7 +284,7 @@ namespace Protobuild
 
             if (!filter.ContainsTargetPath("Build/Module.xml"))
             {
-                Console.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
+                RedirectableConsole.WriteLine("ERROR: The Build\\Module.xml file does not exist in the source folder.");
                 if (execution.PackageFilterFile != null)
                 {
                     this.PrintFilterMappings(filter);
@@ -294,7 +294,7 @@ namespace Protobuild
 
             if (filter.ContainsTargetPath("Protobuild.exe"))
             {
-                Console.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
+                RedirectableConsole.WriteLine("ERROR: The Protobuild.exe file should not be included in the package file.");
                 if (execution.PackageFilterFile != null)
                 {
                     this.PrintFilterMappings(filter);
@@ -312,7 +312,7 @@ namespace Protobuild
                     execution.PackagePlatform);
             }
 
-            Console.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
+            RedirectableConsole.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
             return 0;
         }
 
@@ -356,12 +356,12 @@ If a filter file is specified, performs the steps in the filter file instead.
 
         private void PrintFilterMappings(FileFilter mappings)
         {
-            Console.WriteLine("The filter mappings resulted in: ");
+            RedirectableConsole.WriteLine("The filter mappings resulted in: ");
             foreach (var kv in mappings)
             {
                 foreach (var v in kv.Value)
                 {
-                    Console.WriteLine("  " + kv.Key + " -> " + v);
+                    RedirectableConsole.WriteLine("  " + kv.Key + " -> " + v);
                 }
             }
         }

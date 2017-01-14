@@ -45,7 +45,7 @@ namespace Protobuild
             {
                 if (package.Uri == packageRef.Uri)
                 {
-                    Console.WriteLine("Removing " + package.Uri + "...");
+                    RedirectableConsole.WriteLine("Removing " + package.Uri + "...");
                     module.Packages.Remove(package);
 
                     // Save after each package remove in case something goes wrong deleting
@@ -54,7 +54,7 @@ namespace Protobuild
 
                     if (Directory.Exists(Path.Combine(module.Path, package.Folder)))
                     {
-                        Console.WriteLine("Deleting folder '" + package.Folder + "'...");
+                        RedirectableConsole.WriteLine("Deleting folder '" + package.Folder + "'...");
                         PathUtils.AggressiveDirectoryDelete(Path.Combine(module.Path, package.Folder));
                     }
                 }

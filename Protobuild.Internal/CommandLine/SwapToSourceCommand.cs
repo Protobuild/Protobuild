@@ -43,7 +43,7 @@ namespace Protobuild
             {
                 if (submodule.Uri == execution.PackageUrl)
                 {
-                    Console.WriteLine("Switching to source: " + submodule.Uri);
+                    RedirectableConsole.WriteLine("Switching to source: " + submodule.Uri);
                     this.m_PackageManager.Resolve(module, submodule, platform, null, true, false, execution.SafePackageResolution);
                     done = true;
                     break;
@@ -52,7 +52,7 @@ namespace Protobuild
 
             if (!done)
             {
-                Console.WriteLine("No package registered with URL " + execution.PackageUrl);
+                RedirectableConsole.WriteLine("No package registered with URL " + execution.PackageUrl);
                 return 1;
             }
 

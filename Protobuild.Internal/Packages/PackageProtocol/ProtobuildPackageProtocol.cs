@@ -80,7 +80,7 @@ namespace Protobuild.Internal
                     }
                     catch (IOException)
                     {
-                        Console.WriteLine("WARNING: Unable to save cached result of request.");
+                        RedirectableConsole.WriteLine("WARNING: Unable to save cached result of request.");
                     }
                 }
                 catch (Exception)
@@ -142,7 +142,7 @@ namespace Protobuild.Internal
             }
             else
             {
-                Console.WriteLine("WARNING: This package does not have a source repository set.");
+                RedirectableConsole.WriteLine("WARNING: This package does not have a source repository set.");
             }
 
             var downloadMap = new Dictionary<string, string>();
@@ -195,7 +195,7 @@ namespace Protobuild.Internal
                 }
                 else
                 {
-                    Console.WriteLine("Unable to resolve binary package for version \"" + request.GitRef +
+                    RedirectableConsole.WriteLine("Unable to resolve binary package for version \"" + request.GitRef +
                                       "\" and platform \"" + request.Platform + "\", falling back to source version");
                     fileUri = null;
                     archiveType = null;

@@ -55,7 +55,7 @@ namespace Protobuild
             {
                 var dir = new DirectoryInfo(Environment.CurrentDirectory);
                 execution.StartProjectName = dir.Name;
-                Console.WriteLine("Using current directory name '" + dir.Name + "' as name of new module.");
+                RedirectableConsole.WriteLine("Using current directory name '" + dir.Name + "' as name of new module.");
             }
 
             // The module can not be loaded before this point because it doesn't
@@ -64,11 +64,11 @@ namespace Protobuild
 
             if (execution.DisableProjectGeneration)
             {
-                Console.WriteLine("Module has been initialized.");
+                RedirectableConsole.WriteLine("Module has been initialized.");
                 return 0;
             }
 
-            Console.WriteLine("Module has been initialized.  Performing --generate to create projects.");
+            RedirectableConsole.WriteLine("Module has been initialized.  Performing --generate to create projects.");
 
             var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
             return this.m_ActionDispatch.PerformAction(

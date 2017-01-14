@@ -318,7 +318,7 @@ namespace Protobuild
                         if (string.IsNullOrWhiteSpace(folder) || string.IsNullOrWhiteSpace(gitRef) ||
                             string.IsNullOrWhiteSpace(uri))
                         {
-                            Console.Error.WriteLine("WARNING: Invalid package declaration in module; skipping package.");
+                            RedirectableConsole.ErrorWriteLine("WARNING: Invalid package declaration in module; skipping package.");
                             continue;
                         }
 
@@ -355,7 +355,7 @@ namespace Protobuild
                         }
                         catch
                         {
-                            Console.Error.WriteLine("Unknown feature in Module.xml; ignoring: " + feature.Value);
+                            RedirectableConsole.ErrorWriteLine("Unknown feature in Module.xml; ignoring: " + feature.Value);
                         }
                     }
                 }

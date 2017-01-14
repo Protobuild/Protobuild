@@ -30,7 +30,7 @@ namespace Protobuild
             }
             catch
             {
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "WARNING: Cache directory '" + directory + "' specified in " + 
                     cacheDirectory + 
                     " could not be created.  Using default cache directory.");
@@ -42,11 +42,11 @@ namespace Protobuild
             // cache directory.  This allows users to migrate existing cache data automatically.
             if (directory != defaultCacheDirectory && Directory.Exists(defaultCacheDirectory))
             {
-                Console.WriteLine("New cache directory detected, migrating existing data...");
+                RedirectableConsole.WriteLine("New cache directory detected, migrating existing data...");
                 var directoryInfo = new DirectoryInfo(defaultCacheDirectory);
                 foreach (var file in directoryInfo.GetFiles())
                 {
-                    Console.WriteLine("Moving cache file " + file.Name + "...");
+                    RedirectableConsole.WriteLine("Moving cache file " + file.Name + "...");
                     if (File.Exists(Path.Combine(directory, file.Name)))
                     {
                         File.Delete(Path.Combine(directory, file.Name));
@@ -55,7 +55,7 @@ namespace Protobuild
                 }
                 foreach (var subdirectory in directoryInfo.GetDirectories())
                 {
-                    Console.WriteLine("Moving cache directory " + subdirectory.Name + "...");
+                    RedirectableConsole.WriteLine("Moving cache directory " + subdirectory.Name + "...");
                     if (Directory.Exists(Path.Combine(directory, subdirectory.Name)))
                     {
                         Directory.Delete(Path.Combine(directory, subdirectory.Name), true);
@@ -69,7 +69,7 @@ namespace Protobuild
                 }
                 catch
                 {
-                    Console.WriteLine("WARNING: Unable to remove default cache directory!");
+                    RedirectableConsole.WriteLine("WARNING: Unable to remove default cache directory!");
                 }
             }
 

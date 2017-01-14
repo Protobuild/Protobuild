@@ -55,7 +55,7 @@ namespace Protobuild
             var modulePath = fileInfo.DirectoryName;
             if (modulePath == null)
             {
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "Unable to determine the location of Protobuild.");
                 return 1;
             }
@@ -72,7 +72,7 @@ namespace Protobuild
                 var globalToolPath = this.m_PackageGlobalTool.ResolveGlobalToolIfPresent(execution.ExecuteProjectName);
                 if (globalToolPath == null)
                 {
-                    Console.WriteLine(
+                    RedirectableConsole.WriteLine(
                         "There is no global tool registered as '" + execution.ExecuteProjectName + "'");
                     return 1;
                 }
@@ -114,7 +114,7 @@ namespace Protobuild
                         var globalToolPath = this.m_PackageGlobalTool.ResolveGlobalToolIfPresent(execution.ExecuteProjectName);
                         if (globalToolPath == null)
                         {
-                            Console.WriteLine(
+                            RedirectableConsole.WriteLine(
                                 "There is no project definition with name '" + execution.ExecuteProjectName + "'");
                             return 1;
                         }
@@ -176,7 +176,7 @@ namespace Protobuild
                         var globalToolPath = this.m_PackageGlobalTool.ResolveGlobalToolIfPresent(execution.ExecuteProjectName);
                         if (globalToolPath == null)
                         {
-                            Console.WriteLine(
+                            RedirectableConsole.WriteLine(
                                 "There is no output path for '" + execution.ExecuteProjectName + "'; has the project been built?");
                             return 1;
                         }
@@ -190,7 +190,7 @@ namespace Protobuild
 
             if (!File.Exists(executablePath))
             {
-                Console.WriteLine(
+                RedirectableConsole.WriteLine(
                     "There is no executable for '" + execution.ExecuteProjectName + "'; has the project been built?");
                 return 1;
             }

@@ -51,7 +51,7 @@ namespace Protobuild
                     }
                     catch
                     {
-                        Console.WriteLine("WARNING: Unknown feature specified on command line; ignoring: " +
+                        RedirectableConsole.WriteLine("WARNING: Unknown feature specified on command line; ignoring: " +
                                           commandArgumentsArr[i]);
                     }
                 }
@@ -201,7 +201,7 @@ namespace Protobuild
 
             return submodule.CachedInternalFeatures.Contains(feature);
         }
-
+        
         private Feature[] ParseFeaturesFromStdout(string stdout)
         {
             var entries = stdout.Split('\n').Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
@@ -268,7 +268,7 @@ namespace Protobuild
                 }
             }
 
-            Console.Error.WriteLine("WARNING: Unable to find feature based on ID '" + str + "'");
+            RedirectableConsole.ErrorWriteLine("WARNING: Unable to find feature based on ID '" + str + "'");
             return null;
         }
 
@@ -320,7 +320,7 @@ namespace Protobuild
                 var featureList = features.Length == 0 ? string.Empty : features.Select(x => x.ToString()).Aggregate((a, b) => a + "," + b);
                 var missingFeatureList = missingFeatures.Count == 0 ? string.Empty : missingFeatures.Select(x => x.ToString()).Aggregate((a, b) => a + "," + b);
 
-                Console.Error.WriteLine(
+                RedirectableConsole.ErrorWriteLine(
                     "WARNING: The active feature set is missing previous features!  " +
                     "You have the following features enabled: '" + 
                     featureList + 

@@ -42,7 +42,7 @@ namespace Protobuild
         {
             var package = _packageUrlParser.Parse(execution.PackageUrl);
 
-            Console.WriteLine("Installing " + package.Uri + "...");
+            RedirectableConsole.WriteLine("Installing " + package.Uri + "...");
             this.m_PackageManager.Resolve(null, package, this.m_HostPlatformDetector.DetectPlatform(), null, false, true, false);
 
             return 0;
