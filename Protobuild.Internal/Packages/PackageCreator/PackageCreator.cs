@@ -15,7 +15,7 @@ namespace Protobuild
             _deduplicator = deduplicator;
         }
 
-        public void Create(Stream target, FileFilter filter, string basePath, string packageFormat, string platform)
+        public void Create(Stream target, FileFilter filter, string basePath, string packageFormat, string platform, string excludedPath)
         {
             Stream archive = new MemoryStream();
             string cleanUp = null;
@@ -73,6 +73,18 @@ namespace Protobuild
                                             }
                                             else
                                             {
+                                                if (excludedPath != null)
+                                                {
+                                                    var realFileInfo = new FileInfo(realFile);
+
+                                                    var excludedPathInfo = new FileInfo(excludedPath);
+                                                    if (excludedPathInfo.FullName == realFileInfo.FullName)
+                                                    {
+                                                        // Skip this file because we force it to be excluded.
+                                                        continue;
+                                                    }
+                                                }
+
                                                 zip.AddFile(
                                                     ZipStorer.Compression.Deflate,
                                                     realFile,
@@ -139,6 +151,16 @@ namespace Protobuild
                                         var realFile = Path.Combine(basePath, kv.Key);
                                         var realFileInfo = new FileInfo(realFile);
 
+                                        if (excludedPath != null)
+                                        {
+                                            var excludedPathInfo = new FileInfo(excludedPath);
+                                            if (excludedPathInfo.FullName == realFileInfo.FullName)
+                                            {
+                                                // Skip this file because we force it to be excluded.
+                                                continue;
+                                            }
+                                        }
+
                                         _deduplicator.AddFile(state, realFileInfo, kv.Value);
                                     }
 
@@ -202,6 +224,16 @@ namespace Protobuild
                                     // File
                                     var realFile = Path.Combine(basePath, kv.Key);
                                     var realFileInfo = new FileInfo(realFile);
+
+                                    if (excludedPath != null)
+                                    {
+                                        var excludedPathInfo = new FileInfo(excludedPath);
+                                        if (excludedPathInfo.FullName == realFileInfo.FullName)
+                                        {
+                                            // Skip this file because we force it to be excluded.
+                                            continue;
+                                        }
+                                    }
 
                                     _deduplicator.AddFile(state, realFileInfo, kv.Value);
                                 }

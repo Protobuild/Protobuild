@@ -206,7 +206,8 @@ namespace Protobuild
                         filter,
                         execution.PackageSourceFolder,
                         execution.PackageFormat,
-                        execution.PackagePlatform);
+                        execution.PackagePlatform,
+                        execution.PackageDestinationFile);
                 }
 
                 RedirectableConsole.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
@@ -309,7 +310,8 @@ namespace Protobuild
                     filter,
                     execution.PackageSourceFolder,
                     execution.PackageFormat,
-                    execution.PackagePlatform);
+                    execution.PackagePlatform,
+                    execution.PackageDestinationFile);
             }
 
             RedirectableConsole.WriteLine("\rPackage written to " + execution.PackageDestinationFile + " successfully.");
