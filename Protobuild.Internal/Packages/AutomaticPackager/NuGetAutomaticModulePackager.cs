@@ -1292,7 +1292,7 @@ namespace Protobuild
             fileFilter.ApplyCopy("^" + Regex.Escape(definition.RelativePath.TrimEnd(new[] { '/', '\\' })) + "/(.+)$", "content/$1");
             fileFilter.ApplyRewrite(
                 "^" + Regex.Escape(definition.RelativePath.TrimEnd(new[] { '/', '\\' })) + "/(.+)$",
-                "protobuild/" + platform + "/" + definition.RelativePath + "$1");
+                "protobuild/" + platform + "/" + definition.RelativePath + "/$1");
         }
     }
 }
