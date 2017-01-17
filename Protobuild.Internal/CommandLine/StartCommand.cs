@@ -7,11 +7,14 @@ namespace Protobuild
     {
         private readonly IActionDispatch m_ActionDispatch;
         private readonly IPackageManager m_PackageManager;
+        private readonly IPackageUrlParser _packageUrlParser;
 
-        public StartCommand(IActionDispatch actionDispatch, IPackageManager packageManager)
+        public StartCommand(IActionDispatch actionDispatch, IPackageManager packageManager,
+            IPackageUrlParser packageUrlParser)
         {
             this.m_ActionDispatch = actionDispatch;
             this.m_PackageManager = packageManager;
+            _packageUrlParser = packageUrlParser;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -34,21 +37,8 @@ namespace Protobuild
                 throw new InvalidOperationException("This directory already has a module setup.");
             }
 
-            var url = execution.StartProjectTemplateURL;
-            var branch = "master";
-            if (url.LastIndexOf('@') > url.LastIndexOf('/'))
-            {
-                // A branch / commit ref is specified.
-                branch = url.Substring(url.LastIndexOf('@') + 1);
-                url = url.Substring(0, url.LastIndexOf('@'));
-            }
-
-            var packageRef = new PackageRef
-            {
-                Uri = url,
-                GitRef = branch,
-                Folder = string.Empty
-            };
+            var package = _packageUrlParser.Parse(execution.StartProjectTemplateURL);
+            package.Folder = string.Empty;
 
             // If no project name is specified, use the name of the current directory.
             if (string.IsNullOrWhiteSpace(execution.StartProjectName))
@@ -60,7 +50,7 @@ namespace Protobuild
 
             // The module can not be loaded before this point because it doesn't
             // yet exist.
-            this.m_PackageManager.Resolve(null, packageRef, "Template", execution.StartProjectName, false, false, execution.SafePackageResolution);
+            this.m_PackageManager.Resolve(null, package, "Template", execution.StartProjectName, false, false, execution.SafePackageResolution);
 
             if (execution.DisableProjectGeneration)
             {
