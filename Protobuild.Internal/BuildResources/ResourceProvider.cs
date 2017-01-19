@@ -151,7 +151,7 @@ namespace Protobuild
                     if (File.Exists(path))
                     {
                         loadHash = "path:" + path;
-                        source = File.Open(path, FileMode.Open);
+                        source = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         break;
                     }
                 }
@@ -272,6 +272,7 @@ namespace Protobuild
 
             var resolver = new EmbeddedResourceResolver();
             var result = new XslCompiledTransform();
+            using (source)
             using (var reader = XmlReader.Create(source))
             {
                 try
@@ -318,12 +319,13 @@ namespace Protobuild
         public XmlDocument LoadXML(ResourceType resourceType, Language language, string platform)
         {
             string loadHash;
-            var source = this.LoadOverriddableResource(resourceType, language, platform, out loadHash);
+            using (var source = this.LoadOverriddableResource(resourceType, language, platform, out loadHash))
+            {
+                var document = new XmlDocument();
+                document.Load(source);
 
-            var document = new XmlDocument();
-            document.Load(source);
-
-            return document;
+                return document;
+            }
         }
 
         private Stream GetTransparentDecompressionStream(Stream input)
