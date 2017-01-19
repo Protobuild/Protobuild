@@ -136,7 +136,7 @@ namespace Protobuild
                     if (File.Exists(path))
                     {
                         loadHash = "path:" + path;
-                        source = File.Open(path, FileMode.Open);
+                        source = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         break;
                     }
                 }

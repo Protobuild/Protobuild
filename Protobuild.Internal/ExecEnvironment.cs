@@ -26,6 +26,7 @@ namespace Protobuild
         /// </summary>
         public static bool DoNotWrapExecutionInTry = false;
 
+        [ThreadStatic]
         private static int _selfInvokeCounter = 0;
 
         /// <summary>

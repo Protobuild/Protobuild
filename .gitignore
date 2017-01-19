@@ -111,3 +111,4 @@ Protobuild.FunctionalTests/TestData/PackageUnifiedNuGetLocalInstallNoDedup/TestI
 Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/NuGetPlatformMappings.xml
 Protobuild.FunctionalTests/TestData/SafeResolveDefaultsWithoutFeatureSet/Package/Test.txt
 Protobuild.FunctionalTests/TestData/ModuleInfoGetsUpgraded/xunit/
+.vs/
