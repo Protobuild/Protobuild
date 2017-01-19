@@ -8,6 +8,7 @@ namespace Protobuild
     internal interface ISolutionGenerator
     {
         void Generate(
+            string workingDirectory,
             ModuleInfo moduleInfo,
             List<XmlDocument> definitions,
             string platformName,

@@ -9,6 +9,7 @@ namespace Protobuild
     {
         XmlDocument Generate(
             List<XmlDocument> definitions,
+            string workingDirectory,
             string rootPath,
             string projectName,
             string platformName,

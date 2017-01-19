@@ -32,7 +32,7 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            if (File.Exists(Path.Combine("Build", "Module.xml")))
+            if (File.Exists(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml")))
             {
                 throw new InvalidOperationException("This directory already has a module setup.");
             }
@@ -43,14 +43,14 @@ namespace Protobuild
             // If no project name is specified, use the name of the current directory.
             if (string.IsNullOrWhiteSpace(execution.StartProjectName))
             {
-                var dir = new DirectoryInfo(Environment.CurrentDirectory);
+                var dir = new DirectoryInfo(execution.WorkingDirectory);
                 execution.StartProjectName = dir.Name;
                 RedirectableConsole.WriteLine("Using current directory name '" + dir.Name + "' as name of new module.");
             }
 
             // The module can not be loaded before this point because it doesn't
             // yet exist.
-            this.m_PackageManager.Resolve(null, package, "Template", execution.StartProjectName, false, false, execution.SafePackageResolution);
+            this.m_PackageManager.Resolve(execution.WorkingDirectory, null, package, "Template", execution.StartProjectName, false, false, execution.SafePackageResolution);
 
             if (execution.DisableProjectGeneration)
             {
@@ -60,8 +60,9 @@ namespace Protobuild
 
             RedirectableConsole.WriteLine("Module has been initialized.  Performing --generate to create projects.");
 
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
             return this.m_ActionDispatch.PerformAction(
+                execution.WorkingDirectory,
                 module,
                 "generate",
                 execution.Platform,

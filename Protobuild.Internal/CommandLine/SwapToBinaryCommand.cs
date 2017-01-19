@@ -30,13 +30,13 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            if (!File.Exists(Path.Combine("Build", "Module.xml")))
+            if (!File.Exists(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml")))
             {
                 throw new InvalidOperationException("No module present.");
             }
 
             var platform = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             var done = false;
             foreach (var submodule in module.Packages)
@@ -44,7 +44,7 @@ namespace Protobuild
                 if (submodule.Uri == execution.PackageUrl)
                 {
                     RedirectableConsole.WriteLine("Switching to binary: " + submodule.Uri);
-                    this.m_PackageManager.Resolve(module, submodule, platform, null, false, false, execution.SafePackageResolution);
+                    this.m_PackageManager.Resolve(execution.WorkingDirectory, module, submodule, platform, null, false, false, execution.SafePackageResolution);
                     done = true;
                     break;
                 }

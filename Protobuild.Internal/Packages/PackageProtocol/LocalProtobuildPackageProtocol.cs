@@ -20,7 +20,7 @@ namespace Protobuild.Internal
 
         public string[] Schemes => new[] {"local-lzma","local-gzip","local-tool-lzma","local-tool-gzip" };
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             string prefix, archiveType, packageType;
             if (request.Uri.StartsWith("local-lzma://"))
@@ -67,9 +67,9 @@ namespace Protobuild.Internal
                 request.GitRef,
                 archiveType,
                 localPackagePath,
-                (metadata, folder, name, upgrade, source) =>
+                (workingDirectoryAlt, metadata, folder, name, upgrade, source) =>
                 {
-                    _binaryPackageResolve.Resolve(metadata, folder, name, upgrade);
+                    _binaryPackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                 },
                 _binaryPackageResolve.GetProtobuildPackageBinary);
         }

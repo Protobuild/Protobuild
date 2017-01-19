@@ -11,13 +11,10 @@ namespace Protobuild
     internal class AutomatedBuildRuntimeV1 : IAutomatedBuildRuntimeV1
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
-        private readonly IWorkingDirectoryProvider _workingDirectoryProvider;
 
-        public AutomatedBuildRuntimeV1(IHostPlatformDetector hostPlatformDetector,
-            IWorkingDirectoryProvider workingDirectoryProvider)
+        public AutomatedBuildRuntimeV1(IHostPlatformDetector hostPlatformDetector)
         {
             _hostPlatformDetector = hostPlatformDetector;
-            _workingDirectoryProvider = workingDirectoryProvider;
         }
 
         public object Parse(string text)
@@ -213,12 +210,11 @@ namespace Protobuild
             return instructions;
         }
 
-        public int Execute(object handle)
+        public int Execute(string workingDirectory, object handle)
         {
             var instructions = (List<ParsedInstruction>) handle;
 
             var protobuild = Assembly.GetEntryAssembly().Location;
-            var workingDirectory = _workingDirectoryProvider.GetPath();
 
             var targets = string.Empty;
             var buildTarget = string.Empty;
@@ -423,7 +419,7 @@ namespace Protobuild
                             try
                             {
                                 RedirectableConsole.WriteLine("+ git rev-parse HEAD");
-                                commit = GitUtils.RunGitAndCapture(workingDirectory, "rev-parse HEAD").Trim();
+                                commit = GitUtils.RunGitAndCapture(workingDirectory, null, "rev-parse HEAD").Trim();
                             }
                             catch (InvalidOperationException)
                             {

@@ -12,19 +12,17 @@ namespace Protobuild
     {
         private readonly ILanguageStringProvider m_LanguageStringProvider;
 
-        private readonly IWorkingDirectoryProvider m_WorkingDirectoryProvider;
-
         private readonly IGenerationFunctionsProvider _generationFunctionsProvider;
 
         private static Dictionary<string, Dictionary<int, XslCompiledTransform>> m_CachedTransforms = new Dictionary<string, Dictionary<int, XslCompiledTransform>>();
 
+        private static object m_CachedTransformsLock = new object();
+
         public ResourceProvider(
             ILanguageStringProvider languageStringProvider,
-            IWorkingDirectoryProvider workingDirectoryProvider,
             IGenerationFunctionsProvider generationFunctionsProvider)
         {
             this.m_LanguageStringProvider = languageStringProvider;
-            this.m_WorkingDirectoryProvider = workingDirectoryProvider;
             _generationFunctionsProvider = generationFunctionsProvider;
         }
 
@@ -54,7 +52,7 @@ namespace Protobuild
             throw new InvalidOperationException();
         }
 
-        private Stream LoadOverriddableResource(ResourceType resourceType, Language language, string platform, out string loadHash)
+        private Stream LoadOverriddableResource(string workingDirectory, ResourceType resourceType, Language language, string platform, out string loadHash)
         {
             loadHash = string.Empty;
             string name = null;
@@ -136,6 +134,7 @@ namespace Protobuild
                     if (File.Exists(path))
                     {
                         loadHash = "path:" + path;
+                        RedirectableConsole.WriteLine("Loaded XSLT from global path: " + path);
                         source = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         break;
                     }
@@ -146,11 +145,12 @@ namespace Protobuild
             {
                 foreach (var filename in onDiskNames)
                 {
-                    var path = Path.Combine(this.m_WorkingDirectoryProvider.GetPath(), "Build", filename);
+                    var path = Path.Combine(workingDirectory, "Build", filename);
 
                     if (File.Exists(path))
                     {
                         loadHash = "path:" + path;
+                        RedirectableConsole.WriteLine("Loaded XSLT from Build folder: " + path);
                         source = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read);
                         break;
                     }
@@ -176,6 +176,7 @@ namespace Protobuild
                     }
                 }
                 loadHash = "embedded:" + embeddedName;
+                RedirectableConsole.WriteLine("Loaded XSLT from Protobuild");
                 source = this.GetTransparentDecompressionStream(embeddedStream);
             }
 
@@ -188,6 +189,7 @@ namespace Protobuild
                     {
                         string outHashTemp;
                         var replacementDataStream = this.LoadOverriddableResource(
+                            workingDirectory,
                             replacement.Value.ResourceName,
                             language,
                             platform,
@@ -224,19 +226,18 @@ namespace Protobuild
             return source;
         }
 
-        public XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform)
+        public XslCompiledTransform LoadXSLT(string workingDirectory, ResourceType resourceType, Language language, string platform)
         {
             Dictionary<int, XslCompiledTransform> cache;
-            lock (m_WorkingDirectoryProvider)
+            lock (m_CachedTransformsLock)
             {
-                var currentDir = m_WorkingDirectoryProvider.GetPath();
-                if (!m_CachedTransforms.ContainsKey(currentDir))
+                if (!m_CachedTransforms.ContainsKey(workingDirectory))
                 {
-                    m_CachedTransforms[currentDir] = new Dictionary<int, XslCompiledTransform>();
+                    m_CachedTransforms[workingDirectory] = new Dictionary<int, XslCompiledTransform>();
                 }
-                cache = m_CachedTransforms[currentDir];
+                cache = m_CachedTransforms[workingDirectory];
             }
-            
+
             int hash;
             unchecked
             {
@@ -255,7 +256,7 @@ namespace Protobuild
             }
 
             string loadHash;
-            var source = this.LoadOverriddableResource(resourceType, language, platform, out loadHash);
+            var source = this.LoadOverriddableResource(workingDirectory, resourceType, language, platform, out loadHash);
             int loadHashCode = loadHash.GetHashCode();
 
             lock (cache)
@@ -316,10 +317,10 @@ namespace Protobuild
             return result;
         }
 
-        public XmlDocument LoadXML(ResourceType resourceType, Language language, string platform)
+        public XmlDocument LoadXML(string workingDirectory, ResourceType resourceType, Language language, string platform)
         {
             string loadHash;
-            using (var source = this.LoadOverriddableResource(resourceType, language, platform, out loadHash))
+            using (var source = this.LoadOverriddableResource(workingDirectory, resourceType, language, platform, out loadHash))
             {
                 var document = new XmlDocument();
                 document.Load(source);

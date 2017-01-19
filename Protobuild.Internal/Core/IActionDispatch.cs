@@ -5,6 +5,7 @@ namespace Protobuild
     internal interface IActionDispatch
     {
         bool PerformAction(
+            string workingDirectory,
             ModuleInfo module, 
             string action, 
             string platform, 
@@ -18,6 +19,7 @@ namespace Protobuild
             bool? safeResolve);
 
         bool DefaultAction(
+            string workingDirectory,
             ModuleInfo module, 
             string platform, 
             string[] enabledServices, 

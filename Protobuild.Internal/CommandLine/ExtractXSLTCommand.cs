@@ -15,7 +15,7 @@ namespace Protobuild
         {
             if (Directory.Exists("Build"))
             {
-                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.CSharp.xslt")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "GenerateProject.CSharp.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
@@ -23,7 +23,7 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
-                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.CPlusPlus.VisualStudio.xslt")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "GenerateProject.CPlusPlus.VisualStudio.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
@@ -31,7 +31,7 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
-                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateProject.CPlusPlus.MonoDevelop.xslt")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "GenerateProject.CPlusPlus.MonoDevelop.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
@@ -39,7 +39,7 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
-                using (var writer = new StreamWriter(Path.Combine("Build", "GenerateSolution.xslt")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "GenerateSolution.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
@@ -47,7 +47,7 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
-                using (var writer = new StreamWriter(Path.Combine("Build", "GenerationFunctions.cs")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "GenerationFunctions.cs")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
@@ -55,7 +55,7 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
-                using (var writer = new StreamWriter(Path.Combine("Build", "NuGetPlatformMappings.xml")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "NuGetPlatformMappings.xml")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()
@@ -63,7 +63,7 @@ namespace Protobuild
                         .CopyTo(writer.BaseStream);
                     writer.Flush();
                 }
-                using (var writer = new StreamWriter(Path.Combine("Build", "SelectSolution.xslt")))
+                using (var writer = new StreamWriter(Path.Combine(execution.WorkingDirectory, "Build", "SelectSolution.xslt")))
                 {
                     ResourceExtractor.GetTransparentDecompressionStream(
                         Assembly.GetExecutingAssembly()

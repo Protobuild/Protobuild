@@ -27,7 +27,7 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             if (module.Packages == null)
             {
@@ -39,6 +39,7 @@ namespace Protobuild
             foreach (var package in module.Packages)
             {
                 _packageManager.Resolve(
+                    execution.WorkingDirectory,
                     module,
                     package,
                     platform,

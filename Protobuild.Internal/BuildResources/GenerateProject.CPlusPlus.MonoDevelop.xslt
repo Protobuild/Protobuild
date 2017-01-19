@@ -359,6 +359,7 @@
             <xsl:attribute name="file">
               <xsl:value-of
                 select="user:GetRelativePath(
+                  $root/Input/Generation/WorkingDirectory,
                   concat(
                     $source_project/@Path,
                     '\',

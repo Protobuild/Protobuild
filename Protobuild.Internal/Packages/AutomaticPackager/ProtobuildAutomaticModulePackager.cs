@@ -29,6 +29,7 @@ namespace Protobuild
         }
 
         public void Autopackage(
+            string workingDirectory,
             FileFilter fileFilter,
             Execution execution,
             ModuleInfo module, 

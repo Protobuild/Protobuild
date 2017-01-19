@@ -2,6 +2,6 @@
 {
     internal interface IPackageResolve
     {
-        void Resolve(IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade);
+        void Resolve(string workingDirectory, IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade);
     }
 }

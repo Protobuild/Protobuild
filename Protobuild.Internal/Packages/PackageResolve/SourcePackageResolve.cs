@@ -19,7 +19,7 @@ namespace Protobuild
             _packageCacheConfiguration = packageCacheConfiguration;
         }
 
-        public void Resolve(IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
+        public void Resolve(string workingDirectory, IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
         {
             var gitMetadata = metadata as GitPackageMetadata;
             var protobuildMetadata = metadata as ProtobuildPackageMetadata;
@@ -28,19 +28,19 @@ namespace Protobuild
 
             if (gitMetadata != null)
             {
-                ResolveGit(gitMetadata, folder, templateName, forceUpgrade);
+                ResolveGit(workingDirectory, gitMetadata, folder, templateName, forceUpgrade);
                 return;
             }
 
             if (protobuildMetadata != null)
             {
-                ResolveProtobuild(protobuildMetadata, folder, templateName, forceUpgrade);
+                ResolveProtobuild(workingDirectory, protobuildMetadata, folder, templateName, forceUpgrade);
                 return;
             }
 
             if (nuGet3Metadata != null)
             {
-                ResolveNuGet3(nuGet3Metadata, folder, templateName, forceUpgrade);
+                ResolveNuGet3(workingDirectory, nuGet3Metadata, folder, templateName, forceUpgrade);
                 return;
             }
 
@@ -53,40 +53,42 @@ namespace Protobuild
             throw new InvalidOperationException("Unexpected metadata type " + metadata.GetType().Name + " for source resolve.");
         }
 
-        private void ResolveProtobuild(ProtobuildPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveProtobuild(string workingDirectory, ProtobuildPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
         {
             ResolveGit(
+                workingDirectory,
                 new GitPackageMetadata(
                     protobuildMetadata.SourceURI,
                     protobuildMetadata.GitCommit,
                     protobuildMetadata.PackageType,
-                    (metadata, s, name, upgrade, source) => Resolve(metadata, s, name, upgrade)
+                    (workingDirectoryAlt, metadata, s, name, upgrade, source) => Resolve(workingDirectoryAlt, metadata, s, name, upgrade)
                     ),
                 folder,
                 templateName,
                 forceUpgrade);
         }
 
-        private void ResolveNuGet3(NuGet3PackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveNuGet3(string workingDirectory, NuGet3PackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
         {
             ResolveGit(
+                workingDirectory,
                 new GitPackageMetadata(
                     protobuildMetadata.SourceUri,
                     protobuildMetadata.CommitHashForSourceResolve,
                     protobuildMetadata.PackageType,
-                    (metadata, s, name, upgrade, source) => Resolve(metadata, s, name, upgrade)
+                    (workingDirectoryAlt, metadata, s, name, upgrade, source) => Resolve(workingDirectoryAlt, metadata, s, name, upgrade)
                     ),
                 folder,
                 templateName,
                 forceUpgrade);
         }
 
-        private void ResolveGit(GitPackageMetadata gitMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveGit(string workingDirectory, GitPackageMetadata gitMetadata, string folder, string templateName, bool forceUpgrade)
         {
             switch (gitMetadata.PackageType)
             {
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
-                    if (File.Exists(Path.Combine(folder, ".git")) || Directory.Exists(Path.Combine(folder, ".git")))
+                    if (File.Exists(Path.Combine(workingDirectory, folder, ".git")) || Directory.Exists(Path.Combine(workingDirectory, folder, ".git")))
                     {
                         if (!forceUpgrade)
                         {
@@ -95,22 +97,22 @@ namespace Protobuild
                         }
                     }
 
-                    PathUtils.AggressiveDirectoryDelete(folder);
+                    PathUtils.AggressiveDirectoryDelete(Path.Combine(workingDirectory, folder));
 
-                    var packageLibrary = GetSourcePackage(gitMetadata.CloneURI);
-                    ExtractGitSourceTo(packageLibrary, gitMetadata.GitRef, folder);
+                    var packageLibrary = GetSourcePackage(workingDirectory, gitMetadata.CloneURI);
+                    ExtractGitSourceTo(workingDirectory, packageLibrary, gitMetadata.GitRef, folder);
                     break;
                 case PackageManager.PACKAGE_TYPE_TEMPLATE:
                     if (Directory.Exists(".staging"))
                     {
-                        PathUtils.AggressiveDirectoryDelete(".staging");
+                        PathUtils.AggressiveDirectoryDelete(Path.Combine(workingDirectory, ".staging"));
                     }
 
-                    var packageTemplate = GetSourcePackage(gitMetadata.CloneURI);
-                    ExtractGitSourceTo(packageTemplate, gitMetadata.GitRef, ".staging");
+                    var packageTemplate = GetSourcePackage(workingDirectory, gitMetadata.CloneURI);
+                    ExtractGitSourceTo(workingDirectory, packageTemplate, gitMetadata.GitRef, Path.Combine(workingDirectory, ".staging"));
 
-                    _projectTemplateApplier.Apply(".staging", templateName);
-                    PathUtils.AggressiveDirectoryDelete(".staging");
+                    _projectTemplateApplier.Apply(Path.Combine(workingDirectory, ".staging"), templateName);
+                    PathUtils.AggressiveDirectoryDelete(Path.Combine(workingDirectory, ".staging"));
                     break;
                 default:
                     throw new InvalidOperationException("Unable to resolve source package with type '" + gitMetadata.PackageType + "' using Git-based package.");
@@ -147,7 +149,7 @@ namespace Protobuild
             return false;
         }
 
-        private string GetSourcePackage(string url)
+        private string GetSourcePackage(string workingDirectory, string url)
         {
             var sourcePath = Path.Combine(
                 _packageCacheConfiguration.GetCacheDirectory(),
@@ -184,7 +186,7 @@ namespace Protobuild
             }
 
             Directory.CreateDirectory(sourcePath);
-            GitUtils.RunGit(null, "clone --progress --bare " + url + " \"" + sourcePath + "\"");
+            GitUtils.RunGit(workingDirectory, null, "clone --progress --bare " + url + " \"" + sourcePath + "\"");
 
             return sourcePath;
         }
@@ -211,7 +213,7 @@ namespace Protobuild
             return canonicalUri;
         }
 
-        private void ExtractGitSourceTo(string sourcePath, string gitRef, string path)
+        private void ExtractGitSourceTo(string workingDirectory, string sourcePath, string gitRef, string path)
         {
             // FIXME: This assumes packages are being extracted underneath the current
             // working directory (i.e. the module root).
@@ -220,9 +222,9 @@ namespace Protobuild
                 GitUtils.UnmarkIgnored(path);
             }
 
-            GitUtils.RunGit(null, "clone --progress " + sourcePath + " \"" + path + "\"");
-            GitUtils.RunGit(path, "checkout -f " + gitRef);
-            this.InitializeSubmodulesFromCache(path);
+            GitUtils.RunGit(workingDirectory, null, "clone --progress " + sourcePath + " \"" + path + "\"");
+            GitUtils.RunGit(workingDirectory, path, "checkout -f " + gitRef);
+            this.InitializeSubmodulesFromCache(workingDirectory, path);
 
             if (GitUtils.IsGitRepository())
             {
@@ -230,20 +232,20 @@ namespace Protobuild
             }
         }
 
-        private void InitializeSubmodulesFromCache(string path)
+        private void InitializeSubmodulesFromCache(string workingDirectory, string path)
         {
-            GitUtils.RunGit(path, "submodule init");
-            var submodules = GitUtils.RunGitAndCapture(path, "config --local --list");
+            GitUtils.RunGit(workingDirectory, path, "submodule init");
+            var submodules = GitUtils.RunGitAndCapture(workingDirectory, path, "config --local --list");
             foreach (Match match in new Regex(@"submodule\.(?<name>.*)\.url=(?<url>.*)").Matches(submodules))
             {
                 var name = match.Groups["name"].Value;
                 var url = match.Groups["url"].Value;
 
-                var submodule = GetSourcePackage(url);
-                GitUtils.RunGit(path, "config --local submodule." + name + ".url " + submodule);
-                GitUtils.RunGit(path, "submodule update " + name);
-                this.InitializeSubmodulesFromCache(Path.Combine(path ?? "", name));
-                GitUtils.RunGit(path, "config --local submodule." + name + ".url " + url);
+                var submodule = GetSourcePackage(workingDirectory, url);
+                GitUtils.RunGit(workingDirectory, path, "config --local submodule." + name + ".url " + submodule);
+                GitUtils.RunGit(workingDirectory, path, "submodule update " + name);
+                this.InitializeSubmodulesFromCache(workingDirectory, Path.Combine(path ?? "", name));
+                GitUtils.RunGit(workingDirectory, path, "config --local submodule." + name + ".url " + url);
             }
         }
     }

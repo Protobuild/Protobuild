@@ -11,12 +11,12 @@
 
         public string[] Schemes => new[] {"local-template"};
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             return new FolderPackageMetadata(
                 request.Uri.Substring("local-template://".Length),
                 PackageManager.PACKAGE_TYPE_TEMPLATE,
-                (metadata, folder, name, upgrade, source) => _sourcePackageResolve.Resolve(metadata, folder, name, upgrade));
+                (workingDirectoryAlt, metadata, folder, name, upgrade, source) => _sourcePackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade));
         }
     }
 }

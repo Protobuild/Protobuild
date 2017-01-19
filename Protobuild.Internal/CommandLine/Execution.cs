@@ -90,6 +90,8 @@ namespace Protobuild
 
         public bool? SafePackageResolution { get; set; }
 
+        public string WorkingDirectory { get; set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)

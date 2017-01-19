@@ -26,8 +26,9 @@ namespace Protobuild
         {
             if (Directory.Exists("Build"))
             {
-                var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+                var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
                 return this.m_ActionDispatch.PerformAction(
+                    execution.WorkingDirectory,
                     module,
                     "clean",
                     execution.Platform,

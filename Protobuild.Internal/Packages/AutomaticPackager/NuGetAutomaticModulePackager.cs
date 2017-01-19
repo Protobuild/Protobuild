@@ -35,6 +35,7 @@ namespace Protobuild
         }
 
         public void Autopackage(
+            string workingDirectory,
             FileFilter fileFilter,
             Execution execution,
             ModuleInfo module,
@@ -68,6 +69,7 @@ namespace Protobuild
             else
             {
                 AutopackagePlatform(
+                    workingDirectory,
                     fileFilter,
                     execution,
                     module,
@@ -285,6 +287,7 @@ namespace Protobuild
         }
 
         private void AutopackagePlatform(
+            string workingDirectory,
             FileFilter fileFilter,
             Execution execution,
             ModuleInfo module,
@@ -362,7 +365,7 @@ namespace Protobuild
                 {
                     case "External":
                         RedirectableConsole.WriteLine("Packaging: " + definition.Name);
-                        this.AutomaticallyPackageExternalProject(definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
+                        this.AutomaticallyPackageExternalProject(workingDirectory, definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
                         break;
                     case "Include":
                         RedirectableConsole.WriteLine("Packaging: " + definition.Name);
@@ -374,7 +377,7 @@ namespace Protobuild
                         break;
                     default:
                         RedirectableConsole.WriteLine("Packaging: " + definition.Name);
-                        this.AutomaticallyPackageNormalProject(definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
+                        this.AutomaticallyPackageNormalProject(workingDirectory, definitions, services, fileFilter, rootPath, platform, definition, temporaryFiles);
                         break;
                 }
             }
@@ -589,6 +592,7 @@ namespace Protobuild
         }
 
         private void AutomaticallyPackageExternalProject(
+            string workingDirectory,
             DefinitionInfo[] definitions, 
             List<Service> services, 
             FileFilter fileFilter, 
@@ -609,6 +613,7 @@ namespace Protobuild
             // Translate all of the references (this is a seperate method so we can call it
             // again when traversing into Platform nodes).
             this.TranslateExternalProject(
+                workingDirectory,
                 definition,
                 services, 
                 fileFilter, 
@@ -659,6 +664,7 @@ namespace Protobuild
         }
 
         private void TranslateExternalProject(
+            string workingDirectory,
             DefinitionInfo definition,
             List<Service> services, 
             FileFilter fileFilter, 
@@ -718,7 +724,7 @@ namespace Protobuild
                                 }
                                 else
                                 {
-                                    fileFilter.ApplyCopy(sourcePathRegex, "lib/" + _nuGetPlatformMapping.GetFrameworkNameForWrite(platform) + "/" + destPathRegex);
+                                    fileFilter.ApplyCopy(sourcePathRegex, "lib/" + _nuGetPlatformMapping.GetFrameworkNameForWrite(workingDirectory, platform) + "/" + destPathRegex);
                                 }
                                 fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + platform + "/" + destPathRegex);
                                 if (includeMatch)
@@ -794,7 +800,7 @@ namespace Protobuild
                             // specific to a given platform.
                             if (child.GetAttribute("Type").ToLowerInvariant() == platform.ToLowerInvariant())
                             {
-                                this.TranslateExternalProject(definition, services, fileFilter, rootPath, platform, child, toNode, true);
+                                this.TranslateExternalProject(workingDirectory, definition, services, fileFilter, rootPath, platform, child, toNode, true);
                             }
 
                             break;
@@ -810,7 +816,7 @@ namespace Protobuild
                             if (service != null)
                             {
                                 // If the service is present in the list, then it is enabled.
-                                this.TranslateExternalProject(definition, services, fileFilter, rootPath, platform, child, toNode, true);
+                                this.TranslateExternalProject(workingDirectory, definition, services, fileFilter, rootPath, platform, child, toNode, true);
                             }
 
                             break;
@@ -883,6 +889,7 @@ namespace Protobuild
         }
 
         private void AutomaticallyPackageNormalProject(
+            string workingDirectory,
             DefinitionInfo[] definitions,
             List<Service> services,  
             FileFilter fileFilter, 
@@ -963,7 +970,7 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                fileFilter.ApplyCopy("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "lib/" + _nuGetPlatformMapping.GetFrameworkNameForWrite(platform) + "/" + assemblyFile);
+                                fileFilter.ApplyCopy("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "lib/" + _nuGetPlatformMapping.GetFrameworkNameForWrite(workingDirectory, platform) + "/" + assemblyFile);
                                 var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + platform + "/" + definition.Name + "/AnyCPU/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {
@@ -1056,7 +1063,7 @@ namespace Protobuild
                             foreach (var assemblyFile in assemblyFilesToCopy)
                             {
                                 var includeMatch = fileFilter.ApplyInclude("^" + pathPrefix + Regex.Escape(assemblyFile) + "$");
-                                fileFilter.ApplyCopy("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "lib/" + _nuGetPlatformMapping.GetFrameworkNameForWrite(platform) + "/" + assemblyFile);
+                                fileFilter.ApplyCopy("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "lib/" + _nuGetPlatformMapping.GetFrameworkNameForWrite(workingDirectory, platform) + "/" + assemblyFile);
                                 var rewriteMatch = fileFilter.ApplyRewrite("^" + pathPrefix + Regex.Escape(assemblyFile) + "$", "protobuild/" + platform + "/" + definition.Name + "/" + pathArchReplace + "/" + assemblyFile);
                                 if (includeMatch && rewriteMatch)
                                 {

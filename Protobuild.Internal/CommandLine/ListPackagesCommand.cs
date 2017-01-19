@@ -20,7 +20,7 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             if (module.Packages == null)
             {

@@ -26,6 +26,7 @@ namespace Protobuild
         }
 
         public void Generate(
+            string workingDirectory,
             ModuleInfo moduleInfo,
             List<XmlDocument> definitions,
             string platformName,
@@ -33,8 +34,8 @@ namespace Protobuild
             List<Service> services,
             IEnumerable<string> repositoryPaths)
         {
-            var generateSolutionTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.GenerateSolution, Language.CSharp, platformName);
-            var selectSolutionTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.SelectSolution, Language.CSharp, platformName);
+            var generateSolutionTransform = this.m_ResourceProvider.LoadXSLT(workingDirectory, ResourceType.GenerateSolution, Language.CSharp, platformName);
+            var selectSolutionTransform = this.m_ResourceProvider.LoadXSLT(workingDirectory, ResourceType.SelectSolution, Language.CSharp, platformName);
 
             var input = this.m_SolutionInputGenerator.GenerateForSelectSolution(definitions, platformName, services);
             using (var memory = new MemoryStream())

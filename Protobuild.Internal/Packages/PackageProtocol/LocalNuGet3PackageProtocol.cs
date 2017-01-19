@@ -21,7 +21,7 @@ namespace Protobuild.Internal
 
         public string[] Schemes => new[] { "local-nuget-v3" };
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             var path = request.Uri.Substring("local-nuget-v3://".Length);
 
@@ -107,15 +107,15 @@ namespace Protobuild.Internal
                 binaryFormat,
                 binaryUri,
                 commitHashForSourceResolve,
-                (metadata, folder, name, upgrade, source) =>
+                (workingDirectoryAlt, metadata, folder, name, upgrade, source) =>
                 {
                     if (source == true)
                     {
-                        _sourcePackageResolve.Resolve(metadata, folder, name, upgrade);
+                        _sourcePackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                     }
                     else
                     {
-                        _binaryPackageResolve.Resolve(metadata, folder, name, upgrade);
+                        _binaryPackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                     }
                 });
         }

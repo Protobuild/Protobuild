@@ -66,7 +66,7 @@ namespace Protobuild
                 var sourcePackage = _packageUrlParser.Parse(execution.PackageUrl);
 
                 RedirectableConsole.WriteLine("Retrieving source package...");
-                var metadata = _packageLookup.Lookup(new PackageRequestRef(
+                var metadata = _packageLookup.Lookup(execution.WorkingDirectory, new PackageRequestRef(
                     sourcePackage.Uri, 
                     sourcePackage.GitRef,
                     execution.PackagePushPlatform,

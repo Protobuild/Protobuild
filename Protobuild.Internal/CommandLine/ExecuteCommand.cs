@@ -17,20 +17,16 @@ namespace Protobuild
 
         private readonly IPackageGlobalTool m_PackageGlobalTool;
 
-        private readonly IWorkingDirectoryProvider _workingDirectoryProvider;
-
         public ExecuteCommand(
             IActionDispatch actionDispatch,
             IHostPlatformDetector hostPlatformDetector,
             IProjectOutputPathCalculator projectOutputPathCalculator,
-            IPackageGlobalTool packageGlobalTool,
-            IWorkingDirectoryProvider workingDirectoryProvider)
+            IPackageGlobalTool packageGlobalTool)
         {
             this.m_ActionDispatch = actionDispatch;
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_ProjectOutputPathCalculator = projectOutputPathCalculator;
             this.m_PackageGlobalTool = packageGlobalTool;
-            _workingDirectoryProvider = workingDirectoryProvider;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -62,7 +58,7 @@ namespace Protobuild
 
             if (!File.Exists(Path.Combine(modulePath, "Build", "Module.xml")))
             {
-                modulePath = _workingDirectoryProvider.GetPath();
+                modulePath = execution.WorkingDirectory;
             }
 
             string executablePath = null;

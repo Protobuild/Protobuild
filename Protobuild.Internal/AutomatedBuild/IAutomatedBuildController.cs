@@ -2,6 +2,6 @@
 {
     internal interface IAutomatedBuildController
     {
-        int Execute(string path);
+        int Execute(string workingDirectory, string path);
     }
 }

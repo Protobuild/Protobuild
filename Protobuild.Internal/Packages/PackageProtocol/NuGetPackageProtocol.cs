@@ -15,7 +15,7 @@ namespace Protobuild.Internal
 
         public string[] Schemes => new[] {"http-nuget", "https-nuget" };
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             return new TransformedPackageMetadata(
                 NormalizeScheme(request.Uri),
@@ -23,9 +23,9 @@ namespace Protobuild.Internal
                 request.Platform,
                 request.GitRef,
                 _transformer,
-                (metadata, folder, name, upgrade, preferSource) =>
+                (workingDirectoryAlt, metadata, folder, name, upgrade, preferSource) =>
                 {
-                    _binaryPackageResolve.Resolve(metadata, folder, name, upgrade);
+                    _binaryPackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                 },
                 _binaryPackageResolve.GetProtobuildPackageBinary);
         }

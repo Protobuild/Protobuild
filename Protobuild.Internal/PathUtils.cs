@@ -19,6 +19,13 @@ namespace Protobuild
         /// </remarks>
         public static void AggressiveDirectoryDelete(string directory)
         {
+            if (!Path.IsPathRooted(directory))
+            {
+                throw new InvalidOperationException(
+                    "Directory deletion requested without absolute path; this indicates " +
+                    "a bug in Protobuild.");
+            }
+
             File.SetAttributes(directory, FileAttributes.Normal);
 
             var files = Directory.GetFiles(directory);

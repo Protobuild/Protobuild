@@ -15,12 +15,13 @@ namespace Protobuild
             _nuGetAutomaticModulePackager = nuGetAutomaticModulePackager;
         }
 
-        public void Autopackage(FileFilter fileFilter, Execution execution, ModuleInfo module, string rootPath, string platform, string packageFormat, List<string> temporaryFiles)
+        public void Autopackage(string workingDirectory, FileFilter fileFilter, Execution execution, ModuleInfo module, string rootPath, string platform, string packageFormat, List<string> temporaryFiles)
         {
             switch (packageFormat)
             {
                 case PackageManager.ARCHIVE_FORMAT_NUGET_ZIP:
                     _nuGetAutomaticModulePackager.Autopackage(
+                        workingDirectory,
                         fileFilter,
                         execution,
                         module,
@@ -33,6 +34,7 @@ namespace Protobuild
                 case PackageManager.ARCHIVE_FORMAT_TAR_LZMA:
                 default:
                     _protobuildAutomaticModulePackager.Autopackage(
+                        workingDirectory,
                         fileFilter,
                         execution,
                         module,

@@ -6,6 +6,7 @@ namespace Protobuild
     internal interface IAutomaticModulePackager
     {
         void Autopackage(
+            string workingDirectory,
             FileFilter fileFilter,
             Execution execution, 
             ModuleInfo rootModule, 

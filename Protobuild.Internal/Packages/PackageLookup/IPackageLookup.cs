@@ -5,7 +5,7 @@ namespace Protobuild
 {
     internal interface IPackageLookup
     {
-        IPackageMetadata Lookup(PackageRequestRef request);
+        IPackageMetadata Lookup(string workingDirectory, PackageRequestRef request);
     }
 }
 

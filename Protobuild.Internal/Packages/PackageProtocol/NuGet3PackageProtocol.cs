@@ -41,7 +41,7 @@ namespace Protobuild.Internal
             throw new InvalidOperationException("Unexpected scheme!");
         }
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             var components = request.Uri.Split(new[] {'|'}, 2);
 
@@ -146,7 +146,8 @@ namespace Protobuild.Internal
                         sourceCodeUrl = sourceCodeUrl.Substring("git=".Length);
 
                         var heads = GitUtils.RunGitAndCapture(
-                            Environment.CurrentDirectory,
+                            workingDirectory,
+                            null,
                             "ls-remote --heads " + new Uri(sourceCodeUrl));
 
                         var lines = heads.Split(new string[] {"\r\n", "\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
@@ -241,15 +242,15 @@ namespace Protobuild.Internal
                 binaryFormat,
                 binaryUri,
                 commitHashForSourceResolve,
-                (metadata, folder, name, upgrade, source) =>
+                (workingDirectoryAlt, metadata, folder, name, upgrade, source) =>
                 {
                     if (source == true)
                     {
-                        _sourcePackageResolve.Resolve(metadata, folder, name, upgrade);
+                        _sourcePackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                     }
                     else
                     {
-                        _binaryPackageResolve.Resolve(metadata, folder, name, upgrade);
+                        _binaryPackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                     }
                 });
         }

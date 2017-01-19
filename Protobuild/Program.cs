@@ -39,7 +39,7 @@ namespace Protobuild.Bootstrap
             var loaded = Assembly.Load(bytes);
             var realProgram = loaded.GetType("Protobuild.MainClass");
             var main = realProgram.GetMethod("Main", BindingFlags.Public | BindingFlags.Static);
-            main.Invoke(null, new[] { (string[])args });
+            main.Invoke(null, new object[] { (string)Environment.CurrentDirectory, (string[])args });
         }
     }
 }
