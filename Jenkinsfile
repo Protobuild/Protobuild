@@ -10,8 +10,8 @@ parallel(
   "Mac": {
     node('mac') {
       checkout poll: false, changelog: false, scm: scm
-      sh ("/usr/local/bin/mono Protobuild.exe --upgrade-all")
-      sh ("/usr/local/bin/mono Protobuild.exe --automated-build")
+      sh ("mono Protobuild.exe --upgrade-all")
+      sh ("mono Protobuild.exe --automated-build")
     }
   },
   "Linux": {
