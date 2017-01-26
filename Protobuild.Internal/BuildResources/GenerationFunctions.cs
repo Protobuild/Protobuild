@@ -326,6 +326,13 @@ public class GenerationFunctions
             return true;
         }
 
+        var linuxPath1 = @"/usr/lib/mono/xbuild/Xamarin/Android/Xamarin.Android.CSharp.targets";
+        var linuxPath2 = @"/opt/mono-android/lib/mono/xbuild/Xamarin/Android/Xamarin.Android.CSharp.targets";
+        if (System.IO.File.Exists(linuxPath1) || System.IO.File.Exists(linuxPath2))
+        {
+            return true;
+        }
+
         return false;
     }
 
