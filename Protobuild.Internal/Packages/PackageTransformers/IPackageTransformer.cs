@@ -2,7 +2,7 @@
 {
     internal interface IPackageTransformer
     {
-        byte[] Transform(string url, string gitReference, string platform, string format);
+        byte[] Transform(string workingDirectory, string url, string gitReference, string platform, string format);
     }
 }
 

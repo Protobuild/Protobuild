@@ -59,9 +59,9 @@ namespace Protobuild
             }
         }
 
-        public void LoadFeaturesForCurrentDirectory()
+        public void LoadFeaturesFromDirectory(string workingDirectory)
         {
-            var modulePath = Path.Combine("Build", "Module.xml");
+            var modulePath = Path.Combine(workingDirectory, "Build", "Module.xml");
             LoadFeaturesFromSpecificModule(modulePath);
         }
 

@@ -25,7 +25,7 @@ namespace Protobuild.UnitTests
         {
             var packageLookup = GetPackageLookup();
 
-            var metadata = packageLookup.Lookup(new PackageRequestRef("local-template://C:\\Some\\Path", "master", "Windows", false));
+            var metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("local-template://C:\\Some\\Path", "master", "Windows", false));
 
             _assert.IsType<FolderPackageMetadata>(metadata);
 
@@ -39,7 +39,7 @@ namespace Protobuild.UnitTests
         {
             var packageLookup = GetPackageLookup();
 
-            var metadata = packageLookup.Lookup(new PackageRequestRef("local-template-git://C:\\Some\\Path", "master", "Windows", false));
+            var metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("local-template-git://C:\\Some\\Path", "master", "Windows", false));
 
             _assert.IsType<GitPackageMetadata>(metadata);
 
@@ -54,7 +54,7 @@ namespace Protobuild.UnitTests
         {
             var packageLookup = GetPackageLookup();
 
-            var metadata = packageLookup.Lookup(new PackageRequestRef("local-git://C:\\Some\\Path", "master", "Windows", false));
+            var metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("local-git://C:\\Some\\Path", "master", "Windows", false));
 
             _assert.IsType<GitPackageMetadata>(metadata);
 
@@ -64,7 +64,7 @@ namespace Protobuild.UnitTests
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, gitMetadata.PackageType);
             _assert.Equal("master", gitMetadata.GitRef);
 
-            metadata = packageLookup.Lookup(new PackageRequestRef("http-git://domain.org/git", "master", "Windows", false));
+            metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("http-git://domain.org/git", "master", "Windows", false));
 
             _assert.IsType<GitPackageMetadata>(metadata);
 
@@ -74,7 +74,7 @@ namespace Protobuild.UnitTests
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, gitMetadata.PackageType);
             _assert.Equal("master", gitMetadata.GitRef);
 
-            metadata = packageLookup.Lookup(new PackageRequestRef("https-git://domain.org/git", "master", "Windows", false));
+            metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("https-git://domain.org/git", "master", "Windows", false));
 
             _assert.IsType<GitPackageMetadata>(metadata);
 
@@ -89,7 +89,7 @@ namespace Protobuild.UnitTests
         {
             var packageLookup = GetPackageLookup();
 
-            var metadata = packageLookup.Lookup(new PackageRequestRef("http-nuget://domain.org/git", "master", "Windows", false));
+            var metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("http-nuget://domain.org/git", "master", "Windows", false));
 
             _assert.IsType<TransformedPackageMetadata>(metadata);
 
@@ -101,7 +101,7 @@ namespace Protobuild.UnitTests
             _assert.Equal("master", nugetMetadata.GitRef);
             _assert.Equal("Windows", nugetMetadata.Platform);
 
-            metadata = packageLookup.Lookup(new PackageRequestRef("https-nuget://domain.org/git", "master", "Windows", false));
+            metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("https-nuget://domain.org/git", "master", "Windows", false));
 
             _assert.IsType<TransformedPackageMetadata>(metadata);
 
@@ -120,7 +120,7 @@ namespace Protobuild.UnitTests
 
             var packageLookup = GetPackageLookup();
 
-            var metadata = packageLookup.Lookup(new PackageRequestRef("http://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
+            var metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("http://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
 
             _assert.IsType<ProtobuildPackageMetadata>(metadata);
 
@@ -134,7 +134,7 @@ namespace Protobuild.UnitTests
             _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
             _assert.Equal("Windows", protobuildMetadata.Platform);
 
-            metadata = packageLookup.Lookup(new PackageRequestRef("https://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
+            metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("https://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", false));
 
             _assert.IsType<ProtobuildPackageMetadata>(metadata);
 

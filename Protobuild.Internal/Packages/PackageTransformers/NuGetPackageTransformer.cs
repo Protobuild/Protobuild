@@ -52,7 +52,7 @@ namespace Protobuild
             }
         }
 
-        public byte[] Transform(string url, string gitReference, string platform, string format)
+        public byte[] Transform(string workingDirectory, string url, string gitReference, string platform, string format)
         {
             var urlAndPackageName = url.Split(new[] { '|' }, 2);
 
@@ -159,7 +159,7 @@ namespace Protobuild
 
                 // Determine the priority of the frameworks that we want to target
                 // out of the available versions.
-                string[] clrNames = _nuGetPlatformMapping.GetFrameworkNamesForRead(platform);
+                string[] clrNames = _nuGetPlatformMapping.GetFrameworkNamesForRead(workingDirectory, platform);
 
                 var referenceDirectories = new string[] {"ref", "lib"};
 

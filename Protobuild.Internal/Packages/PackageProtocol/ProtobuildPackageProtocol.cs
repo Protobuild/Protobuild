@@ -26,7 +26,7 @@ namespace Protobuild.Internal
 
         public string[] Schemes => new[] {"http", "https" };
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             var baseUri = new Uri(request.Uri);
 
@@ -215,15 +215,15 @@ namespace Protobuild.Internal
                 gitCommit,
                 archiveType,
                 fileUri,
-                (metadata, folder, name, upgrade, source) =>
+                (workingDirectoryAlt, metadata, folder, name, upgrade, source) =>
                 {
                     if (source == true)
                     {
-                        _sourcePackageResolve.Resolve(metadata, folder, name, upgrade);
+                        _sourcePackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                     }
                     else
                     {
-                        _binaryPackageResolve.Resolve(metadata, folder, name, upgrade);
+                        _binaryPackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade);
                     }
                 },
                 _binaryPackageResolve.GetProtobuildPackageBinary);

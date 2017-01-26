@@ -6,7 +6,7 @@ namespace Protobuild
     {
         void LoadFeaturesFromCommandLine(string commandArguments);
 
-        void LoadFeaturesForCurrentDirectory();
+        void LoadFeaturesFromDirectory(string workingDirectory);
 
         void LoadFeaturesFromSpecificModule(ModuleInfo module);
 

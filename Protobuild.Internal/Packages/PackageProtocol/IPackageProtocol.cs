@@ -4,6 +4,6 @@
     {
         string[] Schemes { get; }
 
-        IPackageMetadata ResolveSource(PackageRequestRef request);
+        IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request);
     }
 }

@@ -47,6 +47,8 @@ namespace Protobuild.Tasks
 
         public string SourcePath { get; set; }
 
+        public string WorkingDirectory { get; set; }
+
         public string RootPath { get; set; }
 
         public string Platform { get; set; }
@@ -287,6 +289,7 @@ namespace Protobuild.Tasks
                         m_ProjectGenerator.Generate(
                             definition,
                             loadedProjects,
+                            WorkingDirectory,
                             RootPath,
                             definition.Name,
                             Platform,
@@ -318,6 +321,7 @@ namespace Protobuild.Tasks
                         m_ProjectGenerator.Generate(
                             definition,
                             loadedProjects,
+                            WorkingDirectory,
                             RootPath,
                             definition.Name,
                             Platform,
@@ -338,6 +342,7 @@ namespace Protobuild.Tasks
                     ModuleName + "." + Platform + ".sln");
                 LogMessage("Generating: (solution)");
                 m_SolutionGenerator.Generate(
+                    WorkingDirectory,
                     module,
                     loadedProjects.Select(x => x.Project).ToList(),
                     Platform,

@@ -72,6 +72,7 @@ namespace Protobuild
         public void Generate(
             DefinitionInfo current,
             List<LoadedDefinitionInfo> definitions,
+            string workingDirectory,
             string rootPath,
             string projectName,
             string platformName,
@@ -96,7 +97,7 @@ namespace Protobuild
             var languageAttribute = projectDoc.DocumentElement.Attributes["Language"];
             var languageText = languageAttribute != null ? languageAttribute.Value : "C#";
             var language = this.m_LanguageStringProvider.GetLanguageFromConfigurationName(languageText);
-            var projectTransform = this.m_ResourceProvider.LoadXSLT(ResourceType.GenerateProject, language, platformName);
+            var projectTransform = this.m_ResourceProvider.LoadXSLT(workingDirectory, ResourceType.GenerateProject, language, platformName);
 
             // Work out what platforms this project should be generated for.
             var platformAttribute = projectDoc.DocumentElement.Attributes["Platforms"];
@@ -188,6 +189,7 @@ namespace Protobuild
             // Generate the input document.
             var input = this.m_ProjectInputGenerator.Generate(
                 definitions.Select(x => x.Project).ToList(),
+                workingDirectory,
                 rootPath,
                 projectName,
                 platformName,

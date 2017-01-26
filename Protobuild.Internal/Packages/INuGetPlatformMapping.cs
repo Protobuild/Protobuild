@@ -2,7 +2,7 @@
 {
     public interface INuGetPlatformMapping
     {
-        string GetFrameworkNameForWrite(string platform);
-        string[] GetFrameworkNamesForRead(string platform);
+        string GetFrameworkNameForWrite(string workingDirectory, string platform);
+        string[] GetFrameworkNamesForRead(string workingDirectory, string platform);
     }
 }

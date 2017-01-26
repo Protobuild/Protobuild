@@ -7,8 +7,6 @@ namespace Protobuild
 {
     internal class ModuleExecution : IModuleExecution
     {
-        private static object _selfWorkingDirectoryLock = new object();
-
         public Tuple<int, string, string> RunProtobuild(ModuleInfo module, string args, bool capture = false)
         {
             var invokeInline = false;
@@ -25,40 +23,31 @@ namespace Protobuild
                 var ourBuffer = new RedirectableBuffer();
                 RedirectableConsole.TargetBuffer = ourBuffer;
                 var needsEndSelfInvoke = true;
-                lock (_selfWorkingDirectoryLock)
+                try
                 {
-                    var oldLock = _selfWorkingDirectoryLock;
-                    _selfWorkingDirectoryLock = new object();
-                    var old = Environment.CurrentDirectory;
-                    try
+                    var exitCode = ExecEnvironment.InvokeSelf(module.Path, args.SplitCommandLine().ToArray());
+                    RedirectableConsole.TargetBuffer = oldBuffer;
+                    needsEndSelfInvoke = false;
+                    if (capture)
                     {
-                        Environment.CurrentDirectory = module.Path;
-                        var exitCode = ExecEnvironment.InvokeSelf(args.SplitCommandLine().ToArray());
-                        RedirectableConsole.TargetBuffer = oldBuffer;
-                        needsEndSelfInvoke = false;
-                        if (capture)
-                        {
-                            return new Tuple<int, string, string>(
-                                exitCode,
-                                ourBuffer.Stdout,
-                                ourBuffer.Stderr);
-                        }
-                        else
-                        {
-                            return new Tuple<int, string, string>(
-                                exitCode,
-                                string.Empty,
-                                string.Empty);
-                        }
+                        return new Tuple<int, string, string>(
+                            exitCode,
+                            ourBuffer.Stdout,
+                            ourBuffer.Stderr);
                     }
-                    finally
+                    else
                     {
-                        if (needsEndSelfInvoke)
-                        {
-                            RedirectableConsole.TargetBuffer = oldBuffer;
-                        }
-                        Environment.CurrentDirectory = old;
-                        _selfWorkingDirectoryLock = oldLock;
+                        return new Tuple<int, string, string>(
+                            exitCode,
+                            string.Empty,
+                            string.Empty);
+                    }
+                }
+                finally
+                {
+                    if (needsEndSelfInvoke)
+                    {
+                        RedirectableConsole.TargetBuffer = oldBuffer;
                     }
                 }
             }

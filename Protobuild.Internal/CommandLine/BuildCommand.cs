@@ -176,7 +176,7 @@ namespace Protobuild
             }
 
             var targetPlatforms = (execution.Platform ?? hostPlatform).Split(',');
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             foreach (var platform in targetPlatforms)
             {

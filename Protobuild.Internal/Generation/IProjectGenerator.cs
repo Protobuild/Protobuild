@@ -10,6 +10,7 @@ namespace Protobuild
         void Generate(
             DefinitionInfo current,
             List<LoadedDefinitionInfo> definitions,
+            string workingDirectory,
             string rootPath,
             string projectName,
             string platformName,

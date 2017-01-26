@@ -39,6 +39,7 @@ namespace Protobuild
 
         public XmlDocument Generate(
             List<XmlDocument> definitions,
+            string workingDirectory,
             string rootPath,
             string projectName,
             string platformName,
@@ -60,6 +61,8 @@ namespace Protobuild
             platformNameNode.AppendChild(doc.CreateTextNode(platformName));
             var hostPlatformName = doc.CreateElement("HostPlatform");
             hostPlatformName.AppendChild(doc.CreateTextNode(this.m_HostPlatformDetector.DetectPlatform()));
+            var workingDirectoryNode = doc.CreateElement("WorkingDirectory");
+            workingDirectoryNode.AppendChild(doc.CreateTextNode(workingDirectory));
 
             if (string.Compare(platformName, "Web", StringComparison.InvariantCultureIgnoreCase) == 0)
             {
@@ -139,6 +142,7 @@ namespace Protobuild
             generation.AppendChild(projectNameNode);
             generation.AppendChild(platformNameNode);
             generation.AppendChild(hostPlatformName);
+            generation.AppendChild(workingDirectoryNode);
             generation.AppendChild(rootName);
             input.AppendChild(generation);
 

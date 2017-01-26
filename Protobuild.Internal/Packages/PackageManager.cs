@@ -61,7 +61,7 @@ namespace Protobuild
             _hostPlatformDetector = hostPlatformDetector;
         }
 
-        public void ResolveAll(ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve)
+        public void ResolveAll(string workingDirectory, ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
             {
@@ -91,19 +91,19 @@ namespace Protobuild
                             var task = new Func<Task<Tuple<string, Action>>>(async () =>
                             {
                                 var metadata = await Task.Run(() =>
-                                    Lookup(module, submodule1, platform, null, null, forceUpgrade, safeResolve));
+                                    Lookup(workingDirectory, module, submodule1, platform, null, null, forceUpgrade, safeResolve));
                                 if (metadata == null)
                                 {
                                     return new Tuple<string, Action>(submodule1.Uri, () => { });
                                 }
                                 return new Tuple<string, Action>(submodule1.Uri,
-                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade, safeResolve); });
+                                    () => { this.Resolve(workingDirectory, metadata, submodule1, null, null, forceUpgrade, safeResolve); });
                             });
                             taskList.Add(task());
                         }
                         else
                         {
-                            var metadata = Lookup(module, submodule1, platform, null, null, forceUpgrade, safeResolve);
+                            var metadata = Lookup(workingDirectory, module, submodule1, platform, null, null, forceUpgrade, safeResolve);
                             if (metadata == null)
                             {
                                 resultList.Add(new Tuple<string, Action>(submodule1.Uri, () => { }));
@@ -111,7 +111,7 @@ namespace Protobuild
                             else
                             {
                                 resultList.Add(new Tuple<string, Action>(submodule1.Uri,
-                                    () => { this.Resolve(metadata, submodule1, null, null, forceUpgrade, safeResolve); }));
+                                    () => { this.Resolve(workingDirectory, metadata, submodule1, null, null, forceUpgrade, safeResolve); }));
                             }
                         }
                     }
@@ -178,18 +178,18 @@ namespace Protobuild
             RedirectableConsole.WriteLine("Package resolution complete.");
         }
 
-        public void Resolve(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
+        public void Resolve(string workingDirectory, ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
             bool forceUpgrade, bool? safeResolve)
         {
-            var metadata = Lookup(module, reference, platform, templateName, source, forceUpgrade, safeResolve);
+            var metadata = Lookup(workingDirectory, module, reference, platform, templateName, source, forceUpgrade, safeResolve);
             if (metadata == null)
             {
                 return;
             }
-            Resolve(metadata, reference, templateName, source, forceUpgrade, safeResolve);
+            Resolve(workingDirectory, metadata, reference, templateName, source, forceUpgrade, safeResolve);
         }
 
-        public IPackageMetadata Lookup(ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
+        public IPackageMetadata Lookup(string workingDirectory, ModuleInfo module, PackageRef reference, string platform, string templateName, bool? source,
             bool forceUpgrade, bool? safeResolve)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
@@ -204,8 +204,8 @@ namespace Protobuild
                 {
                     RedirectableConsole.WriteLine("Found an existing working copy of this package at " + existingPath);
 
-                    Directory.CreateDirectory(reference.Folder);
-                    using (var writer = new StreamWriter(Path.Combine(reference.Folder, ".redirect")))
+                    Directory.CreateDirectory(Path.Combine(workingDirectory, reference.Folder));
+                    using (var writer = new StreamWriter(Path.Combine(workingDirectory, reference.Folder, ".redirect")))
                     {
                         writer.WriteLine(existingPath);
                     }
@@ -214,11 +214,11 @@ namespace Protobuild
                 }
                 else
                 {
-                    if (File.Exists(Path.Combine(reference.Folder, ".redirect")))
+                    if (File.Exists(Path.Combine(workingDirectory, reference.Folder, ".redirect")))
                     {
                         try
                         {
-                            File.Delete(Path.Combine(reference.Folder, ".redirect"));
+                            File.Delete(Path.Combine(workingDirectory, reference.Folder, ".redirect"));
                         }
                         catch
                         {
@@ -233,10 +233,10 @@ namespace Protobuild
                 platform,
                 !forceUpgrade && reference.IsCommitReference);
 
-            return _packageLookup.Lookup(request);
+            return _packageLookup.Lookup(workingDirectory, request);
         }
 
-        public void Resolve(IPackageMetadata metadata, PackageRef reference, string templateName, bool? source,
+        public void Resolve(string workingDirectory, IPackageMetadata metadata, PackageRef reference, string templateName, bool? source,
             bool forceUpgrade, bool? safeResolve)
         {
             if (reference.Folder == null)
@@ -261,12 +261,12 @@ namespace Protobuild
                 }
                 else if (metadata.PackageType == PackageManager.PACKAGE_TYPE_LIBRARY)
                 {
-                    Directory.CreateDirectory(reference.Folder);
+                    Directory.CreateDirectory(Path.Combine(workingDirectory, reference.Folder));
 
-                    if (new DirectoryInfo(reference.Folder).GetFiles().Length > 0 || new DirectoryInfo(reference.Folder).GetDirectories().Length > 0)
+                    if (new DirectoryInfo(Path.Combine(workingDirectory, reference.Folder)).GetFiles().Length > 0 || new DirectoryInfo(Path.Combine(workingDirectory, reference.Folder)).GetDirectories().Length > 0)
                     {
-                        if (!File.Exists(Path.Combine(reference.Folder, ".git")) && !Directory.Exists(Path.Combine(reference.Folder, ".git")) &&
-                            !File.Exists(Path.Combine(reference.Folder, ".pkg")))
+                        if (!File.Exists(Path.Combine(workingDirectory, reference.Folder, ".git")) && !Directory.Exists(Path.Combine(workingDirectory, reference.Folder, ".git")) &&
+                            !File.Exists(Path.Combine(workingDirectory, reference.Folder, ".pkg")))
                         {
                             bool shouldSafeResolve;
                             if (safeResolve.HasValue)
@@ -308,21 +308,21 @@ namespace Protobuild
 
                     if (source == null)
                     {
-                        if (File.Exists(Path.Combine(reference.Folder, ".git")) || Directory.Exists(Path.Combine(reference.Folder, ".git")))
+                        if (File.Exists(Path.Combine(workingDirectory, reference.Folder, ".git")) || Directory.Exists(Path.Combine(workingDirectory, reference.Folder, ".git")))
                         {
-                            RedirectableConsole.WriteLine("Git repository present at " + Path.Combine(reference.Folder, ".git") + "; leaving as source version.");
+                            RedirectableConsole.WriteLine("Git repository present at " + Path.Combine(workingDirectory, reference.Folder, ".git") + "; leaving as source version.");
                             source = true;
                         }
                         else
                         {
-                            RedirectableConsole.WriteLine("Package type not specified (and no file at " + Path.Combine(reference.Folder, ".git") + "), requesting binary version.");
+                            RedirectableConsole.WriteLine("Package type not specified (and no file at " + Path.Combine(workingDirectory, reference.Folder, ".git") + "), requesting binary version.");
                             source = false;
                         }
                     }
                 }
             }
 
-            metadata.Resolve(metadata, reference.Folder, templateName, forceUpgrade, source);
+            metadata.Resolve(workingDirectory, metadata, reference.Folder, templateName, forceUpgrade, source);
         }
     }
 }

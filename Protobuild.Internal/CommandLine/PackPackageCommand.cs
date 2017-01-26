@@ -104,6 +104,7 @@ namespace Protobuild
                             if (allowAutopackage && rootModule != null)
                             {
                                 this.m_AutomaticProjectPackager.Autopackage(
+                                    execution.WorkingDirectory,
                                     f,
                                     execution,
                                     rootModule,

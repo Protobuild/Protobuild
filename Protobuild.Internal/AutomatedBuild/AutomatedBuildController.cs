@@ -12,7 +12,7 @@ namespace Protobuild
             _automatedBuildRuntimeV1 = automatedBuildRuntimeV1;
         }
 
-        public int Execute(string path)
+        public int Execute(string workingDirectory, string path)
         {
             IAutomatedBuildRuntime runtime = null;
             string script = null;
@@ -45,7 +45,7 @@ namespace Protobuild
             }
             try
             {
-                return runtime.Execute(handle);
+                return runtime.Execute(workingDirectory, handle);
             }
             catch (Exception ex)
             {

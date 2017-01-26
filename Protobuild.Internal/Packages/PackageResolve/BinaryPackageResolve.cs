@@ -30,7 +30,7 @@ namespace Protobuild
             _progressiveWebOperation = progressiveWebOperation;
         }
 
-        public void Resolve(IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
+        public void Resolve(string workingDirectory, IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
         {
             var protobuildMetadata = metadata as ProtobuildPackageMetadata;
             var nuGet3Metadata = metadata as NuGet3PackageMetadata;
@@ -38,43 +38,43 @@ namespace Protobuild
 
             if (protobuildMetadata != null)
             {
-                ResolveProtobuild(protobuildMetadata, folder, templateName, forceUpgrade);
+                ResolveProtobuild(workingDirectory, protobuildMetadata, folder, templateName, forceUpgrade);
                 return;
             }
 
             if (nuGet3Metadata != null)
             {
-                ResolveNuGet3(nuGet3Metadata, folder, templateName, forceUpgrade);
+                ResolveNuGet3(workingDirectory, nuGet3Metadata, folder, templateName, forceUpgrade);
                 return;
             }
 
             if (transformedMetadata != null)
             {
-                ResolveTransformed(transformedMetadata, folder, templateName, forceUpgrade);
+                ResolveTransformed(workingDirectory, transformedMetadata, folder, templateName, forceUpgrade);
                 return;
             }
 
             throw new InvalidOperationException("Unexpected metadata type " + metadata.GetType().Name + " for binary resolve.");
         }
 
-        private void ResolveProtobuild(ProtobuildPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveProtobuild(string workingDirectory, ProtobuildPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
         {
             switch (protobuildMetadata.PackageType)
             {
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
-                    ResolveLibraryBinary(protobuildMetadata, folder, forceUpgrade, () =>
+                    ResolveLibraryBinary(protobuildMetadata, Path.Combine(workingDirectory, folder), forceUpgrade, () =>
                     {
                         var package = GetBinaryPackage(protobuildMetadata);
                         if (package == null)
                         {
-                            _sourcePackageResolve.Resolve(protobuildMetadata, folder, null, forceUpgrade);
+                            _sourcePackageResolve.Resolve(workingDirectory, protobuildMetadata, folder, null, forceUpgrade);
                             return null;
                         }
                         return package;
                     });
                     break;
                 case PackageManager.PACKAGE_TYPE_TEMPLATE:
-                    ResolveTemplateBinary(protobuildMetadata, folder, templateName, forceUpgrade);
+                    ResolveTemplateBinary(workingDirectory, protobuildMetadata, folder, templateName, forceUpgrade);
                     break;
                 case PackageManager.PACKAGE_TYPE_GLOBAL_TOOL:
                     ResolveGlobalToolBinary(protobuildMetadata, forceUpgrade);
@@ -84,24 +84,24 @@ namespace Protobuild
             }
         }
 
-        private void ResolveNuGet3(NuGet3PackageMetadata nuGet3Metadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveNuGet3(string workingDirectory, NuGet3PackageMetadata nuGet3Metadata, string folder, string templateName, bool forceUpgrade)
         {
             switch (nuGet3Metadata.PackageType)
             {
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
-                    ResolveLibraryBinary(nuGet3Metadata, folder, forceUpgrade, () =>
+                    ResolveLibraryBinary(nuGet3Metadata, Path.Combine(workingDirectory, folder), forceUpgrade, () =>
                     {
                         var package = GetBinaryPackage(nuGet3Metadata);
                         if (package == null)
                         {
-                            _sourcePackageResolve.Resolve(nuGet3Metadata, folder, null, forceUpgrade);
+                            _sourcePackageResolve.Resolve(workingDirectory, nuGet3Metadata, folder, null, forceUpgrade);
                             return null;
                         }
                         return package;
                     });
                     break;
                 case PackageManager.PACKAGE_TYPE_TEMPLATE:
-                    ResolveTemplateBinary(nuGet3Metadata, folder, templateName, forceUpgrade);
+                    ResolveTemplateBinary(workingDirectory, nuGet3Metadata, folder, templateName, forceUpgrade);
                     break;
                 case PackageManager.PACKAGE_TYPE_GLOBAL_TOOL:
                     ResolveGlobalToolBinary(nuGet3Metadata, forceUpgrade);
@@ -111,14 +111,14 @@ namespace Protobuild
             }
         }
 
-        private void ResolveTransformed(TransformedPackageMetadata transformedMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveTransformed(string workingDirectory, TransformedPackageMetadata transformedMetadata, string folder, string templateName, bool forceUpgrade)
         {
             switch (transformedMetadata.PackageType)
             {
                 case PackageManager.PACKAGE_TYPE_LIBRARY:
-                    ResolveLibraryBinary(transformedMetadata, folder, forceUpgrade, () =>
+                    ResolveLibraryBinary(transformedMetadata, Path.Combine(workingDirectory, folder), forceUpgrade, () =>
                     {
-                        var package = GetTransformedBinaryPackage(transformedMetadata);
+                        var package = GetTransformedBinaryPackage(workingDirectory, transformedMetadata);
                         if (package == null)
                         {
                             throw new InvalidOperationException("Unable to transform " + transformedMetadata.SourceURI + " for usage as a Protobuild package.");
@@ -214,7 +214,7 @@ namespace Protobuild
             RedirectableConsole.WriteLine("Binary resolution complete");
         }
 
-        private void ResolveTemplateBinary(ICachableBinaryPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
+        private void ResolveTemplateBinary(string workingDirectory, ICachableBinaryPackageMetadata protobuildMetadata, string folder, string templateName, bool forceUpgrade)
         {
             if (folder != string.Empty)
             {
@@ -222,24 +222,24 @@ namespace Protobuild
             }
 
             // The template is a reference to a Git repository.
-            if (Directory.Exists(".staging"))
+            if (Directory.Exists(Path.Combine(workingDirectory, ".staging")))
             {
-                PathUtils.AggressiveDirectoryDelete(".staging");
+                PathUtils.AggressiveDirectoryDelete(Path.Combine(workingDirectory, ".staging"));
             }
 
-            Directory.CreateDirectory(".staging");
+            Directory.CreateDirectory(Path.Combine(workingDirectory, ".staging"));
 
             var package = GetBinaryPackage(protobuildMetadata);
             if (package == null)
             {
-                _sourcePackageResolve.Resolve(protobuildMetadata, folder, templateName, forceUpgrade);
+                _sourcePackageResolve.Resolve(workingDirectory, protobuildMetadata, folder, templateName, forceUpgrade);
                 return;
             }
 
-            ExtractTo(protobuildMetadata.BinaryFormat, package, ".staging", "Template");
+            ExtractTo(protobuildMetadata.BinaryFormat, package, Path.Combine(workingDirectory, ".staging"), "Template");
 
-            _projectTemplateApplier.Apply(".staging", templateName);
-            PathUtils.AggressiveDirectoryDelete(".staging");
+            _projectTemplateApplier.Apply(Path.Combine(workingDirectory, ".staging"), templateName);
+            PathUtils.AggressiveDirectoryDelete(Path.Combine(workingDirectory, ".staging"));
         }
 
         private void ResolveGlobalToolBinary(ICachableBinaryPackageMetadata protobuildMetadata, bool forceUpgrade)
@@ -357,7 +357,7 @@ namespace Protobuild
             return saveData;
         }
 
-        private byte[] GetTransformedBinaryPackage(TransformedPackageMetadata metadata)
+        private byte[] GetTransformedBinaryPackage(string workingDirectory, TransformedPackageMetadata metadata)
         {
             if (this.HasBinaryPackage(metadata))
             {
@@ -374,6 +374,7 @@ namespace Protobuild
             }
 
             var packageData = metadata.Transformer.Transform(
+                workingDirectory,
                 metadata.SourceURI,
                 metadata.GitRef,
                 metadata.Platform,

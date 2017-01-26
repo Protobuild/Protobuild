@@ -31,7 +31,7 @@ namespace Protobuild
                 RedirectableConsole.ErrorWriteLine("ERROR: Automated build script not found at " + scriptPath + ".");
             }
 
-            return _automatedBuildController.Execute(scriptPath);
+            return _automatedBuildController.Execute(execution.WorkingDirectory, scriptPath);
         }
 
         public string GetDescription()

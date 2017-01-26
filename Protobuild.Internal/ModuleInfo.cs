@@ -196,7 +196,7 @@ namespace Protobuild
                     var module = UpgradeFromOlderFormat(legacyModule, modulePath);
 
                     // Re-save in the new format.
-                    if (xmlFile == System.IO.Path.Combine("Build", "Module.xml"))
+                    if (xmlFile == System.IO.Path.Combine(Environment.CurrentDirectory, "Build", "Module.xml"))
                     {
                         module.Save(xmlFile);
                     }

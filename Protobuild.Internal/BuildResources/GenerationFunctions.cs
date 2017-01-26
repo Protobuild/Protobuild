@@ -35,11 +35,11 @@ public class GenerationFunctions
     /// <param name="from">The absolute directory to calculate from.</param>
     /// <param name="to">The absolute directory that is the target.</param>
     /// <returns>A relative path from one directory to another.</returns>
-    public string GetRelativePath(string from, string to)
+    public string GetRelativePath(string workingDirectory, string from, string to)
     {
         try
         {
-            var current = Environment.CurrentDirectory;
+            var current = workingDirectory;
             from = System.IO.Path.Combine(current, from.Replace('\\', '/'));
             to = System.IO.Path.Combine(current, to.Replace('\\', '/'));
             return (new Uri(from).MakeRelativeUri(new Uri(to)))

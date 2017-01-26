@@ -35,12 +35,12 @@ namespace Protobuild
         /// </summary>
         /// <param name="args">The arguments to pass to the self-invoked Protobuild.</param>
         /// <returns>The exit code.</returns>
-        public static int InvokeSelf(string[] args)
+        public static int InvokeSelf(string workingDirectory, string[] args)
         {
             _selfInvokeCounter++;
             try
             {
-                MainClass.Main(args);
+                MainClass.Main(workingDirectory, args);
                 return 0;
             }
             catch (SelfInvokeExitException ex)

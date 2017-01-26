@@ -46,6 +46,7 @@ namespace Protobuild
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
         /// <param name="taskParallelisation">Whether to enable or disable task generation, or null for the default behaviour.</param>
         public bool PerformAction(
+            string workingDirectory,
             ModuleInfo module, 
             string action, 
             string platform, 
@@ -177,7 +178,7 @@ namespace Protobuild
             // Resolve submodules as needed.
             if (!disablePackageResolution)
             {
-                this.m_PackageManager.ResolveAll(module, primaryPlatform, taskParallelisation, false, safeResolve);
+                this.m_PackageManager.ResolveAll(workingDirectory, module, primaryPlatform, taskParallelisation, false, safeResolve);
             }
 
             // Create the list of multiple platforms.
@@ -216,6 +217,7 @@ namespace Protobuild
             {
                 case "generate":
                     if (!this.GenerateProjectsForPlatform(
+                        workingDirectory,
                         module, 
                         primaryPlatform,
                         enabledServices,
@@ -232,6 +234,7 @@ namespace Protobuild
                     break;
                 case "resync":
                     if (!this.ResyncProjectsForPlatform(
+                        workingDirectory,
                         module, 
                         primaryPlatform, 
                         enabledServices, 
@@ -258,6 +261,7 @@ namespace Protobuild
                 default:
                     RedirectableConsole.ErrorWriteLine("Unknown option in <DefaultAction> tag of Module.xml.  Defaulting to resync!");
                     return this.ResyncProjectsForPlatform(
+                        workingDirectory,
                         module,
                         primaryPlatform,
                         enabledServices,
@@ -281,7 +285,7 @@ namespace Protobuild
                 // Resolve submodules as needed.
                 if (!disablePackageResolution)
                 {
-                    this.m_PackageManager.ResolveAll(module, platformIter, taskParallelisation, false, safeResolve);
+                    this.m_PackageManager.ResolveAll(workingDirectory, module, platformIter, taskParallelisation, false, safeResolve);
                 }
 
                 switch (action.ToLower())
@@ -291,6 +295,7 @@ namespace Protobuild
                         // We do a generate under resync mode since we only want the primary platform
                         // to have synchronisation done (and it has had above).
                         if (!this.GenerateProjectsForPlatform(
+                            workingDirectory,
                             module,
                             platformIter,
                             enabledServices,
@@ -340,7 +345,7 @@ namespace Protobuild
                 // Resolve submodules as needed.
                 if (!disablePackageResolution)
                 {
-                    this.m_PackageManager.ResolveAll(module, hostPlatform, taskParallelisation, false, safeResolve);
+                    this.m_PackageManager.ResolveAll(workingDirectory, module, hostPlatform, taskParallelisation, false, safeResolve);
                 }
 
                 switch (action.ToLower())
@@ -350,6 +355,7 @@ namespace Protobuild
                     // We do a generate under resync mode since we only want the primary platform
                     // to have synchronisation done (and it has had above).
                     if (!this.GenerateProjectsForPlatform(
+                        workingDirectory,
                         module,
                         hostPlatform,
                         enabledServices,
@@ -410,6 +416,7 @@ namespace Protobuild
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
         /// <param name="taskParallelisation">Whether to enable or disable task generation, or null for the default behaviour.</param>
         public bool DefaultAction(
+            string workingDirectory,
             ModuleInfo module, 
             string platform, 
             string[] enabledServices, 
@@ -422,6 +429,7 @@ namespace Protobuild
             bool? safeResolve)
         {
             return PerformAction(
+                workingDirectory,
                 module, 
                 module.DefaultAction,
                 platform,
@@ -449,6 +457,7 @@ namespace Protobuild
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
         /// <param name="requiresHostPlatform">A callback which indicates the generation requires host platform projects in the same solution.</param> 
         private bool ResyncProjectsForPlatform(
+            string workingDirectory,
             ModuleInfo module, 
             string platform, 
             string[] enabledServices, 
@@ -474,6 +483,7 @@ namespace Protobuild
                 }
 
                 return GenerateProjectsForPlatform(
+                    workingDirectory,
                     module,
                     platform,
                     enabledServices,
@@ -527,6 +537,7 @@ namespace Protobuild
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
         /// <param name="requiresHostPlatform">A callback which indicates the generation requires host platform projects in the same solution.</param> 
         private bool GenerateProjectsForPlatform(
+            string workingDirectory,
             ModuleInfo module,
             string platform,
             string[] enabledServices,
@@ -543,6 +554,7 @@ namespace Protobuild
             }
 
             var task = this.m_LightweightKernel.Get<GenerateProjectsTask>();
+            task.WorkingDirectory = workingDirectory;
             task.SourcePath = Path.Combine(module.Path, "Build", "Projects");
             task.RootPath = module.Path + Path.DirectorySeparatorChar;
             task.Platform = platform;

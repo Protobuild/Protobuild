@@ -27,7 +27,7 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            if (!File.Exists(Path.Combine("Build", "Module.xml")))
+            if (!File.Exists(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml")))
             {
                 _knownToolProvider.GetToolExecutablePath("Protobuild.Manager");
 
@@ -38,13 +38,14 @@ namespace Protobuild
                 return _executeCommand.Execute(subexecution);
             }
 
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
             if (module.DefaultAction == "automated-build")
             {
-                return _automatedBuildController.Execute("automated.build");
+                return _automatedBuildController.Execute(execution.WorkingDirectory, "automated.build");
             }
 
             return this.m_ActionDispatch.DefaultAction(
+                execution.WorkingDirectory,
                 module,
                 null,
                 execution.EnabledServices.ToArray(),

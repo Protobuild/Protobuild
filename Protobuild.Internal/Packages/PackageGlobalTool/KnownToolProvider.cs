@@ -41,7 +41,7 @@ namespace Protobuild
                 };
 
                 RedirectableConsole.WriteLine("Installing {0}...", _knownTools[toolName.ToLowerInvariant()]);
-                _packageManager.Resolve(null, package, _hostPlatformDetector.DetectPlatform(), null, false, true, false);
+                _packageManager.Resolve(Environment.CurrentDirectory, null, package, _hostPlatformDetector.DetectPlatform(), null, false, true, false);
             }
             else
             {

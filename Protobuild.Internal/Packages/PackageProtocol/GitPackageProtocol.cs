@@ -13,13 +13,13 @@ namespace Protobuild.Internal
 
         public string[] Schemes => new[] {"local-git","http-git","https-git"};
 
-        public IPackageMetadata ResolveSource(PackageRequestRef request)
+        public IPackageMetadata ResolveSource(string workingDirectory, PackageRequestRef request)
         {
             return new GitPackageMetadata(
                 NormalizeScheme(request.Uri),
                 request.GitRef,
                 PackageManager.PACKAGE_TYPE_LIBRARY,
-                (metadata, folder, name, upgrade, source) => _sourcePackageResolve.Resolve(metadata, folder, name, upgrade));
+                (workingDirectoryAlt, metadata, folder, name, upgrade, source) => _sourcePackageResolve.Resolve(workingDirectoryAlt, metadata, folder, name, upgrade));
         }
 
         private string NormalizeScheme(string uri)

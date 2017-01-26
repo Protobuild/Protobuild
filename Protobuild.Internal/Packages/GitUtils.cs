@@ -38,11 +38,11 @@ namespace Protobuild
             }
         }
 
-        public static void RunGit(string folder, string str)
+        public static void RunGit(string workingDirectory, string folder, string str)
         {
             var suffix = folder == null ? "" : " (" + folder + ")";
             RunGitInternal(str,
-                folder == null ? Environment.CurrentDirectory : Path.Combine(Environment.CurrentDirectory, folder),
+                folder == null ? workingDirectory : Path.Combine(workingDirectory, folder),
                 "Executing: git " + str + suffix);
         }
 
@@ -53,13 +53,13 @@ namespace Protobuild
                 "Executing: git " + str + " (in " + folder + ")");
         }
 
-        public static string RunGitAndCapture(string folder, string str)
+        public static string RunGitAndCapture(string workingDirectory, string folder, string str)
         {
             var processStartInfo = new ProcessStartInfo
                 {
                     FileName = GetCachedGitPath(),
                     Arguments = str,
-                    WorkingDirectory = folder == null ? Environment.CurrentDirectory : Path.Combine(Environment.CurrentDirectory, folder),
+                    WorkingDirectory = folder == null ? workingDirectory : Path.Combine(workingDirectory, folder),
                     RedirectStandardOutput = true,
                     RedirectStandardInput = true,
                     CreateNoWindow = true,

@@ -12,16 +12,16 @@ namespace Protobuild
             _resourceProvider = resourceProvider;
         }
 
-        public string GetFrameworkNameForWrite(string platform)
+        public string GetFrameworkNameForWrite(string workingDirectory, string platform)
         {
-            var nugetPlatformMappings = _resourceProvider.LoadXML(ResourceType.NuGetPlatformMappings, Language.CSharp, platform);
+            var nugetPlatformMappings = _resourceProvider.LoadXML(workingDirectory, ResourceType.NuGetPlatformMappings, Language.CSharp, platform);
 
             return nugetPlatformMappings.SelectSingleNode("/NuGetPlatformMappings/Platform[@Name='" + platform + "']/WriteFrameworkName")?.InnerText;
         }
 
-        public string[] GetFrameworkNamesForRead(string platform)
+        public string[] GetFrameworkNamesForRead(string workingDirectory, string platform)
         {
-            var nugetPlatformMappings = _resourceProvider.LoadXML(ResourceType.NuGetPlatformMappings, Language.CSharp, platform);
+            var nugetPlatformMappings = _resourceProvider.LoadXML(workingDirectory, ResourceType.NuGetPlatformMappings, Language.CSharp, platform);
 
             var frameworks = nugetPlatformMappings.SelectNodes("/NuGetPlatformMappings/Platform[@Name='" + platform + "']/ReadFrameworkNames/Framework");
             if (frameworks == null)

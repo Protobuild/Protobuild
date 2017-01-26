@@ -28,16 +28,16 @@ namespace Protobuild
 
         public int Execute(Execution execution)
         {
-            if (!File.Exists(Path.Combine("Build", "Module.xml")))
+            if (!File.Exists(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml")))
             {
                 throw new InvalidOperationException("No module present.");
             }
 
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
             var platforms = execution.Platform ?? this.m_HostPlatformDetector.DetectPlatform();
             foreach (var platform in platforms.Split(','))
             {
-                this.m_PackageManager.ResolveAll(module, platform, execution.UseTaskParallelisation, false, execution.SafePackageResolution);
+                this.m_PackageManager.ResolveAll(execution.WorkingDirectory, module, platform, execution.UseTaskParallelisation, false, execution.SafePackageResolution);
             }
             return 0;
         }

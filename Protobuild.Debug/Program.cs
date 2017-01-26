@@ -29,7 +29,7 @@ namespace Protobuild.Bootstrap
 
             ExecEnvironment.RunProtobuildInProcess = true;
             ExecEnvironment.DoNotWrapExecutionInTry = true;
-            Protobuild.MainClass.Main(args);
+            Protobuild.MainClass.Main(Environment.CurrentDirectory, args);
         }
     }
 }

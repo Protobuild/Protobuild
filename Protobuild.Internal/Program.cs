@@ -24,7 +24,7 @@ namespace Protobuild
         /// The entry point for Protobuild.
         /// </summary>
         /// <param name="args">The arguments passed in on the command line.</param>
-        public static void Main(string[] args)
+        public static void Main(string workingDirectory, string[] args)
         {
             // Ensure we always use the invariant culture in Protobuild.
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
@@ -51,7 +51,7 @@ namespace Protobuild
             kernel.BindAutomatedBuild();
 
             var featureManager = kernel.Get<IFeatureManager>();
-            featureManager.LoadFeaturesForCurrentDirectory();
+            featureManager.LoadFeaturesFromDirectory(workingDirectory);
 
             var commandMappings = new Dictionary<string, ICommand>
             {
@@ -103,6 +103,7 @@ namespace Protobuild
             };
 
             var execution = new Execution();
+            execution.WorkingDirectory = workingDirectory;
             execution.CommandToExecute = kernel.Get<DefaultCommand>();
 
             var options = new Options();

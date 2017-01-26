@@ -160,11 +160,9 @@
     <Compile Include="Core\ILogger.cs" />
     <Compile Include="Core\IModuleExecution.cs" />
     <Compile Include="Core\IModuleUtilities.cs" />
-    <Compile Include="Core\IWorkingDirectoryProvider.cs" />
     <Compile Include="Core\Logger.cs" />
     <Compile Include="Core\ModuleExecution.cs" />
     <Compile Include="Core\ModuleUtilities.cs" />
-    <Compile Include="Core\WorkingDirectoryProvider.cs" />
     <Compile Include="DefinitionInfo.cs" />
     <Compile Include="DI\LightweightKernel.cs" />
     <Compile Include="DI\LightweightKernelModule.cs" />

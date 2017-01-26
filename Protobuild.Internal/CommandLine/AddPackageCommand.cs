@@ -32,7 +32,7 @@ namespace Protobuild
         public int Execute(Execution execution)
         {
             var url = execution.PackageUrl;
-            var module = ModuleInfo.Load(Path.Combine("Build", "Module.xml"));
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             if (module.Packages == null)
             {
@@ -47,14 +47,14 @@ namespace Protobuild
                 return 0;
             }
 
-            if (Directory.Exists(package.Folder))
+            if (Directory.Exists(Path.Combine(module.Path, package.Folder)))
             {
                 throw new InvalidOperationException(package.Folder + " already exists");
             }
 
             RedirectableConsole.WriteLine("Adding " + package.Uri + " as " + package.Folder + "...");
             module.Packages.Add(package);
-            module.Save(Path.Combine("Build", "Module.xml"));
+            module.Save(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             return 0;
         }

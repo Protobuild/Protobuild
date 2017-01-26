@@ -6,9 +6,9 @@ namespace Protobuild
 {
     internal interface IResourceProvider
     {
-        XslCompiledTransform LoadXSLT(ResourceType resourceType, Language language, string platform);
+        XslCompiledTransform LoadXSLT(string workingDirectory, ResourceType resourceType, Language language, string platform);
 
-        XmlDocument LoadXML(ResourceType resourceType, Language language, string platform);
+        XmlDocument LoadXML(string workingDirectory, ResourceType resourceType, Language language, string platform);
     }
 }
 

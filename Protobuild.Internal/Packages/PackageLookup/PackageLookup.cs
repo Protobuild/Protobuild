@@ -16,7 +16,7 @@ namespace Protobuild
             _packageProtocols = packageProtocols;
         }
 
-        public IPackageMetadata Lookup(PackageRequestRef request)
+        public IPackageMetadata Lookup(string workingDirectory, PackageRequestRef request)
         {
             request.Uri = _packageRedirector.RedirectPackageUrl(request.Uri);
 
@@ -34,7 +34,7 @@ namespace Protobuild
                     if (request.Uri.StartsWith(scheme + "://"))
                     {
                         schemeFound = true;
-                        metadata = protocol.ResolveSource(request);
+                        metadata = protocol.ResolveSource(workingDirectory, request);
                         break;
                     }
                 }
