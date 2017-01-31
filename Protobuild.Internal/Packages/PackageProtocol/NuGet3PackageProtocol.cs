@@ -145,37 +145,84 @@ namespace Protobuild.Internal
                     {
                         sourceCodeUrl = sourceCodeUrl.Substring("git=".Length);
 
-                        var heads = GitUtils.RunGitAndCapture(
-                            workingDirectory,
-                            null,
-                            "ls-remote --heads " + new Uri(sourceCodeUrl));
-
-                        var lines = heads.Split(new string[] {"\r\n", "\n", "\r"}, StringSplitOptions.RemoveEmptyEntries);
-
-                        foreach (var line in lines)
+                        var performGitLsRemote = true;
+                        if (sourceCodeUrl.StartsWith("https://github.com/"))
                         {
-                            var sourceEntryComponents = line.Split('\t');
-                            if (sourceEntryComponents.Length >= 2)
+                            try
                             {
-                                var branchName = sourceEntryComponents[1].Trim();
+                                // This is a GitHub repository.  During the installation of Protobuild Manager (hosted on GitHub), we need
+                                // to resolve the latest version on NuGet, but we can't do this because Git may not be in the PATH or may
+                                // not be available.  We still want developers to be able to install Protobuild Manager without Git on
+                                // their PATH (as they may have dedicated shells to use it), so we attempt to use the GitHub API to resolve
+                                // the commit hash first.
+                                var gitHubComponents = sourceCodeUrl.Substring("https://github.com/".Length).Split('/');
+                                var gitHubOwner = gitHubComponents[0];
+                                var gitHubRepo = gitHubComponents[1];
+                                using (var client = new RetryableWebClient())
+                                {
+                                    client.SilentOnError = true;
+                                    client.SetHeader("User-Agent", "Protobuild NuGet Lookup/v1.0");
+                                    client.SetHeader("Accept", "application/vnd.github.v3+json");
 
-                                if (branchName.StartsWith("refs/heads/"))
-                                {
-                                    branchName = branchName.Substring("refs/heads/".Length);
-                                }
-                                else
-                                {
-                                    continue;
-                                }
+                                    var gitHubJsonInfo =
+                                        client.DownloadString("https://api.github.com/repos/" + gitHubOwner + "/" +
+                                                              gitHubRepo + "/branches/" + version);
+                                    var gitHubJson = JSON.ToDynamic(gitHubJsonInfo);
+                                    var commitHash = gitHubJson.commit.sha;
 
-                                if (string.Equals(version, branchName, StringComparison.InvariantCulture))
+                                    if (!string.IsNullOrWhiteSpace(commitHash))
+                                    {
+                                        // This is a match and we've found our Git hash to use.
+                                        version =
+                                            NuGetVersionHelper.CreateNuGetPackageVersion(commitHash.Trim(),
+                                                request.Platform);
+                                        commitHashForSourceResolve = commitHash.Trim();
+                                        performGitLsRemote = false;
+                                    }
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                Console.WriteLine("NOTICE: Unable to lookup version information via GitHub API; falling back to 'git ls-remote'");
+                            }
+                        }
+
+                        if (performGitLsRemote)
+                        {
+                            var heads = GitUtils.RunGitAndCapture(
+                                workingDirectory,
+                                null,
+                                "ls-remote --heads " + new Uri(sourceCodeUrl));
+
+                            var lines = heads.Split(new string[] {"\r\n", "\n", "\r"},
+                                StringSplitOptions.RemoveEmptyEntries);
+
+                            foreach (var line in lines)
+                            {
+                                var sourceEntryComponents = line.Split('\t');
+                                if (sourceEntryComponents.Length >= 2)
                                 {
-                                    // This is a match and we've found our Git hash to use.
-                                    version =
-                                        NuGetVersionHelper.CreateNuGetPackageVersion(sourceEntryComponents[0].Trim(),
-                                            request.Platform);
-                                    commitHashForSourceResolve = sourceEntryComponents[0].Trim();
-                                    break;
+                                    var branchName = sourceEntryComponents[1].Trim();
+
+                                    if (branchName.StartsWith("refs/heads/"))
+                                    {
+                                        branchName = branchName.Substring("refs/heads/".Length);
+                                    }
+                                    else
+                                    {
+                                        continue;
+                                    }
+
+                                    if (string.Equals(version, branchName, StringComparison.InvariantCulture))
+                                    {
+                                        // This is a match and we've found our Git hash to use.
+                                        version =
+                                            NuGetVersionHelper.CreateNuGetPackageVersion(
+                                                sourceEntryComponents[0].Trim(),
+                                                request.Platform);
+                                        commitHashForSourceResolve = sourceEntryComponents[0].Trim();
+                                        break;
+                                    }
                                 }
                             }
                         }
