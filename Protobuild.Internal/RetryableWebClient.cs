@@ -18,6 +18,7 @@ namespace Protobuild
         public event DownloadProgressChangedEventHandler DownloadProgressChanged;
 
         private const int MaxRequests = 10;
+        public bool SilentOnError { get; set; }
 
         public void SetHeader(string key, string value)
         {
@@ -126,8 +127,6 @@ namespace Protobuild
                 }
                 catch (Exception ex)
                 {
-                    RedirectableConsole.ErrorWriteLine("Exception during web request: ");
-                    RedirectableConsole.ErrorWriteLine(ex);
                     exceptions.Add(ex);
 
                     var webException = ex as WebException;
@@ -135,6 +134,18 @@ namespace Protobuild
                     {
                         switch (webException.Status)
                         {
+                            case WebExceptionStatus.ProtocolError:
+                                var httpWebResponse = webException.Response as HttpWebResponse;
+                                if (httpWebResponse != null)
+                                {
+                                    if (httpWebResponse.StatusCode == HttpStatusCode.NotFound)
+                                    {
+                                        // This is a permanent failure.
+                                        i = MaxRequests;
+                                        backoff = 0;
+                                    }
+                                }
+                                break;
                             case WebExceptionStatus.NameResolutionFailure:
                                 // This is a permanent failure.
                                 i = MaxRequests;
@@ -143,7 +154,13 @@ namespace Protobuild
                         }
                     }
 
-                    RedirectableConsole.WriteLine("Backing off web requests for " + backoff + "ms...");
+                    if (!SilentOnError || i != MaxRequests || backoff != 0)
+                    {
+                        RedirectableConsole.ErrorWriteLine("Exception during web request: ");
+                        RedirectableConsole.ErrorWriteLine(ex);
+
+                        RedirectableConsole.WriteLine("Backing off web requests for " + backoff + "ms...");
+                    }
                     System.Threading.Thread.Sleep(backoff);
                     backoff *= 2;
                     if (backoff > 20000)

@@ -8,6 +8,7 @@ generate
 build
 if host Windows
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt Protobuild.Internal\BuildResources\GenerateProject.CSharp.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt Protobuild.Internal\BuildResources\GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal\BuildResources\GenerateSolution.xslt Protobuild.Internal\BuildResources\GenerateSolution.xslt.lzma
@@ -18,6 +19,7 @@ if host Windows
 endif
 if host-not Windows
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt Protobuild.Internal/BuildResources/GenerateProject.CSharp.xslt.lzma
+  execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.VisualStudio.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt Protobuild.Internal/BuildResources/GenerateProject.CPlusPlus.MonoDevelop.xslt.lzma
   execute Protobuild.Compress Protobuild.Internal/BuildResources/GenerateSolution.xslt Protobuild.Internal/BuildResources/GenerateSolution.xslt.lzma
