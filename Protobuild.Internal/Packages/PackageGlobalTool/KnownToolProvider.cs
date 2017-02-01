@@ -15,7 +15,7 @@ namespace Protobuild
         {
             {"jsilc", "http://protobuild.org/hach-que/JSIL"},
             {"swig", "http://protobuild.org/hach-que/SWIG"},
-            {"protobuild.manager", "http://protobuild.org/hach-que/Protobuild.Manager"},
+            {"protobuild.manager", "https-nuget-v3://api.nuget.org/v3/index.json|Protobuild.Manager"},
         };
 
         public KnownToolProvider(

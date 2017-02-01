@@ -32,6 +32,7 @@ namespace Protobuild
                 _knownToolProvider.GetToolExecutablePath("Protobuild.Manager");
 
                 var subexecution = new Execution();
+                subexecution.WorkingDirectory = execution.WorkingDirectory;
                 subexecution.ExecuteProjectName = "Protobuild.Manager";
                 subexecution.ExecuteProjectArguments = new string[0];
 
