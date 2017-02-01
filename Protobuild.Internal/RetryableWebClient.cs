@@ -138,14 +138,18 @@ namespace Protobuild
                                 var httpWebResponse = webException.Response as HttpWebResponse;
                                 if (httpWebResponse != null)
                                 {
-                                    if (httpWebResponse.StatusCode == HttpStatusCode.NotFound)
+                                    switch (httpWebResponse.StatusCode)
                                     {
-                                        // This is a permanent failure.
-                                        i = MaxRequests;
-                                        backoff = 0;
+                                        case HttpStatusCode.NotFound:
+                                        case HttpStatusCode.Forbidden:
+                                            // This is a permanent failure.
+                                            i = MaxRequests;
+                                            backoff = 0;
+                                            break;
                                     }
                                 }
                                 break;
+                            case WebExceptionStatus.ServerProtocolViolation:
                             case WebExceptionStatus.NameResolutionFailure:
                                 // This is a permanent failure.
                                 i = MaxRequests;
