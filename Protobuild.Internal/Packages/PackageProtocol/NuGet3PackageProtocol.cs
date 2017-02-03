@@ -4,22 +4,29 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using fastJSON;
 
 namespace Protobuild.Internal
 {
     internal class NuGet3PackageProtocol : IPackageProtocol
     {
+        private readonly IHostPlatformDetector _hostPlatformDetector;
         private readonly IPackageCacheConfiguration _packageCacheConfiguration;
+        private readonly IPackageRequestCache _packageRequestCache;
         private readonly BinaryPackageResolve _binaryPackageResolve;
         private readonly SourcePackageResolve _sourcePackageResolve;
 
         public NuGet3PackageProtocol(
+            IHostPlatformDetector hostPlatformDetector,
             IPackageCacheConfiguration packageCacheConfiguration,
+            IPackageRequestCache packageRequestCache,
             BinaryPackageResolve binaryPackageResolve,
             SourcePackageResolve sourcePackageResolve)
         {
+            _hostPlatformDetector = hostPlatformDetector;
             _packageCacheConfiguration = packageCacheConfiguration;
+            _packageRequestCache = packageRequestCache;
             _binaryPackageResolve = binaryPackageResolve;
             _sourcePackageResolve = sourcePackageResolve;
         }
@@ -70,7 +77,11 @@ namespace Protobuild.Internal
             }
 
             string serviceJson;
-            var serviceIndex = GetJSON(new Uri(repository), out serviceJson);
+            var serviceIndex = _packageRequestCache.TryGetOptionallyCachedJsonObject(
+                repository,
+                !request.ForceUpgrade,
+                out serviceJson,
+                id => GetData(new Uri(id)));
 
             string registrationsBaseUrl = null;
 
@@ -92,7 +103,11 @@ namespace Protobuild.Internal
                 $"{registrationsBaseUrl.TrimEnd(new[] {'/'})}/{packageName.ToLowerInvariant()}/index.json";
 
             string packageMetadataJson;
-            var packageMetadata = GetJSON(new Uri(packageMetadataUrl), out packageMetadataJson);
+            var packageMetadata = _packageRequestCache.TryGetOptionallyCachedJsonObject(
+                packageMetadataUrl,
+                !request.ForceUpgrade && request.IsStaticReference,
+                out packageMetadataJson,
+                id => GetData(new Uri(id)));
 
             string latestPackageVersion = null;
             foreach (var item in packageMetadata.items)
@@ -103,30 +118,21 @@ namespace Protobuild.Internal
                 }
             }
 
+            var packagesByVersionLock = new object();
             var packagesByVersion = new Dictionary<string, dynamic>();
-            foreach (var item in packageMetadata.items)
+
+            if (_hostPlatformDetector.DetectPlatform() == "Windows")
             {
-                try
+                // Do this in parallel as we may need to make multiple HTTPS requests.
+                Parallel.ForEach((IEnumerable<object>)packageMetadata.items,
+                    item => PopulatePackagesByVersion(packagesByVersionLock, packagesByVersion, (dynamic)item, request));
+            }
+            else
+            {
+                // Parallelisation is not safe on this platform, do it sequentually.
+                foreach (var item in packageMetadata.items)
                 {
-                    var subitems = item.items;
-                    foreach (var subitem in subitems)
-                    {
-                        packagesByVersion[(string)subitem.catalogEntry.version] = subitem;
-                    }
-                }
-                catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
-                {
-                    // When NuGet packages have a lot of versions, the items list is in a seperate document.
-                    // Download the document for each group of versions.  Ideally we would only download
-                    // the document we need, but for branches it's a little more complicated (we first need
-                    // to get the document for the latest version and then get the document for the resolved
-                    // version).  For now, we just download each document as we need it.
-                    string subdocumentJson;
-                    var subdocument = GetJSON(new Uri((string)item["@id"]), out subdocumentJson);
-                    foreach (var subitem in subdocument.items)
-                    {
-                        packagesByVersion[(string)subitem.catalogEntry.version] = subitem;
-                    }
+                    PopulatePackagesByVersion(packagesByVersionLock, packagesByVersion, item, request);
                 }
             }
 
@@ -155,30 +161,39 @@ namespace Protobuild.Internal
                                 // not be available.  We still want developers to be able to install Protobuild Manager without Git on
                                 // their PATH (as they may have dedicated shells to use it), so we attempt to use the GitHub API to resolve
                                 // the commit hash first.
-                                var gitHubComponents = sourceCodeUrl.Substring("https://github.com/".Length).Split('/');
+                                string gitHubJsonInfo;
+                                var gitHubComponents =
+                                    sourceCodeUrl.Substring("https://github.com/".Length).Split('/');
                                 var gitHubOwner = gitHubComponents[0];
                                 var gitHubRepo = gitHubComponents[1];
-                                using (var client = new RetryableWebClient())
-                                {
-                                    client.SilentOnError = true;
-                                    client.SetHeader("User-Agent", "Protobuild NuGet Lookup/v1.0");
-                                    client.SetHeader("Accept", "application/vnd.github.v3+json");
-
-                                    var gitHubJsonInfo =
-                                        client.DownloadString("https://api.github.com/repos/" + gitHubOwner + "/" +
-                                                              gitHubRepo + "/branches/" + version);
-                                    var gitHubJson = JSON.ToDynamic(gitHubJsonInfo);
-                                    var commitHash = gitHubJson.commit.sha;
-
-                                    if (!string.IsNullOrWhiteSpace(commitHash))
+                                var gitHubApiUrl = "https://api.github.com/repos/" + gitHubOwner +
+                                             "/" +
+                                             gitHubRepo + "/branches/" + version;
+                                var gitHubJson = _packageRequestCache.TryGetOptionallyCachedJsonObject(
+                                    gitHubApiUrl,
+                                    !request.ForceUpgrade && request.IsStaticReference,
+                                    out packageMetadataJson,
+                                    id =>
                                     {
-                                        // This is a match and we've found our Git hash to use.
-                                        version =
-                                            NuGetVersionHelper.CreateNuGetPackageVersion(commitHash.Trim(),
-                                                request.Platform);
-                                        commitHashForSourceResolve = commitHash.Trim();
-                                        performGitLsRemote = false;
-                                    }
+                                        using (var client = new RetryableWebClient())
+                                        {
+                                            client.SilentOnError = true;
+                                            client.SetHeader("User-Agent", "Protobuild NuGet Lookup/v1.0");
+                                            client.SetHeader("Accept", "application/vnd.github.v3+json");
+
+                                            return client.DownloadString(gitHubApiUrl);
+                                        }
+                                    });
+                                var commitHash = gitHubJson.commit.sha;
+
+                                if (!string.IsNullOrWhiteSpace(commitHash))
+                                {
+                                    // This is a match and we've found our Git hash to use.
+                                    version =
+                                        NuGetVersionHelper.CreateNuGetPackageVersion(commitHash.Trim(),
+                                            request.Platform);
+                                    commitHashForSourceResolve = commitHash.Trim();
+                                    performGitLsRemote = false;
                                 }
                             }
                             catch (Exception)
@@ -189,10 +204,13 @@ namespace Protobuild.Internal
 
                         if (performGitLsRemote)
                         {
-                            var heads = GitUtils.RunGitAndCapture(
-                                workingDirectory,
-                                null,
-                                "ls-remote --heads " + new Uri(sourceCodeUrl));
+                            var heads = _packageRequestCache.TryGetOptionallyCachedData(
+                                "git:" + sourceCodeUrl,
+                                !request.ForceUpgrade && request.IsStaticReference,
+                                id => GitUtils.RunGitAndCapture(
+                                    workingDirectory,
+                                    null,
+                                    "ls-remote --heads " + new Uri(sourceCodeUrl)));
 
                             var lines = heads.Split(new string[] {"\r\n", "\n", "\r"},
                                 StringSplitOptions.RemoveEmptyEntries);
@@ -302,6 +320,73 @@ namespace Protobuild.Internal
                 });
         }
 
+        private void PopulatePackagesByVersion(object packagesByVersionLock, Dictionary<string, object> packagesByVersion, dynamic item, PackageRequestRef request)
+        {
+            try
+            {
+                var subitems = item.items;
+                lock (packagesByVersionLock)
+                {
+                    foreach (var subitem in subitems)
+                    {
+                        packagesByVersion[(string) subitem.catalogEntry.version] = subitem;
+                    }
+                }
+            }
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+            {
+                string subdocumentJson;
+                dynamic subdocument;
+
+                // We can cache this request even when we have non-static references if the cached
+                // document has 64 items in it.  This is because individual documents can only at
+                // maximum have 64 items in them, so adding a version between two points will cause
+                // new URLs to be generated (that won't have previously been cached).
+                var idUrl = (string)item["@id"];
+                if (!request.ForceUpgrade && _packageRequestCache.IsCached(idUrl))
+                {
+                    try
+                    {
+                        subdocument = _packageRequestCache.GetCachedJsonObject(idUrl);
+                        if ((int)subdocument.count == 64)
+                        {
+                            // Use the persisted version in the cache since it will never change.
+                            lock (packagesByVersionLock)
+                            {
+                                foreach (var subitem in subdocument.items)
+                                {
+                                    packagesByVersion[(string) subitem.catalogEntry.version] = subitem;
+                                }
+                            }
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // Unable to parse or read cached data.  Fallback to making the request again.
+                    }
+                }
+
+                // When NuGet packages have a lot of versions, the items list is in a seperate document.
+                // Download the document for each group of versions.  Ideally we would only download
+                // the document we need, but for branches it's a little more complicated (we first need
+                // to get the document for the latest version and then get the document for the resolved
+                // version).  For now, we just download each document as we need it.
+                subdocument = _packageRequestCache.TryGetOptionallyCachedJsonObject(
+                    idUrl,
+                    !request.ForceUpgrade && request.IsStaticReference,
+                    out subdocumentJson,
+                    id => GetData(new Uri(id)));
+                lock (packagesByVersionLock)
+                {
+                    foreach (var subitem in subdocument.items)
+                    {
+                        packagesByVersion[(string) subitem.catalogEntry.version] = subitem;
+                    }
+                }
+            }
+        }
+
         private string ExtractSourceRepository(dynamic versionMetadata)
         {
             foreach (var tagObj in versionMetadata.catalogEntry.tags)
@@ -365,13 +450,18 @@ namespace Protobuild.Internal
             return PackageManager.PACKAGE_TYPE_LIBRARY;
         }
 
-        private dynamic GetJSON(Uri indexUri, out string str)
+        private dynamic GetData(Uri indexUri)
         {
             using (var client = new RetryableWebClient())
             {
-                str = client.DownloadString(indexUri);
-                return JSON.ToDynamic(str);
+                return client.DownloadString(indexUri);
             }
+        }
+
+        private dynamic GetJSON(Uri indexUri, out string str)
+        {
+            str = GetData(indexUri);
+            return JSON.ToDynamic(str);
         }
     }
 }

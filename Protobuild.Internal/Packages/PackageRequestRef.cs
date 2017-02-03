@@ -6,20 +6,24 @@
             string uri,
             string gitRef,
             string platform,
-            bool preferCacheLookup)
+            bool forceUpgrade,
+            bool isStaticReference)
         {
             Uri = uri;
             GitRef = gitRef;
             Platform = platform;
-            PreferCacheLookup = preferCacheLookup;
+            ForceUpgrade = forceUpgrade;
+            IsStaticReference = isStaticReference;
         }
+
+        public bool IsStaticReference { get; }
+
+        public bool ForceUpgrade { get; }
 
         public string Uri { get; set; }
 
         public string GitRef { get; }
 
         public string Platform { get; }
-
-        public bool PreferCacheLookup { get; }
     }
 }

@@ -70,7 +70,8 @@ namespace Protobuild
                     sourcePackage.Uri, 
                     sourcePackage.GitRef,
                     execution.PackagePushPlatform,
-                    false));
+                    true,
+                    sourcePackage.IsStaticReference));
 
                 if (metadata.GetProtobuildPackageBinary == null)
                 {

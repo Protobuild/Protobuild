@@ -231,7 +231,8 @@ namespace Protobuild
                 reference.Uri,
                 reference.GitRef,
                 platform,
-                !forceUpgrade && reference.IsCommitReference);
+                forceUpgrade,
+                reference.IsStaticReference);
 
             return _packageLookup.Lookup(workingDirectory, request);
         }

@@ -234,7 +234,9 @@
     <Compile Include="Packages\IPackageUrlParser.cs" />
     <Compile Include="Packages\NuGetPlatformMapping.cs" />
     <Compile Include="Packages\PackageCache\IPackageCacheConfiguration.cs" />
+    <Compile Include="Packages\PackageCache\IPackageRequestCache.cs" />
     <Compile Include="Packages\PackageCache\PackageCacheConfiguration.cs" />
+    <Compile Include="Packages\PackageCache\PackageRequestCache.cs" />
     <Compile Include="Packages\PackageCreator\GetRecursiveUtilitiesInPath.cs" />
     <Compile Include="Packages\PackageCreator\IGetRecursiveUtilitiesInPath.cs" />
     <Compile Include="Packages\PackageCreator\IPackageCreator.cs" />

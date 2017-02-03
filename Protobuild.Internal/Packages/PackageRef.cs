@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Protobuild
 {
@@ -73,18 +74,37 @@ namespace Protobuild
         }
 
         /// <summary>
-        /// Whether or not the version reference is a commit hash.
+        /// Whether or not the version reference is a commit hash or to a static, unchanging version number on e.g. NuGet.
         /// </summary>
-        public bool IsCommitReference 
+        public bool IsStaticReference 
         {
             get
             {
-                if (this.GitRef.Length != 40)
+                if (Uri != null && GitRef != null)
                 {
-                    return false;
+                    if (Uri.StartsWith("https-nuget-v3://") || Uri.StartsWith("http-nuget-v3://"))
+                    {
+                        var semVerRegex = new Regex(
+                            @"^(?<Version>\d+(\s*\.\s*\d+){0,3})(?<Release>-[a-z][0-9a-z-]*)?$",
+                            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture);
+                        if (semVerRegex.IsMatch(this.GitRef))
+                        {
+                            return true;
+                        }
+                    }
                 }
 
-                return System.Text.RegularExpressions.Regex.Match(this.GitRef, "^[0-9a-f]{40,40}$").Success;
+                if (GitRef != null)
+                {
+                    if (this.GitRef.Length != 40)
+                    {
+                        return false;
+                    }
+
+                    return System.Text.RegularExpressions.Regex.Match(this.GitRef, "^[0-9a-f]{40,40}$").Success;
+                }
+
+                return false;
             }
         }
 

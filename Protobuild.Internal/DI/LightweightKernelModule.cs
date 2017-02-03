@@ -61,6 +61,7 @@ namespace Protobuild
             kernel.Bind<IDeduplicator, Deduplicator>();
             kernel.Bind<IPackageManager, PackageManager>();
             kernel.Bind<IPackageLookup, PackageLookup>();
+            kernel.Bind<IPackageRequestCache, PackageRequestCache>();
             kernel.Bind<IPackageCacheConfiguration, PackageCacheConfiguration>();
             kernel.BindAndKeepInstance<IPackageRedirector, PackageRedirector>();
             kernel.Bind<IPackageLocator, PackageLocator>();
