@@ -19,7 +19,7 @@ namespace Protobuild.UnitTests
                 GitRef = "096932a9ea478c049802f5e2eb6538e37336234c",
             };
 
-            _assert.True(packageRef.IsCommitReference);
+            _assert.True(packageRef.IsStaticReference);
         }
         
         public void TestTooLongGitSHA1IsNotCommitReference()
@@ -29,7 +29,7 @@ namespace Protobuild.UnitTests
                 GitRef = "096932a9ea478c049802f5e2eb6538e37336234cd",
             };
 
-            _assert.False(packageRef.IsCommitReference);
+            _assert.False(packageRef.IsStaticReference);
         }
         
         public void TestTooShortGitSHA1IsNotCommitReference()
@@ -39,7 +39,7 @@ namespace Protobuild.UnitTests
                 GitRef = "096932a9ea478c049802f5e2eb6538e37336234",
             };
 
-            _assert.False(packageRef.IsCommitReference);
+            _assert.False(packageRef.IsStaticReference);
         }
         
         public void TestInvalidCharacterGitSHA1IsNotCommitReference()
@@ -49,7 +49,7 @@ namespace Protobuild.UnitTests
                 GitRef = "096932a9ea478c049802f5e2eb6538e37336234h",
             };
 
-            _assert.False(packageRef.IsCommitReference);
+            _assert.False(packageRef.IsStaticReference);
         }
         
         public void TestObviouslyNotGitSHA1IsNotCommitReference()
@@ -59,7 +59,7 @@ namespace Protobuild.UnitTests
                 GitRef = "v3",
             };
 
-            _assert.False(packageRef.IsCommitReference);
+            _assert.False(packageRef.IsStaticReference);
         }
     }
 }

@@ -11,15 +11,18 @@ namespace Protobuild.Internal
     internal class ProtobuildPackageProtocol : IPackageProtocol
     {
         private readonly IPackageCacheConfiguration _packageCacheConfiguration;
+        private readonly IPackageRequestCache _packageRequestCache;
         private readonly BinaryPackageResolve _binaryPackageResolve;
         private readonly SourcePackageResolve _sourcePackageResolve;
 
         public ProtobuildPackageProtocol(
             IPackageCacheConfiguration packageCacheConfiguration,
+            IPackageRequestCache packageRequestCache,
             BinaryPackageResolve binaryPackageResolve,
             SourcePackageResolve sourcePackageResolve)
         {
             _packageCacheConfiguration = packageCacheConfiguration;
+            _packageRequestCache = packageRequestCache;
             _binaryPackageResolve = binaryPackageResolve;
             _sourcePackageResolve = sourcePackageResolve;
         }
@@ -34,17 +37,14 @@ namespace Protobuild.Internal
             dynamic apiData = null;
 
             var performOnlineLookup = true;
-            if (request.PreferCacheLookup)
+            if (!request.ForceUpgrade && request.IsStaticReference)
             {
                 performOnlineLookup = false;
-                if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
+                if (_packageRequestCache.IsCached(request.Uri))
                 {
                     try
                     {
-                        using (var reader = new StreamReader(this.GetLookupCacheFilename(request.Uri)))
-                        {
-                            apiData = JSON.ToDynamic(reader.ReadToEnd());
-                        }
+                        apiData = _packageRequestCache.GetCachedJsonObject(request.Uri);
                     }
                     catch (ExecEnvironment.SelfInvokeExitException)
                     {
@@ -73,10 +73,7 @@ namespace Protobuild.Internal
                     }
                     try
                     {
-                        using (var writer = new StreamWriter(this.GetLookupCacheFilename(request.Uri)))
-                        {
-                            writer.Write(jsonString);
-                        }
+                        _packageRequestCache.StoreCachedData(request.Uri, jsonString);
                     }
                     catch (IOException)
                     {
@@ -86,15 +83,12 @@ namespace Protobuild.Internal
                 catch (Exception)
                 {
                     // Attempt to retrieve it from the lookup cache.
-                    if (File.Exists(this.GetLookupCacheFilename(request.Uri)))
+                    if (_packageRequestCache.IsCached(request.Uri))
                     {
                         var shouldThrow = false;
                         try
                         {
-                            using (var reader = new StreamReader(this.GetLookupCacheFilename(request.Uri)))
-                            {
-                                apiData = JSON.ToDynamic(reader.ReadToEnd());
-                            }
+                            apiData = _packageRequestCache.GetCachedJsonObject(request.Uri);
                         }
                         catch (ExecEnvironment.SelfInvokeExitException)
                         {
