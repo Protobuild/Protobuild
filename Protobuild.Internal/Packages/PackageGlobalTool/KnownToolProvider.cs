@@ -14,7 +14,7 @@ namespace Protobuild
         private readonly Dictionary<string, string> _knownTools = new Dictionary<string, string>
         {
             {"jsilc", "http://protobuild.org/hach-que/JSIL"},
-            {"swig", "http://protobuild.org/hach-que/SWIG"},
+            {"swig", "https-nuget-v3://api.nuget.org/v3/index.json|Protobuild.SWIG"},
             {"protobuild.manager", "https-nuget-v3://api.nuget.org/v3/index.json|Protobuild.Manager"},
         };
 
