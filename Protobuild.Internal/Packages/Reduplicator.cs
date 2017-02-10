@@ -246,6 +246,7 @@ namespace Protobuild
                             else
                             {
                                 zip.ExtractFile(entries.First(x => x.FilenameInZip == filenameInZip), folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(outputFilename));
+                                results.Add(outputFilename, null);
                             }
                         }
                     }
@@ -303,6 +304,7 @@ namespace Protobuild
                     else
                     {
                         zip.ExtractFile(entry, folder.TrimEnd(new[] { '/', '\\' }) + '/' + outputFilename);
+                        results.Add(outputFilename, null);
                     }
                 }
             }
@@ -318,9 +320,10 @@ namespace Protobuild
             return name;
         }
 
-        public void UnpackZipToFolder(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths)
+        public List<string> UnpackZipToFolder(ZipStorer zip, string folder, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths)
         {
-            UnpackZip(zip, folder, filterOutputPaths, mutateOutputPaths, false);
+            var results = UnpackZip(zip, folder, filterOutputPaths, mutateOutputPaths, false);
+            return results.Keys.ToList();
         }
 
         public Dictionary<string, byte[]> UnpackZipToMemory(ZipStorer zip, Func<string, bool> filterOutputPaths, Func<string, string> mutateOutputPaths)

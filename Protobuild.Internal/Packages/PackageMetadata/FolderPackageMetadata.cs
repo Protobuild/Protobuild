@@ -15,6 +15,8 @@
 
         public string Folder { get; }
 
+        public string PackageName => null;
+
         public string PackageType { get; }
 
         public ResolveMetadataDelegate Resolve { get; }
