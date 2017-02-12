@@ -20,6 +20,8 @@
             GetProtobuildPackageBinary = getProtobuildPackageBinary;
         }
 
+        public string PackageName => null;
+
         public string PackageType { get; }
 
         public string Platform { get; }

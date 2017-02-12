@@ -2,6 +2,8 @@
 {
     internal interface IPackageMetadata
     {
+        string PackageName { get; }
+
         string PackageType { get; }
 
         ResolveMetadataDelegate Resolve { get; }
