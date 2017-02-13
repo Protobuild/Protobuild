@@ -174,12 +174,14 @@ EndGlobal
     <xsl:value-of select="$guid" />
     <xsl:text>}"
 </xsl:text>
-    <xsl:for-each select="$deps">
 		<xsl:text>	ProjectSection(ProjectDependencies) = postProject
-		{</xsl:text><xsl:value-of select="current()/@Guid" /><xsl:text>} = {</xsl:text><xsl:value-of select="current()/@Guid" /><xsl:text>}
-	EndProjectSection
+</xsl:text>
+    <xsl:for-each select="$deps/*">
+      <xsl:text>		{</xsl:text><xsl:value-of select="current()/@Guid" /><xsl:text>} = {</xsl:text><xsl:value-of select="current()/@Guid" /><xsl:text>}
 </xsl:text>
     </xsl:for-each>
+    <xsl:text>	EndProjectSection
+</xsl:text>
 <xsl:text>EndProject
 </xsl:text>
   </xsl:template>
