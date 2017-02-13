@@ -19,18 +19,16 @@
             this.Generate("Windows");
 
             _assert.True(
-                File.Exists(this.GetPath(@"Console\Console.Windows.cproj")) ||
+                File.Exists(this.GetPath(@"Console\Console.Windows.mdproj")) ||
                 File.Exists(this.GetPath(@"Console\Console.Windows.vcxproj")));
 
-            if (File.Exists(this.GetPath(@"Console\Console.Windows.cproj")))
+            if (File.Exists(this.GetPath(@"Console\Console.Windows.mdproj")))
             {
-                var consoleContents = this.ReadFile(@"Console\Console.Windows.cproj");
+                var consoleContents = this.ReadFile(@"Console\Console.Windows.mdproj");
 
                 // Looks for various C++ specific configuration values.
                 _assert.Contains("main.c", consoleContents);
-                _assert.Contains("SourceDirectory", consoleContents);
                 _assert.Contains("DefineSymbols", consoleContents);
-                _assert.Contains("GccCompiler", consoleContents);
             }
             else if (File.Exists(this.GetPath(@"Console\Console.Windows.vcxproj")))
             {

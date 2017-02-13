@@ -70,7 +70,7 @@ namespace Protobuild
                     }
                     else
                     {
-                        return "cproj";
+                        return "mdproj";
                     }
                 default:
                     throw new NotSupportedException();
