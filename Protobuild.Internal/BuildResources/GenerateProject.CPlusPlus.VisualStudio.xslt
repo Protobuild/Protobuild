@@ -87,24 +87,25 @@
     {
         static ProtobuildSWIGCopyHelper()
         {
+            var basePath = new System.IO.FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName;
             if (System.Environment.Is64BitProcess)
             {
               </xsl:text>
-              <xsl:text>System.IO.File.Copy("</xsl:text>
+              <xsl:text>System.IO.File.Copy(System.IO.Path.Combine(basePath, "</xsl:text>
               <xsl:value-of select="$assembly_name"/>
-              <xsl:text>64.dll", "</xsl:text>
+              <xsl:text>64.dll"), System.IO.Path.Combine(basePath, "</xsl:text>
               <xsl:value-of select="$assembly_name"/>
-              <xsl:text>.dll", true);</xsl:text>
+              <xsl:text>.dll"), true);</xsl:text>
               <xsl:text>
             }
             else
             {
               </xsl:text>
-              <xsl:text>System.IO.File.Copy("</xsl:text>
+              <xsl:text>System.IO.File.Copy(System.IO.Path.Combine(basePath, "</xsl:text>
               <xsl:value-of select="$assembly_name"/>
-              <xsl:text>32.dll", "</xsl:text>
+              <xsl:text>32.dll"), System.IO.Path.Combine(basePath, "</xsl:text>
               <xsl:value-of select="$assembly_name"/>
-              <xsl:text>.dll", true);</xsl:text>
+              <xsl:text>.dll"), true);</xsl:text>
               <xsl:text>
             }
         }
