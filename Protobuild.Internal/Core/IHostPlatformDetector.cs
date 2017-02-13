@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    internal interface IHostPlatformDetector
+    public interface IHostPlatformDetector
     {
         string DetectPlatform();
     }

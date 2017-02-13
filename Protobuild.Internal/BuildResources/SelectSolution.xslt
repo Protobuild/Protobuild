@@ -33,6 +33,46 @@
     <Projects>
       <xsl:for-each select="msxsl:node-set($target_platforms)/*">
         <xsl:variable name="platform" select="." />
+        <xsl:for-each select="$root/Input/Projects/CustomProject">
+          <xsl:if test="user:ProjectIsActive(
+              current()/@Platforms,
+              $platform)">
+            <xsl:variable name="base_path" select="current()/@Path" />
+            <xsl:for-each select="current()/SolutionProject[@HostName=$root/Input/Generation/HostPlatform][@TargetName=$root/Input/Generation/Platform]">
+              <Project>
+                <Type>Custom</Type>
+                <TypeGuid>
+                  <xsl:value-of select="current()/TypeGuid" />
+                </TypeGuid>
+                <Platform>
+                  <xsl:value-of select="$platform" />
+                </Platform>
+                <RawName>
+                  <xsl:value-of select="current()/ProjectName" />
+                </RawName>
+                <Name>
+                  <xsl:value-of select="current()/ProjectName" />
+                </Name>
+                <Guid>
+                  <xsl:value-of select="current()/ProjectGuid" />
+                </Guid>
+                <Path>
+                  <xsl:value-of select="concat(
+                    $base_path,
+                    '\',
+                    current()/ProjectPath)" />
+                </Path>
+                <Language>Custom</Language>
+                <Priority>50</Priority>
+                <Folder>
+                  <xsl:value-of select="current()/Properties/IDEFolder"/>
+                </Folder>
+                <xsl:copy-of select="current()/ConfigurationMapping" />
+                <xsl:copy-of select="current()/PostProject" />
+              </Project>
+            </xsl:for-each>
+          </xsl:if>
+        </xsl:for-each>
         <xsl:for-each select="$root/Input/Projects/Project">
           <xsl:if test="user:ProjectIsActive(
               current()/@Platforms,
@@ -41,6 +81,7 @@
               <Type>
                 <xsl:value-of select="current()/@Type" />
               </Type>
+              <TypeGuid />
               <Platform>
                 <xsl:value-of select="$platform" />
               </Platform>
@@ -98,6 +139,7 @@
                               /Project">
           <Project>
             <Type>External</Type>
+            <TypeGuid />
             <Platform>
               <xsl:value-of select="$platform" />
             </Platform>
@@ -146,6 +188,7 @@
                               /Project">
           <Project>
             <Type>External</Type>
+            <TypeGuid />
             <Platform>
               <xsl:value-of select="$platform" />
             </Platform>
@@ -199,6 +242,7 @@
             <xsl:for-each select="./Project">
               <Project>
                 <Type>External</Type>
+                <TypeGuid />
                 <Platform>
                   <xsl:value-of select="$platform" />
                 </Platform>
@@ -252,6 +296,7 @@
             <xsl:for-each select="./Project">
               <Project>
                 <Type>External</Type>
+                <TypeGuid />
                 <Platform>
                   <xsl:value-of select="$platform" />
                 </Platform>

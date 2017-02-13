@@ -25,6 +25,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
       <xsl:sort select="current()/Priority" />
       <xsl:call-template name="project-definition">
         <xsl:with-param name="type" select="current()/Type" />
+        <xsl:with-param name="typeguid" select="current()/TypeGuid" />
         <xsl:with-param name="name" select="current()/Name" />
         <xsl:with-param name="guid" select="current()/Guid" />
         <xsl:with-param name="path" select="current()/Path" />
@@ -37,6 +38,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
       <xsl:if test="text()">
         <xsl:call-template name="project-definition">
           <xsl:with-param name="type" select="'IDEFolder'" />
+          <xsl:with-param name="typeguid" select="''" />
           <xsl:with-param name="name" select="text()" />
           <xsl:with-param name="guid" select="user:GenerateGuid(text())" />
           <xsl:with-param name="path" select="text()" />
@@ -133,6 +135,7 @@ EndGlobal
   <xsl:template name="project-definition">
     <xsl:param name="name" />
     <xsl:param name="type" />
+    <xsl:param name="typeguid" />
     <xsl:param name="path" />
     <xsl:param name="guid" />
     <xsl:param name="language" />
@@ -154,6 +157,9 @@ EndGlobal
             <xsl:text>2857B73E-F847-4B02-9238-064979017E93</xsl:text>
           </xsl:otherwise>
         </xsl:choose>
+      </xsl:when>
+      <xsl:when test="$type = 'Custom'">
+        <xsl:value-of select="$typeguid" />
       </xsl:when>
       <xsl:otherwise>
         <xsl:text>FAE04EC0-301F-11D3-BF4B-00C04F79EFBC</xsl:text>

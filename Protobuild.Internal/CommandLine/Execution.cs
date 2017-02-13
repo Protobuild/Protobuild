@@ -70,6 +70,8 @@ namespace Protobuild
 
         public bool DebugServiceResolution { get; set; }
 
+        public bool DebugProjectGeneration { get; set; }
+
         public bool DisablePackageResolution { get; set; }
 
         public string BuildModuleOrDefinitionName { get; set; }

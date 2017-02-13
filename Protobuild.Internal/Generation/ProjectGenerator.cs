@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -33,6 +34,8 @@ namespace Protobuild
 
         private readonly IIncludeProjectMerger _includeProjectMerger;
 
+        private readonly IHostPlatformDetector _hostPlatformDetector;
+
         public ProjectGenerator(
             IResourceProvider resourceProvider,
             INuGetConfigMover nuGetConfigMover,
@@ -42,7 +45,8 @@ namespace Protobuild
             ILanguageStringProvider mLanguageStringProvider,
             IPlatformResourcesGenerator platformResourcesGenerator,
             IIncludeProjectAppliesToUpdater includeProjectAppliesToUpdater,
-            IIncludeProjectMerger includeProjectMerger)
+            IIncludeProjectMerger includeProjectMerger,
+            IHostPlatformDetector hostPlatformDetector)
         {
             this.m_ResourceProvider = resourceProvider;
             this.m_NuGetConfigMover = nuGetConfigMover;
@@ -53,22 +57,25 @@ namespace Protobuild
             this._mPlatformResourcesGenerator = platformResourcesGenerator;
             this._includeProjectAppliesToUpdater = includeProjectAppliesToUpdater;
             _includeProjectMerger = includeProjectMerger;
+            _hostPlatformDetector = hostPlatformDetector;
         }
 
         /// <summary>
         /// Generates a project at the target path.
         /// </summary>
+        /// <param name="current">The current project to generate.</param>
+        /// <param name="definitions">A list of all loaded project definitions.</param>
+        /// <param name="workingDirectory"></param>
+        /// <param name="rootPath">The module root path, with directory seperator appended.</param>
+        /// <param name="projectName">The project name.</param>
         /// <param name="platformName">The platform name.</param>
         /// <param name="services">A list of services.</param>
         /// <param name="packagesFilePath">
-        /// Either the full path to the packages.config for the
-        /// generated project if it exists, or an empty string.
+        ///     Either the full path to the packages.config for the
+        ///     generated project if it exists, or an empty string.
         /// </param>
         /// <param name="onActualGeneration"></param>
-        /// <param name="current">The current project to generate.</param>
-        /// <param name="definitions">A list of all loaded project definitions.</param>
-        /// <param name="rootPath">The module root path, with directory seperator appended.</param>
-        /// <param name="projectName">The project name.</param>
+        /// <param name="debugProjectGeneration">Whether to emit a .input file for XSLT debugging.</param>
         public void Generate(
             DefinitionInfo current,
             List<LoadedDefinitionInfo> definitions,
@@ -78,7 +85,8 @@ namespace Protobuild
             string platformName,
             List<Service> services,
             out string packagesFilePath,
-            Action onActualGeneration)
+            Action onActualGeneration,
+            bool debugProjectGeneration)
         {
             packagesFilePath = string.Empty;
 
@@ -86,11 +94,87 @@ namespace Protobuild
             var projectDoc = definitions.First(
                 x => x.Project.DocumentElement.Attributes["Name"].Value == projectName)?.Project;
 
-            // Check to see if we have a Project node; if not
-            // then this is an external or other type of project
-            // that we don't process.
-            if (projectDoc == null ||
-                projectDoc.DocumentElement.Name != "Project")
+            // Check to see if we have a Project node; don't process it.
+            if (projectDoc?.DocumentElement == null)
+                return;
+
+            // If this is a custom project, run any custom generation commands for
+            // the current host and target platform.
+            if (projectDoc.DocumentElement.Name == "CustomProject")
+            {
+                onActualGeneration();
+
+                var onGenerateElements = projectDoc.DocumentElement.SelectNodes("OnGenerate");
+                if (onGenerateElements != null)
+                {
+                    foreach (var onGenerateElement in onGenerateElements.OfType<XmlElement>())
+                    {
+                        var matches = true;
+                        var hostName = onGenerateElement.GetAttribute("HostName");
+                        var targetName = onGenerateElement.GetAttribute("TargetName");
+
+                        if (!string.IsNullOrWhiteSpace(hostName))
+                        {
+                            if (hostName != _hostPlatformDetector.DetectPlatform())
+                            {
+                                matches = false;
+                            }
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(targetName))
+                        {
+                            if (targetName != platformName)
+                            {
+                                matches = false;
+                            }
+                        }
+
+                        if (matches)
+                        {
+                            var command = onGenerateElement.SelectSingleNode("Command")?.InnerText.Trim();
+                            var arguments = onGenerateElement.SelectSingleNode("Arguments")?.InnerText.Trim() ?? string.Empty;
+
+                            if (!string.IsNullOrWhiteSpace(command))
+                            {
+                                var workingPath = Path.Combine(
+                                    rootPath,
+                                    projectDoc.DocumentElement.Attributes["Path"].Value);
+                                var resolvedCommandPath = Path.Combine(
+                                    workingPath,
+                                    command);
+
+                                if (File.Exists(resolvedCommandPath))
+                                {
+                                    var process =
+                                        Process.Start(new ProcessStartInfo(resolvedCommandPath, arguments)
+                                        {
+                                            WorkingDirectory = workingPath,
+                                            UseShellExecute = false
+                                        });
+                                    if (process == null)
+                                    {
+                                        RedirectableConsole.ErrorWriteLine("ERROR: Process did not start when running " + resolvedCommandPath + " " +
+                                            arguments);
+                                        ExecEnvironment.Exit(1);
+                                        return;
+                                    }
+                                    process.WaitForExit();
+                                    if (process.ExitCode != 0)
+                                    {
+                                        RedirectableConsole.ErrorWriteLine(
+                                            "ERROR: Non-zero exit code " + process.ExitCode);
+                                        ExecEnvironment.Exit(1);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If this is not a normal project at this point, don't process it.
+            if (projectDoc.DocumentElement.Name != "Project")
                 return;
 
             // Load the appropriate project transformation XSLT.
@@ -201,9 +285,18 @@ namespace Protobuild
                         .OfType<XmlElement>()),
                 services);
 
-            // Transform the input document using the XSLT transform.
             var settings = new XmlWriterSettings();
             settings.Indent = true;
+
+            if (debugProjectGeneration)
+            {
+                using (var writer = XmlWriter.Create(path + ".input", settings))
+                {
+                    input.Save(writer);
+                }
+            }
+
+            // Transform the input document using the XSLT transform.
             using (var writer = XmlWriter.Create(path, settings))
             {
                 projectTransform.Transform(input, writer);

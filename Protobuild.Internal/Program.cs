@@ -68,6 +68,7 @@ namespace Protobuild
                 { "enable", kernel.Get<EnableServiceCommand>() },
                 { "disable", kernel.Get<DisableServiceCommand>() },
                 { "debug-service-resolution", kernel.Get<DebugServiceResolutionCommand>() },
+                { "debug-project-generation", kernel.Get<DebugProjectGenerationCommand>() },
                 { "simulate-host-platform", kernel.Get<SimulateHostPlatformCommand>() },
                 { "spec", kernel.Get<ServiceSpecificationCommand>() },
                 { "query-features", kernel.Get<QueryFeaturesCommand>() },

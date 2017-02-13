@@ -7,14 +7,7 @@ namespace Protobuild
 {
     internal interface ISolutionGenerator
     {
-        void Generate(
-            string workingDirectory,
-            ModuleInfo moduleInfo,
-            List<XmlDocument> definitions,
-            string platformName,
-            string solutionPath,
-            List<Service> services,
-            IEnumerable<string> repositoryPaths);
+        void Generate(string workingDirectory, ModuleInfo moduleInfo, List<XmlDocument> definitions, string platformName, string solutionPath, List<Service> services, IEnumerable<string> repositoryPaths, bool debugProjectGeneration);
     }
 }
 

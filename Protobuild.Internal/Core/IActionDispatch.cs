@@ -16,7 +16,8 @@ namespace Protobuild
             bool disablePackageResolution,
             bool disableHostPlatformGeneration,
             bool? taskParallelisation,
-            bool? safeResolve);
+            bool? safeResolve,
+            bool debugProjectGeneration);
 
         bool DefaultAction(
             string workingDirectory,
@@ -29,7 +30,8 @@ namespace Protobuild
             bool disablePackageResolution,
             bool disableHostPlatformGeneration,
             bool? taskParallelisation,
-            bool? safeResolve);
+            bool? safeResolve,
+            bool debugProjectGeneration);
     }
 }
 
