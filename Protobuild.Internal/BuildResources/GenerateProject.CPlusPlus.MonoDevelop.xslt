@@ -70,72 +70,6 @@
     </xsl:choose>
   </xsl:template>
   
-  <xsl:template name="swig_binding_generator"
-    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <CustomCommands>
-      <CustomCommands>
-        <Command type="BeforeBuild">
-          <xsl:attribute name="workingdir">
-            <xsl:text>${ProjectDir}</xsl:text>
-          </xsl:attribute>
-          <xsl:attribute name="command">
-            <xsl:text>swig -csharp -dllimport lib</xsl:text>
-            <xsl:value-of select="$assembly_name" />
-            <xsl:text> </xsl:text>
-            <xsl:if test="user:IsTrue($root/Input/Properties/BindingGeneratorSWIGEnableCPP)">
-              <xsl:text>-c++ </xsl:text>
-            </xsl:if>
-            <xsl:for-each select="$project/Files/None">
-              <xsl:if test="user:ProjectAndServiceIsActive(
-                  ./Platforms,
-                  ./IncludePlatforms,
-                  ./ExcludePlatforms,
-                  ./Services,
-                  ./IncludeServices,
-                  ./ExcludeServices,
-                  $root/Input/Generation/Platform,
-                  $root/Input/Services/ActiveServicesNames)">
-                <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
-                  <xsl:value-of select="@Include" />
-                  <xsl:text> </xsl:text>
-                </xsl:if>
-              </xsl:if>
-            </xsl:for-each>
-          </xsl:attribute>
-        </Command>
-        <Command type="AfterBuild">
-          <xsl:attribute name="workingdir">
-            <xsl:text>${ProjectDir}</xsl:text>
-          </xsl:attribute>
-          <xsl:attribute name="command">
-            <xsl:text>mcs -target:library -out:</xsl:text>
-            <xsl:text>bin/</xsl:text>
-            <xsl:value-of select="$project/@Name" />
-            <xsl:text>Binding.dll </xsl:text>
-            <xsl:for-each select="$project/Files/None">
-              <xsl:if test="user:ProjectAndServiceIsActive(
-                  ./Platforms,
-                  ./IncludePlatforms,
-                  ./ExcludePlatforms,
-                  ./Services,
-                  ./IncludeServices,
-                  ./ExcludeServices,
-                  $root/Input/Generation/Platform,
-                  $root/Input/Services/ActiveServicesNames)">
-                <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
-                  <xsl:value-of select="user:StripExtension(@Include)" />
-                  <xsl:text>.cs </xsl:text>
-                  <xsl:value-of select="user:StripExtension(@Include)" />
-                  <xsl:text>PINVOKE.cs </xsl:text>
-                </xsl:if>
-              </xsl:if>
-            </xsl:for-each>
-          </xsl:attribute>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
-  </xsl:template>
-  
   <xsl:template name="swig_binding_generator_includes"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <xsl:for-each select="$project/Files/None">
@@ -323,10 +257,23 @@
         <xsl:value-of select="user:CalculateDefines($addDefines, $removeDefines)" />
       </DefineSymbols>
       
-      <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
-        <xsl:call-template name="swig_binding_generator">
-        </xsl:call-template>
-      </xsl:if>
+      <!-- Wire up the MonoDevelop IDE to call xbuild for this project. -->
+      <CustomCommands>
+        <CustomCommands>
+          <Command type="Build">
+            <xsl:attribute name="workingdir">
+              <xsl:text>${ProjectDir}</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="command">
+              <xsl:text>xbuild /t:Build /p:Configuration="${ProjectConfigName}" /p:Platform="${ProjectConfigPlat}" </xsl:text>
+              <xsl:value-of select="$project/@Name" />
+              <xsl:text>.</xsl:text>
+              <xsl:value-of select="$root/Input/Generation/Platform" />
+              <xsl:text>.mdproj</xsl:text>
+            </xsl:attribute>
+          </Command>
+        </CustomCommands>
+      </CustomCommands>
     </PropertyGroup>
   </xsl:template>
   
@@ -400,140 +347,11 @@
     <Project
         DefaultTargets="Build"
         xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="{$ToolsVersion}">
-    
       <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
         <ProjectGuid>{<xsl:value-of select="$project/ProjectGuids/Platform[@Name=$root/Input/Generation/Platform]" />}</ProjectGuid>
-        <Compiler>
-          <Compiler ctype="GccCompiler" />
-        </Compiler>
-        <Language>C</Language>
-        <Target>Bin</Target>
-        <Packages>
-          <Packages>
-            <xsl:for-each select="$project/References/Reference">
-              <xsl:variable name="include-name" select="./@Include" />
-              <xsl:if test="
-                count($root/Input/Projects/Project[@Name=$include-name]) = 0">
-                <xsl:if test="
-                  count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
-
-                  <xsl:variable name="extern"
-                    select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
-
-                  <xsl:for-each select="$extern/Project">
-                    <!-- Ignore this tag for now -->
-                  </xsl:for-each>
-
-                  <xsl:for-each select="$extern/Platform
-                                          [@Type=$root/Input/Generation/Platform]">
-                    <xsl:for-each select="./Project">
-                      <!-- Ignore this tag for now -->
-                    </xsl:for-each>
-                    <xsl:for-each select="./Service">
-                      <xsl:if test="user:ServiceIsActive(
-                        ./@Name,
-                        '',
-                        '',
-                        $root/Input/Services/ActiveServicesNames)">
-                        <xsl:for-each select="./Project">
-                          <!-- Ignore this tag for now -->
-                        </xsl:for-each>
-                      </xsl:if>
-                    </xsl:for-each>
-                  </xsl:for-each>
-                  <xsl:for-each select="$extern/Service">
-                    <xsl:if test="user:ServiceIsActive(
-                      ./@Name,
-                      '',
-                      '',
-                      $root/Input/Services/ActiveServicesNames)">
-                      <xsl:for-each select="./Project">
-                        <!-- Ignore this tag for now -->
-                      </xsl:for-each>
-                    </xsl:if>
-                  </xsl:for-each>
-
-                  <xsl:for-each select="$extern/Reference">
-                    <xsl:variable name="refd-name" select="./@Include" />
-                    <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
-                      <xsl:call-template name="ReferenceToProtobuildProject">
-                        <xsl:with-param name="target_project_name" select="$refd-name" />
-                        <xsl:with-param name="source_project_name" select="$project/@Name" />
-                      </xsl:call-template>
-                    </xsl:if>
-                  </xsl:for-each>
-
-
-                  <xsl:for-each select="$extern/Platform
-                                          [@Type=$root/Input/Generation/Platform]">
-                    <xsl:for-each select="./Reference">
-                      <xsl:variable name="refd-name" select="./@Include" />
-                      <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
-                        <xsl:call-template name="ReferenceToProtobuildProject">
-                          <xsl:with-param name="target_project_name" select="$refd-name" />
-                          <xsl:with-param name="source_project_name" select="$project/@Name" />
-                        </xsl:call-template>
-                      </xsl:if>
-                    </xsl:for-each>
-                    <xsl:for-each select="./Service">
-                      <xsl:if test="user:ServiceIsActive(
-                        ./@Name,
-                        '',
-                        '',
-                        $root/Input/Services/ActiveServicesNames)">
-                        <xsl:for-each select="./Reference">
-                          <xsl:variable name="refd-name" select="./@Include" />
-                          <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
-                            <xsl:call-template name="ReferenceToProtobuildProject">
-                              <xsl:with-param name="target_project_name" select="$refd-name" />
-                              <xsl:with-param name="source_project_name" select="$project/@Name" />
-                            </xsl:call-template>
-
-                          </xsl:if>
-                        </xsl:for-each>
-                      </xsl:if>
-                    </xsl:for-each>
-                  </xsl:for-each>
-                  <xsl:for-each select="$extern/Service">
-                    <xsl:if test="user:ServiceIsActive(
-                      ./@Name,
-                      '',
-                      '',
-                      $root/Input/Services/ActiveServicesNames)">
-                      <xsl:for-each select="./Reference">
-                        <xsl:variable name="refd-name" select="./@Include" />
-                        <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
-                          <xsl:call-template name="ReferenceToProtobuildProject">
-                            <xsl:with-param name="target_project_name" select="$refd-name" />
-                            <xsl:with-param name="source_project_name" select="$project/@Name" />
-                          </xsl:call-template>
-                        </xsl:if>
-                      </xsl:for-each>
-                    </xsl:if>
-                  </xsl:for-each>
-
-                </xsl:if>
-              </xsl:if>
-            </xsl:for-each>
-
-            <xsl:for-each select="$project/References/Reference">
-              <xsl:variable name="include-path" select="./@Include" />
-              <xsl:if test="
-                count($root/Input/Projects/Project[@Name=$include-path]) > 0">
-                <xsl:if test="
-                  count($root/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
-                  <xsl:call-template name="ReferenceToProtobuildProject">
-                    <xsl:with-param name="target_project_name" select="$include-path" />
-                    <xsl:with-param name="source_project_name" select="$project/@Name" />
-                  </xsl:call-template>
-                </xsl:if>
-              </xsl:if>
-            </xsl:for-each>
-
-          </Packages>
-        </Packages>
+        <ItemType>GenericProject</ItemType>
       </PropertyGroup>
       
       <xsl:call-template name="configuration">
@@ -606,6 +424,196 @@
           </xsl:call-template>
         </xsl:if>
       </ItemGroup>
+
+      <PropertyGroup>
+        <NativePlatform><xsl:value-of select="$root/Input/Generation/Platform" /></NativePlatform>
+        <ProjectName><xsl:value-of select="$project/@Name" /></ProjectName>
+        <OutputPath>bin/$(NativePlatform)/$(Platform)/$(Configuration)</OutputPath>
+        <OutputExtension>
+          <xsl:choose>
+            <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">.dylib</xsl:when>
+            <xsl:otherwise>.so</xsl:otherwise>
+          </xsl:choose>
+        </OutputExtension>
+        <OutputFile>lib$(ProjectName)$(OutputExtension)</OutputFile>
+        <OutputType>
+          <xsl:choose>
+            <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
+              <xsl:text>-dynamiclib</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>-shared</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </OutputType>
+        <ArchitectureFlags>
+          <xsl:choose>
+            <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
+              <xsl:text>-arch i386 -arch x86_64</xsl:text>
+            </xsl:when>
+            <xsl:otherwise>
+              <xsl:text>-arch i386</xsl:text>
+            </xsl:otherwise>
+          </xsl:choose>
+        </ArchitectureFlags>
+      </PropertyGroup>
+
+      <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" Outputs="$(TargetFile)">
+        <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
+          <Exec>
+            <xsl:attribute name="Command">
+              <xsl:text>bash -c 'PATH=$PATH:/usr/local/bin swig -csharp -dllimport lib</xsl:text>
+              <xsl:value-of select="$assembly_name" />
+              <xsl:text> </xsl:text>
+              <xsl:if test="user:IsTrue($root/Input/Properties/BindingGeneratorSWIGEnableCPP)">
+                <xsl:text>-c++ </xsl:text>
+              </xsl:if>
+              <xsl:for-each select="$project/Files/None">
+                <xsl:if test="user:ProjectAndServiceIsActive(
+                    ./Platforms,
+                    ./IncludePlatforms,
+                    ./ExcludePlatforms,
+                    ./Services,
+                    ./IncludeServices,
+                    ./ExcludeServices,
+                    $root/Input/Generation/Platform,
+                    $root/Input/Services/ActiveServicesNames)">
+                  <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+                    <xsl:value-of select="@Include" />
+                    <xsl:text> </xsl:text>
+                  </xsl:if>
+                </xsl:if>
+              </xsl:for-each>
+              <xsl:text>'</xsl:text>
+            </xsl:attribute>
+          </Exec>
+        </xsl:if>
+        <Exec Command="mkdir -pv $(OutputPath)" />
+        <Exec>
+          <xsl:attribute name="Command">
+            <xsl:text>gcc $(OutputType) $(ArchitectureFlags) </xsl:text>
+            <xsl:for-each select="$project/References/Reference">
+              <xsl:variable name="include-name" select="./@Include" />
+              <xsl:if test="
+                count($root/Input/Projects/Project[@Name=$include-name]) = 0">
+                <xsl:if test="
+                  count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+                  <xsl:variable name="extern"
+                    select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+                  <xsl:for-each select="$extern/NativeInclude">
+                    <xsl:text>-I</xsl:text>
+                    <xsl:value-of select="@Path" />
+                    <xsl:text> </xsl:text>
+                  </xsl:for-each>
+                  <xsl:for-each select="$extern/NativeLibraryPath">
+                    <xsl:text>-L</xsl:text>
+                    <xsl:value-of select="@Path" />
+                    <xsl:text> </xsl:text>
+                  </xsl:for-each>
+                  <xsl:for-each select="$extern/NativeLibraryLink">
+                    <xsl:text>-l</xsl:text>
+                    <xsl:value-of select="@Name" />
+                    <xsl:text> </xsl:text>
+                  </xsl:for-each>
+                  <xsl:for-each select="$extern/Platform
+                                          [@Type=$root/Input/Generation/Platform]">
+                    <xsl:for-each select="./NativeInclude">
+                      <xsl:text>-I</xsl:text>
+                      <xsl:value-of select="@Path" />
+                      <xsl:text> </xsl:text>
+                    </xsl:for-each>
+                    <xsl:for-each select="./NativeLibraryPath">
+                      <xsl:text>-L</xsl:text>
+                      <xsl:value-of select="@Path" />
+                      <xsl:text> </xsl:text>
+                    </xsl:for-each>
+                    <xsl:for-each select="./NativeLibraryLink">
+                      <xsl:text>-l</xsl:text>
+                      <xsl:value-of select="@Name" />
+                      <xsl:text> </xsl:text>
+                    </xsl:for-each>
+                    <xsl:for-each select="./Service">
+                      <xsl:if test="user:ServiceIsActive(
+                        ./@Name,
+                        '',
+                        '',
+                        $root/Input/Services/ActiveServicesNames)">
+                        <xsl:for-each select="./NativeInclude">
+                          <xsl:text>-I</xsl:text>
+                          <xsl:value-of select="@Path" />
+                          <xsl:text> </xsl:text>
+                        </xsl:for-each>
+                        <xsl:for-each select="./NativeLibraryPath">
+                          <xsl:text>-L</xsl:text>
+                          <xsl:value-of select="@Path" />
+                          <xsl:text> </xsl:text>
+                        </xsl:for-each>
+                        <xsl:for-each select="./NativeLibraryLink">
+                          <xsl:text>-l</xsl:text>
+                          <xsl:value-of select="@Name" />
+                          <xsl:text> </xsl:text>
+                        </xsl:for-each>
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:for-each>
+                  <xsl:for-each select="$extern/Service">
+                    <xsl:if test="user:ServiceIsActive(
+                      ./@Name,
+                      '',
+                      '',
+                      $root/Input/Services/ActiveServicesNames)">
+                      <xsl:for-each select="./NativeInclude">
+                        <xsl:text>-I</xsl:text>
+                        <xsl:value-of select="@Path" />
+                        <xsl:text> </xsl:text>
+                      </xsl:for-each>
+                      <xsl:for-each select="./NativeLibraryPath">
+                        <xsl:text>-L</xsl:text>
+                        <xsl:value-of select="@Path" />
+                        <xsl:text> </xsl:text>
+                      </xsl:for-each>
+                      <xsl:for-each select="./NativeLibraryLink">
+                        <xsl:text>-l</xsl:text>
+                        <xsl:value-of select="@Name" />
+                        <xsl:text> </xsl:text>
+                      </xsl:for-each>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:if>
+              </xsl:if>
+            </xsl:for-each>
+            <xsl:text>-o $(OutputPath)/$(OutputFile) @(Compile, ' ')</xsl:text>
+          </xsl:attribute>
+        </Exec>
+        <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
+          <Exec>
+            <xsl:attribute name="Command">
+              <xsl:text>mcs -target:library -out:bin/$(ProjectName)Binding.dll </xsl:text>
+              <xsl:for-each select="$project/Files/None">
+                <xsl:if test="user:ProjectAndServiceIsActive(
+                    ./Platforms,
+                    ./IncludePlatforms,
+                    ./ExcludePlatforms,
+                    ./Services,
+                    ./IncludeServices,
+                    ./ExcludeServices,
+                    $root/Input/Generation/Platform,
+                    $root/Input/Services/ActiveServicesNames)">
+                  <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
+                    <xsl:value-of select="user:StripExtension(@Include)" />
+                    <xsl:text>.cs </xsl:text>
+                    <xsl:value-of select="user:StripExtension(@Include)" />
+                    <xsl:text>PINVOKE.cs </xsl:text>
+                  </xsl:if>
+                </xsl:if>
+                <xsl:text>SWIGTYPE_*.cs </xsl:text>
+              </xsl:for-each>
+            </xsl:attribute>
+          </Exec>
+        </xsl:if>
+      </Target>
 
     </Project>
 

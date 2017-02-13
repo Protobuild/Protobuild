@@ -23,7 +23,7 @@
 
             _assert.True(File.Exists(this.GetPath(@"Console\Console.Windows.csproj")));
             _assert.True(
-                File.Exists(this.GetPath(@"Library\Library.Windows.cproj")) ||
+                File.Exists(this.GetPath(@"Library\Library.Windows.mdproj")) ||
                 File.Exists(this.GetPath(@"Library\Library.Windows.vcxproj")));
 
             var consoleContents = this.ReadFile(@"Console\Console.Windows.csproj");
@@ -44,7 +44,7 @@
 
             _assert.True(File.Exists(this.GetPath(@"Console\Console.Linux.csproj")));
             _assert.True(
-                File.Exists(this.GetPath(@"Library\Library.Linux.cproj")) ||
+                File.Exists(this.GetPath(@"Library\Library.Linux.mdproj")) ||
                 File.Exists(this.GetPath(@"Library\Library.Linux.vcxproj")));
 
             consoleContents = this.ReadFile(@"Console\Console.Linux.csproj");

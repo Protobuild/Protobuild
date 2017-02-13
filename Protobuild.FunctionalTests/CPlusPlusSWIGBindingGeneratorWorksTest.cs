@@ -21,12 +21,12 @@
             this.Generate("Windows");
 
             _assert.True(
-                File.Exists(this.GetPath(@"Library\Library.Windows.cproj")) ||
+                File.Exists(this.GetPath(@"Library\Library.Windows.mdproj")) ||
                 File.Exists(this.GetPath(@"Library\Library.Windows.vcxproj")));
 
-            if (File.Exists(this.GetPath(@"Library\Library.Windows.cproj")))
+            if (File.Exists(this.GetPath(@"Library\Library.Windows.mdproj")))
             {
-                var consoleContents = this.ReadFile(@"Library\Library.Windows.cproj");
+                var consoleContents = this.ReadFile(@"Library\Library.Windows.mdproj");
 
                 _assert.Contains("swig -csharp -dllimport libLibrary util.i", consoleContents);
             }

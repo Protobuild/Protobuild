@@ -657,7 +657,14 @@
                   <xsl:value-of select="$cpp_platform_path" />
                   <xsl:text>\lib</xsl:text>
                   <xsl:value-of select="$cpp_assembly_name" />
-                  <xsl:text>.so</xsl:text>
+                  <xsl:choose>
+                    <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
+                      <xsl:text>.dylib</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise>
+                      <xsl:text>.so</xsl:text>
+                    </xsl:otherwise>
+                  </xsl:choose>
                 </xsl:with-param>
                 <xsl:with-param name="is_conditional"></xsl:with-param>
               </xsl:call-template>

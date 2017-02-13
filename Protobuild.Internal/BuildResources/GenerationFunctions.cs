@@ -686,7 +686,7 @@ public class GenerationFunctions
             {
                 return ".vcxproj";
             }
-            return ".cproj";
+            return ".mdproj";
         }
         return ".csproj";
     }
