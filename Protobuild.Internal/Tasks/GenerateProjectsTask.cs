@@ -63,6 +63,8 @@ namespace Protobuild.Tasks
 
         public bool DebugServiceResolution { get; set; }
 
+        public bool DebugProjectGeneration { get; set; }
+
         public bool DisablePackageResolution { get; set; }
 
         public bool DisableHostPlatformGeneration { get; set; }
@@ -295,7 +297,8 @@ namespace Protobuild.Tasks
                             Platform,
                             services,
                             out repositoryPath,
-                            () => LogMessage("Generating: " + definitionCopy.Name));
+                            () => LogMessage("Generating: " + definitionCopy.Name),
+                            DebugProjectGeneration);
 
                         // Only add repository paths if they should be generated.
                         if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
@@ -327,7 +330,8 @@ namespace Protobuild.Tasks
                             Platform,
                             services,
                             out repositoryPath,
-                            () => LogMessage("Generating: " + definitionCopy.Name));
+                            () => LogMessage("Generating: " + definitionCopy.Name),
+                            DebugProjectGeneration);
 
                         // Only add repository paths if they should be generated.
                         if (module.GenerateNuGetRepositories && !string.IsNullOrEmpty(repositoryPath))
@@ -348,7 +352,8 @@ namespace Protobuild.Tasks
                     Platform,
                     solution,
                     services,
-                    repositoryPaths);
+                    repositoryPaths,
+                    DebugProjectGeneration);
 
                 // Only save the specification cache if we allow synchronisation
                 if (module.DisableSynchronisation == null || !module.DisableSynchronisation.Value)

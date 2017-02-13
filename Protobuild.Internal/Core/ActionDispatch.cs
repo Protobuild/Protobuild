@@ -57,7 +57,8 @@ namespace Protobuild
             bool disablePackageResolution,
             bool disableHostPlatformGeneration,
             bool? taskParallelisation,
-            bool? safeResolve)
+            bool? safeResolve,
+            bool debugProjectGeneration)
         {
             var platformSupplied = !string.IsNullOrWhiteSpace(platform);
 
@@ -226,7 +227,8 @@ namespace Protobuild
                         debugServiceResolution,
                         disablePackageResolution,
                         disableHostPlatformGeneration,
-                        requiresHostPlatform))
+                        requiresHostPlatform,
+                        debugProjectGeneration))
                     {
                         return false;
                     }
@@ -243,7 +245,8 @@ namespace Protobuild
                         debugServiceResolution,
                         disablePackageResolution,
                         disableHostPlatformGeneration,
-                        requiresHostPlatform))
+                        requiresHostPlatform,
+                        debugProjectGeneration))
                     {
                         return false;
                     }
@@ -270,7 +273,8 @@ namespace Protobuild
                         debugServiceResolution,
                         disablePackageResolution,
                         disableHostPlatformGeneration,
-                        requiresHostPlatform);
+                        requiresHostPlatform,
+                        debugProjectGeneration);
             }
 
             // Now iterate through the multiple platforms specified.
@@ -304,7 +308,8 @@ namespace Protobuild
                             debugServiceResolution,
                             disablePackageResolution,
                             disableHostPlatformGeneration,
-                            requiresHostPlatform))
+                            requiresHostPlatform,
+                            debugProjectGeneration))
                         {
                             return false;
                         }
@@ -364,7 +369,8 @@ namespace Protobuild
                         debugServiceResolution,
                         disablePackageResolution,
                         disableHostPlatformGeneration,
-                        requiresHostPlatform))
+                        requiresHostPlatform,
+                        debugProjectGeneration))
                     {
                         return false;
                     }
@@ -426,7 +432,8 @@ namespace Protobuild
             bool disablePackageResolution,
             bool disableHostPlatformGeneration,
             bool? taskParallelisation,
-            bool? safeResolve)
+            bool? safeResolve,
+            bool debugProjectGeneration)
         {
             return PerformAction(
                 workingDirectory,
@@ -440,7 +447,8 @@ namespace Protobuild
                 disablePackageResolution,
                 disableHostPlatformGeneration,
                 taskParallelisation,
-                safeResolve);
+                safeResolve,
+                debugProjectGeneration);
         }
 
         /// <summary>
@@ -466,7 +474,8 @@ namespace Protobuild
             bool debugServiceResolution,
             bool disablePackageResolution,
             bool disableHostPlatformGeneration,
-            Action requiresHostPlatform)
+            Action requiresHostPlatform,
+            bool debugProjectGeneration)
         {
             if (module.DisableSynchronisation ?? false)
             {
@@ -492,7 +501,8 @@ namespace Protobuild
                     debugServiceResolution,
                     disablePackageResolution,
                     disableHostPlatformGeneration,
-                    requiresHostPlatform);
+                    requiresHostPlatform,
+                    debugProjectGeneration);
             }
         }
 
@@ -527,6 +537,7 @@ namespace Protobuild
         /// Generates the projects for the specified platform.
         /// </summary>
         /// <returns><c>true</c>, if the generation succeeded, <c>false</c> otherwise.</returns>
+        /// <param name="workingDirectory"></param>
         /// <param name="module">The module whose projects should be generated.</param>
         /// <param name="platform">The platform to generate for.</param>
         /// <param name="enabledServices">A list of enabled services.</param>
@@ -535,7 +546,8 @@ namespace Protobuild
         /// <param name="debugServiceResolution">Whether to enable debugging information during service resolution.</param>
         /// <param name="disablePackageResolution">Whether to disable package resolution.</param>
         /// <param name="disableHostPlatformGeneration">Whether to disable generation of the host platform projects.</param>
-        /// <param name="requiresHostPlatform">A callback which indicates the generation requires host platform projects in the same solution.</param> 
+        /// <param name="requiresHostPlatform">A callback which indicates the generation requires host platform projects in the same solution.</param>
+        /// <param name="debugProjectGeneration">Whether to enable project generation debugging.</param>
         private bool GenerateProjectsForPlatform(
             string workingDirectory,
             ModuleInfo module,
@@ -546,7 +558,8 @@ namespace Protobuild
             bool debugServiceResolution,
             bool disablePackageResolution,
             bool disableHostPlatformGeneration,
-            Action requiresHostPlatform)
+            Action requiresHostPlatform,
+            bool debugProjectGeneration)
         {
             if (string.IsNullOrWhiteSpace(platform)) 
             {
@@ -563,6 +576,7 @@ namespace Protobuild
             task.DisableServices = disabledServices;
             task.ServiceSpecPath = serviceSpecPath;
             task.DebugServiceResolution = debugServiceResolution;
+            task.DebugProjectGeneration = debugProjectGeneration;
             task.DisablePackageResolution = disablePackageResolution;
             task.DisableHostPlatformGeneration = disableHostPlatformGeneration;
             task.RequiresHostPlatform = requiresHostPlatform;

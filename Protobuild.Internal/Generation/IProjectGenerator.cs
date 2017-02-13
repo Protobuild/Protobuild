@@ -7,16 +7,7 @@ namespace Protobuild
 {
     internal interface IProjectGenerator
     {
-        void Generate(
-            DefinitionInfo current,
-            List<LoadedDefinitionInfo> definitions,
-            string workingDirectory,
-            string rootPath,
-            string projectName,
-            string platformName,
-            List<Service> services,
-            out string packagesFilePath,
-            Action onActualGeneration);
+        void Generate(DefinitionInfo current, List<LoadedDefinitionInfo> definitions, string workingDirectory, string rootPath, string projectName, string platformName, List<Service> services, out string packagesFilePath, Action onActualGeneration, bool debugProjectGeneration);
     }
 }
 

@@ -5,7 +5,10 @@ using System.Reflection;
 
 namespace Protobuild
 {
-    internal class LightweightKernel
+    /// <remarks>
+    /// This MUST remain public so that it's accessible from the XSLT generation functions!
+    /// </remarks>
+    public class LightweightKernel
     {
         private Dictionary<Type, List<Type>> m_Bindings = new Dictionary<Type, List<Type>>();
 

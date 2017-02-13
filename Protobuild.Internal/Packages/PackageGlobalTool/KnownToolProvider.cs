@@ -3,7 +3,10 @@ using System.Collections.Generic;
 
 namespace Protobuild
 {
-    internal class KnownToolProvider : IKnownToolProvider
+    /// <remarks>
+    /// This MUST remain public so that it's accessible to the XSLT generation functions!
+    /// </remarks>
+    public class KnownToolProvider : IKnownToolProvider
     {
         private readonly IPackageGlobalTool _packageGlobalTool;
 

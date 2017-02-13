@@ -132,7 +132,7 @@ Set-Content -Path $filename -Value $code;
 ]]>
               </xsl:text>
             </xsl:variable>
-            <xsl:text>&#xa;&#xd;powershell -EncodedCommand </xsl:text>
+            <xsl:text>&#xa;&#xd;powershell -ExecutionPolicy Bypass -EncodedCommand </xsl:text>
             <xsl:value-of select="user:ToBase64StringUTF16LE($powershell_command)"/>
           </xsl:if>
         </xsl:for-each>
@@ -159,6 +159,7 @@ Set-Content -Path $filename -Value $code;
               <xsl:text>.cs </xsl:text>
               <xsl:value-of select="user:StripExtension(@Include)" />
               <xsl:text>PINVOKE.cs </xsl:text>
+              <xsl:text>SWIGTYPE_*.cs </xsl:text>
             </xsl:if>
           </xsl:if>
         </xsl:for-each>
@@ -332,8 +333,8 @@ Set-Content -Path $filename -Value $code;
           </xsl:otherwise>
         </xsl:choose>
       </xsl:variable>
-      <OutDir><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /></OutDir>
-      <IntDir><xsl:text>obj\</xsl:text><xsl:copy-of select="$platform_path" /></IntDir>
+      <OutDir><xsl:text>bin\</xsl:text><xsl:copy-of select="$platform_path" /><xsl:text>\</xsl:text></OutDir>
+      <IntDir><xsl:text>obj\</xsl:text><xsl:copy-of select="$platform_path" /><xsl:text>\</xsl:text></IntDir>
       <IncludePath>$(IncludePath)</IncludePath>
       <LibraryPath>$(LibraryPath)</LibraryPath>
       <ExecutablePath>$(ExecutablePath)</ExecutablePath>
@@ -413,7 +414,57 @@ Set-Content -Path $filename -Value $code;
           <xsl:value-of select="user:CalculateDefines($addDefines, $removeDefines)" />
           <xsl:text>;%(PreprocessorDefinitions)</xsl:text>
         </PreprocessorDefinitions>
-        <AdditionalIncludeDirectories>.\DirectX\XNAMath</AdditionalIncludeDirectories>
+        <AdditionalIncludeDirectories>
+          <xsl:text>.\DirectX\XNAMath;</xsl:text>
+          <xsl:for-each select="$project/References/Reference">
+            <xsl:variable name="include-name" select="./@Include" />
+            <xsl:if test="
+              count($root/Input/Projects/Project[@Name=$include-name]) = 0">
+              <xsl:if test="
+                count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+                <xsl:variable name="extern"
+                  select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+                <xsl:for-each select="$extern/NativeInclude">
+                  <xsl:value-of select="@Path" />
+                  <xsl:text>;</xsl:text>
+                </xsl:for-each>
+                <xsl:for-each select="$extern/Platform
+                                        [@Type=$root/Input/Generation/Platform]">
+                  <xsl:for-each select="./NativeInclude">
+                    <xsl:value-of select="@Path" />
+                    <xsl:text>;</xsl:text>
+                  </xsl:for-each>
+                  <xsl:for-each select="./Service">
+                    <xsl:if test="user:ServiceIsActive(
+                      ./@Name,
+                      '',
+                      '',
+                      $root/Input/Services/ActiveServicesNames)">
+                      <xsl:for-each select="./NativeInclude">
+                        <xsl:value-of select="@Path" />
+                        <xsl:text>;</xsl:text>
+                      </xsl:for-each>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:for-each>
+                <xsl:for-each select="$extern/Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    $root/Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./NativeInclude">
+                      <xsl:value-of select="@Path" />
+                      <xsl:text>;</xsl:text>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:if>
+            </xsl:if>
+          </xsl:for-each>
+        </AdditionalIncludeDirectories>
         <DisableSpecificWarnings><xsl:value-of select="$root/Input/Properties/NoWarn" /></DisableSpecificWarnings>
         <PrecompiledHeaderFile></PrecompiledHeaderFile>
         <PrecompiledHeaderOutputFile></PrecompiledHeaderOutputFile>
@@ -698,6 +749,11 @@ Set-Content -Path $filename -Value $code;
         <xsl:if test="$root/Input/Properties/BindingGenerator = 'SWIG'">
           <xsl:call-template name="swig_binding_generator_extras">
           </xsl:call-template>
+          <None>
+            <xsl:attribute name="Include">
+              <xsl:text>SWIGTYPE_*.cs</xsl:text>
+            </xsl:attribute>
+          </None>
         </xsl:if>
       </ItemGroup>
       

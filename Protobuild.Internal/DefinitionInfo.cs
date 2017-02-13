@@ -138,6 +138,15 @@ namespace Protobuild
                 {
                     def.Type = "Content";
                 }
+                else if (doc.Root.Name == "CustomProject")
+                {
+                    def.Type = "Custom";
+
+                    if (doc.Root.Attributes().Any(x => x.Name == "Path"))
+                    {
+                        def.RelativePath = doc.Root.Attribute(XName.Get("Path")).Value;
+                    }
+                }
 
                 if (doc.Root.Attributes().Any(x => x.Name == "SkipAutopackage"))
                 {

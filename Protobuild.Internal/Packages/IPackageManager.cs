@@ -2,7 +2,7 @@
 
 namespace Protobuild
 {
-    internal interface IPackageManager
+    public interface IPackageManager
     {
         void ResolveAll(string workingDirectory, ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve);
 

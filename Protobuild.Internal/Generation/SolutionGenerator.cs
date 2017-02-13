@@ -4,6 +4,7 @@ using Protobuild.Services;
 using System.Xml;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Protobuild
 {
@@ -32,12 +33,25 @@ namespace Protobuild
             string platformName,
             string solutionPath,
             List<Service> services,
-            IEnumerable<string> repositoryPaths)
+            IEnumerable<string> repositoryPaths,
+            bool debugProjectGeneration)
         {
             var generateSolutionTransform = this.m_ResourceProvider.LoadXSLT(workingDirectory, ResourceType.GenerateSolution, Language.CSharp, platformName);
             var selectSolutionTransform = this.m_ResourceProvider.LoadXSLT(workingDirectory, ResourceType.SelectSolution, Language.CSharp, platformName);
 
             var input = this.m_SolutionInputGenerator.GenerateForSelectSolution(definitions, platformName, services);
+
+            if (debugProjectGeneration)
+            {
+                var settings = new XmlWriterSettings();
+                settings.Indent = true;
+
+                using (var writer = XmlWriter.Create(solutionPath + ".input", settings))
+                {
+                    input.Save(writer);
+                }
+            }
+
             using (var memory = new MemoryStream())
             {
                 selectSolutionTransform.Transform(input, null, memory);
@@ -46,6 +60,17 @@ namespace Protobuild
 
                 var document = new XmlDocument();
                 document.Load(memory);
+
+                if (debugProjectGeneration)
+                {
+                    var settings = new XmlWriterSettings();
+                    settings.Indent = true;
+
+                    using (var writer = XmlWriter.Create(solutionPath + ".selected.output", settings))
+                    {
+                        document.Save(writer);
+                    }
+                }
 
                 var defaultProject = (XmlElement)null;
                 var existingGuids = new List<string>();
@@ -122,6 +147,17 @@ namespace Protobuild
                 var documentInput = this.m_SolutionInputGenerator.GenerateForGenerateSolution(
                     platformName,
                     document.DocumentElement.SelectNodes("/Projects/Project").OfType<XmlElement>());
+
+                if (debugProjectGeneration)
+                {
+                    var settings = new XmlWriterSettings();
+                    settings.Indent = true;
+
+                    using (var writer = XmlWriter.Create(solutionPath + ".transform.input", settings))
+                    {
+                        documentInput.Save(writer);
+                    }
+                }
 
                 using (var writer = new StreamWriter(solutionPath))
                 {
