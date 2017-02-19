@@ -570,6 +570,26 @@ namespace Protobuild
                 document.WriteTo(writer);
             }
             fileFilter.AddManualMapping(temp, module.Name + ".nuspec");
+
+            var contentCopy = @"<Project xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
+  <ItemGroup>
+    <Content Include=""$(MSBuildThisFileDirectory)..\copyContent\**\*"" Condition=""Exists('$(MSBuildThisFileDirectory)..\copyContent')"">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>";
+            RedirectableConsole.WriteLine("Protobuild: Generating " + id.InnerText.Trim() + ".targets...");
+            var copyName = id.InnerText.Trim() + ".targets";
+            var copyTemp = Path.Combine(Path.GetTempPath(), copyName);
+            temporaryFiles.Add(copyTemp);
+
+            using (var writer = new StreamWriter(copyTemp))
+            {
+                writer.Write(contentCopy);
+            }
+
+            fileFilter.AddManualMapping(copyTemp, "build/" + copyName);
         }
 
         private string GenerateNuGetSemanticVersion(ModuleInfo module)
@@ -944,7 +964,7 @@ namespace Protobuild
             var assemblyName = this.m_ProjectOutputPathCalculator.GetProjectAssemblyName(platform, definition, document);
             var outputMode = this.m_ProjectOutputPathCalculator.GetProjectOutputMode(document);
 
-            var assemblyFilesToCopy = new[]
+            var assemblyFilesToCopy = new List<string>
             {
                 assemblyName + ".exe",
                 assemblyName + ".dll",
@@ -953,6 +973,21 @@ namespace Protobuild
                 assemblyName + ".pdb",
                 assemblyName + ".xml",
             };
+            
+            // Include any SWIG binding DLLs that we need.
+            // TODO: We should really examine the references of the project to determine what binding DLLs
+            // we actually expect to see, but this behaviour should also be good enough for like 95% of
+            // use cases.
+            foreach (var filePath in fileFilter.FindInSourceFiles("^" + pathPrefix + "(.*)Binding\\.dll$"))
+            {
+                var file = new FileInfo(Path.Combine(workingDirectory, filePath));
+                if (!assemblyFilesToCopy.Contains(file.Name))
+                { 
+                    RedirectableConsole.WriteLine("NOTE: Including " + file.Name +
+                                                  " as part of library project (assumed to be a SWIG binding DLL).");
+                    assemblyFilesToCopy.Add(file.Name);
+                }
+            }
 
             // Copy the assembly itself out to the package.
             switch (outputMode)
@@ -1296,7 +1331,7 @@ namespace Protobuild
 
             // Include everything underneath the include project's path.
             fileFilter.ApplyInclude("^" + Regex.Escape(definition.RelativePath.TrimEnd(new[] { '/', '\\' })) + "/(.+)$");
-            fileFilter.ApplyCopy("^" + Regex.Escape(definition.RelativePath.TrimEnd(new[] { '/', '\\' })) + "/(.+)$", "content/$1");
+            fileFilter.ApplyCopy("^" + Regex.Escape(definition.RelativePath.TrimEnd(new[] { '/', '\\' })) + "/(.+)$", "copyContent/$1");
             fileFilter.ApplyRewrite(
                 "^" + Regex.Escape(definition.RelativePath.TrimEnd(new[] { '/', '\\' })) + "/(.+)$",
                 "protobuild/" + platform + "/" + definition.RelativePath + "/$1");

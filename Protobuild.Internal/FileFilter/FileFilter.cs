@@ -18,6 +18,25 @@ namespace Protobuild
                 this.m_SourceFiles.Add(s);
         }
 
+        public List<string> FindInSourceFiles(string searchRegex)
+        {
+            var uniqueResults = new List<string>();
+            var re = new Regex(searchRegex);
+
+            foreach (var src in this.m_SourceFiles)
+            {
+                if (re.IsMatch(src))
+                {
+                    if (!uniqueResults.Contains(src))
+                    {
+                        uniqueResults.Add(src);
+                    }
+                }
+            }
+
+            return uniqueResults;
+        }
+
         public void AddManualMapping(string source, string destination)
         {
             this.m_FileMappings.Add(source, new List<string> {destination});

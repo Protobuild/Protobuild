@@ -645,6 +645,48 @@
                 <xsl:with-param name="is_conditional">true</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
+            <xsl:when test="$root/Input/Generation/HostPlatform = 'Linux'">
+              <xsl:call-template name="NativeBinary">
+                <xsl:with-param name="project_path"><xsl:value-of select="$source_project/@Path" /></xsl:with-param>
+                <xsl:with-param name="project_name"><xsl:value-of select="$source_project/@Name" /></xsl:with-param>
+                <xsl:with-param name="project_language"><xsl:value-of select="$source_project/@Language" /></xsl:with-param>
+                <xsl:with-param name="path_as">
+                  <xsl:text>lib</xsl:text>
+                  <xsl:value-of select="$cpp_assembly_name" />
+                  <xsl:text>32.so</xsl:text>
+                </xsl:with-param>
+                <xsl:with-param name="path">
+                  <xsl:value-of select="$target_project/@Path" />
+                  <xsl:text>\bin\</xsl:text>
+                  <xsl:value-of select="$cpp_platform_path" />
+                  <xsl:text>\</xsl:text>
+                  <xsl:text>lib</xsl:text>
+                  <xsl:value-of select="$cpp_assembly_name" />
+                  <xsl:text>32.so</xsl:text>
+                </xsl:with-param>
+                <xsl:with-param name="is_conditional">true</xsl:with-param>
+              </xsl:call-template>
+              <xsl:call-template name="NativeBinary">
+                <xsl:with-param name="project_path"><xsl:value-of select="$source_project/@Path" /></xsl:with-param>
+                <xsl:with-param name="project_name"><xsl:value-of select="$source_project/@Name" /></xsl:with-param>
+                <xsl:with-param name="project_language"><xsl:value-of select="$source_project/@Language" /></xsl:with-param>
+                <xsl:with-param name="path_as">
+                  <xsl:text>lib</xsl:text>
+                  <xsl:value-of select="$cpp_assembly_name" />
+                  <xsl:text>64.so</xsl:text>
+                </xsl:with-param>
+                <xsl:with-param name="path">
+                  <xsl:value-of select="$target_project/@Path" />
+                  <xsl:text>\bin\</xsl:text>
+                  <xsl:value-of select="$cpp_platform_path" />
+                  <xsl:text>\</xsl:text>
+                  <xsl:text>lib</xsl:text>
+                  <xsl:value-of select="$cpp_assembly_name" />
+                  <xsl:text>64.so</xsl:text>
+                </xsl:with-param>
+                <xsl:with-param name="is_conditional">true</xsl:with-param>
+              </xsl:call-template>
+            </xsl:when>
             <xsl:otherwise>
               <xsl:call-template name="NativeBinary">
                 <xsl:with-param name="project_path"><xsl:value-of select="$source_project/@Path" /></xsl:with-param>
@@ -760,6 +802,71 @@
             </HintPath>
           </Reference>
           
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:message terminate="yes">
+            <xsl:text>The project </xsl:text>
+            <xsl:value-of select="$target_project_name" />
+            <xsl:text>does not have a known language (it was '</xsl:text>
+            <xsl:value-of select="$target_project/@Language" />
+            <xsl:text>').</xsl:text>
+          </xsl:message>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+  </xsl:template>
+  
+  <xsl:template name="ReferenceToProtobuildProjectDllConfig"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <xsl:param name="target_project_name" />
+    <xsl:param name="source_project_name" />
+    
+    <xsl:variable
+      name="target_project"
+      select="$root/Input/Projects/Project[@Name=$target_project_name]" />
+    <xsl:variable
+      name="source_project"
+      select="$root/Input/Projects/Project[@Name=$source_project_name]" />
+    
+    <xsl:if test="user:ProjectIsActive(
+      $target_project/@Platforms,
+      '',
+      '',
+      $root/Input/Generation/Platform)">
+
+      <xsl:choose>
+        <xsl:when test="$target_project/@Language = 'C#'">
+        </xsl:when>
+        <xsl:when test="$target_project/@Language = 'C++'">
+          <xsl:if test="$root/Input/Generation/Platform = 'Linux'">
+            <None>
+              <xsl:variable name="config_path">
+                <xsl:value-of select="$target_project/@Path" />
+                <xsl:text>\bin\</xsl:text>
+                <xsl:value-of select="$target_project/@Name" />
+                <xsl:text>Binding.dll.config</xsl:text>
+              </xsl:variable>
+              <xsl:attribute name="Include">
+                <xsl:value-of
+                  select="user:GetRelativePath(
+                    $root/Input/Generation/WorkingDirectory,
+                    concat(
+                      $source_project/@Path,
+                      '\',
+                      $source_project/@Name,
+                      '.',
+                      $root/Input/Generation/Platform,
+                      '.srcproj'),
+                    $config_path)" />
+              </xsl:attribute>
+              <Link>
+                <xsl:value-of select="$target_project/@Name" />
+                <xsl:text>Binding.dll.config</xsl:text>
+              </Link>
+              <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+              <NativeBinary>True</NativeBinary>
+            </None>
+          </xsl:if>
         </xsl:when>
         <xsl:otherwise>
           <xsl:message terminate="yes">
@@ -2611,6 +2718,103 @@
             <xsl:if test="
               count($root/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
               <xsl:call-template name="ReferenceToProtobuildProject">
+                <xsl:with-param name="target_project_name" select="$include-path" />
+                <xsl:with-param name="source_project_name" select="$project/@Name" />
+              </xsl:call-template>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+      </ItemGroup>
+
+      <ItemGroup>
+        <xsl:for-each select="$root/Input/Projects/Project[@PostBuildHook='True']">
+          <xsl:if test="(./@Name != $project/@Name) and not(./Properties/PostBuildHookExcludes/Project[@Name=$project/@Name])">
+            <xsl:call-template name="ReferenceToProtobuildProjectDllConfig">
+              <xsl:with-param name="target_project_name" select="./@Name" />
+              <xsl:with-param name="source_project_name" select="$project/@Name" />
+            </xsl:call-template>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-name" select="./@Include" />
+          <xsl:if test="
+            count($root/Input/Projects/Project[@Name=$include-name]) = 0">
+            <xsl:if test="
+              count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+              <xsl:variable name="extern"
+                select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+              <xsl:for-each select="$extern/Reference">
+                <xsl:variable name="refd-name" select="./@Include" />
+                <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
+                  <xsl:call-template name="ReferenceToProtobuildProjectDllConfig">
+                    <xsl:with-param name="target_project_name" select="$refd-name" />
+                    <xsl:with-param name="source_project_name" select="$project/@Name" />
+                  </xsl:call-template>
+                </xsl:if>
+              </xsl:for-each>
+
+
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=$root/Input/Generation/Platform]">
+                <xsl:for-each select="./Reference">
+                  <xsl:variable name="refd-name" select="./@Include" />
+                  <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
+                    <xsl:call-template name="ReferenceToProtobuildProjectDllConfig">
+                      <xsl:with-param name="target_project_name" select="$refd-name" />
+                      <xsl:with-param name="source_project_name" select="$project/@Name" />
+                    </xsl:call-template>
+                  </xsl:if>
+                </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    $root/Input/Services/ActiveServicesNames)">
+                    <xsl:for-each select="./Reference">
+                      <xsl:variable name="refd-name" select="./@Include" />
+                      <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
+                        <xsl:call-template name="ReferenceToProtobuildProjectDllConfig">
+                          <xsl:with-param name="target_project_name" select="$refd-name" />
+                          <xsl:with-param name="source_project_name" select="$project/@Name" />
+                        </xsl:call-template>
+
+                      </xsl:if>
+                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  $root/Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./Reference">
+                    <xsl:variable name="refd-name" select="./@Include" />
+                    <xsl:if test="count($root/Input/Projects/Project[@Name=$refd-name]) > 0">
+                      <xsl:call-template name="ReferenceToProtobuildProjectDllConfig">
+                        <xsl:with-param name="target_project_name" select="$refd-name" />
+                        <xsl:with-param name="source_project_name" select="$project/@Name" />
+                      </xsl:call-template>
+                    </xsl:if>
+                  </xsl:for-each>
+                </xsl:if>
+              </xsl:for-each>
+
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-path" select="./@Include" />
+          <xsl:if test="
+            count($root/Input/Projects/Project[@Name=$include-path]) > 0">
+            <xsl:if test="
+              count($root/Input/Projects/ExternalProject[@Name=$include-path]) = 0">
+              <xsl:call-template name="ReferenceToProtobuildProjectDllConfig">
                 <xsl:with-param name="target_project_name" select="$include-path" />
                 <xsl:with-param name="source_project_name" select="$project/@Name" />
               </xsl:call-template>
