@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Module>
+  <Name>Module</Name>
+  <DefaultAction>resync</DefaultAction>
+  <GenerateNuGetRepositories>true</GenerateNuGetRepositories>
+  <Packages>
+    <!-- This is a package that demonstrates the issue in the NuGet index. -->
+    <Package Repository="https://api.nuget.org/v3/index.json" Package="RestSharp" Version="105.1.0" />
+  </Packages>
+</Module>

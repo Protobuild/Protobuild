@@ -89,6 +89,7 @@
     <Compile Include="MacOSPlatformForceAPIXamMacWorksTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
+    <Compile Include="NuGet3PackageContentFallbackTest.cs" />
     <Compile Include="NuGetAndroidDoesNotCrashTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentTest.cs" />
     <Compile Include="NuGetPackagesDetectedFromParentWithRootPathDotSlashTest.cs" />
@@ -379,6 +380,8 @@
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />
     <None Include="TestData\NativeBinaryPresent\Console\Program.cs" />
+    <None Include="TestData\NuGet3PackageContentFallback\Build\Module.xml" />
+    <None Include="TestData\NuGet3PackageContentFallback\Build\Projects\.gitkeep" />
     <None Include="TestData\NuGetAndroidDoesNotCrash\Build\Module.xml" />
     <None Include="TestData\NuGetAndroidDoesNotCrash\Build\Projects\Console.definition" />
     <None Include="TestData\NuGetAndroidDoesNotCrash\Console\packages.Android.config" />

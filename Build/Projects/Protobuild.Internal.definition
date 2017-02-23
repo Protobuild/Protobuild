@@ -109,8 +109,8 @@
     <Compile Include="CommandLine\BuildPropertyCommand.cs" />
     <Compile Include="CommandLine\BuildTargetCommand.cs" />
     <Compile Include="CommandLine\CleanCommand.cs" />
-    <Compile Include="CommandLine\DebugServiceResolutionCommand.cs" />
     <Compile Include="CommandLine\DebugProjectGenerationCommand.cs" />
+    <Compile Include="CommandLine\DebugServiceResolutionCommand.cs" />
     <Compile Include="CommandLine\DefaultCommand.cs" />
     <Compile Include="CommandLine\DisableServiceCommand.cs" />
     <Compile Include="CommandLine\EnableServiceCommand.cs" />

@@ -293,7 +293,18 @@ namespace Protobuild.Internal
                     commitHashForSourceResolve = ExtractCommitHash(packagesByVersion[version]);
                 }
 
-                binaryUri = packagesByVersion[version].catalogEntry.packageContent;
+                // packageContent may not be under catalogEntry; our best guess is that NuGet
+                // moved it from the root to catalogEntry at some point in the past, but not
+                // all of the registrations are updated with it under catalogEntry, e.g. RestSharp
+                try
+                {
+                    binaryUri = packagesByVersion[version].catalogEntry.packageContent;
+                }
+                catch
+                {
+                    binaryUri = packagesByVersion[version].packageContent;
+                }
+
                 binaryFormat = PackageManager.ARCHIVE_FORMAT_NUGET_ZIP;
             }
             

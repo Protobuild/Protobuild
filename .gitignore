@@ -112,3 +112,4 @@ Protobuild.FunctionalTests/TestData/ExtractXSLTWorks/Build/NuGetPlatformMappings
 Protobuild.FunctionalTests/TestData/SafeResolveDefaultsWithoutFeatureSet/Package/Test.txt
 Protobuild.FunctionalTests/TestData/ModuleInfoGetsUpgraded/xunit/
 .vs/
+Protobuild.FunctionalTests/TestData/NuGet3PackageContentFallback/RestSharp/
