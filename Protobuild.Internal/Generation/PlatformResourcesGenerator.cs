@@ -18,19 +18,62 @@ namespace Protobuild
         public void GenerateInfoPListIfNeeded(List<LoadedDefinitionInfo> definitions, DefinitionInfo definition, XmlDocument project, string platform)
         {
             if (platform == "iOS" || platform == "MacOS")
-            {
+			{
+				var documentsByName = definitions.ToDictionarySafe(
+					k => k.Definition.Name,
+					v => v,
+					(dict, x) =>
+				{
+					var existing = dict[x.Definition.Name];
+					var tried = x;
+
+					RedirectableConsole.WriteLine("WARNING: There is more than one project with the name " +
+					                              x.Definition.Name + " (first project loaded from " + tried.Definition.AbsolutePath + ", " +
+					                              "skipped loading second project from " + existing.Definition.AbsolutePath + ")");
+				})
+				                           .ToDictionary(k => k.Key, v => v.Value.Project);
+				
                 var type = project.DocumentElement.GetAttribute("Type");
                 if (type == "Console" || type == "App")
                 {
 					var references = project.DocumentElement.SelectNodes("References/*").OfType<XmlElement>();
+					var referencesArray = references.Select(x => x.GetAttribute("Include")).ToArray();
 					foreach (var reference in references)
 					{
 						var lookup = definitions.FirstOrDefault(x => x.Definition.Name == reference.GetAttribute("Include"));
-						if (lookup != null && lookup.Definition.Type == "Include")
+						if (lookup != null)
 						{
-							if (project.DocumentElement.SelectSingleNode("Files/*[@Include='Info.plist']") == null)
+							if (lookup.Definition.Type == "Include")
 							{
-								return;
+								if (project.DocumentElement.SelectSingleNode("Files/*[@Include='Info.plist']") == null)
+								{
+									return;
+								}
+							}
+							else if (lookup.Definition.Type == "External")
+							{
+								var referencedDocument = documentsByName[lookup.Definition.Name];
+
+								if (referencedDocument.DocumentElement.LocalName == "ExternalProject")
+								{
+									// Find all top-level references in the external project.
+									var externalDocumentReferences = referencedDocument.SelectNodes("/ExternalProject/Reference").OfType<XmlElement>().Concat(
+										referencedDocument.SelectNodes("/ExternalProject/Platform[@Type='" + platform + "']/Reference").OfType<XmlElement>()).ToList();
+									foreach (var externalReference in externalDocumentReferences)
+									{
+										lookup = definitions.FirstOrDefault(x => x.Definition.Name == externalReference.GetAttribute("Include"));
+										if (lookup != null)
+										{
+											if (lookup.Definition.Type == "Include")
+											{
+												if (project.DocumentElement.SelectSingleNode("Files/*[@Include='Info.plist']") == null)
+												{
+													return;
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					}
