@@ -492,6 +492,7 @@
     <xsl:param name="project_language" />
     <xsl:param name="path" />
     <xsl:param name="path_as" />
+    <xsl:param name="anchor" />
     <xsl:param name="is_conditional" />
     <None>
       <xsl:attribute name="Include">
@@ -527,6 +528,9 @@
       <xsl:choose>
         <xsl:when test="$path_as">
           <Link><xsl:value-of select="$path_as" /></Link>
+        </xsl:when>
+        <xsl:when test="$anchor != ''">
+          <Link><xsl:value-of select="$anchor" />/<xsl:value-of select="user:GetFilename($path)" /></Link>
         </xsl:when>
         <xsl:otherwise>
           <Link><xsl:value-of select="user:GetFilename($path)" /></Link>
@@ -624,6 +628,7 @@
                   <xsl:value-of select="$cpp_assembly_name" />
                   <xsl:text>.dll</xsl:text>
                 </xsl:with-param>
+                <xsl:with-param name="anchor"></xsl:with-param>
                 <xsl:with-param name="is_conditional">true</xsl:with-param>
               </xsl:call-template>
               <xsl:call-template name="NativeBinary">
@@ -642,6 +647,7 @@
                   <xsl:value-of select="$cpp_assembly_name" />
                   <xsl:text>.dll</xsl:text>
                 </xsl:with-param>
+                <xsl:with-param name="anchor"></xsl:with-param>
                 <xsl:with-param name="is_conditional">true</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
@@ -664,6 +670,7 @@
                   <xsl:value-of select="$cpp_assembly_name" />
                   <xsl:text>32.so</xsl:text>
                 </xsl:with-param>
+                <xsl:with-param name="anchor"></xsl:with-param>
                 <xsl:with-param name="is_conditional">true</xsl:with-param>
               </xsl:call-template>
               <xsl:call-template name="NativeBinary">
@@ -684,6 +691,7 @@
                   <xsl:value-of select="$cpp_assembly_name" />
                   <xsl:text>64.so</xsl:text>
                 </xsl:with-param>
+                <xsl:with-param name="anchor"></xsl:with-param>
                 <xsl:with-param name="is_conditional">true</xsl:with-param>
               </xsl:call-template>
             </xsl:when>
@@ -708,6 +716,7 @@
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:with-param>
+                <xsl:with-param name="anchor"></xsl:with-param>
                 <xsl:with-param name="is_conditional"></xsl:with-param>
               </xsl:call-template>
             </xsl:otherwise>
@@ -1918,6 +1927,7 @@
                   <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                   <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                   <xsl:with-param name="path_as"></xsl:with-param>
+                  <xsl:with-param name="anchor"><xsl:value-of select="@Anchor" /></xsl:with-param>
                   <xsl:with-param name="is_conditional"></xsl:with-param>
                 </xsl:call-template>
               </xsl:for-each>
@@ -1930,6 +1940,7 @@
                     <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                     <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                     <xsl:with-param name="path_as"></xsl:with-param>
+                    <xsl:with-param name="anchor"><xsl:value-of select="@Anchor" /></xsl:with-param>
                     <xsl:with-param name="is_conditional"></xsl:with-param>
                   </xsl:call-template>
                 </xsl:for-each>
@@ -1946,6 +1957,7 @@
                         <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                         <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                         <xsl:with-param name="path_as"></xsl:with-param>
+                        <xsl:with-param name="anchor"><xsl:value-of select="@Anchor" /></xsl:with-param>
                         <xsl:with-param name="is_conditional"></xsl:with-param>
                       </xsl:call-template>
                     </xsl:for-each>
@@ -1965,6 +1977,7 @@
                       <xsl:with-param name="project_language"><xsl:value-of select="$project/@Language" /></xsl:with-param>
                       <xsl:with-param name="path"><xsl:value-of select="@Path" /></xsl:with-param>
                       <xsl:with-param name="path_as"></xsl:with-param>
+                      <xsl:with-param name="anchor"><xsl:value-of select="@Anchor" /></xsl:with-param>
                       <xsl:with-param name="is_conditional"></xsl:with-param>
                     </xsl:call-template>
                   </xsl:for-each>

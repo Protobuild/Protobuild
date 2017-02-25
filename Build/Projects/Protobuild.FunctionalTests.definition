@@ -88,6 +88,7 @@
     <Compile Include="MacOSPlatformForceAPIXamarinMacWorksTest.cs" />
     <Compile Include="MacOSPlatformForceAPIXamMacWorksTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
+    <Compile Include="NativeBinaryAnchorWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
     <Compile Include="NuGet3PackageContentFallbackTest.cs" />
     <Compile Include="NuGetAndroidDoesNotCrashTest.cs" />
@@ -376,6 +377,10 @@
     </None>
     <None Include="TestData\ModuleInfoGetsUpgraded\Build\ModuleUnconverted.xml" />
     <None Include="TestData\ModuleInfoGetsUpgraded\Build\Projects\.gitkeep" />
+    <None Include="TestData\NativeBinaryAnchorWorks\Build\Module.xml" />
+    <None Include="TestData\NativeBinaryAnchorWorks\Build\Projects\Console.definition" />
+    <None Include="TestData\NativeBinaryAnchorWorks\Build\Projects\Console.ThirdParty.definition" />
+    <None Include="TestData\NativeBinaryAnchorWorks\Console\Program.cs" />
     <None Include="TestData\NativeBinaryPresent\Build\Module.xml" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.definition" />
     <None Include="TestData\NativeBinaryPresent\Build\Projects\Console.ThirdParty.definition" />
