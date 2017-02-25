@@ -1261,43 +1261,41 @@ namespace Protobuild
                         // the libraries will have the content.  This is most often used to 
                         // ship native binaries (although NativeBinary in external projects now
                         // supersedes this).
-                        if (link.Contains('/') || link.Contains('\\'))
+                        var linkName = Path.GetFileName(link);
+                        var linkAnchor = Path.GetDirectoryName(link);
+                        
+                        if (fileInfo.Name != linkName)
                         {
                             RedirectableConsole.WriteLine(
-                                "WARNING: Copy-on-build file '" + link + "' in library project which " +
-                                "does not output to root of project detected.  This is not supported.");
+                                "WARNING: Copy-on-build file in library project does not have the same " +
+                                "name when copied to build directory.  This is not supported.");
                         }
                         else
                         {
-                            if (fileInfo.Name != link)
+                            var sourcePath = fileInfo.FullName;
+                            sourcePath = sourcePath.Substring(rootPath.Length).Replace('\\', '/').TrimStart('/');
+                            var destPath = Path.Combine("_AutomaticExternals", sourcePath);
+
+                            var sourcePathRegex = this.ConvertPathWithMSBuildVariablesFind(sourcePath);
+                            var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
+
+                            var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
+                            fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + platform + "/" + destPathRegex);
+                            if (includeMatch)
                             {
-                                RedirectableConsole.WriteLine(
-                                    "WARNING: Copy-on-build file in library project does not have the same " +
-                                    "name when copied to build directory.  This is not supported.");
+                                var nativeBinaryEntry = externalProjectDocument.CreateElement("NativeBinary");
+                                nativeBinaryEntry.SetAttribute("Path", destPath);
+                                if (!string.IsNullOrWhiteSpace(linkAnchor))
+                                {
+                                    nativeBinaryEntry.SetAttribute("Anchor", linkAnchor);
+                                }
+                                externalProject.AppendChild(nativeBinaryEntry);
                             }
                             else
                             {
-                                var sourcePath = fileInfo.FullName;
-                                sourcePath = sourcePath.Substring(rootPath.Length).Replace('\\', '/').TrimStart('/');
-                                var destPath = Path.Combine("_AutomaticExternals", sourcePath);
-
-                                var sourcePathRegex = this.ConvertPathWithMSBuildVariablesFind(sourcePath);
-                                var destPathRegex = this.ConvertPathWithMSBuildVariablesReplace(destPath.Replace('\\', '/'));
-
-                                var includeMatch = fileFilter.ApplyInclude(sourcePathRegex);
-                                fileFilter.ApplyRewrite(sourcePathRegex, "protobuild/" + platform + "/" + destPathRegex);
-                                if (includeMatch)
-                                {
-                                    var nativeBinaryEntry = externalProjectDocument.CreateElement("NativeBinary");
-                                    nativeBinaryEntry.SetAttribute("Path", destPath);
-                                    externalProject.AppendChild(nativeBinaryEntry);
-                                }
-                                else
-                                {
-                                    throw new InvalidOperationException(
-                                        "File not found at " + sourcePath + " when converting " +
-                                        "copy-on-build file in library project.");
-                                }
+                                throw new InvalidOperationException(
+                                    "File not found at " + sourcePath + " when converting " +
+                                    "copy-on-build file in library project.");
                             }
                         }
                     }
