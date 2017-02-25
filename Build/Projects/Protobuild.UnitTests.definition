@@ -34,8 +34,5 @@
     <EmbeddedResource Include="ModuleInfos\Package.xml">
       <LogicalName>Package.xml</LogicalName>
     </EmbeddedResource>
-    <None Include="Info.plist">
-      <Platforms>iOS,MacOS</Platforms>
-    </None>
   </Files>
 </Project>
