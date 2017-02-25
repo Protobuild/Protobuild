@@ -62,6 +62,7 @@ namespace Protobuild
             }
 
             string executablePath = null;
+            var executableIsNative = false;
             if (!File.Exists(Path.Combine(modulePath, "Build", "Module.xml")))
             {
                 // We can only run global tools.
@@ -131,24 +132,45 @@ namespace Protobuild
                         var subdirectories = directory.GetDirectories();
                         var preferredName = (execution.ExecuteProjectConfiguration ?? "Debug").ToLowerInvariant();
                         var preferredDirectory = subdirectories.FirstOrDefault(x => x.Name.ToLowerInvariant() == preferredName);
-                        if (preferredDirectory != null && File.Exists(Path.Combine(preferredDirectory.FullName, assemblyName + ".exe")))
+                        var targetName = assemblyName + ".exe";
+                        string targetAppName = null;
+                        if (m_HostPlatformDetector.DetectPlatform() == "MacOS")
                         {
-                            executablePath = Path.Combine(preferredDirectory.FullName, assemblyName + ".exe");
+                            targetAppName = assemblyName + ".app/Contents/MacOS/" + assemblyName;
+                        }
+                        if (preferredDirectory != null && (File.Exists(Path.Combine(preferredDirectory.FullName, targetName)) || (targetAppName != null && File.Exists(Path.Combine(preferredDirectory.FullName, targetAppName)))))
+                        {
+                            if (targetAppName != null && File.Exists(Path.Combine(preferredDirectory.FullName, targetAppName)))
+                            {
+                                executablePath = Path.Combine(preferredDirectory.FullName, targetAppName);
+                                executableIsNative = true;
+                            }
+                            else if (File.Exists(Path.Combine(preferredDirectory.FullName, targetName)))
+                            {
+                                executablePath = Path.Combine(preferredDirectory.FullName, targetName);
+                            }
                         }
                         else
                         {
-                            string tempPath = null;
                             foreach (var subdirectory in subdirectories)
                             {
-                                tempPath = Path.Combine(subdirectory.FullName, assemblyName + ".exe");
-                                if (File.Exists(tempPath))
+                                var tempPath = Path.Combine(subdirectory.FullName, assemblyName + ".exe");
+                                string tempAppName = null;
+                                if (m_HostPlatformDetector.DetectPlatform() == "MacOS")
                                 {
+                                    tempAppName = Path.Combine(subdirectory.FullName, assemblyName + ".app/Contents/MacOS/" + assemblyName);
+                                }
+
+                                if (tempAppName != null && File.Exists(tempAppName))
+                                {
+                                    executablePath = tempAppName;
                                     break;
                                 }
-                            }
-                            if (tempPath != null && File.Exists(tempPath))
-                            {
-                                executablePath = tempPath;
+                                else if (File.Exists(tempPath))
+                                {
+                                    executablePath = tempPath;
+                                    break;
+                                }
                             }
                         }
                     }
@@ -200,7 +222,7 @@ namespace Protobuild
             }
 
             ProcessStartInfo startInfo;
-            if (Path.DirectorySeparatorChar == '/')
+            if (Path.DirectorySeparatorChar == '/' && !executableIsNative)
             {
                 var mono = "mono";
                 if (m_HostPlatformDetector.DetectPlatform() == "MacOS" && File.Exists("/usr/local/bin/mono"))
