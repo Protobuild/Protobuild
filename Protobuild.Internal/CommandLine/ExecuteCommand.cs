@@ -142,10 +142,21 @@ namespace Protobuild
                         {
                             if (targetAppName != null && File.Exists(Path.Combine(preferredDirectory.FullName, targetAppName)))
                             {
-                                executablePath = Path.Combine(preferredDirectory.FullName, targetAppName);
-                                executableIsNative = true;
+                                // We must use the 'defaults' tool on macOS to determine if the target is a
+                                // graphical application.  We do this by checking for the presence of NSPrincipalClass
+                                // in the Info.plist file, which must be present for graphical applications to
+                                // work.  If it does not exist, we assume it is a command-line application and run
+                                // it normally like on any other platform.  We have to do this because the native
+                                // entry point is the only one that has access to the GUI, while the non-native
+                                // entry point is the only one that has the correct working directory set on
+                                // startup.
+                                if (TargetMacOSAppIsGraphical(Path.Combine(preferredDirectory.FullName, assemblyName + ".app")))
+                                {
+                                    executablePath = Path.Combine(preferredDirectory.FullName, targetAppName);
+                                    executableIsNative = true;
+                                }
                             }
-                            else if (File.Exists(Path.Combine(preferredDirectory.FullName, targetName)))
+                            if (executablePath == null && File.Exists(Path.Combine(preferredDirectory.FullName, targetName)))
                             {
                                 executablePath = Path.Combine(preferredDirectory.FullName, targetName);
                             }
@@ -163,10 +174,22 @@ namespace Protobuild
 
                                 if (tempAppName != null && File.Exists(tempAppName))
                                 {
-                                    executablePath = tempAppName;
-                                    break;
+                                    // We must use the 'defaults' tool on macOS to determine if the target is a
+                                    // graphical application.  We do this by checking for the presence of NSPrincipalClass
+                                    // in the Info.plist file, which must be present for graphical applications to
+                                    // work.  If it does not exist, we assume it is a command-line application and run
+                                    // it normally like on any other platform.  We have to do this because the native
+                                    // entry point is the only one that has access to the GUI, while the non-native
+                                    // entry point is the only one that has the correct working directory set on
+                                    // startup.
+                                    if (TargetMacOSAppIsGraphical(Path.Combine(subdirectory.FullName, assemblyName + ".app")))
+                                    {
+                                        executablePath = tempAppName;
+                                        executableIsNative = true;
+                                        break;
+                                    }
                                 }
-                                else if (File.Exists(tempPath))
+                                if (File.Exists(tempPath))
                                 {
                                     executablePath = tempPath;
                                     break;
@@ -248,6 +271,34 @@ namespace Protobuild
             var process = Process.Start(startInfo);
             process.WaitForExit();
             return process.ExitCode;
+        }
+
+        private bool TargetMacOSAppIsGraphical(string appFolderPath)
+        {
+            var plistPath = Path.GetFullPath(Path.Combine(appFolderPath, "Contents/Info"));
+
+            var startInfo = new ProcessStartInfo(
+                "/usr/bin/defaults",
+                "read \"" + plistPath + "\" NSPrincipalClass");
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            var process = Process.Start(startInfo);
+            if (process == null)
+            {
+                // Unable to run defaults; assume non-native.
+                return false;
+            }
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            process.WaitForExit();
+            if (process.ExitCode == 0)
+            {
+                // NSPrincipalClass is present; this is a graphical app.
+                return true;
+            }
+
+            return false;
         }
 
         public string GetDescription()
