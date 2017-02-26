@@ -1261,6 +1261,7 @@ namespace Protobuild
                         // the libraries will have the content.  This is most often used to 
                         // ship native binaries (although NativeBinary in external projects now
                         // supersedes this).
+                        link = link.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
                         var linkName = Path.GetFileName(link);
                         var linkAnchor = Path.GetDirectoryName(link);
                         
@@ -1268,7 +1269,7 @@ namespace Protobuild
                         {
                             RedirectableConsole.WriteLine(
                                 "WARNING: Copy-on-build file in library project does not have the same " +
-                                "name when copied to build directory.  This is not supported.");
+                                "name when copied to build directory ('" + fileInfo.Name + "' != '" + linkName + "'.  This is not supported.");
                         }
                         else
                         {
