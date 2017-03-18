@@ -142,8 +142,8 @@
     <Compile Include="PlatformSpecificXSLTGenerationWorksTest.cs" />
     <Compile Include="PostBuildHookHasHostPlatformTest.cs" />
     <Compile Include="PostBuildHookWorksTest.cs" />
-    <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ProjectSpecificOutputFolderTest.cs" />
     <Compile Include="ProtobuildTest.cs" />
     <Compile Include="QueryFeaturesTest.cs" />
     <Compile Include="Regression\RegressionHtmlSummaryConsumer.cs" />

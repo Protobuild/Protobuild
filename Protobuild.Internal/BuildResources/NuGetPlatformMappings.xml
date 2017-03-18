@@ -216,12 +216,12 @@
     </ReadFrameworkNames>
   </Platform>
   <Platform Name="PCL">
-    <WriteFrameworkName>netstandard1.1</WriteFrameworkName>
+    <WriteFrameworkName>netstandard1.0</WriteFrameworkName>
     <ReadFrameworkNames>
-      <Framework>=netstandard1.1</Framework>
-      <Framework>=portable-net45+win8+wpa81</Framework>
-      <Framework>?netstandard1.1</Framework>
-      <Framework>?portable-net45+win8+wpa81</Framework>
+      <Framework>=netstandard1.0</Framework>
+      <Framework>=portable-net45+netcore45+wpa81+wp8</Framework>
+      <Framework>?netstandard1.0</Framework>
+      <Framework>?portable-net45+netcore45+wpa81+wp8</Framework>
     </ReadFrameworkNames>
   </Platform>
   <Platform Name="Windows">
