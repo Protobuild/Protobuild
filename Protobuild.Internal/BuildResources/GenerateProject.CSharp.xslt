@@ -110,7 +110,7 @@
         <xsl:choose>
           <xsl:when test="user:IsTrue($root/Input/Properties/ForcePCL)">
             <xsl:value-of select="user:WarnForConcretePCLUsage($root/Input/Generation/Platform)" />
-            <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+            <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>
@@ -141,7 +141,7 @@
           <xsl:when test="$root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'PSMobile' or $root/Input/Generation/Platform = 'tvOS'">
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'PCL'">
-            <TargetFrameworkProfile>Profile111</TargetFrameworkProfile>
+            <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
             <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
             <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
           </xsl:when>

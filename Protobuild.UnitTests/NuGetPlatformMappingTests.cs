@@ -33,7 +33,7 @@ namespace Protobuild.UnitTests
             _assert.Equal("mono40", platformMapping.GetFrameworkNameForWrite(workingDirectory, "Linux"));
             _assert.Equal("xamarinmac", platformMapping.GetFrameworkNameForWrite(workingDirectory, "MacOS"));
             _assert.Equal("monoandroid", platformMapping.GetFrameworkNameForWrite(workingDirectory, "Ouya"));
-            _assert.Equal("netstandard1.1", platformMapping.GetFrameworkNameForWrite(workingDirectory, "PCL"));
+            _assert.Equal("netstandard1.0", platformMapping.GetFrameworkNameForWrite(workingDirectory, "PCL"));
             _assert.Equal("net45", platformMapping.GetFrameworkNameForWrite(workingDirectory, "Windows"));
             _assert.Equal("win8", platformMapping.GetFrameworkNameForWrite(workingDirectory, "Windows8"));
             _assert.Equal("wp8", platformMapping.GetFrameworkNameForWrite(workingDirectory, "WindowsPhone"));

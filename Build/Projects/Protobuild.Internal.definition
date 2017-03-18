@@ -356,6 +356,7 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="BuildResources\JSILTemplate.htm" />
+    <None Include="BuildResources\NuGetPlatformMappings.xml" />
     <None Include="BuildResources\SelectSolution.xslt" />
   </Files>
 </Project>
