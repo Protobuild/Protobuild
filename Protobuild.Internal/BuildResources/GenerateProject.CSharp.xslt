@@ -334,6 +334,9 @@
               <xsl:when test="$root/Input/Generation/Platform = 'Unity'">
                 <xsl:text>PLATFORM_UNITY</xsl:text>
               </xsl:when>
+              <xsl:when test="$root/Input/Generation/Platform = 'PCL'">
+                <xsl:text>PLATFORM_PCL</xsl:text>
+              </xsl:when>
             </xsl:choose>
             <xsl:text>;</xsl:text>
           </xsl:otherwise>
