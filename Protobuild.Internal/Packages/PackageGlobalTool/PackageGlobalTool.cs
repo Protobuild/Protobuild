@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Protobuild
 {
@@ -98,14 +99,34 @@ namespace Protobuild
         private void InstallToolIntoWindowsStartMenu(string toolName, string toolPath)
         {
             var startMenuPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
-                toolName.Replace('.', ' ') + ".url");
-            using (var writer = new StreamWriter(startMenuPath, false))
+                toolName.Replace('.', ' ') + ".lnk");
+
+            string urlStyleLink = Path.ChangeExtension(startMenuPath, ".url");
+            if (File.Exists(urlStyleLink))
             {
-                writer.WriteLine("[InternetShortcut]");
-                writer.WriteLine("URL=file:///" + toolPath);
-                writer.WriteLine("IconIndex=0");
-                writer.WriteLine("IconFile=" + toolPath.Replace('\\', '/'));
-                writer.Flush();
+                // Remove the old (and somewhat buggy) .url link that was produced by older versions of Protobuild
+                File.Delete(urlStyleLink);
+            }
+
+            Type t = Type.GetTypeFromCLSID(new Guid("72C24DD5-D70A-438B-8A42-98424B88AFB8")); //Windows Script Host Shell Object
+            dynamic shell = Activator.CreateInstance(t);
+            try
+            {
+                var lnk = shell.CreateShortcut(startMenuPath);
+                try
+                {
+                    lnk.TargetPath = toolPath;
+                    lnk.IconLocation = toolPath + ", 0";
+                    lnk.Save();
+                }
+                finally
+                {
+                    Marshal.FinalReleaseComObject(lnk);
+                }
+            }
+            finally
+            {
+                Marshal.FinalReleaseComObject(shell);
             }
 		}
 
