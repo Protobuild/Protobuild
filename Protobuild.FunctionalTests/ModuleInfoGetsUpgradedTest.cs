@@ -25,7 +25,7 @@
                 GetPath(Path.Combine("Build", "ModuleUnconverted.xml")),
                 GetPath(Path.Combine("Build", "Module.xml")));
 
-            this.Generate("Windows");
+            this.Generate("Windows", "--no-resolve");
 
             _assert.True(File.Exists(GetPath(Path.Combine("Build", "Module.xml"))));
             _assert.Equal(@"<?xml version=""1.0"" encoding=""utf-8""?>

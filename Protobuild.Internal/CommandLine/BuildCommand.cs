@@ -116,7 +116,7 @@ namespace Protobuild
                 {
                     if (File.Exists(w))
                     {
-                        var whichProcess = Process.Start(new ProcessStartInfo(w, "xbuild")
+                        var whichProcess = Process.Start(new ProcessStartInfo(w, "msbuild")
                         {
                             RedirectStandardOutput = true,
                             UseShellExecute = false
@@ -134,6 +134,31 @@ namespace Protobuild
                     }
                 }
 
+                if (builderPathNativeArch == null)
+                {
+                    foreach (var w in whichPaths)
+                    {
+                        if (File.Exists(w))
+                        {
+                            var whichProcess = Process.Start(new ProcessStartInfo(w, "xbuild")
+                            {
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false
+                            });
+                            if (whichProcess == null)
+                            {
+                                continue;
+                            }
+                            var result = whichProcess.StandardOutput.ReadToEnd().Trim();
+                            if (!string.IsNullOrWhiteSpace(result) && File.Exists(result))
+                            {
+                                builderPathNativeArch = result;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 if (builderPathNativeArch == null && _hostPlatformDetector.DetectPlatform() == "MacOS" && File.Exists("/usr/local/bin/xbuild"))
                 {
                     // After upgrading to OSX El Capitan, the /usr/local/bin folder is no longer in
@@ -144,7 +169,7 @@ namespace Protobuild
 
                 if (builderPathNativeArch == null)
                 {
-                    RedirectableConsole.ErrorWriteLine("ERROR: Unable to find xbuild on the current PATH.");
+                    RedirectableConsole.ErrorWriteLine("ERROR: Unable to find msbuild or xbuild on the current PATH.");
                     return 1;
                 }
 
