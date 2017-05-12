@@ -113,41 +113,6 @@ namespace Protobuild.UnitTests
             _assert.Equal("master", nugetMetadata.GitRef);
             _assert.Equal("Windows", nugetMetadata.Platform);
         }
-
-        public void ProtobuildSchemeResolvesToCorrectProtocol()
-        {
-            // TODO: Make these tests not depend on a network connection.
-
-            var packageLookup = GetPackageLookup();
-
-            var metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("http://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", true, false));
-
-            _assert.IsType<ProtobuildPackageMetadata>(metadata);
-
-            var protobuildMetadata = (ProtobuildPackageMetadata)metadata;
-
-            _assert.Equal("http://protobuild.org/hach-que/TestEmptyPackage", protobuildMetadata.ReferenceURI);
-            _assert.Equal("50a2a4e9b12739b20932d152e211239db88cbb49", protobuildMetadata.GitCommit);
-            _assert.Equal(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, protobuildMetadata.BinaryFormat);
-            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryUri);
-            _assert.Null(protobuildMetadata.SourceURI);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
-            _assert.Equal("Windows", protobuildMetadata.Platform);
-
-            metadata = packageLookup.Lookup(Environment.CurrentDirectory, new PackageRequestRef("https://protobuild.org/hach-que/TestEmptyPackage", "master", "Windows", true, false));
-
-            _assert.IsType<ProtobuildPackageMetadata>(metadata);
-
-            protobuildMetadata = (ProtobuildPackageMetadata)metadata;
-
-            _assert.Equal("https://protobuild.org/hach-que/TestEmptyPackage", protobuildMetadata.ReferenceURI);
-            _assert.Equal("50a2a4e9b12739b20932d152e211239db88cbb49", protobuildMetadata.GitCommit);
-            _assert.Equal(PackageManager.ARCHIVE_FORMAT_TAR_LZMA, protobuildMetadata.BinaryFormat);
-            _assert.Equal("https://storage.googleapis.com/protobuild-packages/6011817390243840.pkg", protobuildMetadata.BinaryUri);
-            _assert.Null(protobuildMetadata.SourceURI);
-            _assert.Equal(PackageManager.PACKAGE_TYPE_LIBRARY, protobuildMetadata.PackageType);
-            _assert.Equal("Windows", protobuildMetadata.Platform);
-        }
     }
 }
 
