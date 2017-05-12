@@ -115,14 +115,6 @@
     <Compile Include="PackageNuGetHTTPResolvesSecondTimeTest.cs" />
     <Compile Include="PackageNuGetHTTPSResolvesNewTest.cs" />
     <Compile Include="PackageNuGetHTTPSResolvesSecondTimeTest.cs" />
-    <Compile Include="PackageProtobuildHTTPResolvesNewForSourceAndBinaryTest.cs" />
-    <Compile Include="PackageProtobuildHTTPResolvesNewForSourceOnlyTest.cs" />
-    <Compile Include="PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinaryTest.cs" />
-    <Compile Include="PackageProtobuildHTTPResolvesSecondTimeForSourceOnlyTest.cs" />
-    <Compile Include="PackageProtobuildHTTPSResolvesNewForSourceAndBinaryTest.cs" />
-    <Compile Include="PackageProtobuildHTTPSResolvesNewForSourceOnlyTest.cs" />
-    <Compile Include="PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinaryTest.cs" />
-    <Compile Include="PackageProtobuildHTTPSResolvesSecondTimeForSourceOnlyTest.cs" />
     <Compile Include="PackageProtobuildLocalResolvesNewForBinaryOnlyTest.cs" />
     <Compile Include="PackageProtobuildLocalResolvesSecondTimeForBinaryOnlyTest.cs" />
     <Compile Include="PackageRedirectionToLocalPathTest.cs" />
@@ -515,22 +507,6 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="TestData\PackageNuGetHTTPSResolvesSecondTime\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesNewForSourceOnly\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceOnly\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceAndBinary\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceAndBinary\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesNewForSourceOnly\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceAndBinary\Build\Projects\empty.txt" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Module.xml" />
-    <None Include="TestData\PackageProtobuildHTTPSResolvesSecondTimeForSourceOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Module.xml" />
     <None Include="TestData\PackageProtobuildLocalResolvesNewForBinaryOnly\Build\Projects\empty.txt" />
     <None Include="TestData\PackageProtobuildLocalResolvesSecondTimeForBinaryOnly\Build\Module.xml">
