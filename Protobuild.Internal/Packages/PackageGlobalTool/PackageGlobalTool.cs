@@ -6,6 +6,9 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Microsoft.Win32;
+using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Protobuild
 {
@@ -49,7 +52,23 @@ namespace Protobuild
             return toolPath;
         }
 
-        public void ScanPackageForToolsAndInstall(string toolFolder)
+        public string ResolveGlobalToolIfPresent(string toolName)
+        {
+            var toolsPath = this.GetToolsPath();
+            var toolNameFile = Path.Combine(toolsPath, toolName + ".tool");
+
+            if (File.Exists(toolNameFile))
+            {
+                using (var reader = new StreamReader(toolNameFile))
+                {
+                    return reader.ReadToEnd().Trim();
+                }
+            }
+
+            return null;
+        }
+
+        public void ScanPackageForToolsAndInstall(string toolFolder, IKnownToolProvider knownToolProvider)
         {
             var projectsPath = Path.Combine(toolFolder, "Build", "Projects");
             var projectsInfo = new DirectoryInfo(projectsPath);
@@ -91,6 +110,48 @@ namespace Protobuild
                     else if (_hostPlatformDetector.DetectPlatform() == "Linux")
                     {
                         this.InstallToolIntoLinuxApplicationMenu(toolName, toolPath);
+                    }
+                }
+
+                var vsixes = document.XPathSelectElements("/ExternalProject/VSIX");
+
+                foreach (var vsix in vsixes)
+                {
+                    var vsixPath = Path.Combine(toolFolder, vsix.Attribute(XName.Get("Path")).Value);
+
+                    if (Path.DirectorySeparatorChar == '\\')
+                    {
+                        vsixPath = vsixPath.Replace("/", "\\");
+                    }
+                    else if (Path.DirectorySeparatorChar == '/')
+                    {
+                        vsixPath = vsixPath.Replace("\\", "/");
+                    }
+
+                    if (_hostPlatformDetector.DetectPlatform() == "Windows")
+                    {
+                        this.InstallVSIXIntoVisualStudio(vsixPath, knownToolProvider);
+                    }
+                }
+
+                var gacs = document.XPathSelectElements("/ExternalProject/GAC");
+
+                foreach (var gac in gacs)
+                {
+                    var assemblyPath = Path.Combine(toolFolder, gac.Attribute(XName.Get("Path")).Value);
+
+                    if (Path.DirectorySeparatorChar == '\\')
+                    {
+                        assemblyPath = assemblyPath.Replace("/", "\\");
+                    }
+                    else if (Path.DirectorySeparatorChar == '/')
+                    {
+                        assemblyPath = assemblyPath.Replace("\\", "/");
+                    }
+
+                    if (_hostPlatformDetector.DetectPlatform() == "Windows")
+                    {
+                        this.InstallAssemblyIntoGAC(assemblyPath);
                     }
                 }
             }
@@ -223,20 +284,161 @@ namespace Protobuild
             }
         }
 
-        public string ResolveGlobalToolIfPresent(string toolName)
+        private void InstallVSIXIntoVisualStudio(string vsixPath, IKnownToolProvider knownToolProvider)
         {
-            var toolsPath = this.GetToolsPath();
-            var toolNameFile = Path.Combine(toolsPath, toolName + ".tool");
-
-            if (File.Exists(toolNameFile))
+            // This installation technique is for pre-2017 editions of Visual Studio.
+            // We don't list 10.0 and 11.0 because they don't support all editions (you should
+            // use GAC based installation for these editions instead).
+            var vsVersions = new[]
             {
-                using (var reader = new StreamReader(toolNameFile))
+                "12.0",
+                "14.0"
+            };
+
+            var editionRegistryKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32)
+                ?.OpenSubKey("SOFTWARE")
+                ?.OpenSubKey("Microsoft")
+                ?.OpenSubKey("VisualStudio");
+            if (editionRegistryKey != null)
+            {
+                foreach (var version in vsVersions)
                 {
-                    return reader.ReadToEnd().Trim();
+                    var installPath = (string)editionRegistryKey?.OpenSubKey(version)?.GetValue("InstallDir");
+
+                    if (installPath != null)
+                    {
+                        var vsixInstallerPath = Path.Combine(installPath, "VSIXInstaller.exe");
+
+                        if (Directory.Exists(installPath))
+                        {
+                            if (File.Exists(vsixInstallerPath))
+                            {
+                                try
+                                {
+                                    RedirectableConsole.WriteLine("Installing VSIX into Visual Studio " + version + "...");
+                                    var processStartInfo = new ProcessStartInfo();
+                                    processStartInfo.FileName = vsixInstallerPath;
+                                    processStartInfo.Arguments = "/q \"" + vsixPath + "\"";
+                                    processStartInfo.UseShellExecute = false;
+                                    var process = Process.Start(processStartInfo);
+                                    process.WaitForExit();
+
+                                    if (process.ExitCode != 0)
+                                    {
+                                        RedirectableConsole.ErrorWriteLine("VSIX installation failed for Visual Studio " + version + " (non-zero exit code)");
+                                    }
+                                    else
+                                    {
+                                        RedirectableConsole.WriteLine("VSIX installation completed successfully for Visual Studio " + version);
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    RedirectableConsole.ErrorWriteLine("Failed to install VSIX for Visual Studio " + version + ": " + ex.Message);
+                                }
+                            }
+                            else
+                            {
+                                RedirectableConsole.WriteLine("Visual Studio " + version + " does not provide VSIXInstaller.exe (checked for existance of " + vsixInstallerPath + ").");
+                            }
+                        }
+                        else
+                        {
+                            RedirectableConsole.WriteLine("Visual Studio " + version + " is not installed (checked for existance of " + installPath + ").");
+                        }
+                    }
                 }
             }
 
-            return null;
+            // Now try and install in all editions of Visual Studio 2017 and later.  This
+            // may install the vswhere global tool.
+            var vswhere = knownToolProvider.GetToolExecutablePath("vswhere");
+            List<string> installations = null;
+
+            RedirectableConsole.WriteLine("Locating installations of Visual Studio 2017 and later...");
+            try
+            {
+                var processStartInfo = new ProcessStartInfo();
+                processStartInfo.FileName = vswhere;
+                processStartInfo.Arguments = "-products * -property installationPath";
+                processStartInfo.UseShellExecute = false;
+                processStartInfo.RedirectStandardOutput = true;
+                var process = Process.Start(processStartInfo);
+                var installationsString = process.StandardOutput.ReadToEnd();
+                installations = installationsString.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                process.WaitForExit();
+
+                if (process.ExitCode != 0)
+                {
+                    RedirectableConsole.ErrorWriteLine("Unable to locate Visual Studio 2017 and later installations (non-zero exit code from vswhere)");
+                }
+            }
+            catch (Exception ex)
+            {
+                RedirectableConsole.ErrorWriteLine("Unable to locate Visual Studio 2017 and later installations: " + ex.Message);
+            }
+
+            if (installations != null)
+            {
+                foreach (var installPath in installations)
+                {
+                    var vsixInstallerPath = Path.Combine(installPath,
+                        "Common7",
+                        "IDE",
+                        "VSIXInstaller.exe");
+
+                    if (Directory.Exists(installPath))
+                    {
+                        if (File.Exists(vsixInstallerPath))
+                        {
+                            try
+                            {
+                                RedirectableConsole.WriteLine("Installing VSIX into " + installPath + "...");
+                                var processStartInfo = new ProcessStartInfo();
+                                processStartInfo.FileName = vsixInstallerPath;
+                                processStartInfo.Arguments = "/q \"" + vsixPath + "\"";
+                                processStartInfo.UseShellExecute = false;
+                                var process = Process.Start(processStartInfo);
+                                process.WaitForExit();
+
+                                if (process.ExitCode != 0)
+                                {
+                                    RedirectableConsole.ErrorWriteLine("VSIX installation failed for " + installPath + " (non-zero exit code)");
+                                }
+                                else
+                                {
+                                    RedirectableConsole.WriteLine("VSIX installation completed successfully for " + installPath);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                RedirectableConsole.ErrorWriteLine("Failed to install VSIX for " + installPath + ": " + ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            RedirectableConsole.WriteLine("Visual Studio at " + installPath + " does not provide VSIXInstaller.exe (checked for existance of " + vsixInstallerPath + ").");
+                        }
+                    }
+                    else
+                    {
+                        RedirectableConsole.WriteLine("Visual Studio at " + installPath + " is not installed (checked for existance of " + installPath + ").");
+                    }
+                }
+            }
+        }
+
+        private void InstallAssemblyIntoGAC(string gacPath)
+        {
+            try
+            {
+                new System.EnterpriseServices.Internal.Publish().GacInstall(gacPath);
+                RedirectableConsole.WriteLine("GAC installation completed successfully for '" + gacPath + "'");
+            }
+            catch (Exception ex)
+            {
+                RedirectableConsole.ErrorWriteLine("Got an exception while performing GAC install for '" + gacPath + "': " + ex.Message);
+            }
         }
     }
 }

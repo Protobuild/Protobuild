@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ExternalProject Name="Protobuild.PlatformDependentReferences">
+
+  <Platform Type="Windows">
+    <Reference Include="System.EnterpriseServices" />
+  </Platform>
+  
+</ExternalProject>
