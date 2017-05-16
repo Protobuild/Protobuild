@@ -7,7 +7,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Protobuild.PlatformDependentReferences" />
   </References>
   <Files>
     <Compile Include="..\ThirdParty\FastJSON\Dynamic.cs">

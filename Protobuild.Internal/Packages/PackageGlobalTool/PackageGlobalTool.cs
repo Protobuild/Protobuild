@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Protobuild
 {
@@ -432,7 +433,12 @@ namespace Protobuild
         {
             try
             {
-                new System.EnterpriseServices.Internal.Publish().GacInstall(gacPath);
+                var assembly = Assembly.Load("System.EnterpriseServices");
+                var type = assembly.GetType("System.EnterpriseServices.Internal.Publish");
+                var constructor = type.GetConstructor(Type.EmptyTypes);
+                var publishObject = constructor.Invoke(null);
+                var gacInstall = type.GetMethod("GacInstall");
+                gacInstall.Invoke(publishObject, new object[] { gacPath });
                 RedirectableConsole.WriteLine("GAC installation completed successfully for '" + gacPath + "'");
             }
             catch (Exception ex)
