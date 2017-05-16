@@ -54,9 +54,12 @@ namespace Protobuild.Internal
                         var document = new XmlDocument();
                         document.Load(stream);
 
-                        packageName = document.SelectSingleNode("//id")?.InnerText;
-                        version = document.SelectSingleNode("//version")?.InnerText;
-                        var tags = document.SelectSingleNode("//tags")?.InnerText?.Split(new[] { ' ' }) ?? new string[0];
+                        var ns = new XmlNamespaceManager(document.NameTable);
+                        ns.AddNamespace("x", "http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd");
+
+                        packageName = document.SelectSingleNode("//x:id", ns)?.InnerText;
+                        version = document.SelectSingleNode("//x:version", ns)?.InnerText;
+                        var tags = document.SelectSingleNode("//x:tags", ns)?.InnerText?.Split(new[] { ' ' }) ?? new string[0];
 
                         packageType = PackageManager.PACKAGE_TYPE_LIBRARY;
                         commitHashForSourceResolve = null;

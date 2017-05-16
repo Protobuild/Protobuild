@@ -19,6 +19,8 @@ namespace Protobuild
         private readonly IPackageCacheConfiguration _packageCacheConfiguration;
         private readonly IProgressiveWebOperation _progressiveWebOperation;
         private readonly INuGetPlatformMapping _nugetPlatformMapping;
+        private readonly LightweightKernel _lightweightKernel;
+        private IKnownToolProvider _knownToolProvider;
 
         public BinaryPackageResolve(
             SourcePackageResolve sourcePackageResolve, 
@@ -26,7 +28,8 @@ namespace Protobuild
             IPackageGlobalTool packageGlobalTool,
             IPackageCacheConfiguration packageCacheConfiguration, 
             IProgressiveWebOperation progressiveWebOperation,
-            INuGetPlatformMapping nugetPlatformMapping)
+            INuGetPlatformMapping nugetPlatformMapping,
+            LightweightKernel lightweightKernel)
         {
             _sourcePackageResolve = sourcePackageResolve;
             _projectTemplateApplier = projectTemplateApplier;
@@ -34,6 +37,7 @@ namespace Protobuild
             _packageCacheConfiguration = packageCacheConfiguration;
             _progressiveWebOperation = progressiveWebOperation;
             _nugetPlatformMapping = nugetPlatformMapping;
+            _lightweightKernel = lightweightKernel;
         }
 
         public void Resolve(string workingDirectory, IPackageMetadata metadata, string folder, string templateName, bool forceUpgrade)
@@ -278,7 +282,13 @@ namespace Protobuild
             var file = File.Create(Path.Combine(toolFolder, ".pkg"));
             file.Close();
 
-            _packageGlobalTool.ScanPackageForToolsAndInstall(toolFolder);
+            if (_knownToolProvider == null)
+            {
+                // We must delay load this because of a circular dependency :(
+                _knownToolProvider = _lightweightKernel.Get<IKnownToolProvider>();
+            }
+
+            _packageGlobalTool.ScanPackageForToolsAndInstall(toolFolder, _knownToolProvider);
 
             RedirectableConsole.WriteLine("Binary resolution complete");
         }
