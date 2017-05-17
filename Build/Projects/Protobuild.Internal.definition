@@ -137,6 +137,7 @@
     <Compile Include="CommandLine\PackageTypeCommand.cs" />
     <Compile Include="CommandLine\PackPackageCommand.cs" />
     <Compile Include="CommandLine\ParallelCommand.cs" />
+    <Compile Include="CommandLine\PrecacheCommand.cs" />
     <Compile Include="CommandLine\PushPackageCommand.cs" />
     <Compile Include="CommandLine\QueryFeaturesCommand.cs" />
     <Compile Include="CommandLine\RedirectPackageCommand.cs" />

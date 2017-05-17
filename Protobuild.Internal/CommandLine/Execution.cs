@@ -94,6 +94,8 @@ namespace Protobuild
 
         public string WorkingDirectory { get; set; }
 
+        public bool? PrecacheSource { get; internal set; }
+
         public void SetCommandToExecuteIfNotDefault(ICommand command)
         {
             if (this.CommandToExecute is DefaultCommand)

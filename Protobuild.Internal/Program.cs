@@ -77,6 +77,7 @@ namespace Protobuild
                 { "remove", kernel.Get<RemovePackageCommand>() },
                 { "list", kernel.Get<ListPackagesCommand>() },
                 { "install", kernel.Get<InstallPackageCommand>() },
+                { "precache", kernel.Get<PrecacheCommand>() },
                 { "upgrade", kernel.Get<UpgradePackageCommand>() },
                 { "upgrade-all", kernel.Get<UpgradeAllPackagesCommand>() },
                 { "pack", kernel.Get<PackPackageCommand>() },

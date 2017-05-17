@@ -4,7 +4,7 @@ namespace Protobuild
 {
     public interface IPackageManager
     {
-        void ResolveAll(string workingDirectory, ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve);
+        void ResolveAll(string workingDirectory, ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve, bool? overrideSourcePreference);
 
         IPackageMetadata Lookup(string workingDirectory, ModuleInfo module, PackageRef reference, string platform, string templateName,
             bool? source,
