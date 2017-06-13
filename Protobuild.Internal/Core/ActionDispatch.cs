@@ -179,7 +179,7 @@ namespace Protobuild
             // Resolve submodules as needed.
             if (!disablePackageResolution)
             {
-                this.m_PackageManager.ResolveAll(workingDirectory, module, primaryPlatform, taskParallelisation, false, safeResolve);
+                this.m_PackageManager.ResolveAll(workingDirectory, module, primaryPlatform, taskParallelisation, false, safeResolve, null);
             }
 
             // Create the list of multiple platforms.
@@ -289,7 +289,7 @@ namespace Protobuild
                 // Resolve submodules as needed.
                 if (!disablePackageResolution)
                 {
-                    this.m_PackageManager.ResolveAll(workingDirectory, module, platformIter, taskParallelisation, false, safeResolve);
+                    this.m_PackageManager.ResolveAll(workingDirectory, module, platformIter, taskParallelisation, false, safeResolve, null);
                 }
 
                 switch (action.ToLower())
@@ -350,7 +350,7 @@ namespace Protobuild
                 // Resolve submodules as needed.
                 if (!disablePackageResolution)
                 {
-                    this.m_PackageManager.ResolveAll(workingDirectory, module, hostPlatform, taskParallelisation, false, safeResolve);
+                    this.m_PackageManager.ResolveAll(workingDirectory, module, hostPlatform, taskParallelisation, false, safeResolve, null);
                 }
 
                 switch (action.ToLower())

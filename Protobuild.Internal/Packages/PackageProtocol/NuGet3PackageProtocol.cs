@@ -142,8 +142,13 @@ namespace Protobuild.Internal
             string commitHashForSourceResolve = null;
             if (shouldQuerySourceRepository)
             {
-                sourceCodeUrl = ExtractSourceRepository(packagesByVersion[latestPackageVersion]);
-                packageType = ExtractPackageType(packagesByVersion[latestPackageVersion]);
+                var lookupVersion = latestPackageVersion;
+                if (!packagesByVersion.ContainsKey(lookupVersion) && packagesByVersion.ContainsKey(lookupVersion + "+git.unspecified"))
+                {
+                    lookupVersion += "+git.unspecified";
+                }
+                sourceCodeUrl = ExtractSourceRepository(packagesByVersion[lookupVersion]);
+                packageType = ExtractPackageType(packagesByVersion[lookupVersion]);
 
                 if (!string.IsNullOrWhiteSpace(sourceCodeUrl))
                 {

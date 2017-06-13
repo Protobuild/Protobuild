@@ -61,7 +61,7 @@ namespace Protobuild
             _hostPlatformDetector = hostPlatformDetector;
         }
 
-        public void ResolveAll(string workingDirectory, ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve)
+        public void ResolveAll(string workingDirectory, ModuleInfo module, string platform, bool? enableParallelisation, bool forceUpgrade, bool? safeResolve, bool? overrideSourcePreference)
         {
             if (!_featureManager.IsFeatureEnabled(Feature.PackageManagement))
             {
@@ -91,19 +91,19 @@ namespace Protobuild
                             var task = new Func<Task<Tuple<string, Action>>>(async () =>
                             {
                                 var metadata = await Task.Run(() =>
-                                    Lookup(workingDirectory, module, submodule1, platform, null, null, forceUpgrade, safeResolve));
+                                    Lookup(workingDirectory, module, submodule1, platform, null, overrideSourcePreference, forceUpgrade, safeResolve));
                                 if (metadata == null)
                                 {
                                     return new Tuple<string, Action>(submodule1.Uri, () => { });
                                 }
                                 return new Tuple<string, Action>(submodule1.Uri,
-                                    () => { this.Resolve(workingDirectory, metadata, submodule1, null, null, forceUpgrade, safeResolve); });
+                                    () => { this.Resolve(workingDirectory, metadata, submodule1, null, overrideSourcePreference, forceUpgrade, safeResolve); });
                             });
                             taskList.Add(task());
                         }
                         else
                         {
-                            var metadata = Lookup(workingDirectory, module, submodule1, platform, null, null, forceUpgrade, safeResolve);
+                            var metadata = Lookup(workingDirectory, module, submodule1, platform, null, overrideSourcePreference, forceUpgrade, safeResolve);
                             if (metadata == null)
                             {
                                 resultList.Add(new Tuple<string, Action>(submodule1.Uri, () => { }));
@@ -111,7 +111,7 @@ namespace Protobuild
                             else
                             {
                                 resultList.Add(new Tuple<string, Action>(submodule1.Uri,
-                                    () => { this.Resolve(workingDirectory, metadata, submodule1, null, null, forceUpgrade, safeResolve); }));
+                                    () => { this.Resolve(workingDirectory, metadata, submodule1, null, overrideSourcePreference, forceUpgrade, safeResolve); }));
                             }
                         }
                     }
