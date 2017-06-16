@@ -4,16 +4,21 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using Microsoft.Win32;
+using System.Collections.Generic;
 
 namespace Protobuild
 {
     internal class BuildCommand : ICommand
     {
         private readonly IHostPlatformDetector _hostPlatformDetector;
+        private readonly IKnownToolProvider _knownToolProvider;
 
-        public BuildCommand(IHostPlatformDetector hostPlatformDetector)
+        public BuildCommand(
+            IHostPlatformDetector hostPlatformDetector,
+            IKnownToolProvider knownToolProvider)
         {
             _hostPlatformDetector = hostPlatformDetector;
+            _knownToolProvider = knownToolProvider;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -39,72 +44,131 @@ namespace Protobuild
 
             if (hostPlatform == "Windows")
             {
-                foreach (var arch in new[] {RegistryView.Default, RegistryView.Registry32, RegistryView.Registry64})
+                // Newer installs of Visual Studio (like 2017) don't create registry entries for MSBuild, so we have to
+                // use a tool called vswhere in order to find MSBuild on these systems.  This call will implicitly install
+                // the vswhere package if it's not already installed.
+                var vswhere = _knownToolProvider.GetToolExecutablePath("vswhere");
+                List<string> installations = null;
+                if (vswhere != null && File.Exists(vswhere))
                 {
-                    // Find latest version of MSBuild.
-                    var registryKey =
-                        RegistryKey.OpenBaseKey(
-                            RegistryHive.LocalMachine,
-                            arch)
-                            .OpenSubKey("SOFTWARE")?
-                            .OpenSubKey("Microsoft")?
-                            .OpenSubKey("MSBuild")?
-                            .OpenSubKey("ToolsVersions");
-                    if (registryKey == null)
+                    try
                     {
-                        if (arch == RegistryView.Registry64)
+                        var processStartInfo = new ProcessStartInfo();
+                        processStartInfo.FileName = vswhere;
+                        processStartInfo.Arguments = "-products * -requires Microsoft.Component.MSBuild -property installationPath";
+                        processStartInfo.UseShellExecute = false;
+                        processStartInfo.RedirectStandardOutput = true;
+                        var process = Process.Start(processStartInfo);
+                        var installationsString = process.StandardOutput.ReadToEnd();
+                        installations = installationsString.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                        process.WaitForExit();
+
+                        if (process.ExitCode != 0)
                         {
-                            continue;
+                            RedirectableConsole.ErrorWriteLine("Unable to locate Visual Studio 2017 and later installations (non-zero exit code from vswhere)");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        RedirectableConsole.ErrorWriteLine("Unable to locate Visual Studio 2017 and later installations: " + ex.Message);
+                    }
+                }
+
+                if (installations != null)
+                {
+                    // Check if MSBuild is present in any of those installation paths.
+                    foreach (var basePath in installations)
+                    {
+                        var msbuildLocation = Path.Combine(basePath, "MSBuild\\15.0\\Bin\\MSBuild.exe");
+                        if (File.Exists(msbuildLocation))
+                        {
+                            builderPathNativeArch = msbuildLocation;
+                            extraArgsNativeArch = "/m /nodeReuse:false ";
+                            builderPath32 = msbuildLocation;
+                            extraArgs32 = "/m /nodeReuse:false ";
+
+                            var x64Location = Path.Combine(basePath, "MSBuild\\15.0\\Bin\\amd64\\MSBuild.exe");
+                            if (File.Exists(x64Location))
+                            {
+                                builderPath64 = x64Location;
+                                extraArgs64 = "/m /nodeReuse:false ";
+                            }
+
+                            break;
+                        }
+                    }
+                }
+                
+                if (builderPathNativeArch == null)
+                {
+                    // Try to find via the registry.
+                    foreach (var arch in new[] { RegistryView.Default, RegistryView.Registry32, RegistryView.Registry64 })
+                    {
+                        // Find latest version of MSBuild.
+                        var registryKey =
+                            RegistryKey.OpenBaseKey(
+                                RegistryHive.LocalMachine,
+                                arch)
+                                .OpenSubKey("SOFTWARE")?
+                                .OpenSubKey("Microsoft")?
+                                .OpenSubKey("MSBuild")?
+                                .OpenSubKey("ToolsVersions");
+                        if (registryKey == null)
+                        {
+                            if (arch == RegistryView.Registry64)
+                            {
+                                continue;
+                            }
+
+                            RedirectableConsole.ErrorWriteLine(
+                                "ERROR: No versions of MSBuild were available " +
+                                "according to the registry (or they were not readable).");
+                            return 1;
                         }
 
-                        RedirectableConsole.ErrorWriteLine(
-                            "ERROR: No versions of MSBuild were available " +
-                            "according to the registry (or they were not readable).");
-                        return 1;
-                    }
+                        var subkeys = registryKey.GetSubKeyNames();
+                        var orderedVersions =
+                            subkeys.OrderByDescending(x => int.Parse(x.Split('.').First(), CultureInfo.InvariantCulture));
+                        var builderPath = (from version in orderedVersions
+                                           let path = (string)registryKey.OpenSubKey(version)?.GetValue("MSBuildToolsPath")
+                                           where path != null && Directory.Exists(path)
+                                           let msbuild = Path.Combine(path, "MSBuild.exe")
+                                           where File.Exists(msbuild)
+                                           select msbuild).FirstOrDefault();
 
-                    var subkeys = registryKey.GetSubKeyNames();
-                    var orderedVersions =
-                        subkeys.OrderByDescending(x => int.Parse(x.Split('.').First(), CultureInfo.InvariantCulture));
-                    var builderPath = (from version in orderedVersions
-                        let path = (string) registryKey.OpenSubKey(version)?.GetValue("MSBuildToolsPath")
-                        where path != null && Directory.Exists(path)
-                        let msbuild = Path.Combine(path, "MSBuild.exe")
-                        where File.Exists(msbuild)
-                        select msbuild).FirstOrDefault();
-
-                    if (builderPath == null)
-                    {
-                        if (arch == RegistryView.Registry64)
+                        if (builderPath == null)
                         {
-                            continue;
+                            if (arch == RegistryView.Registry64)
+                            {
+                                continue;
+                            }
+
+                            RedirectableConsole.ErrorWriteLine(
+                                "ERROR: Unable to find installed MSBuild in any installed tools version.");
+                            return 1;
                         }
 
-                        RedirectableConsole.ErrorWriteLine(
-                            "ERROR: Unable to find installed MSBuild in any installed tools version.");
-                        return 1;
-                    }
+                        var extraArgs = string.Empty;
+                        if (!builderPath.Contains("v2.0.50727"))
+                        {
+                            extraArgs = "/m /nodeReuse:false ";
+                        }
 
-                    var extraArgs = string.Empty;
-                    if (!builderPath.Contains("v2.0.50727"))
-                    {
-                        extraArgs = "/m /nodeReuse:false ";
-                    }
-
-                    switch (arch)
-                    {
-                        case RegistryView.Default:
-                            builderPathNativeArch = builderPath;
-                            extraArgsNativeArch = extraArgs;
-                            break;
-                        case RegistryView.Registry32:
-                            builderPath32 = builderPath;
-                            extraArgs32 = extraArgs;
-                            break;
-                        case RegistryView.Registry64:
-                            builderPath64 = builderPath;
-                            extraArgs64 = extraArgs;
-                            break;
+                        switch (arch)
+                        {
+                            case RegistryView.Default:
+                                builderPathNativeArch = builderPath;
+                                extraArgsNativeArch = extraArgs;
+                                break;
+                            case RegistryView.Registry32:
+                                builderPath32 = builderPath;
+                                extraArgs32 = extraArgs;
+                                break;
+                            case RegistryView.Registry64:
+                                builderPath64 = builderPath;
+                                extraArgs64 = extraArgs;
+                                break;
+                        }
                     }
                 }
             }
