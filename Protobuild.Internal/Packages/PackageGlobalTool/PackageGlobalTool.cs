@@ -201,26 +201,60 @@ namespace Protobuild
 			}
 
 			var basename = Path.GetFileName(appToolPath);
-			var installPath = Path.Combine(
-				Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-				"Applications",
-				basename);
-			if (File.Exists(installPath))
-			{
-				File.Delete(installPath);
-			}
+            var applicationPath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "Applications");
+            Directory.CreateDirectory(applicationPath);
+            var installPath = Path.Combine(applicationPath, basename);
 
-			var install = System.Diagnostics.Process.Start("ln", "-s '" + appToolPath + "' '" + installPath + "'");
-			if (install != null)
-			{
-				install.WaitForExit();
+            try
+            {
+                var stat = System.Diagnostics.Process.Start(new ProcessStartInfo
+                {
+                    FileName = "/usr/bin/stat",
+                    Arguments = "-f %T '" + installPath + "'",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true
+                });
+                var type = stat.StandardOutput.ReadToEnd().Trim();
+                if (type == "@")
+                {
+                    // The file is a symbolic link.
+                    File.Delete(installPath);
+                }
+                else
+                {
+                    if (Directory.Exists(installPath))
+                    {
+                        // Recursive delete.
+                        PathUtils.AggressiveDirectoryDelete(installPath);
+                    }
+                    else
+                    {
+                        File.Delete(installPath);
+                    }
+                }
+            }
+            catch
+            {
+            }
+            
+            // Make sure we don't create a symbolic link inside a symbolically linked directory.
+            if (!File.Exists(installPath) && !Directory.Exists(installPath))
+            {
+                var install = System.Diagnostics.Process.Start("ln", "-s '" + appToolPath + "' '" + installPath + "'");
+                if (install != null)
+                {
+                    install.WaitForExit();
 
-				RedirectableConsole.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
-			}
-			else
-			{
-				RedirectableConsole.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (unable to create link)");
-			}
+                    RedirectableConsole.WriteLine("Global tool '" + toolName + "' is now available in the application menu");
+                }
+                else
+                {
+                    RedirectableConsole.WriteLine("Unable to install global tool '" + toolName + "' into the application menu (unable to create link)");
+                }
+            }
 		}
 
         private void InstallToolIntoLinuxApplicationMenu(string toolName, string toolPath)
