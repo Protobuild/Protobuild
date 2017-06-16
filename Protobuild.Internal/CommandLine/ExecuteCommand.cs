@@ -17,16 +17,20 @@ namespace Protobuild
 
         private readonly IPackageGlobalTool m_PackageGlobalTool;
 
+        private readonly IGraphicalAppDetection _graphicalAppDetection;
+
         public ExecuteCommand(
             IActionDispatch actionDispatch,
             IHostPlatformDetector hostPlatformDetector,
             IProjectOutputPathCalculator projectOutputPathCalculator,
-            IPackageGlobalTool packageGlobalTool)
+            IPackageGlobalTool packageGlobalTool,
+            IGraphicalAppDetection graphicalAppDetection)
         {
             this.m_ActionDispatch = actionDispatch;
             this.m_HostPlatformDetector = hostPlatformDetector;
             this.m_ProjectOutputPathCalculator = projectOutputPathCalculator;
             this.m_PackageGlobalTool = packageGlobalTool;
+            _graphicalAppDetection = graphicalAppDetection;
         }
 
         public void Encounter(Execution pendingExecution, string[] args)
@@ -76,6 +80,7 @@ namespace Protobuild
                 else
                 {
                     executablePath = globalToolPath;
+                    executableIsNative = m_HostPlatformDetector.DetectPlatform() == "MacOS" && globalToolPath.EndsWith(".app");
                 }
             }
             else
@@ -118,6 +123,7 @@ namespace Protobuild
                         else
                         {
                             executablePath = globalToolPath;
+                            executableIsNative = m_HostPlatformDetector.DetectPlatform() == "MacOS" && globalToolPath.EndsWith(".app");
                         }
                     }
                 }
@@ -150,7 +156,7 @@ namespace Protobuild
                                 // entry point is the only one that has access to the GUI, while the non-native
                                 // entry point is the only one that has the correct working directory set on
                                 // startup.
-                                if (TargetMacOSAppIsGraphical(Path.Combine(preferredDirectory.FullName, assemblyName + ".app")))
+                                if (_graphicalAppDetection.TargetMacOSAppIsGraphical(Path.Combine(preferredDirectory.FullName, assemblyName + ".app")))
                                 {
                                     executablePath = Path.Combine(preferredDirectory.FullName, targetAppName);
                                     executableIsNative = true;
@@ -182,7 +188,7 @@ namespace Protobuild
                                     // entry point is the only one that has access to the GUI, while the non-native
                                     // entry point is the only one that has the correct working directory set on
                                     // startup.
-                                    if (TargetMacOSAppIsGraphical(Path.Combine(subdirectory.FullName, assemblyName + ".app")))
+                                    if (_graphicalAppDetection.TargetMacOSAppIsGraphical(Path.Combine(subdirectory.FullName, assemblyName + ".app")))
                                     {
                                         executablePath = tempAppName;
                                         executableIsNative = true;
@@ -224,12 +230,13 @@ namespace Protobuild
                         else
                         {
                             executablePath = globalToolPath;
+                            executableIsNative = m_HostPlatformDetector.DetectPlatform() == "MacOS" && globalToolPath.EndsWith(".app");
                         }
                     }
                 }
             }
 
-            if (!File.Exists(executablePath))
+            if (!(File.Exists(executablePath) || (executablePath.EndsWith(".app") && Directory.Exists(executablePath))))
             {
                 RedirectableConsole.WriteLine(
                     "There is no executable for '" + execution.ExecuteProjectName + "'; has the project been built?");
@@ -262,6 +269,13 @@ namespace Protobuild
             }
             else
             {
+                if (m_HostPlatformDetector.DetectPlatform() == "MacOS" && executablePath.EndsWith(".app"))
+                {
+                    // We must use 'open -a' to launch this application.
+                    arguments = "-a '" + executablePath.Replace("'", "'\"'\"'") + "' " + arguments;
+                    executablePath = "/usr/bin/open";
+                }
+
                 startInfo = new ProcessStartInfo(
                     executablePath,
                     arguments);
@@ -271,34 +285,6 @@ namespace Protobuild
             var process = Process.Start(startInfo);
             process.WaitForExit();
             return process.ExitCode;
-        }
-
-        private bool TargetMacOSAppIsGraphical(string appFolderPath)
-        {
-            var plistPath = Path.GetFullPath(Path.Combine(appFolderPath, "Contents/Info"));
-
-            var startInfo = new ProcessStartInfo(
-                "/usr/bin/defaults",
-                "read \"" + plistPath + "\" NSPrincipalClass");
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.RedirectStandardError = true;
-            var process = Process.Start(startInfo);
-            if (process == null)
-            {
-                // Unable to run defaults; assume non-native.
-                return false;
-            }
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            process.WaitForExit();
-            if (process.ExitCode == 0)
-            {
-                // NSPrincipalClass is present; this is a graphical app.
-                return true;
-            }
-
-            return false;
         }
 
         public string GetDescription()

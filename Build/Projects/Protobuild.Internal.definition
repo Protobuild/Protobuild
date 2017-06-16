@@ -156,8 +156,10 @@
     <Compile Include="CommandLine\UpgradePackageCommand.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="Core\ActionDispatch.cs" />
+    <Compile Include="Core\GraphicalAppDetection.cs" />
     <Compile Include="Core\HostPlatformDetector.cs" />
     <Compile Include="Core\IActionDispatch.cs" />
+    <Compile Include="Core\IGraphicalAppDetection.cs" />
     <Compile Include="Core\IHostPlatformDetector.cs" />
     <Compile Include="Core\ILogger.cs" />
     <Compile Include="Core\IModuleExecution.cs" />

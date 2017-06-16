@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -245,8 +246,13 @@ namespace Protobuild
                             }
                             else
                             {
-                                zip.ExtractFile(entries.First(x => x.FilenameInZip == filenameInZip), folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(outputFilename));
+                                var fullOutputName = folder.TrimEnd(new[] { '/', '\\' }) + '/' + NormalizeName(outputFilename);
+                                zip.ExtractFile(entries.First(x => x.FilenameInZip == filenameInZip), fullOutputName);
                                 results.Add(outputFilename, null);
+
+                                // If on a UNIX (MacOS or Linux) system, chmod all files to have an executable bit, otherwise things like
+                                // scripts and macOS application bundles won't work.
+                                PathUtils.MakePathExecutable(fullOutputName, false);
                             }
                         }
                     }

@@ -12,6 +12,7 @@ namespace Protobuild
             kernel.BindAndKeepInstance<IModuleUtilities, ModuleUtilities>();
             kernel.BindAndKeepInstance<IModuleExecution, ModuleExecution>();
             kernel.BindAndKeepInstance<IFeatureManager, FeatureManager>();
+            kernel.BindAndKeepInstance<IGraphicalAppDetection, GraphicalAppDetection>();
         }
 
         public static void BindBuildResources(this LightweightKernel kernel)

@@ -22,16 +22,20 @@ namespace Protobuild
 
         private readonly INuGetPlatformMapping _nuGetPlatformMapping;
 
+        private readonly IGraphicalAppDetection _graphicalAppDetection;
+
         public NuGetAutomaticModulePackager(
             IProjectLoader projectLoader,
             IServiceInputGenerator serviceInputGenerator,
             IProjectOutputPathCalculator projectOutputPathCalculator,
-            INuGetPlatformMapping nuGetPlatformMapping)
+            INuGetPlatformMapping nuGetPlatformMapping,
+            IGraphicalAppDetection graphicalAppDetection)
         {
             this.m_ProjectLoader = projectLoader;
             this.m_ServiceInputGenerator = serviceInputGenerator;
             this.m_ProjectOutputPathCalculator = projectOutputPathCalculator;
             _nuGetPlatformMapping = nuGetPlatformMapping;
+            _graphicalAppDetection = graphicalAppDetection;
         }
 
         public void Autopackage(
@@ -1031,28 +1035,46 @@ namespace Protobuild
                         }
                         else
                         {
-                            // For executables, we ship everything in the output directory, because we
-                            // want the executables to be able to run from the package directory.
-                            fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
-                            
-                            // Exclude the .app folder for Mac executables, because these applications are huge (they contain
-                            // a Mono runtime), and they're almost certainly redundant for tools in packages, which are going
-                            // to be used in development environments where the Mono runtime is available.
-                            fileFilter.ApplyExclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                            var sourceApps = fileFilter.FindInSourceFiles("^" + pathPrefix + "(.*)\\.app/Contents/Info\\.plist$");
+                            var isMacGraphical = false;
+                            if (sourceApps.Count > 0 && _graphicalAppDetection.TargetMacOSAppIsGraphical(Path.Combine(sourceApps[0], "..", "..")))
+                            {
+                                // Ship graphical application for macOS.
+                                fileFilter.ApplyInclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                                var appEntry = externalProjectDocument.CreateElement("Tool");
+                                appEntry.SetAttribute("Name", assemblyName);
+                                appEntry.SetAttribute("Path", definition.Name + "\\AnyCPU\\" + assemblyName + ".app");
+                                externalProject.AppendChild(appEntry);
+                                isMacGraphical = true;
+                            }
+                            else
+                            {
+                                // For executables, we ship everything in the output directory, because we
+                                // want the executables to be able to run from the package directory.
+                                fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
+
+                                // Exclude the .app folder for Mac executables, because these applications are huge (they contain
+                                // a Mono runtime), and they're almost certainly redundant for tools in packages, which are going
+                                // to be used in development environments where the Mono runtime is available.
+                                fileFilter.ApplyExclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                            }
 
                             // Copy remaining files to the right locations.
                             fileFilter.ApplyCopy("^" + pathPrefix + "(.+)$", "tools/$2");
                             fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/AnyCPU/$2");
 
-                            // Mark the executable files in the directory as tools that can be executed.
-                            foreach (var assemblyFile in assemblyFilesToCopy)
+                            if (!isMacGraphical)
                             {
-                                if (assemblyFile.EndsWith(".exe"))
+                                // Mark the executable files in the directory as tools that can be executed.
+                                foreach (var assemblyFile in assemblyFilesToCopy)
                                 {
-                                    var binaryEntry = externalProjectDocument.CreateElement("Tool");
-                                    binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
-                                    binaryEntry.SetAttribute("Path", definition.Name + "\\AnyCPU\\" + assemblyFile);
-                                    externalProject.AppendChild(binaryEntry);
+                                    if (assemblyFile.EndsWith(".exe"))
+                                    {
+                                        var binaryEntry = externalProjectDocument.CreateElement("Tool");
+                                        binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
+                                        binaryEntry.SetAttribute("Path", definition.Name + "\\AnyCPU\\" + assemblyFile);
+                                        externalProject.AppendChild(binaryEntry);
+                                    }
                                 }
                             }
                         }
@@ -1071,8 +1093,8 @@ namespace Protobuild
                             case "ios":
                                 {
                                     pathArchMatch = "iPhoneSimulator";
-									pathArchReplace = "iPhoneSimulator";
-									pathArchRuntime = "iPhoneSimulator";
+                                    pathArchReplace = "iPhoneSimulator";
+                                    pathArchRuntime = "iPhoneSimulator";
                                     break;
                                 }
                             case "windowsphone":
@@ -1124,14 +1146,29 @@ namespace Protobuild
                         }
                         else
                         {
-                            // For executables, we ship everything in the output directory, because we
-                            // want the executables to be able to run from the package directory.
-                            fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
+                            var sourceApps = fileFilter.FindInSourceFiles("^" + pathPrefix + "(.*)\\.app/Contents/Info\\.plist$");
+                            var isMacGraphical = false;
+                            if (sourceApps.Count > 0 && _graphicalAppDetection.TargetMacOSAppIsGraphical(Path.Combine(sourceApps[0],"..", "..")))
+                            {
+                                // Ship graphical application for macOS.
+                                fileFilter.ApplyInclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                                var appEntry = externalProjectDocument.CreateElement("Tool");
+                                appEntry.SetAttribute("Name", assemblyName);
+                                appEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyName + ".app");
+                                externalProject.AppendChild(appEntry);
+                                isMacGraphical = true;
+                            }
+                            else
+                            {
+                                // For executables, we ship everything in the output directory, because we
+                                // want the executables to be able to run from the package directory.
+                                fileFilter.ApplyInclude("^" + pathPrefix + "(.+)$");
 
-                            // Exclude the .app folder for Mac executables, because these applications are huge (they contain
-                            // a Mono runtime), and they're almost certainly redundant for tools in packages, which are going
-                            // to be used in development environments where the Mono runtime is available.
-                            fileFilter.ApplyExclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                                // Exclude the .app folder for Mac executables, because these applications are huge (they contain
+                                // a Mono runtime), and they're almost certainly redundant for tools in packages, which are going
+                                // to be used in development environments where the Mono runtime is available.
+                                fileFilter.ApplyExclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                            }
 
                             // Copy remaining files to the right locations.
                             fileFilter.ApplyCopy("^" + pathPrefix + "(.+)$", "tools/$2");
@@ -1144,16 +1181,19 @@ namespace Protobuild
                             {
                                 fileFilter.ApplyRewrite("^" + pathPrefix + "(.+)$", "protobuild/" + platform + "/" + definition.Name + "/" + pathArchReplace + "/$2");
                             }
-                            
-                            // Mark the executable files in the directory as tools that can be executed.
-                            foreach (var assemblyFile in assemblyFilesToCopy)
+
+                            if (!isMacGraphical)
                             {
-                                if (assemblyFile.EndsWith(".exe"))
+                                // Mark the executable files in the directory as tools that can be executed.
+                                foreach (var assemblyFile in assemblyFilesToCopy)
                                 {
-                                    var binaryEntry = externalProjectDocument.CreateElement("Tool");
-                                    binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
-                                    binaryEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyFile);
-                                    externalProject.AppendChild(binaryEntry);
+                                    if (assemblyFile.EndsWith(".exe"))
+                                    {
+                                        var binaryEntry = externalProjectDocument.CreateElement("Tool");
+                                        binaryEntry.SetAttribute("Name", assemblyFile.Substring(0, assemblyFile.Length - 4));
+                                        binaryEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyFile);
+                                        externalProject.AppendChild(binaryEntry);
+                                    }
                                 }
                             }
                         }
