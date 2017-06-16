@@ -1041,6 +1041,10 @@ namespace Protobuild
 							{
                                 // Ship graphical application for macOS.
                                 fileFilter.ApplyInclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                                var appEntry = externalProjectDocument.CreateElement("Tool");
+                                appEntry.SetAttribute("Name", assemblyName);
+                                appEntry.SetAttribute("Path", definition.Name + "\\AnyCPU\\" + assemblyName + ".app");
+                                externalProject.AppendChild(appEntry);
                                 isMacGraphical = true;
                             }
                             else
@@ -1148,6 +1152,10 @@ namespace Protobuild
                             {
                                 // Ship graphical application for macOS.
                                 fileFilter.ApplyInclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
+                                var appEntry = externalProjectDocument.CreateElement("Tool");
+                                appEntry.SetAttribute("Name", assemblyName);
+                                appEntry.SetAttribute("Path", definition.Name + "\\" + pathArchRuntime + "\\" + assemblyName + ".app");
+                                externalProject.AppendChild(appEntry);
                                 isMacGraphical = true;
                             }
                             else

@@ -1,11 +1,64 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 
 namespace Protobuild
 {
     internal static class PathUtils
     {
+        private static string _chmodPath = null;
+
+        public static void MakePathExecutable(string path, bool wait)
+        {
+            try
+            {
+                if (Path.DirectorySeparatorChar != '/')
+                {
+                    // Not a UNIX system, don't worry about marking files as executable.
+                    return;
+                }
+
+                if (_chmodPath == null)
+                {
+                    var chmods = new[]
+                    {
+                        "/bin/chmod",
+                        "/usr/bin/chmod",
+                        "/usr/local/bin/chmod"
+                    };
+                    _chmodPath = chmods.FirstOrDefault(File.Exists);
+
+                    if (_chmodPath == null)
+                    {
+                        // No chmod command.
+                        return;
+                    }
+                }
+
+                var fileInfo = new FileInfo(path);
+
+                var chmodStartInfo = new ProcessStartInfo
+                {
+                    FileName = _chmodPath,
+                    Arguments = "a+x '" + fileInfo.Name.Replace("'", "'\"'\"'") + "'",
+                    WorkingDirectory = fileInfo.DirectoryName,
+                    CreateNoWindow = true,
+                    UseShellExecute = false
+                };
+                var process = Process.Start(chmodStartInfo);
+                if (wait)
+                {
+                    process.WaitForExit();
+                }
+            }
+            catch
+            {
+                // Marking files as executable is always a best-effort process.
+            }
+        }
+
         public static string GetRelativePath(string absoluteFrom, string absoluteTo)
         {
             absoluteFrom = absoluteFrom.Replace('\\', '/');

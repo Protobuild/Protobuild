@@ -53,26 +53,7 @@ namespace Protobuild
             }
 
             var protobuildPath = Path.Combine(module.Path, "Protobuild.exe");
-
-            try
-            {
-                var chmodStartInfo = new ProcessStartInfo
-                {
-                    FileName = "chmod",
-                    Arguments = "a+x Protobuild.exe",
-                    WorkingDirectory = module.Path,
-                    CreateNoWindow = capture,
-                    UseShellExecute = false
-                };
-                Process.Start(chmodStartInfo);
-            }
-            catch (ExecEnvironment.SelfInvokeExitException)
-            {
-                throw;
-            }
-            catch
-            {
-            }
+            PathUtils.MakePathExecutable(protobuildPath, true);
 
             var stdout = string.Empty;
             var stderr = string.Empty;

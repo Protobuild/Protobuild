@@ -122,6 +122,7 @@ namespace Protobuild
                         else
                         {
                             executablePath = globalToolPath;
+                            executableIsNative = m_HostPlatformDetector.DetectPlatform() == "MacOS" && globalToolPath.EndsWith(".app");
                         }
                     }
                 }
