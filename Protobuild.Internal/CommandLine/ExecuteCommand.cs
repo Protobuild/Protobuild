@@ -80,6 +80,7 @@ namespace Protobuild
                 else
                 {
                     executablePath = globalToolPath;
+                    executableIsNative = m_HostPlatformDetector.DetectPlatform() == "MacOS" && globalToolPath.EndsWith(".app");
                 }
             }
             else
@@ -229,12 +230,13 @@ namespace Protobuild
                         else
                         {
                             executablePath = globalToolPath;
+                            executableIsNative = m_HostPlatformDetector.DetectPlatform() == "MacOS" && globalToolPath.EndsWith(".app");
                         }
                     }
                 }
             }
 
-            if (!File.Exists(executablePath))
+            if (!(File.Exists(executablePath) || (executablePath.EndsWith(".app") && Directory.Exists(executablePath))))
             {
                 RedirectableConsole.WriteLine(
                     "There is no executable for '" + execution.ExecuteProjectName + "'; has the project been built?");
