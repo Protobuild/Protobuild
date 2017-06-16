@@ -69,24 +69,22 @@
   
   <xsl:template name="AllowLangVersion"
     xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <xsl:if test="not($root/Input/Generation/Platform = 'MacOS') or ((user:HasXamarinMacUnifiedAPI() and not(user:IsTrue($root/Input/Properties/UseLegacyMacAPI)) and not($root/Input/Properties/ForceMacAPI = 'XamMac') and not($root/Input/Properties/ForceMacAPI = 'MonoMac')) or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac')">
-      <xsl:choose>
-        <xsl:when test="$root/Input/Properties/LangVersion">
-          <LangVersion>
-            <xsl:value-of select="$root/Input/Properties/LangVersion"/>
-          </LangVersion>
-        </xsl:when>
-        <xsl:when test="$root/Input/Generation/Platform = 'Unity'">
-          <LangVersion>4</LangVersion>
-        </xsl:when>
-        <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'Windows8'">
-          <LangVersion>5</LangVersion>
-        </xsl:when>
-        <xsl:otherwise>
-          <LangVersion>6</LangVersion>
-        </xsl:otherwise>
-      </xsl:choose>
-    </xsl:if>
+    <xsl:choose>
+      <xsl:when test="$root/Input/Properties/LangVersion">
+        <LangVersion>
+          <xsl:value-of select="$root/Input/Properties/LangVersion"/>
+        </LangVersion>
+      </xsl:when>
+      <xsl:when test="$root/Input/Generation/Platform = 'Unity'">
+        <LangVersion>4</LangVersion>
+      </xsl:when>
+      <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone81' or $root/Input/Generation/Platform = 'Windows8'">
+        <LangVersion>5</LangVersion>
+      </xsl:when>
+      <xsl:otherwise>
+        <LangVersion>6</LangVersion>
+      </xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
   <xsl:template name="profile_and_version"
@@ -251,23 +249,11 @@
               <xsl:if test="$root/Input/Generation/Platform = ./@Name">
                 <xsl:value-of select="." />
                 <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
-                  <!--
-                    We always add PLATFORM_MACOS_LEGACY here because there is 
-                    no way to access this variant from the project definition
-                    configuration (intentionally because we don't see it as
-                    a different platform, but rather just different API versions).
-                  -->
                   <xsl:choose>
                     <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or $root/Input/Properties/ForceMacAPI = 'XamMac' or $root/Input/Properties/ForceMacAPI = 'MonoMac'">
-                      <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="user:HasXamarinMac() or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac'">
-                      <xsl:if test="user:DoesNotHaveXamarinMacUnifiedAPI() and not($root/Input/Properties/ForceMacAPI = 'Xamarin.Mac')">
-                        <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
-                      </xsl:if>
+                      <xsl:message terminate="yes">XamMac and MonoMac APIs are no longer supported - You should upgrade your project to Xamarin.Mac, as it is now freely available under an open source license</xsl:message>
                     </xsl:when>
                     <xsl:otherwise>
-                      <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
                     </xsl:otherwise>
                   </xsl:choose>
                 </xsl:if>
@@ -289,15 +275,9 @@
                 <xsl:text>PLATFORM_MACOS</xsl:text>
                 <xsl:choose>
                   <xsl:when test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or $root/Input/Properties/ForceMacAPI = 'XamMac' or $root/Input/Properties/ForceMacAPI = 'MonoMac'">
-                    <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
-                  </xsl:when>
-                  <xsl:when test="user:HasXamarinMac() or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac'">
-                    <xsl:if test="user:DoesNotHaveXamarinMacUnifiedAPI() and not($root/Input/Properties/ForceMacAPI = 'Xamarin.Mac')">
-                      <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
-                    </xsl:if>
+                    <xsl:message terminate="yes">XamMac and MonoMac APIs are no longer supported - You should upgrade your project to Xamarin.Mac, as it is now freely available under an open source license</xsl:message>
                   </xsl:when>
                   <xsl:otherwise>
-                    <xsl:text>;PLATFORM_MACOS_LEGACY</xsl:text>
                   </xsl:otherwise>
                 </xsl:choose>
               </xsl:when>
@@ -465,18 +445,11 @@
         <CreatePackage>False</CreatePackage>
         <EnablePackageSigning>False</EnablePackageSigning>
         <xsl:choose>
-          <xsl:when test="user:HasXamarinMac()">
-            <xsl:choose>
-              <xsl:when test="$root/Input/Properties/IncludeMonoRuntimeOnMac">
-                <IncludeMonoRuntime><xsl:value-of select="$root/Input/Properties/IncludeMonoRuntimeOnMac" /></IncludeMonoRuntime>
-                <xsl:if test="$root/Input/Properties/MonoMacRuntimeLinkMode">
-                  <LinkMode><xsl:value-of select="$root/Input/Properties/MonoMacRuntimeLinkMode" /></LinkMode>
-                </xsl:if>
-              </xsl:when>
-              <xsl:otherwise>
-                <IncludeMonoRuntime>False</IncludeMonoRuntime>
-              </xsl:otherwise>
-            </xsl:choose>
+          <xsl:when test="$root/Input/Properties/IncludeMonoRuntimeOnMac">
+            <IncludeMonoRuntime><xsl:value-of select="$root/Input/Properties/IncludeMonoRuntimeOnMac" /></IncludeMonoRuntime>
+            <xsl:if test="$root/Input/Properties/MonoMacRuntimeLinkMode">
+              <LinkMode><xsl:value-of select="$root/Input/Properties/MonoMacRuntimeLinkMode" /></LinkMode>
+            </xsl:if>
           </xsl:when>
           <xsl:otherwise>
             <IncludeMonoRuntime>False</IncludeMonoRuntime>
@@ -1141,21 +1114,7 @@
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
             <ProjectTypeGuids>
-              <xsl:choose>
-                <xsl:when test="(user:HasXamarinMac() or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac' or $root/Input/Properties/ForceMacAPI = 'XamMac') and not($root/Input/Properties/ForceMacAPI = 'MonoMac')">
-                  <xsl:choose>
-                    <xsl:when test="(user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or $root/Input/Properties/ForceMacAPI = 'XamMac' or user:DoesNotHaveXamarinMacUnifiedAPI()) and not($root/Input/Properties/ForceMacAPI = 'Xamarin.Mac')">
-                      <xsl:text>{42C0BBD9-55CE-4FC1-8D90-A7348ABAFB23};</xsl:text>
-                    </xsl:when>
-                    <xsl:otherwise>
-                      <xsl:text>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};</xsl:text>
-                    </xsl:otherwise>
-                  </xsl:choose>
-                </xsl:when>
-                <xsl:otherwise>
-                  <xsl:text>{948B3504-5B70-4649-8FE4-BDE1FB46EC69};</xsl:text>
-                </xsl:otherwise>
-              </xsl:choose>
+              <xsl:text>{A3F8F2AB-B479-4A4A-A458-A89E7DC349F1};</xsl:text>
               <xsl:text>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</xsl:text>
             </ProjectTypeGuids>
           </xsl:when>
@@ -1292,11 +1251,6 @@
                 <ConsolePause>false</ConsolePause>
               </xsl:when>
             </xsl:choose>
-          </xsl:when>
-          <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
-            <xsl:if test="user:HasXamarinMac() = false()">
-              <SuppressXamMacUpsell>True</SuppressXamMacUpsell>
-            </xsl:if>
           </xsl:when>
           <xsl:when test="$root/Input/Generation/Platform = 'WindowsPhone'">
             <xsl:choose>
@@ -1564,21 +1518,7 @@
 
       <ItemGroup>
         <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
-          <xsl:choose>
-            <xsl:when test="(user:HasXamarinMac() or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac' or $root/Input/Properties/ForceMacAPI = 'XamMac') and not($root/Input/Properties/ForceMacAPI = 'MonoMac')">
-              <xsl:choose>
-                <xsl:when test="(user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or $root/Input/Properties/ForceMacAPI = 'XamMac' or user:DoesNotHaveXamarinMacUnifiedAPI()) and not($root/Input/Properties/ForceMacAPI = 'Xamarin.Mac')">
-                  <Reference Include="XamMac" />
-                </xsl:when>
-                <xsl:otherwise>
-                  <Reference Include="Xamarin.Mac" />
-                </xsl:otherwise>
-              </xsl:choose>
-            </xsl:when>
-            <xsl:otherwise>
-              <Reference Include="MonoMac" />
-            </xsl:otherwise>
-          </xsl:choose>
+          <Reference Include="Xamarin.Mac" />
         </xsl:if>
 
         <xsl:if test="$root/Input/Generation/Platform = 'iOS'">
@@ -2299,7 +2239,7 @@
         <xsl:when test="$root/Input/Generation/Platform = 'iOS' and not(user:IsTrue($root/Input/Properties/UseLegacyiOSAPI))">
           <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
         </xsl:when>
-        <xsl:when test="$root/Input/Generation/Platform = 'MacOS' and (not(user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI() or $root/Input/Properties/ForceMacAPI = 'XamMac' or $root/Input/Properties/ForceMacAPI = 'MonoMac') or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac')">
+        <xsl:when test="$root/Input/Generation/Platform = 'MacOS'">
           <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
         </xsl:when>
         <xsl:when test="/Input/Generation/Platform = 'tvOS'">
@@ -2476,26 +2416,6 @@
           </xsl:choose>
         </_PostBuildHookHostPlatform>
       </PropertyGroup>
-
-      <!-- 
-        Post-build hooks don't work on this platform due to Xamarin limitations.  There's no
-        way to work around the issue without significant effort (because these post-build hooks
-        need to run after compilation but before AOT).
-      -->
-      <xsl:if test="msxsl:node-set($post_build_hooks)/PostBuildHook">
-        <xsl:if test="$root/Input/Generation/Platform = 'MacOS'">
-          <xsl:choose>
-            <xsl:when test="(user:HasXamarinMac() or $root/Input/Properties/ForceMacAPI = 'Xamarin.Mac' or $root/Input/Properties/ForceMacAPI = 'XamMac') and not($root/Input/Properties/ForceMacAPI = 'MonoMac')">
-              <xsl:if test="user:IsTrue($root/Input/Properties/UseLegacyMacAPI) or user:DoesNotHaveXamarinMacUnifiedAPI() or $root/Input/Properties/ForceMacAPI = 'XamMac'">
-                <xsl:value-of select="user:WarnForPostBuildHooksOnOldMacPlatform()" />
-              </xsl:if>
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:value-of select="user:WarnForPostBuildHooksOnOldMacPlatform()" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </xsl:if>
-      </xsl:if>
 
       <!-- We need this custom task for Xamarin.iOS on Windows -->
       <xsl:if test="($root/Input/Generation/Platform = 'iOS' or $root/Input/Generation/Platform = 'tvOS') and $root/Input/Generation/HostPlatform = 'Windows'">

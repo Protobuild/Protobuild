@@ -85,9 +85,9 @@
     <Compile Include="iOSOnWindowsHasAlternatePostBuildHookSystemTest.cs" />
     <Compile Include="iOSSolutionHasCorrectProjectMappingsTest.cs" />
     <Compile Include="iOSUnifiedAPIGenerationWorksTest.cs" />
-    <Compile Include="MacOSPlatformForceAPIMonoMacWorksTest.cs" />
+    <Compile Include="MacOSPlatformForceAPIMonoMacRejectsUsageTest.cs" />
     <Compile Include="MacOSPlatformForceAPIXamarinMacWorksTest.cs" />
-    <Compile Include="MacOSPlatformForceAPIXamMacWorksTest.cs" />
+    <Compile Include="MacOSPlatformForceAPIXamMacRejectsUsageTest.cs" />
     <Compile Include="ModuleInfoGetsUpgradedTest.cs" />
     <Compile Include="NativeBinaryAnchorWorksTest.cs" />
     <Compile Include="NativeBinaryPresentTest.cs" />
@@ -359,15 +359,15 @@
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\App\Program.cs" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Module.xml" />
     <None Include="TestData\iOSUnifiedAPIGenerationWorks\Build\Projects\App.definition" />
-    <None Include="TestData\MacOSPlatformForceAPIMonoMacWorks\App\Program.cs" />
-    <None Include="TestData\MacOSPlatformForceAPIMonoMacWorks\Build\Module.xml" />
-    <None Include="TestData\MacOSPlatformForceAPIMonoMacWorks\Build\Projects\App.definition" />
+    <None Include="TestData\MacOSPlatformForceAPIMonoMacRejectsUsage\App\Program.cs" />
+    <None Include="TestData\MacOSPlatformForceAPIMonoMacRejectsUsage\Build\Module.xml" />
+    <None Include="TestData\MacOSPlatformForceAPIMonoMacRejectsUsage\Build\Projects\App.definition" />
     <None Include="TestData\MacOSPlatformForceAPIXamarinMacWorks\App\Program.cs" />
     <None Include="TestData\MacOSPlatformForceAPIXamarinMacWorks\Build\Module.xml" />
     <None Include="TestData\MacOSPlatformForceAPIXamarinMacWorks\Build\Projects\App.definition" />
-    <None Include="TestData\MacOSPlatformForceAPIXamMacWorks\App\Program.cs" />
-    <None Include="TestData\MacOSPlatformForceAPIXamMacWorks\Build\Module.xml" />
-    <None Include="TestData\MacOSPlatformForceAPIXamMacWorks\Build\Projects\App.definition">
+    <None Include="TestData\MacOSPlatformForceAPIXamMacRejectsUsage\App\Program.cs" />
+    <None Include="TestData\MacOSPlatformForceAPIXamMacRejectsUsage\Build\Module.xml" />
+    <None Include="TestData\MacOSPlatformForceAPIXamMacRejectsUsage\Build\Projects\App.definition">
       <SubType>Designer</SubType>
     </None>
     <None Include="TestData\ModuleInfoGetsUpgraded\Build\ModuleUnconverted.xml" />
