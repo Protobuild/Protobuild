@@ -269,6 +269,13 @@ namespace Protobuild
             }
             else
             {
+                if (m_HostPlatformDetector.DetectPlatform() == "MacOS" && executablePath.EndsWith(".app"))
+                {
+                    // We must use 'open -a' to launch this application.
+                    arguments = "-a '" + executablePath.Replace("'", "'\"'\"'") + "' " + arguments;
+                    executablePath = "/usr/bin/open";
+                }
+
                 startInfo = new ProcessStartInfo(
                     executablePath,
                     arguments);
