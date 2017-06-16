@@ -278,34 +278,6 @@ public class GenerationFunctions
     }
 
     /// <summary>
-    /// Returns whether or not the user has any version of Xamarin Mac (Unified or Classic) installed.
-    /// </summary>
-    /// <returns>Whether or not the user has any version of Xamarin Mac (Unified or Classic) installed.</returns>
-    public bool HasXamarinMac()
-    {
-        return System.IO.File.Exists("/Library/Frameworks/Xamarin.Mac.framework/Versions/Current/lib/mono/XamMac.dll") ||
-			System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
-    }
-
-    /// <summary>
-    /// Returns whether or not the user has the Unified Xamarin Mac API installed.
-    /// </summary>
-    /// <returns>Whether or not the user has the Unified Xamarin Mac API installed.</returns>
-    public bool HasXamarinMacUnifiedAPI()
-	{
-		return System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
-	}
-
-    /// <summary>
-    /// Returns whether or not the user does not have the Unified Xamarin Mac API installed.
-    /// </summary>
-    /// <returns>Whether or not the user does not have the Unified Xamarin Mac API installed.</returns>
-    public bool DoesNotHaveXamarinMacUnifiedAPI()
-	{
-		return !System.IO.File.Exists("/Library/Frameworks/Mono.framework/External/xbuild/Xamarin/Mac/Xamarin.Mac.CSharp.targets");
-    }
-
-    /// <summary>
     /// Returns whether or not the user has the more modern Xamarin Android targets available.
     /// </summary>
     public bool HasXamarinAndroidTargets()
@@ -776,23 +748,6 @@ public class GenerationFunctions
           "installed on your development machine.  Protobuild STRONGLY " +
           "ADVISES THAT YOU DO NOT USE PORTABLE CLASS LIBRARIES, as their " +
           "support is not guarenteed on less-tested platforms.");
-        return string.Empty;
-    }
-
-    /// <summary>
-    /// Emits a warning to the console when post-build hooks won't work for
-    /// this target platform.
-    /// </summary>
-    /// <returns>An empty string.</returns>
-    public string WarnForPostBuildHooksOnOldMacPlatform()
-    {
-        Console.WriteLine(
-            "WARNING: Post-build hooks will NOT work in this project under " +
-            "mdtool or Xamarin Studio as it is targeting an old version of " +
-            "Mac APIs.  For post-build hooks to run, you must build the " +
-            "project with xbuild (but you can't use Mac APIs if you do), " +
-            "or have a licensed version of Xamarin Studio and use the Unified " +
-            "Mac APIs (the default if Xamarin Studio is installed).");
         return string.Empty;
     }
 
