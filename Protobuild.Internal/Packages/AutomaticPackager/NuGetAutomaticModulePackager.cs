@@ -1034,11 +1034,11 @@ namespace Protobuild
                             }
                         }
                         else
-						{
-							var sourceApps = fileFilter.FindInSourceFiles("^" + pathPrefix + "(.*)\\.app/Contents/Info\\.plist$");
-							var isMacGraphical = false;
-							if (sourceApps.Count > 0 && _graphicalAppDetection.TargetMacOSAppIsGraphical(Path.Combine(sourceApps[0], "..", "..")))
-							{
+                        {
+                            var sourceApps = fileFilter.FindInSourceFiles("^" + pathPrefix + "(.*)\\.app/Contents/Info\\.plist$");
+                            var isMacGraphical = false;
+                            if (sourceApps.Count > 0 && _graphicalAppDetection.TargetMacOSAppIsGraphical(Path.Combine(sourceApps[0], "..", "..")))
+                            {
                                 // Ship graphical application for macOS.
                                 fileFilter.ApplyInclude("^" + pathPrefix + "(.+)\\.app/(.+)$");
                                 var appEntry = externalProjectDocument.CreateElement("Tool");
@@ -1093,8 +1093,8 @@ namespace Protobuild
                             case "ios":
                                 {
                                     pathArchMatch = "iPhoneSimulator";
-									pathArchReplace = "iPhoneSimulator";
-									pathArchRuntime = "iPhoneSimulator";
+                                    pathArchReplace = "iPhoneSimulator";
+                                    pathArchRuntime = "iPhoneSimulator";
                                     break;
                                 }
                             case "windowsphone":
