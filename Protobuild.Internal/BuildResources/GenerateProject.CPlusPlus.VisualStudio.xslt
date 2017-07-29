@@ -82,38 +82,25 @@
         <xsl:for-each select="$project/Files/None">
           <xsl:if test="user:PathEndsWith(@Include, &quot;.i&quot;)">
             <xsl:variable name="extra_protobuild_swig_code">
-              <xsl:text>
-    protected class ProtobuildSWIGCopyHelper
-    {
-        static ProtobuildSWIGCopyHelper()
-        {
-            var basePath = new System.IO.FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName;
-            if (System.Environment.Is64BitProcess)
-            {
-              </xsl:text>
-              <xsl:text>System.IO.File.Copy(System.IO.Path.Combine(basePath, "</xsl:text>
-              <xsl:value-of select="$assembly_name"/>
-              <xsl:text>64.dll"), System.IO.Path.Combine(basePath, "</xsl:text>
-              <xsl:value-of select="$assembly_name"/>
-              <xsl:text>.dll"), true);</xsl:text>
-              <xsl:text>
-            }
-            else
-            {
-              </xsl:text>
-              <xsl:text>System.IO.File.Copy(System.IO.Path.Combine(basePath, "</xsl:text>
-              <xsl:value-of select="$assembly_name"/>
-              <xsl:text>32.dll"), System.IO.Path.Combine(basePath, "</xsl:text>
-              <xsl:value-of select="$assembly_name"/>
-              <xsl:text>.dll"), true);</xsl:text>
-              <xsl:text>
-            }
-        }
-    }
-
-    protected static ProtobuildSWIGCopyHelper protobuildSWIGCopyHelper = new ProtobuildSWIGCopyHelper();
-
-              </xsl:text>
+              <xsl:text>protected class ProtobuildSWIGCopyHelper {
+static ProtobuildSWIGCopyHelper() {
+try {
+var basePath = new System.IO.FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location).DirectoryName;
+if (System.Environment.Is64BitProcess) {
+</xsl:text>
+<xsl:text>System.IO.File.Copy(System.IO.Path.Combine(basePath, "</xsl:text>
+<xsl:value-of select="$assembly_name"/>
+<xsl:text>64.dll"), System.IO.Path.Combine(basePath, "</xsl:text>
+<xsl:value-of select="$assembly_name"/>
+<xsl:text>.dll"), true);</xsl:text>
+<xsl:text>} else {</xsl:text>
+<xsl:text>System.IO.File.Copy(System.IO.Path.Combine(basePath, "</xsl:text>
+<xsl:value-of select="$assembly_name"/>
+<xsl:text>32.dll"), System.IO.Path.Combine(basePath, "</xsl:text>
+<xsl:value-of select="$assembly_name"/>
+<xsl:text>.dll"), true);</xsl:text>
+<xsl:text>} } catch (System.Exception ex) { System.Diagnostics.Trace.WriteLine(ex); } } }
+protected static ProtobuildSWIGCopyHelper protobuildSWIGCopyHelper = new ProtobuildSWIGCopyHelper();</xsl:text>
             </xsl:variable>
             <xsl:variable name="powershell_command">
               <xsl:text>$filename = "</xsl:text>
