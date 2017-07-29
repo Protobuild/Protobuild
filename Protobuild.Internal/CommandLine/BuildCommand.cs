@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.Win32;
 using System.Collections.Generic;
 
@@ -41,6 +42,9 @@ namespace Protobuild
             var extraArgs64 = string.Empty;
             var extraArgs32 = string.Empty;
             var extraArgsGeneral = string.Empty;
+
+            var targetPlatforms = (execution.Platform ?? hostPlatform).Split(',');
+            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             if (hostPlatform == "Windows")
             {
@@ -176,24 +180,40 @@ namespace Protobuild
             {
                 // Find path to xbuild.
                 var whichPaths = new[] {"/bin/which", "/usr/bin/which"};
-                foreach (var w in whichPaths)
+
+                // We can only use the new MSBuild tool if no projects are C++ projects on Mac or Linux.
+                var isAnyNativeProject = false;
+                foreach (var def in module.GetDefinitionsRecursively())
                 {
-                    if (File.Exists(w))
+                    var document = XDocument.Load(def.DefinitionPath);
+                    var languageAttr = document?.Root?.Attributes()?.FirstOrDefault(x => x.Name.LocalName == "Language");
+                    if (languageAttr != null && languageAttr.Value == "C++")
                     {
-                        var whichProcess = Process.Start(new ProcessStartInfo(w, "msbuild")
+                        isAnyNativeProject = true;
+                        break;
+                    }
+                }
+                if (!isAnyNativeProject)
+                {
+                    foreach (var w in whichPaths)
+                    {
+                        if (File.Exists(w))
                         {
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false
-                        });
-                        if (whichProcess == null)
-                        {
-                            continue;
-                        }
-                        var result = whichProcess.StandardOutput.ReadToEnd().Trim();
-                        if (!string.IsNullOrWhiteSpace(result) && File.Exists(result))
-                        {
-                            builderPathNativeArch = result;
-                            break;
+                            var whichProcess = Process.Start(new ProcessStartInfo(w, "msbuild")
+                            {
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false
+                            });
+                            if (whichProcess == null)
+                            {
+                                continue;
+                            }
+                            var result = whichProcess.StandardOutput.ReadToEnd().Trim();
+                            if (!string.IsNullOrWhiteSpace(result) && File.Exists(result))
+                            {
+                                builderPathNativeArch = result;
+                                break;
+                            }
                         }
                     }
                 }
@@ -263,9 +283,6 @@ namespace Protobuild
                     RedirectableConsole.WriteLine("INFO: Using " + builderPathNativeArch + " (32-bit: " + builderPath32 + ") to perform this build.");
                     break;
             }
-
-            var targetPlatforms = (execution.Platform ?? hostPlatform).Split(',');
-            var module = ModuleInfo.Load(Path.Combine(execution.WorkingDirectory, "Build", "Module.xml"));
 
             foreach (var platform in targetPlatforms)
             {

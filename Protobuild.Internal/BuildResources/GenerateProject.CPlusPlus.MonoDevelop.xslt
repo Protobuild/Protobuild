@@ -349,7 +349,10 @@
       <xsl:attribute name="Command">
         <xsl:text>gcc $(OutputType) </xsl:text>
         <xsl:value-of select="$arch_flags" />
-        <xsl:text> -Wl,-z,defs </xsl:text>
+        <xsl:if test="$root/Input/Generation/Platform != 'MacOS'">
+          <xsl:text> -Wl,-z,defs</xsl:text>
+        </xsl:if>
+        <xsl:text> </xsl:text>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
@@ -404,7 +407,7 @@
         </xsl:for-each>
         <xsl:text>-o $(OutputPath)/$(OutputFile)</xsl:text>
         <xsl:value-of select="$outfile_suffix" />
-        <xsl:text>$(OutputExtension) @(Compile, ' ')</xsl:text>
+        <xsl:text>$(OutputExtension) @(Compile, ' ') </xsl:text>
         <xsl:for-each select="$project/References/Reference">
           <xsl:variable name="include-name" select="./@Include" />
           <xsl:if test="
