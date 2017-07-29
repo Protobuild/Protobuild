@@ -345,43 +345,107 @@
     <xsl:param name="arch_flags" />
     <xsl:param name="outfile_suffix" />
 
-        <Exec>
-          <xsl:attribute name="Command">
-            <xsl:text>gcc $(OutputType) </xsl:text>
-            <xsl:value-of select="$arch_flags" />
-            <xsl:text> </xsl:text>
-            <xsl:for-each select="$project/References/Reference">
-              <xsl:variable name="include-name" select="./@Include" />
-              <xsl:if test="
-                count($root/Input/Projects/Project[@Name=$include-name]) = 0">
-                <xsl:if test="
-                  count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+    <Exec>
+      <xsl:attribute name="Command">
+        <xsl:text>gcc $(OutputType) </xsl:text>
+        <xsl:value-of select="$arch_flags" />
+        <xsl:if test="$root/Input/Generation/Platform != 'MacOS'">
+          <xsl:text> -Wl,-z,defs</xsl:text>
+        </xsl:if>
+        <xsl:text> </xsl:text>
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-name" select="./@Include" />
+          <xsl:if test="
+            count($root/Input/Projects/Project[@Name=$include-name]) = 0">
+            <xsl:if test="
+              count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
 
-                  <xsl:variable name="extern"
-                    select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
+              <xsl:variable name="extern"
+                select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
 
-                  <xsl:for-each select="$extern/NativeInclude">
-                    <xsl:text>-I</xsl:text>
-                    <xsl:value-of select="@Path" />
-                    <xsl:text> </xsl:text>
-                  </xsl:for-each>
-                  <xsl:for-each select="$extern/NativeLibraryPath">
-                    <xsl:text>-L</xsl:text>
-                    <xsl:value-of select="@Path" />
-                    <xsl:text> </xsl:text>
-                  </xsl:for-each>
-                  <xsl:for-each select="$extern/NativeLibraryLink">
-                    <xsl:text>-l</xsl:text>
-                    <xsl:value-of select="@Name" />
-                    <xsl:text> </xsl:text>
-                  </xsl:for-each>
-                  <xsl:for-each select="$extern/Platform
-                                          [@Type=$root/Input/Generation/Platform]">
+              <xsl:for-each select="$extern/NativeInclude">
+                <xsl:text>-I</xsl:text>
+                <xsl:value-of select="@Path" />
+                <xsl:text> </xsl:text>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=$root/Input/Generation/Platform]">
+                <xsl:for-each select="./NativeInclude">
+                  <xsl:text>-I</xsl:text>
+                  <xsl:value-of select="@Path" />
+                  <xsl:text> </xsl:text>
+                </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    $root/Input/Services/ActiveServicesNames)">
                     <xsl:for-each select="./NativeInclude">
                       <xsl:text>-I</xsl:text>
                       <xsl:value-of select="@Path" />
                       <xsl:text> </xsl:text>
                     </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  $root/Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./NativeInclude">
+                    <xsl:text>-I</xsl:text>
+                    <xsl:value-of select="@Path" />
+                    <xsl:text> </xsl:text>
+                  </xsl:for-each>
+                </xsl:if>
+              </xsl:for-each>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+        <xsl:text>-o $(OutputPath)/$(OutputFile)</xsl:text>
+        <xsl:value-of select="$outfile_suffix" />
+        <xsl:text>$(OutputExtension) @(Compile, ' ') </xsl:text>
+        <xsl:for-each select="$project/References/Reference">
+          <xsl:variable name="include-name" select="./@Include" />
+          <xsl:if test="
+            count($root/Input/Projects/Project[@Name=$include-name]) = 0">
+            <xsl:if test="
+              count($root/Input/Projects/ExternalProject[@Name=$include-name]) > 0">
+
+              <xsl:variable name="extern"
+                select="$root/Input/Projects/ExternalProject[@Name=$include-name]" />
+
+              <xsl:for-each select="$extern/NativeLibraryPath">
+                <xsl:text>-L</xsl:text>
+                <xsl:value-of select="@Path" />
+                <xsl:text> </xsl:text>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/NativeLibraryLink">
+                <xsl:text>-l</xsl:text>
+                <xsl:value-of select="@Name" />
+                <xsl:text> </xsl:text>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Platform
+                                      [@Type=$root/Input/Generation/Platform]">
+                <xsl:for-each select="./NativeLibraryPath">
+                  <xsl:text>-L</xsl:text>
+                  <xsl:value-of select="@Path" />
+                  <xsl:text> </xsl:text>
+                </xsl:for-each>
+                <xsl:for-each select="./NativeLibraryLink">
+                  <xsl:text>-l</xsl:text>
+                  <xsl:value-of select="@Name" />
+                  <xsl:text> </xsl:text>
+                </xsl:for-each>
+                <xsl:for-each select="./Service">
+                  <xsl:if test="user:ServiceIsActive(
+                    ./@Name,
+                    '',
+                    '',
+                    $root/Input/Services/ActiveServicesNames)">
                     <xsl:for-each select="./NativeLibraryPath">
                       <xsl:text>-L</xsl:text>
                       <xsl:value-of select="@Path" />
@@ -392,61 +456,32 @@
                       <xsl:value-of select="@Name" />
                       <xsl:text> </xsl:text>
                     </xsl:for-each>
-                    <xsl:for-each select="./Service">
-                      <xsl:if test="user:ServiceIsActive(
-                        ./@Name,
-                        '',
-                        '',
-                        $root/Input/Services/ActiveServicesNames)">
-                        <xsl:for-each select="./NativeInclude">
-                          <xsl:text>-I</xsl:text>
-                          <xsl:value-of select="@Path" />
-                          <xsl:text> </xsl:text>
-                        </xsl:for-each>
-                        <xsl:for-each select="./NativeLibraryPath">
-                          <xsl:text>-L</xsl:text>
-                          <xsl:value-of select="@Path" />
-                          <xsl:text> </xsl:text>
-                        </xsl:for-each>
-                        <xsl:for-each select="./NativeLibraryLink">
-                          <xsl:text>-l</xsl:text>
-                          <xsl:value-of select="@Name" />
-                          <xsl:text> </xsl:text>
-                        </xsl:for-each>
-                      </xsl:if>
-                    </xsl:for-each>
+                  </xsl:if>
+                </xsl:for-each>
+              </xsl:for-each>
+              <xsl:for-each select="$extern/Service">
+                <xsl:if test="user:ServiceIsActive(
+                  ./@Name,
+                  '',
+                  '',
+                  $root/Input/Services/ActiveServicesNames)">
+                  <xsl:for-each select="./NativeLibraryPath">
+                    <xsl:text>-L</xsl:text>
+                    <xsl:value-of select="@Path" />
+                    <xsl:text> </xsl:text>
                   </xsl:for-each>
-                  <xsl:for-each select="$extern/Service">
-                    <xsl:if test="user:ServiceIsActive(
-                      ./@Name,
-                      '',
-                      '',
-                      $root/Input/Services/ActiveServicesNames)">
-                      <xsl:for-each select="./NativeInclude">
-                        <xsl:text>-I</xsl:text>
-                        <xsl:value-of select="@Path" />
-                        <xsl:text> </xsl:text>
-                      </xsl:for-each>
-                      <xsl:for-each select="./NativeLibraryPath">
-                        <xsl:text>-L</xsl:text>
-                        <xsl:value-of select="@Path" />
-                        <xsl:text> </xsl:text>
-                      </xsl:for-each>
-                      <xsl:for-each select="./NativeLibraryLink">
-                        <xsl:text>-l</xsl:text>
-                        <xsl:value-of select="@Name" />
-                        <xsl:text> </xsl:text>
-                      </xsl:for-each>
-                    </xsl:if>
+                  <xsl:for-each select="./NativeLibraryLink">
+                    <xsl:text>-l</xsl:text>
+                    <xsl:value-of select="@Name" />
+                    <xsl:text> </xsl:text>
                   </xsl:for-each>
                 </xsl:if>
-              </xsl:if>
-            </xsl:for-each>
-            <xsl:text>-o $(OutputPath)/$(OutputFile)</xsl:text>
-            <xsl:value-of select="$outfile_suffix" />
-            <xsl:text>$(OutputExtension) @(Compile, ' ')</xsl:text>
-          </xsl:attribute>
-        </Exec>
+              </xsl:for-each>
+            </xsl:if>
+          </xsl:if>
+        </xsl:for-each>
+      </xsl:attribute>
+    </Exec>
   </xsl:template>
 
   <xsl:template match="/">
@@ -600,13 +635,13 @@
           <xsl:otherwise>
             <xsl:call-template name="gcc_build">
               <xsl:with-param name="arch_flags">
-                <xsl:text>-m32 -fPIC</xsl:text>
+                <xsl:text>-m32 -fPIC -L/usr/lib</xsl:text>
               </xsl:with-param>
               <xsl:with-param name="outfile_suffix" select="'32'" />
             </xsl:call-template>
             <xsl:call-template name="gcc_build">
               <xsl:with-param name="arch_flags">
-                <xsl:text>-m64 -fPIC</xsl:text>
+                <xsl:text>-m64 -fPIC -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu</xsl:text>
               </xsl:with-param>
               <xsl:with-param name="outfile_suffix" select="'64'" />
             </xsl:call-template>

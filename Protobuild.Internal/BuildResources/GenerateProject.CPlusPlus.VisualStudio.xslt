@@ -259,13 +259,18 @@ Set-Content -Path $filename -Value $code;
         <UseDebugLibraries>true</UseDebugLibraries>
       </xsl:if>
       <CharacterSet>Unicode</CharacterSet>
-      <OriginalPath>$(VCTargetsPath)</OriginalPath>
-      <OriginalPathTrimmed>$(OriginalPath.Trim('\\'))</OriginalPathTrimmed>
-      <OriginalPathTrimmedLength>$(OriginalPathTrimmed.Length)</OriginalPathTrimmedLength>
-      <OriginalPathSubstringStart>$([MSBuild]::Subtract($(OriginalPathTrimmedLength), 4))</OriginalPathSubstringStart>
-      <OriginalSubstring>$(OriginalPathTrimmed.Substring($(OriginalPathSubstringStart)))</OriginalSubstring>
-      <OriginalSubstringLowered>$(OriginalSubstring.ToLowerInvariant())</OriginalSubstringLowered>
-      <PlatformToolset>$(OriginalSubstringLowered)</PlatformToolset>
+      <OriginalPath Condition=" '$(VCTargetsPath15)' != '' AND '$(OriginalPath)' == '' ">NO_AUTO</OriginalPath>
+      <OriginalPath Condition=" '$(VCTargetsPath14)' != '' AND '$(OriginalPath)' == '' ">$(VCTargetsPath14)</OriginalPath>
+      <OriginalPath Condition=" '$(VCTargetsPath12)' != '' AND '$(OriginalPath)' == '' ">$(VCTargetsPath12)</OriginalPath>
+      <OriginalPath Condition=" '$(VCTargetsPath11)' != '' AND '$(OriginalPath)' == '' ">$(VCTargetsPath11)</OriginalPath>
+      <OriginalPath Condition=" '$(OriginalPath)' == '' ">$(VCTargetsPath)</OriginalPath>
+      <OriginalPathTrimmed Condition=" '$(OriginalPath)' != 'NO_AUTO' ">$(OriginalPath.Trim('\\'))</OriginalPathTrimmed>
+      <OriginalPathTrimmedLength Condition=" '$(OriginalPath)' != 'NO_AUTO' ">$(OriginalPathTrimmed.Length)</OriginalPathTrimmedLength>
+      <OriginalPathSubstringStart Condition=" '$(OriginalPath)' != 'NO_AUTO' ">$([MSBuild]::Subtract($(OriginalPathTrimmedLength), 4))</OriginalPathSubstringStart>
+      <OriginalSubstring Condition=" '$(OriginalPath)' != 'NO_AUTO' ">$(OriginalPathTrimmed.Substring($(OriginalPathSubstringStart)))</OriginalSubstring>
+      <OriginalSubstringLowered Condition=" '$(OriginalPath)' != 'NO_AUTO' ">$(OriginalSubstring.ToLowerInvariant())</OriginalSubstringLowered>
+      <PlatformToolset Condition=" '$(VCTargetsPath15)' != '' AND '$(OriginalPath)' == 'NO_AUTO' ">v141</PlatformToolset>
+      <PlatformToolset Condition=" '$(OriginalPath)' != 'NO_AUTO' ">$(OriginalSubstringLowered)</PlatformToolset>
     </PropertyGroup>
   </xsl:template>
 
