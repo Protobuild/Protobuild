@@ -967,6 +967,9 @@
           <xsl:attribute name="Include">
             <xsl:value-of select="@Include" />
           </xsl:attribute>
+          <xsl:attribute name="Exclude">
+            <xsl:value-of select="@Exclude" />
+          </xsl:attribute>
           <xsl:apply-templates select="node()"/>
         </xsl:element>
       </xsl:if>
