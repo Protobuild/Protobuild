@@ -16,11 +16,9 @@ Build Status
 |     | Status |
 | --- | ----- |
 | **Core Projects** |  |
-| Protobuild | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=Protobuild/Protobuild/master) |
-| Protobuild Manager | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=Protobuild/Protobuild.Manager/master) |
-| Protobuild for Visual Studio | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=Protobuild/Protobuild.IDE.VisualStudio/master) |
-| **Supporting Projects** |  |
-| JSIL for Web Projects | ![](https://jenkins.redpointgames.com.au/buildStatus/icon?job=RedpointGames/JSIL/master) |
+| Protobuild | ![](https://build-oss.redpoint.games/buildStatus/icon?job=Protobuild/Protobuild/master) |
+| Protobuild Manager | ![](https://build-oss.redpoint.games/buildStatus/icon?job=Protobuild/Protobuild.Manager/master) |
+| Protobuild for Visual Studio | ![](https://build-oss.redpoint.games/buildStatus/icon?job=Protobuild/Protobuild.IDE.VisualStudio/master) 
 
 Overview
 ----------
