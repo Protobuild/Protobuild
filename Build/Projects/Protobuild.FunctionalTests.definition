@@ -63,6 +63,9 @@
     <Compile Include="ExampleCocos2DXNATest.cs" />
     <Compile Include="ExampleCSToolsTest.cs" />
     <Compile Include="ExampleMonoGameTest.cs" />
+    <Compile Include="ExcludeAttributeMissingOnItemsThatDontUseItTest.cs" />
+    <Compile Include="ExcludeAttributeOnItemsGeneratedCorrectlyTest.cs" />
+    <Compile Include="ExcludeAttributeOnItemsSynchronisedCorrectlyTest.cs" />
     <Compile Include="ExternalCPlusPlusProjectReferencesAreCorrectInSolutionTest.cs" />
     <Compile Include="ExternalProjectReferencesAreFlattenedTest.cs" />
     <Compile Include="ExtractXSLTWorksTest.cs" />
@@ -258,6 +261,16 @@
     <None Include="TestData\ExampleMonoGame\MonoGame\Build\Projects\MonoGame.Framework.definition" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.DirectX.cs" />
     <None Include="TestData\ExampleMonoGame\MonoGame\MonoGame.Framework\MyClass.OpenGL.cs" />
+    <None Include="TestData\ExcludeAttributeMissingOnItemsThatDontUseIt\Build\Module.xml" />
+    <None Include="TestData\ExcludeAttributeMissingOnItemsThatDontUseIt\Build\Projects\Console.definition" />
+    <None Include="TestData\ExcludeAttributeMissingOnItemsThatDontUseIt\Console\Program.cs" />
+    <None Include="TestData\ExcludeAttributeOnItemsGeneratedCorrectly\Build\Module.xml" />
+    <None Include="TestData\ExcludeAttributeOnItemsGeneratedCorrectly\Build\Projects\Console.definition" />
+    <None Include="TestData\ExcludeAttributeOnItemsGeneratedCorrectly\Console\Program.cs" />
+    <None Include="TestData\ExcludeAttributeOnItemsSynchronisedCorrectly\Build\Module.xml" />
+    <None Include="TestData\ExcludeAttributeOnItemsSynchronisedCorrectly\Build\OriginalProjects\Console.definition" />
+    <None Include="TestData\ExcludeAttributeOnItemsSynchronisedCorrectly\Build\Projects\Console.definition" />
+    <None Include="TestData\ExcludeAttributeOnItemsSynchronisedCorrectly\Console\Program.cs" />
     <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Build\Module.xml" />
     <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Build\Projects\Console.definition" />
     <None Include="TestData\ExternalCPlusPlusProjectReferencesAreCorrectInSolution\Build\Projects\ExternalCPlusPlus.definition" />
