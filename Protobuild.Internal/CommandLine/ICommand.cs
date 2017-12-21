@@ -8,9 +8,15 @@ namespace Protobuild
 
         int Execute(Execution execution);
 
+        string GetShortCategory();
+
+        string GetShortDescription();
+
         string GetDescription();
 
         int GetArgCount();
+
+        string[] GetShortArgNames();
 
         string[] GetArgNames();
 

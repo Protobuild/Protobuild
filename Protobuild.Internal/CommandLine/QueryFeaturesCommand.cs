@@ -25,6 +25,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "returns a list of features supported by this version of Protobuild";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -38,6 +48,11 @@ invoked correctly.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

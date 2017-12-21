@@ -42,6 +42,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "resolve (install) packages currently added to the module";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -52,6 +62,11 @@ Resolves packages for the current module.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

@@ -40,7 +40,9 @@ if host Linux
 endif
 build
 execute Protobuild.UnitTests
-execute Protobuild.FunctionalTests
+if host-not MacOS
+  execute Protobuild.FunctionalTests
+endif
 if host Windows
   native-execute cmd /C "del Protobuild.exe.old"
   native-execute cmd /C "rename Protobuild.exe Protobuild.exe.old"

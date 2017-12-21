@@ -113,3 +113,5 @@ Protobuild.FunctionalTests/TestData/SafeResolveDefaultsWithoutFeatureSet/Package
 Protobuild.FunctionalTests/TestData/ModuleInfoGetsUpgraded/xunit/
 .vs/
 Protobuild.FunctionalTests/TestData/NuGet3PackageContentFallback/RestSharp/
+
+/Protobuild.Internal/ProtobuildVersion.cs

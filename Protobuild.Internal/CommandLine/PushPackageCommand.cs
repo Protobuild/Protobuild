@@ -380,6 +380,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "push the package to a package repository";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -398,6 +408,11 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
         public int GetArgCount()
         {
             return 6;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "auth", "package_file", "url" };
         }
 
         public string[] GetArgNames()

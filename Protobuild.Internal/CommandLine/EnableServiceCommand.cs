@@ -19,6 +19,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Service dependencies";
+        }
+
+        public string GetShortDescription()
+        {
+            return "enable the specified service";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -29,6 +39,11 @@ Enables the specified service.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "service" };
         }
 
         public string[] GetArgNames()

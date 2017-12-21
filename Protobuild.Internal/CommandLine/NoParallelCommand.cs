@@ -14,6 +14,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "disable parallelism";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -24,6 +34,11 @@ Disables task parallelisation internally.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

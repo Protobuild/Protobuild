@@ -48,6 +48,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "install a package globally";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -60,6 +70,11 @@ this global tool, use --add instead.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "package" };
         }
 
         public string[] GetArgNames()

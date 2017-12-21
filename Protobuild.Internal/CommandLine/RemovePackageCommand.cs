@@ -63,6 +63,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "remove a package from the module and delete the associated folder";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -73,6 +83,11 @@ Remove a package and delete the associated folder from the current module.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "package" };
         }
 
         public string[] GetArgNames()

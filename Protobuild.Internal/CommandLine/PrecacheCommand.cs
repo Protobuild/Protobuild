@@ -91,6 +91,16 @@ namespace Protobuild
             return BitConverter.ToString(hashed).ToLowerInvariant().Replace("-", "");
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "download the specified package without installing or adding it";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -101,6 +111,11 @@ Downloads and precaches the specified package, and all of it's dependencies.
         public int GetArgCount()
         {
             return 3;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "package", "cache_source?", "platform?" };
         }
 
         public string[] GetArgNames()

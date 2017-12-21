@@ -12,6 +12,7 @@ namespace Protobuild
 {
     using System.Collections.Generic;
     using System.IO.Compression;
+    using System.Linq;
 
     /// <summary>
     /// The main entry point for Protobuild.  This class resides in a library, not an executable, so
@@ -144,7 +145,13 @@ namespace Protobuild
                 PrintHelp(commandMappings);
                 ExecEnvironment.Exit(0);
             };
+            Action<string[]> extendedHelpAction = x =>
+            {
+                PrintHelp(commandMappings, true);
+                ExecEnvironment.Exit(0);
+            };
             options["help"] = helpAction;
+            options["help-detailed"] = helpAction;
             options["?"] = helpAction;
 
             if (ExecEnvironment.DoNotWrapExecutionInTry)
@@ -246,14 +253,21 @@ namespace Protobuild
             return true;
         }
 
-        private static void PrintHelp(Dictionary<string, ICommand> commandMappings)
+        private static void PrintHelp(Dictionary<string, ICommand> commandMappings, bool extendedHelp = false)
         {
-            RedirectableConsole.WriteLine("Protobuild.exe [options]");
+            RedirectableConsole.WriteLine("Protobuild v" + ProtobuildVersion.SemanticVersion);
+            RedirectableConsole.WriteLine("  built from " + ProtobuildVersion.BuildCommit);
+            RedirectableConsole.WriteLine("  built at " + ProtobuildVersion.BuildDate);
+            if (ProtobuildVersion.BuiltWithPendingChanges)
+            {
+                RedirectableConsole.WriteLine("  working directory had pending changes when built!");
+            }
             RedirectableConsole.WriteLine();
-            RedirectableConsole.WriteLine("By default Protobuild resynchronises or generates projects for");
-            RedirectableConsole.WriteLine("the current platform, depending on the module configuration.");
+            RedirectableConsole.WriteLine("Usage: Protobuild.exe [options]");
             RedirectableConsole.WriteLine();
+            RedirectableConsole.WriteLine("By default Protobuild resynchronises or generates projects for the current platform, depending on the module configuration.");
 
+            var shortDescs = new List<Tuple<string, string, string>>();
             foreach (var kv in commandMappings)
             {
                 if (kv.Value.IsInternal() || !kv.Value.IsRecognised() || kv.Value.IsIgnored())
@@ -261,82 +275,258 @@ namespace Protobuild
                     continue;
                 }
 
-                var description = kv.Value.GetDescription();
-                description = description.Replace("\n", " ");
-                description = description.Replace("\r", "");
-
-                var lines = new List<string>();
-                var wordBuffer = string.Empty;
-                var lineBuffer = string.Empty;
-                var count = 0;
-                var last = false;
-                for (var i = 0; i < description.Length || wordBuffer.Length > 0; i++)
+                if (!extendedHelp)
                 {
-                    if (i < description.Length)
+                    if (kv.Value.GetShortCategory() == "Internal use")
                     {
-                        if (description[i] == ' ')
-                        {
-                            if (wordBuffer.Length > 0)
-                            {
-                                lineBuffer += wordBuffer + " ";
-                            }
+                        continue;
+                    }
 
-                            wordBuffer = string.Empty;
+                    var shortDescription = kv.Value.GetShortDescription();
+                    var argDesc = string.Empty;
+                    foreach (var arg in kv.Value.GetShortArgNames())
+                    {
+                        if (arg.EndsWith("?"))
+                        {
+                            argDesc += " [" + arg.TrimEnd('?') + "]";
                         }
                         else
                         {
-                            wordBuffer += description[i];
-                            count++;
+                            argDesc += " " + arg;
                         }
                     }
-                    else
+
+                    shortDescs.Add(new Tuple<string, string, string>(kv.Value.GetShortCategory(), "--" + kv.Key + argDesc, shortDescription));
+                }
+                else
+                {
+                    var description = kv.Value.GetDescription();
+                    description = description.Replace("\n", " ");
+                    description = description.Replace("\r", "");
+
+                    var lines = new List<string>();
+                    var wordBuffer = string.Empty;
+                    var lineBuffer = string.Empty;
+                    var count = 0;
+                    var last = false;
+                    for (var i = 0; i < description.Length || wordBuffer.Length > 0; i++)
                     {
-                        lineBuffer += wordBuffer + " ";
-                        count++;
-                        last = true;
+                        if (i < description.Length)
+                        {
+                            if (description[i] == ' ')
+                            {
+                                if (wordBuffer.Length > 0)
+                                {
+                                    lineBuffer += wordBuffer + " ";
+                                }
+
+                                wordBuffer = string.Empty;
+                            }
+                            else
+                            {
+                                wordBuffer += description[i];
+                                count++;
+                            }
+                        }
+                        else
+                        {
+                            lineBuffer += wordBuffer + " ";
+                            count++;
+                            last = true;
+                        }
+
+                        if (count >= 74)
+                        {
+                            lines.Add(lineBuffer);
+                            lineBuffer = string.Empty;
+                            count = 0;
+                        }
+
+                        if (last)
+                        {
+                            break;
+                        }
                     }
 
-                    if (count >= 74)
+                    if (count > 0)
                     {
                         lines.Add(lineBuffer);
                         lineBuffer = string.Empty;
-                        count = 0;
                     }
 
-                    if (last)
+                    var argDesc = string.Empty;
+                    foreach (var arg in kv.Value.GetArgNames())
                     {
-                        break;
+                        if (arg.EndsWith("?"))
+                        {
+                            argDesc += " [" + arg.TrimEnd('?') + "]";
+                        }
+                        else
+                        {
+                            argDesc += " " + arg;
+                        }
                     }
-                }
 
-                if (count > 0)
-                {
-                    lines.Add(lineBuffer);
-                    lineBuffer = string.Empty;
-                }
+                    RedirectableConsole.WriteLine("  -" + kv.Key + argDesc);
+                    RedirectableConsole.WriteLine();
 
-                var argDesc = string.Empty;
-                foreach (var arg in kv.Value.GetArgNames())
-                {
-                    if (arg.EndsWith("?"))
+                    foreach (var line in lines)
                     {
-                        argDesc += " [" + arg.TrimEnd('?') + "]";
+                        RedirectableConsole.WriteLine("  " + line);
                     }
-                    else
-                    {
-                        argDesc += " " + arg;
-                    }
+
+                    RedirectableConsole.WriteLine();
                 }
+            }
 
-                RedirectableConsole.WriteLine("  -" + kv.Key + argDesc);
-                RedirectableConsole.WriteLine();
-
-                foreach (var line in lines)
+            if (!extendedHelp)
+            {
+                var bufferWidth = 120;
+                try
                 {
-                    RedirectableConsole.WriteLine("  " + line);
+                    // This won't work if input is redirected or running under Git Bash on Windows.
+                    bufferWidth = Console.BufferWidth;
                 }
+                catch { }
 
-                RedirectableConsole.WriteLine();
+                var maxArgs = shortDescs.Max(x => x.Item2.Length);
+
+                if (bufferWidth - (maxArgs + 6) - 6 <= 43)
+                {
+                    // Use the format where the description is underneath each command.
+                    RedirectableConsole.WriteLine();
+                    foreach (var kvg in shortDescs.GroupBy(x => x.Item1))
+                    {
+                        RedirectableConsole.WriteLine(("____ " + kvg.Key + " ").PadRight(bufferWidth - 4, '_'));
+                        RedirectableConsole.WriteLine();
+
+                        foreach (var kv in kvg)
+                        {
+                            var description = kv.Item3;
+
+                            var lines = new List<string>();
+                            var wordBuffer = string.Empty;
+                            var lineBuffer = string.Empty;
+                            var last = false;
+                            for (var i = 0; i < description.Length || wordBuffer.Length > 0; i++)
+                            {
+                                if (i < description.Length)
+                                {
+                                    if (description[i] == ' ')
+                                    {
+                                        if (wordBuffer.Length > 0)
+                                        {
+                                            lineBuffer += wordBuffer + " ";
+                                        }
+
+                                        wordBuffer = string.Empty;
+                                    }
+                                    else
+                                    {
+                                        wordBuffer += description[i];
+                                    }
+                                }
+                                else
+                                {
+                                    lineBuffer += wordBuffer + " ";
+                                    last = true;
+                                }
+
+                                if (lineBuffer.Length + 1 + wordBuffer.Length >= bufferWidth - 8)
+                                {
+                                    lines.Add(lineBuffer);
+                                    lineBuffer = string.Empty;
+                                }
+
+                                if (last)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (lineBuffer.Length > 0)
+                            {
+                                lines.Add(lineBuffer);
+                                lineBuffer = string.Empty;
+                            }
+
+                            RedirectableConsole.WriteLine("  " + kv.Item2.PadRight(maxArgs + 4));
+                            RedirectableConsole.WriteLine();
+                            for (var i = 0; i < lines.Count; i++)
+                            {
+                                RedirectableConsole.WriteLine("    " + lines[i]);
+                            }
+                            RedirectableConsole.WriteLine();
+                            RedirectableConsole.WriteLine();
+                        }
+                    }
+                }
+                else
+                {
+                    // Use the format where the description is side-by-side with each command.
+                    foreach (var kvg in shortDescs.GroupBy(x => x.Item1))
+                    {
+                        RedirectableConsole.WriteLine();
+                        RedirectableConsole.WriteLine(kvg.Key + ":");
+
+                        foreach (var kv in kvg)
+                        {
+                            var description = kv.Item3;
+
+                            var lines = new List<string>();
+                            var wordBuffer = string.Empty;
+                            var lineBuffer = string.Empty;
+                            var last = false;
+                            for (var i = 0; i < description.Length || wordBuffer.Length > 0; i++)
+                            {
+                                if (i < description.Length)
+                                {
+                                    if (description[i] == ' ')
+                                    {
+                                        if (wordBuffer.Length > 0)
+                                        {
+                                            lineBuffer += wordBuffer + " ";
+                                        }
+
+                                        wordBuffer = string.Empty;
+                                    }
+                                    else
+                                    {
+                                        wordBuffer += description[i];
+                                    }
+                                }
+                                else
+                                {
+                                    lineBuffer += wordBuffer + " ";
+                                    last = true;
+                                }
+
+                                if (lineBuffer.Length + 1 + wordBuffer.Length >= bufferWidth - (maxArgs + 6) - 6)
+                                {
+                                    lines.Add(lineBuffer);
+                                    lineBuffer = string.Empty;
+                                }
+
+                                if (last)
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (lineBuffer.Length > 0)
+                            {
+                                lines.Add(lineBuffer);
+                                lineBuffer = string.Empty;
+                            }
+
+                            RedirectableConsole.WriteLine("  " + kv.Item2.PadRight(maxArgs + 4) + (lines.Count > 0 ? lines[0] : ""));
+                            for (var i = 1; i < lines.Count; i++)
+                            {
+                                RedirectableConsole.WriteLine("    " + "".PadRight(maxArgs + 4) + lines[i]);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

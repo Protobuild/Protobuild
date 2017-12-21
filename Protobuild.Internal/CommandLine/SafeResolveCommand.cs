@@ -22,6 +22,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "resolve packages without aggressively removing old files";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -35,6 +45,11 @@ which are written to by another process (e.g. git submodules).
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

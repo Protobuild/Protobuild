@@ -27,6 +27,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "override the package ID used for the package, defaults to the module name";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -39,6 +49,11 @@ for packages not stored in the nuget/zip format.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "id" };
         }
 
         public string[] GetArgNames()

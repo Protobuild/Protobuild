@@ -48,6 +48,16 @@ namespace Protobuild
             return 1;
         }
 
+        public string GetShortCategory()
+        {
+            return "Project generation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "synchronise changes made in project files back to the original definitions";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -60,6 +70,11 @@ platform is specified, synchronises for the current platform.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

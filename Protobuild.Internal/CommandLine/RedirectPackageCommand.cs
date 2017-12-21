@@ -29,6 +29,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "during package resolution, redirect a package URL to a new URL";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -39,6 +49,11 @@ Redirects any packages using the original URL to the target URL.
         public int GetArgCount()
         {
             return 2;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "original", "target" };
         }
 
         public string[] GetArgNames()

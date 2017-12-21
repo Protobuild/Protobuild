@@ -328,6 +328,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Build automation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "builds the module (does not generate it first)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -339,6 +349,11 @@ builds for the host platform.";
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

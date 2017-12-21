@@ -21,6 +21,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "when pushing a package, if the package already exists ignore it instead of returning an error";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -34,6 +44,11 @@ in automated build scripts, where the push for one platform may be re-run.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

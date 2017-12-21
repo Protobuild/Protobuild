@@ -20,6 +20,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Build automation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "set the architecture of MSBuild to use (x86, x64 or Default)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -36,6 +46,11 @@ Protobuild will use the default behaviour.";
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

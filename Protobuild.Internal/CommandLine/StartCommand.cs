@@ -78,6 +78,16 @@ namespace Protobuild
                 ? 0 : 1;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "create a new Protobuild module using the specified template";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -90,6 +100,11 @@ in the current directory.
         public int GetArgCount()
         {
             return 2;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

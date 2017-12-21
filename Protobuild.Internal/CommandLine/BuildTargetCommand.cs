@@ -20,6 +20,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Build automation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "set the build target (defaults to Build)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -30,6 +40,11 @@ to ""Build"".";
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "target" };
         }
 
         public string[] GetArgNames()
