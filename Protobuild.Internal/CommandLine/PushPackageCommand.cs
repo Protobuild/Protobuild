@@ -539,6 +539,9 @@ package URL should look like ""http://protobuild.org/MyAccount/MyPackage"".
                     client.SetHeader(ApiKeyHeader, apiKey);
                 }
 
+                client.SetHeader("X-NuGet-Protocol-Version", "4.1.0");
+                client.SetHeader("User-Agent", "Protobuild");
+
                 client.UploadDataAsync(new Uri(targetUri), "PUT", combinedContent);
                 while (!done)
                 {
