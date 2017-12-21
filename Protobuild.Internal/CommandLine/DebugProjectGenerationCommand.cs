@@ -14,6 +14,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "emit generated intermediate files for debugging";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -25,6 +35,11 @@ used for the XSLT generation.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

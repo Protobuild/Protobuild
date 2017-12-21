@@ -31,6 +31,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "override the current host platform (automatically detected by default)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -43,6 +53,11 @@ under different platforms.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

@@ -319,6 +319,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "create a package from the built module at the given path (use . for current module)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -337,9 +347,14 @@ If a filter file is specified, performs the steps in the filter file instead.
             return 4;
         }
 
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
+        }
+
         public string[] GetArgNames()
         {
-            return new[] { "module_path", "package_file", "platform", "filter?" };
+            return new[] { "path", "package_file", "platform", "filter?" };
         }
 
         public bool IsInternal()

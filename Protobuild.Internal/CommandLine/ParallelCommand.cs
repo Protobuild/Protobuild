@@ -14,6 +14,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "enable parallelism (on by default on Windows, off by default on macOS/Linux)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -28,6 +38,11 @@ on Mac and Linux, use --parallel.  To disable task parallelisation on Windows, u
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

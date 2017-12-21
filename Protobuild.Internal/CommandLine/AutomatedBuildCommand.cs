@@ -34,6 +34,16 @@ namespace Protobuild
             return _automatedBuildController.Execute(execution.WorkingDirectory, scriptPath);
         }
 
+        public string GetShortCategory()
+        {
+            return "Build automation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "execute the script using Protobuild's automated build scripting language (default automated.build)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -46,6 +56,11 @@ multiple Protobuild commands together for continuous integration
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

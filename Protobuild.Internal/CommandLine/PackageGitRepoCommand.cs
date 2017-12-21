@@ -27,6 +27,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "sets the Git repository URL associated with the package";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -39,6 +49,11 @@ for packages not stored in the nuget/zip format.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "https_git_url" };
         }
 
         public string[] GetArgNames()

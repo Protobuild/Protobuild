@@ -31,6 +31,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "internally used to pass the package root";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -41,6 +51,11 @@ Internally used to pass the package root.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

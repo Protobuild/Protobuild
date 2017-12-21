@@ -28,6 +28,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "used internally to pass the feature set from a parent module to a submodule";
+        }
+
         public string GetDescription ()
         {
             return @"
@@ -39,6 +49,11 @@ a submodule.
         public int GetArgCount ()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames ()

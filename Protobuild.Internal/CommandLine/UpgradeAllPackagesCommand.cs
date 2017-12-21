@@ -52,6 +52,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "upgrades all packages added to the module to their latest versions";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -64,6 +74,11 @@ are in source format, and you have modified files.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

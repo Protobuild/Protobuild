@@ -2,6 +2,7 @@
 <Module>
   <Name>Protobuild</Name>
   <Authors>.NET Foundation</Authors>
+  <SemanticVersion>1.17.400</SemanticVersion>
   <Description>Protobuild is a cross-platform project generator for C#.</Description>
   <ProjectUrl>https://protobuild.org/</ProjectUrl>
   <LicenseUrl>https://opensource.org/licenses/MIT</LicenseUrl>

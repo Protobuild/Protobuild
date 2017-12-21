@@ -287,6 +287,16 @@ namespace Protobuild
             return process.ExitCode;
         }
 
+        public string GetShortCategory()
+        {
+            return "Utility";
+        }
+
+        public string GetShortDescription()
+        {
+            return "executes the specified project or registered tool";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -305,6 +315,11 @@ by Protobuild).
         public int GetArgCount()
         {
             return -1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

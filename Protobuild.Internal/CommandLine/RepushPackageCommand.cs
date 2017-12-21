@@ -172,6 +172,18 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            // This isn't very useful these days because we only really use NuGet (there's no more scenarios
+            // where someone would be pushing packages from a Protobuild index to NuGet).
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "repush a package from one repository to another";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -189,6 +201,11 @@ import NuGet packages.
         public string[] GetArgNames()
         {
             return new[] { "api_key_or_key_file", "src_url", "dest_url", "version", "platform", "branch_to_update?" };
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public bool IsInternal()

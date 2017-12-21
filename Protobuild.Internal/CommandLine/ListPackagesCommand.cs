@@ -35,6 +35,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "list all packages currently added to this module";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -45,6 +55,11 @@ Lists the URLs of all packages in this module.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

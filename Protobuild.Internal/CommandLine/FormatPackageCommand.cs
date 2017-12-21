@@ -36,19 +36,34 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            // We want people to just use NuGet by default - we will be removing Protobuild
+            // package types in the future, at which point this option will become a no-op)
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "set the package format to use for packaging (default nuget/zip)";
+        }
+
         public string GetDescription()
         {
             return @"
-Specifies the package format when packing a Protobuild package.  Valid
-options include ""tar/gzip"" and ""tar/lzma"" (the default).  GZip format
-can be uploaded via the web interface, but LZMA provides a better
-compression ratio (and thus smaller package files).
+Specifies the package format when creating a Protobuild package.  Valid
+options include ""nuget/zip"" (the default).
 ";
         }
 
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

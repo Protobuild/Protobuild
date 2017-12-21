@@ -59,6 +59,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "add a package to the module without downloading or installing it";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -69,6 +79,11 @@ Add a package to the current module.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "package" };
         }
 
         public string[] GetArgNames()

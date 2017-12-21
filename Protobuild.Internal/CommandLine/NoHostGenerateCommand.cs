@@ -15,6 +15,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Customisation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "prevent generate of host platform projects during project generation";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -27,6 +37,11 @@ the host platform.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

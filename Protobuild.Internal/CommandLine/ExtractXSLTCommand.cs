@@ -76,6 +76,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Customisation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "extract the XSLT templates to the Build folder";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -89,6 +99,11 @@ features.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

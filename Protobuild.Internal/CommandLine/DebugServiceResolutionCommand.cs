@@ -14,6 +14,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            return "enable verbose output for service resolution";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -25,6 +35,11 @@ taken during each pass of service resolution.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

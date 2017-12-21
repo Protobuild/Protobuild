@@ -36,6 +36,19 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "set the package type, must be one of " +
+                PackageManager.PACKAGE_TYPE_LIBRARY + " (the default), " +
+                PackageManager.PACKAGE_TYPE_GLOBAL_TOOL + " or " +
+                PackageManager.PACKAGE_TYPE_TEMPLATE;
+        }
+
         public string GetDescription()
         {
             return @"
@@ -49,6 +62,11 @@ for packages not stored in the nuget/zip format.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "type" };
         }
 
         public string[] GetArgNames()

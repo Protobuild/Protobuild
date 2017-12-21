@@ -14,6 +14,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Utility";
+        }
+
+        public string GetShortDescription()
+        {
+            return "sets the preferred configuration when executing projects (either Debug or Release)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -28,6 +38,11 @@ option to explicitly set which configuration should be used.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

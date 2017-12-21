@@ -15,6 +15,16 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Customisation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "prevent project generation after using --start";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -25,6 +35,11 @@ Prevents project generation occurring after --start is used.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

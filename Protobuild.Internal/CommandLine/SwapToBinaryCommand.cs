@@ -59,6 +59,16 @@ namespace Protobuild
             return 0;
         }
 
+        public string GetShortCategory()
+        {
+            return "Package management";
+        }
+
+        public string GetShortDescription()
+        {
+            return "swaps the package to it's binary version (after usage, regenerate projects)";
+        }
+
         public string GetDescription()
         {
             return @"
@@ -69,6 +79,11 @@ Swaps the specified package into it's binary version (if possible).
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return new[] { "package" };
         }
 
         public string[] GetArgNames()

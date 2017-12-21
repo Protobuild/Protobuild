@@ -22,6 +22,17 @@ namespace Protobuild
             throw new NotSupportedException();
         }
 
+        public string GetShortCategory()
+        {
+            return "Customisation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "disable package resolution during project generation";
+        }
+
+
         public string GetDescription()
         {
             return @"
@@ -33,6 +44,11 @@ actions are used.
         public int GetArgCount()
         {
             return 0;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()

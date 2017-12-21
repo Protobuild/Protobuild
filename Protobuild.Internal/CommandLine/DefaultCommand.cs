@@ -60,9 +60,24 @@ namespace Protobuild
                 execution.DebugProjectGeneration) ? 0 : 1;
         }
 
+        public string GetShortCategory()
+        {
+            return "Internal use";
+        }
+
+        public string GetShortDescription()
+        {
+            throw new NotSupportedException();
+        }
+
         public string GetDescription()
         {
             throw new NotSupportedException();
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public int GetArgCount()

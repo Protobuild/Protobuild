@@ -302,6 +302,7 @@
     <Compile Include="ProjectReader\DefinitionSynchroniser.cs" />
     <Compile Include="ProjectReader\XmlElementUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtobuildVersion.cs" />
     <Compile Include="RedirectableConsole.cs" />
     <Compile Include="RetryableWebClient.cs" />
     <Compile Include="SafeToDictionaryExtension.cs" />

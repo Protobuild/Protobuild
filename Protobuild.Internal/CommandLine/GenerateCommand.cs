@@ -48,10 +48,20 @@ namespace Protobuild
             return 1;
         }
 
+        public string GetShortCategory()
+        {
+            return "Project generation";
+        }
+
+        public string GetShortDescription()
+        {
+            return "generate project and solution files";
+        }
+
         public string GetDescription()
         {
             return @"
-Generates the C# project files from the definitions.  If no
+Generates the project files from the definitions.  If no
 platform is specified, generates for the current platform.
 ";
         }
@@ -59,6 +69,11 @@ platform is specified, generates for the current platform.
         public int GetArgCount()
         {
             return 1;
+        }
+
+        public string[] GetShortArgNames()
+        {
+            return GetArgNames();
         }
 
         public string[] GetArgNames()
