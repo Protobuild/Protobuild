@@ -5,6 +5,11 @@ _Cross-platform project generation for C#_
 
 Define your project content once and compile code for every platform, in any IDE or build system, on any operating system.  See https://protobuild.readthedocs.io/en/latest/ for more information.
 
+IMPORTANT: Project retirement
+-------------------------------
+
+**This project will be retired and archived as of 1st Jan 2020. Given the improvements the .NET ecosystem has made over the past few years with regard to cross-platform support for projects (particularly through .NET Core and .NET Standard), Protobuild is no longer relevant for new cross-platform .NET development.**
+
 Getting Started
 ------------------
 
